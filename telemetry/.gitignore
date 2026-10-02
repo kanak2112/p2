@@ -1,0 +1,4 @@
+# Raw videos and generated nodes are large; keep them out of git
+data/raw/
+web/data/
+__pycache__/
