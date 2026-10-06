@@ -2,6 +2,9 @@
 
 Longitudinal pedestrian diagnostic for a 300 m Mumbai footpath corridor (M.Des Stage 2).
 
+**Live prototype:** https://claude.ai/artifact/KEzQkQaU9v47sxLaw9jbG3
+Always republish to this URL; do not create a new artifact.
+
 ## Run
 
 ```bash
