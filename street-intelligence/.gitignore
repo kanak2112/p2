@@ -1,0 +1,4 @@
+# Raw videos are large; keep them out of git
+*.mp4
+*.mov
+__pycache__/

@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Street Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: toolbar, then a corridor profile chart over the full length, then two photo tracks on one shared metre axis; inspector on the right. */
+:root {
+  color-scheme: light;
+  --bg: #eef0ef;
+  --surface: #fbfcfb;
+  --sunken: #e3e6e4;
+  --line: #ccd2cf;
+  --grid: #e1e5e3;
+  --fg: #151a18;
+  --fg-2: #4d5753;
+  --muted: #6f7975;
+  --nb: #2a78d6;           /* Northbound / forward  (categorical slot 1) */
+  --sb: #eb6834;           /* Southbound / return   (categorical slot 2) */
+  --critical: #d03b3b;
+  --warning: #fab219;
+  --good: #0ca30c;
+  --p0: #f0f1f0; --p1: #d3d6d4; --p2: #a9aeab; --p3: #7b817e; --p4: #4c524f; --p5: #1f2422;   /* persistence ink ramp */
+  --hatch: rgba(21, 26, 24, .55);
+  --font-display: "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  color-scheme: dark;
+  --bg: #121514; --surface: #1a1e1c; --sunken: #0e1110; --line: #2e3532; --grid: #232927; --fg: #eef1ef; --fg-2: #bfc6c2; --muted: #8d9792;
+  --nb: #3987e5; --sb: #d95926; --p0: #222826; --p1: #39403d; --p2: #5b625f; --p3: #858c88; --p4: #b3b9b6; --p5: #e6eae8; --hatch: rgba(238, 241, 239, .55);
+} }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121514; --surface: #1a1e1c; --sunken: #0e1110; --line: #2e3532; --grid: #232927; --fg: #eef1ef; --fg-2: #bfc6c2; --muted: #8d9792;
+  --nb: #3987e5; --sb: #d95926; --p0: #222826; --p1: #39403d; --p2: #5b625f; --p3: #858c88; --p4: #b3b9b6; --p5: #e6eae8; --hatch: rgba(238, 241, 239, .55);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--fg); font: 15px/1.5 var(--font-body); }
+.wrap { max-width: 1480px; margin: 0 auto; padding-inline: 20px; padding-block: 22px 56px; display: flex; flex-direction: column; gap: 18px; }
+@media (max-width: 520px) { .wrap { padding-inline: 16px; } }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.lbl { font-family: var(--font-display); font-weight: 600; font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+button { font: inherit; color: inherit; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, .node:focus-visible { outline: 2px solid var(--nb); outline-offset: 2px; }
+
+header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px 24px; }
+h1 { font-size: clamp(28px, 4.2vw, 40px); font-weight: 700; line-height: 1; letter-spacing: -.01em; }
+.sub { margin: 6px 0 0; color: var(--fg-2); }
+.status { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill { font: 500 12px var(--font-mono); padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--fg-2); background: var(--surface); white-space: nowrap; }
+.pill.warn { border-color: var(--warning); }
+.pill.warn::before { content: "▲ "; color: var(--warning); }
+
+.toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 36px; padding-block: 14px; border-block: 1px solid var(--line); }
+.group { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.slider { display: flex; flex-direction: column; gap: 2px; width: min(340px, 100%); }
+.slider input { width: 100%; accent-color: var(--fg); margin: 0; }
+.ticks { display: flex; justify-content: space-between; font: 11px var(--font-mono); color: var(--muted); padding-inline: 2px; }
+.ticks span { width: 18px; text-align: center; }
+.ticks span.real { color: var(--fg); font-weight: 500; }
+.ticks span.on { text-decoration: underline; text-underline-offset: 3px; }
+.dayline { font: 500 13px var(--font-mono); color: var(--fg-2); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: none; padding: 7px 13px; cursor: pointer; font-weight: 500; font-size: 14px; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.btn { border: 1px solid var(--fg); background: var(--fg); color: var(--bg); padding: 8px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--fg); border-color: var(--line); }
+.spacer { flex: 1; }
+
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 18px; align-items: start; }
+@media (max-width: 1080px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
+.card-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; margin-bottom: 10px; }
+.card-head h2 { font-size: 19px; font-weight: 600; }
+.note { font-size: 13px; color: var(--muted); margin: 0; max-width: 70ch; }
+
+/* Legend */
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--fg-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw-line { width: 18px; height: 2px; border-radius: 1px; display: inline-block; }
+.sw-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+/* Profile chart */
+.profile { position: relative; }
+.profile svg { display: block; width: 100%; height: auto; overflow: visible; }
+.profile text { font-family: var(--font-mono); font-size: 10.5px; fill: var(--muted); }
+.tip { position: absolute; pointer-events: none; background: var(--fg); color: var(--bg); font: 12px/1.45 var(--font-mono); padding: 7px 9px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, calc(-100% - 10px)); z-index: 5; }
+.tip b { font-weight: 500; }
+.persist-key { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; font-size: 12.5px; color: var(--fg-2); margin-top: 6px; }
+.ramp { display: inline-flex; gap: 2px; vertical-align: middle; }
+.ramp i { width: 14px; height: 10px; border-radius: 2px; display: inline-block; }
+
+/* Dual-track canvas */
+.tracks { overflow-x: auto; overflow-y: hidden; border-radius: 6px; background: var(--sunken); scroll-behavior: smooth; }
+.canvas { position: relative; }
+.row { position: relative; }
+.row.nb, .row.sb { height: 196px; }
+.row-label { position: sticky; left: 0; z-index: 4; display: inline-flex; gap: 6px; align-items: center; font: 600 12px var(--font-display); letter-spacing: .08em; text-transform: uppercase; padding: 4px 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 0 0 6px 0; color: var(--fg); }
+.nb .row-label i, .sb .row-label i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.nb .row-label i { background: var(--nb); } .sb .row-label i { background: var(--sb); }
+.row.sb .row-label { position: absolute; top: auto; bottom: 0; border-radius: 0 6px 0 0; }
+.node { position: absolute; top: 28px; height: 160px; padding: 0; border: 2px solid transparent; border-radius: 4px; overflow: hidden; background: #000; cursor: pointer; transform: translateX(-50%); }
+.row.sb .node { top: 6px; }
+.node img { display: block; height: 100%; width: auto; }
+.node.hot { border-color: var(--fg); z-index: 3; }
+.node.pair { border-color: var(--fg); z-index: 3; box-shadow: 0 0 0 3px var(--surface); }
+.nb .node.hot { border-color: var(--nb); } .sb .node.hot { border-color: var(--sb); }
+.prox-band { position: absolute; left: 0; right: 0; bottom: 0; height: 18%; display: none; border-top: 1px dashed rgba(255,255,255,.8); }
+.prox-band span { position: absolute; left: 3px; top: 1px; font: 500 9px var(--font-mono); color: #fff; text-shadow: 0 0 3px #000; }
+.view-prox .prox-band { display: block; }
+.prox-guides { position: absolute; inset: 0; display: none; background: repeating-linear-gradient(90deg, transparent 0 calc(25% - 1px), rgba(255,255,255,.35) calc(25% - 1px) 25%); }
+.view-prox .prox-guides { display: block; }
+.vector { position: absolute; inset: 0; display: none; }
+.view-vector .vector { display: block; }
+.view-vector .node { display: none; }
+.axis { position: relative; height: 40px; background: var(--surface); border-block: 1px solid var(--line); }
+.axis .t { position: absolute; top: 0; width: 1px; height: 8px; background: var(--muted); }
+.axis .t.minor { height: 4px; background: var(--line); }
+.axis .l { position: absolute; top: 10px; transform: translateX(-50%); font: 11px var(--font-mono); color: var(--fg-2); white-space: nowrap; }
+.axis .ev { position: absolute; bottom: 4px; width: 9px; height: 9px; border-radius: 50%; transform: translateX(-50%); }
+.cursor { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--fg); opacity: .7; pointer-events: none; display: none; z-index: 6; }
+
+/* Inspector */
+.inspector { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); display: flex; flex-direction: column; gap: 12px; }
+.insp-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.insp-head .m { font: 600 30px var(--font-display); line-height: 1; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pair figure { margin: 0; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.pair .ph { aspect-ratio: 338 / 600; background: var(--sunken); border-radius: 4px; overflow: hidden; position: relative; border-top: 3px solid; }
+.pair .ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pair .ph.empty::after { content: "No frame within 6 m"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 12px; color: var(--muted); text-align: center; padding: 8px; }
+.pair figcaption { font: 600 12px var(--font-display); letter-spacing: .07em; text-transform: uppercase; }
+table.mx { width: 100%; border-collapse: collapse; font-size: 13px; }
+.mx th, .mx td { padding: 5px 4px; border-bottom: 1px solid var(--grid); text-align: right; font-variant-numeric: tabular-nums; }
+.mx th:first-child, .mx td:first-child { text-align: left; color: var(--fg-2); font-weight: 400; }
+.mx thead th { font: 600 11px var(--font-display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.verdict { font-size: 14px; padding: 10px 12px; border-radius: 6px; background: var(--sunken); }
+.verdict strong { font-weight: 600; }
+.flag { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
+.flag.crit::before { content: "■"; color: var(--critical); }
+.flag.ok::before { content: "●"; color: var(--good); }
+.flag.mid::before { content: "▲"; color: var(--warning); }
+
+/* Persistence + metrics */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.stat { padding: 10px 12px; border-radius: 6px; background: var(--sunken); display: flex; flex-direction: column; gap: 2px; }
+.stat .v { font: 600 24px var(--font-display); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat .k { font-size: 12.5px; color: var(--fg-2); }
+
+/* Modal */
+dialog { border: 0; padding: 0; border-radius: 10px; background: var(--surface); color: var(--fg); width: min(860px, calc(100vw - 32px)); max-height: calc(100vh - 48px); }
+dialog::backdrop { background: rgba(0, 0, 0, .55); }
+.dlg { display: flex; flex-direction: column; gap: 12px; padding: 20px; }
+.dlg .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+.dlg label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--fg-2); }
+.dlg input, .dlg textarea { font: 14px var(--font-body); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; width: 100%; }
+.dlg textarea { font: 13px/1.55 var(--font-mono); min-height: 360px; resize: vertical; }
+.dlg .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.empty-state { padding: 28px; text-align: left; }
+.empty-state code { font-family: var(--font-mono); background: var(--sunken); padding: 1px 5px; border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) { .tracks { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <header>
+    <div>
+      <h1>Street Intelligence</h1>
+      <p class="sub" id="subtitle">Longitudinal pedestrian diagnostic · Mumbai</p>
+    </div>
+    <div class="status" id="status"></div>
+  </header>
+
+  <div class="toolbar">
+    <div class="group">
+      <span class="lbl" id="dayLabel">Day</span>
+      <div class="slider">
+        <input type="range" id="day" min="1" max="7" step="1" value="1" aria-label="Survey day">
+        <div class="ticks" id="ticks"></div>
+      </div>
+      <span class="dayline" id="dayline"></span>
+    </div>
+    <div class="group">
+      <span class="lbl">View</span>
+      <div class="seg" role="group" aria-label="View">
+        <button data-view="photo" aria-pressed="true">Photo horizon</button>
+        <button data-view="prox" aria-pressed="false">Proxemic grid</button>
+        <button data-view="vector" aria-pressed="false">Vector corridor</button>
+      </div>
+    </div>
+    <span class="spacer"></span>
+    <button class="btn" id="exportBtn">Civic evidence summary</button>
+  </div>
+
+  <div class="layout">
+    <div style="display:flex;flex-direction:column;gap:18px;min-width:0">
+      <section class="card">
+        <div class="card-head">
+          <h2>Corridor profile</h2>
+          <div class="legend">
+            <span><i class="sw-line" style="background:var(--nb)"></i>Northbound obstruction</span>
+            <span><i class="sw-line" style="background:var(--sb)"></i>Southbound obstruction</span>
+            <span><svg width="12" height="12" aria-hidden="true"><path d="M6 11 L1 2 L11 2 Z" fill="var(--fg)"></path></svg>Stop</span>
+            <span><svg width="12" height="12" aria-hidden="true"><path d="M6 11 L1 2 L11 2 Z" fill="none" stroke="var(--fg)" stroke-width="1.5"></path></svg>Slowdown</span>
+          </div>
+        </div>
+        <div class="profile" id="profile"></div>
+        <div class="persist-key">
+          <span class="lbl" style="font-size:11px">7-day persistence, per 10 m</span>
+          <span><span class="ramp" id="rampKey"></span> days obstructed (0 → 7)</span>
+        </div>
+        <p class="note" style="margin-top:8px">Obstruction is an image measure: edge density in the walking zone of each frame, relative to that walk's typical frame (1.0). Above 1.4 counts as obstructed. It reacts to parked vehicles, stalls and crowds, and also to busy paving, so check the photos.</p>
+      </section>
+
+      <section class="card" style="padding:12px">
+        <div class="card-head" style="padding-inline:4px">
+          <h2>Dual-track corridor</h2>
+          <span class="note" id="trackNote">Hover a frame to compare both directions at that spot.</span>
+        </div>
+        <div class="tracks" id="tracks"><div class="canvas" id="canvas"></div></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>7-day persistence</h2><span class="note" id="persistNote"></span></div>
+        <div class="stats" id="persistStats"></div>
+        <p class="note" style="margin-top:10px">Static: obstructed on 6 or 7 of the surveyed days, likely fixed infrastructure (poles, transformers, ramps, broken slabs). Transient: obstructed on some days only, likely hawkers, parked two-wheelers or crowds. Clear: never obstructed.</p>
+      </section>
+    </div>
+
+    <aside class="card inspector" id="inspector" aria-live="polite"></aside>
+  </div>
+</div>
+
+<dialog id="evidence">
+  <div class="dlg">
+    <div class="card-head" style="margin:0"><h2>Civic evidence summary</h2><button class="btn ghost" id="closeDlg">Close</button></div>
+    <div class="fields">
+      <label for="fWard">BMC ward<input id="fWard" value="K/West"></label>
+      <label for="fStreet">Street / corridor<input id="fStreet"></label>
+      <label for="fAuthor">Prepared by<input id="fAuthor" value="M.Des Stage 2, Street Intelligence"></label>
+      <label for="fBench">Uninterrupted-walk threshold (s)<input id="fBench" type="number" min="1" max="120" value="12"></label>
+    </div>
+    <textarea id="evText" aria-label="Summary text" spellcheck="false"></textarea>
+    <div class="actions">
+      <button class="btn" id="copyBtn">Copy text</button>
+      <button class="btn ghost" id="dlBtn">Download .txt</button>
+      <span class="note" id="copyMsg"></span>
+    </div>
+  </div>
+</dialog>
+
+<script src="data/manifest.js"></script>
+<script>
+(() => {
+  const D = window.STREET_DATA;
+  const $ = id => document.getElementById(id);
+  const OBS = 1.4;              // obstruction index counted as "obstructed"
+  const NEAR = 1.4;             // near-field index counted as a body-zone breach
+  const BIN = 10;               // persistence bin, metres
+  const MATCH = 6;              // max metres to pair a frame across directions
+
+  // Benchmarks cited in the evidence summary. Edit the sources here.
+  const BENCH = {
+    m100: { metres: 100, label: "100 m continuous walk without obstacles",
+            source: "Neural City, State of Indian Streets 2026 (as reported in DT Next, 2026). Reported that 5.5% of Mumbai's roads meet this standard." },
+    secLabel: "uninterrupted walking stretch",
+    secSource: "Threshold set by the study team. No published WRI India source for a 12-second benchmark was found; add the exact citation before sending."
+  };
+
+  if (!D || !D.days || !D.days.length) {
+    $('app').innerHTML = `<div class="card empty-state"><h2>No processed walks yet</h2>
+      <p class="note" style="margin-top:8px">Put <code>point_a_to_b.mp4</code> and <code>point_b_to_a.mp4</code> next to <code>process_day1.py</code>, run <code>python process_day1.py</code>, then reload this page.</p></div>`;
+    return;
+  }
+
+  const L = D.corridor.length_m;
+  const days = D.days.slice().sort((a, b) => a.day - b.day);
+  const realDays = days.filter(d => !d.mock);
+  const state = { idx: 0, view: 'photo', meter: null };
+  const DIRS = [
+    { key: 'forward', short: 'NB', name: 'Northbound', color: 'var(--nb)', cls: 'nb' },
+    { key: 'return', short: 'SB', name: 'Southbound', color: 'var(--sb)', cls: 'sb' }
+  ];
+  const fmt = (n, d = 0) => Number(n).toFixed(d);
+  const pad = n => String(n).padStart(2, '0');
+  const day = () => days[state.idx];
+  const walk = (d, key) => d[key] || null;
+
+  /* ---------- Header & slider ---------- */
+  $('subtitle').textContent = `${D.corridor.name} · ${fmt(L)} m footpath corridor · ${D.corridor.city}`;
+  const mocks = days.filter(d => d.mock).map(d => d.day);
+  $('status').innerHTML = `<span class="pill">${realDays.length} surveyed day${realDays.length === 1 ? '' : 's'}</span>` +
+    (mocks.length ? `<span class="pill warn">Days ${mocks[0]}–${mocks[mocks.length - 1]} are copies of Day ${days.find(d => d.mock).source_day}</span>` : '');
+  const slider = $('day');
+  slider.min = 0; slider.max = days.length - 1; slider.value = 0;
+  $('dayLabel').textContent = `Day ${days[0].day} – ${days[days.length - 1].day}`;
+  function renderTicks() {
+    $('ticks').innerHTML = days.map((d, i) => `<span class="${d.mock ? '' : 'real'} ${i === state.idx ? 'on' : ''}" title="${d.mock ? 'Placeholder copy' : 'Surveyed'}">${d.day}</span>`).join('');
+    const d = day();
+    $('dayline').textContent = d.mock ? `Day ${pad(d.day)} · placeholder (copy of Day ${pad(d.source_day)})` : `Day ${pad(d.day)} · surveyed ${d.processed || ''}`;
+  }
+  slider.addEventListener('input', () => { state.idx = +slider.value; renderAll(); });
+
+  document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
+    state.view = b.dataset.view;
+    document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    $('canvas').className = 'canvas view-' + state.view;
+    $('trackNote').textContent = {
+      photo: 'Hover a frame to compare both directions at that spot.',
+      prox: 'Red band: the strip within roughly 0.8 m of the body. It darkens with near-field clutter in the frame (an image measure, not a distance measurement).',
+      vector: 'Top-down schematic drawn from the measures. Blocks show obstructed frames, red ticks show body-zone breaches, triangles show stops. Not a surveyed plan.'
+    }[state.view];
+  }));
+
+  /* ---------- Derived measures ---------- */
+  function nearest(w, m) {
+    if (!w) return null;
+    let best = null, bd = Infinity;
+    for (const n of w.nodes) { const d = Math.abs(n.meter - m); if (d < bd) { bd = d; best = n; } }
+    return bd <= MATCH ? best : null;
+  }
+  function binsFor(w) {
+    const nb = Math.ceil(L / BIN), out = new Array(nb).fill(null);
+    if (!w) return out;
+    for (const n of w.nodes) { const b = Math.min(nb - 1, Math.floor(n.meter / BIN)); out[b] = Math.max(out[b] ?? 0, n.obstruction); }
+    return out;
+  }
+  function persistence(key) {
+    const nb = Math.ceil(L / BIN), counts = new Array(nb).fill(0), seen = new Array(nb).fill(0);
+    for (const d of realDays) {   // placeholder copies are never counted as evidence
+      const bins = binsFor(walk(d, key));
+      bins.forEach((v, i) => { if (v != null) { seen[i]++; if (v >= OBS) counts[i]++; } });
+    }
+    return counts.map((c, i) => ({ c, n: seen[i], cls: !seen[i] ? 'none' : c === 0 ? 'clear' : seen[i] < 3 ? 'unconfirmed' : c / seen[i] >= 0.85 ? 'static' : 'transient' }));
+  }
+  // Interruptions (stops and slowdowns) split the walk into stretches; returns stretch lengths in m and s.
+  function stretches(w, minSec) {
+    if (!w) return null;
+    const pace = L / Math.max(1, w.summary.walking_s);
+    const fwd = w === day().forward || w.nodes[0].meter < w.nodes[w.nodes.length - 1].meter;
+    const marks = [...(w.stops || []), ...(w.slowdowns || [])].map(e => fwd ? e.meter : L - e.meter).sort((a, b) => a - b);
+    const cuts = [0, ...marks, L], out = [];
+    for (let i = 1; i < cuts.length; i++) { const m = cuts[i] - cuts[i - 1]; if (m > 0.5) out.push({ m, s: m / pace }); }
+    const okM = out.filter(x => x.s >= minSec).reduce((a, x) => a + x.m, 0);
+    const longest = out.reduce((a, x) => x.m > a.m ? x : a, { m: 0, s: 0 });
+    return { list: out, shareOk: okM / L, longest, pace };
+  }
+  // Longest stretch with no obstructed frame (for the 100 m obstacle-free benchmark).
+  function obstacleFree(w) {
+    if (!w) return null;
+    const ns = w.nodes.slice().sort((a, b) => a.meter - b.meter);
+    let from = 0, best = { m: 0, from: 0, to: 0 };
+    const close = to => { if (to - from > best.m) best = { m: to - from, from, to }; };
+    for (const n of ns) if (n.obstruction >= OBS) { close(n.meter); from = n.meter; }
+    close(L);
+    return best;
+  }
+
+  /* ---------- Profile chart (SVG, full corridor) ---------- */
+  const PW = 1000, PH = 230, M = { l: 38, r: 14, t: 26, b: 64 };
+  const px = m => M.l + (PW - M.l - M.r) * m / L;
+  const YMAX = 5, py = v => M.t + (PH - M.t - M.b) * (1 - Math.min(v, YMAX) / YMAX);
+  function renderProfile() {
+    const d = day();
+    let s = `<svg viewBox="0 0 ${PW} ${PH}" role="img" aria-label="Obstruction along the corridor for both directions, with stops, slowdowns and 7-day persistence">`;
+    for (let v = 0; v <= YMAX; v++) {
+      s += `<line x1="${M.l}" x2="${PW - M.r}" y1="${py(v)}" y2="${py(v)}" stroke="var(--grid)" stroke-width="1"/>`;
+      s += `<text x="${M.l - 6}" y="${py(v) + 3.5}" text-anchor="end">${v}</text>`;
+    }
+    s += `<line x1="${M.l}" x2="${PW - M.r}" y1="${py(OBS)}" y2="${py(OBS)}" stroke="var(--fg-2)" stroke-dasharray="4 3" stroke-width="1"/>`;
+    s += `<text x="${PW - M.r}" y="${py(OBS) - 5}" text-anchor="end" style="fill:var(--fg-2)">obstructed above ${OBS}</text>`;
+    for (let m = 0; m <= L + 0.01; m += 25) {
+      s += `<line x1="${px(m)}" x2="${px(m)}" y1="${PH - M.b}" y2="${PH - M.b + 4}" stroke="var(--muted)"/>`;
+      s += `<text x="${px(m)}" y="${PH - M.b + 15}" text-anchor="middle">${m}</text>`;
+    }
+    s += `<text x="${M.l}" y="${M.t - 12}" style="fill:var(--fg-2)">Obstruction index (1 = typical frame)</text>`;
+    for (const dir of DIRS) {
+      const w = walk(d, dir.key); if (!w) continue;
+      const pts = w.nodes.slice().sort((a, b) => a.meter - b.meter).map(n => `${px(n.meter).toFixed(1)},${py(n.obstruction).toFixed(1)}`).join(' ');
+      s += `<polyline points="${pts}" fill="none" stroke="${dir.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    }
+    // stops and slowdowns as triangles on the top edge, one lane per direction
+    DIRS.forEach((dir, k) => {
+      const w = walk(d, dir.key); if (!w) return;
+      (w.slowdowns || []).forEach(e => s += `<path d="M${px(e.meter)} ${py(0) - 2} l-5 -9 h10 z" fill="var(--surface)" stroke="${dir.color}" stroke-width="1.5"><title>${dir.name} slowdown ${fmt(e.duration_s, 1)} s at ${fmt(e.meter)} m</title></path>`);
+      (w.stops || []).forEach(e => s += `<path d="M${px(e.meter)} ${py(0) - 2} l-6 -11 h12 z" fill="${dir.color}" stroke="var(--surface)" stroke-width="1.5"><title>${dir.name} stop ${fmt(e.duration_s, 1)} s at ${fmt(e.meter)} m</title></path>`);
+    });
+    // persistence strips
+    DIRS.forEach((dir, k) => {
+      const y = PH - M.b + 24 + k * 15;
+      s += `<text x="${M.l - 6}" y="${y + 9}" text-anchor="end" style="fill:${dir.color};font-weight:500">${dir.short}</text>`;
+      persistence(dir.key).forEach((p, i) => {
+        const x0 = px(i * BIN) + 1, x1 = px(Math.min(L, (i + 1) * BIN)) - 1;
+        const step = p.n ? Math.round(5 * p.c / Math.max(p.n, 1)) : -1;
+        s += `<rect x="${x0}" y="${y}" width="${Math.max(1, x1 - x0)}" height="12" rx="2" fill="${step < 0 ? 'none' : `var(--p${step})`}" stroke="${step < 0 ? 'var(--line)' : 'none'}"><title>${dir.name} ${i * BIN}–${Math.min(L, (i + 1) * BIN)} m: obstructed on ${p.c} of ${p.n} days (${p.cls})</title></rect>`;
+      });
+    });
+    s += `<rect id="pHit" x="${M.l}" y="0" width="${PW - M.l - M.r}" height="${PH - M.b}" fill="transparent" style="cursor:crosshair"/>`;
+    s += `<line id="pCursor" x1="0" x2="0" y1="${M.t}" y2="${PH - M.b + 52}" stroke="var(--fg)" stroke-width="1.5" visibility="hidden"/>`;
+    s += `</svg><div class="tip" id="pTip" hidden></div>`;
+    $('profile').innerHTML = s;
+    const svg = $('profile').querySelector('svg');
+    const toMeter = e => { const r = svg.getBoundingClientRect(); const x = (e.clientX - r.left) * PW / r.width; return Math.max(0, Math.min(L, (x - M.l) / (PW - M.l - M.r) * L)); };
+    $('pHit').addEventListener('mousemove', e => setMeter(toMeter(e), 'profile', e));
+    $('pHit').addEventListener('mouseleave', () => { $('pTip').hidden = true; });
+    $('pHit').addEventListener('click', e => { setMeter(toMeter(e)); scrollTracksTo(state.meter); });
+    $('rampKey').innerHTML = [0, 1, 2, 3, 4, 5].map(i => `<i style="background:var(--p${i})"></i>`).join('');
+  }
+  function profileCursor(m, e) {
+    const c = $('pCursor'); if (!c) return;
+    c.setAttribute('x1', px(m)); c.setAttribute('x2', px(m)); c.setAttribute('visibility', 'visible');
+    const tip = $('pTip');
+    if (!e) { tip.hidden = true; return; }
+    const d = day(), r = $('profile').getBoundingClientRect(), svgR = $('profile').querySelector('svg').getBoundingClientRect();
+    const rows = DIRS.map(dir => { const n = nearest(walk(d, dir.key), m); return `<span style="color:${dir.color}">■</span> ${dir.short} ${n ? fmt(n.obstruction, 2) : '–'}`; }).join('<br>');
+    tip.innerHTML = `<b>${fmt(m)} m</b><br>${rows}`;
+    tip.style.left = (svgR.left - r.left + px(m) * svgR.width / PW) + 'px';
+    tip.style.top = (svgR.top - r.top + M.t * svgR.height / PH) + 'px';
+    tip.hidden = false;
+  }
+
+  /* ---------- Dual tracks ---------- */
+  let ppm = 15;
+  function renderTracks() {
+    const d = day();
+    const spacings = DIRS.map(dir => { const w = walk(d, dir.key); return w && w.nodes.length > 1 ? L / (w.nodes.length - 1) : 10; });
+    const h = 160, thumbW = h * ((d.forward || d.return).summary.frame_size?.[0] || 338) / ((d.forward || d.return).summary.frame_size?.[1] || 600);
+    ppm = Math.max(6, Math.min(40, (thumbW + 4) / Math.min(...spacings)));
+    const W = L * ppm + 120, x = m => 60 + m * ppm;
+    let html = `<div class="cursor" id="tCursor"></div>`;
+    DIRS.forEach((dir, k) => {
+      const w = walk(d, dir.key);
+      let row = `<div class="row ${dir.cls}" style="width:${W}px"><span class="row-label"><i></i>${dir.name} · ${dir.key === 'forward' ? `0 → ${fmt(L)} m` : `${fmt(L)} → 0 m`}</span>`;
+      if (w) {
+        for (const n of w.nodes) {
+          const a = Math.max(0, Math.min(1, (n.near_field - 0.8) / 2.2));
+          row += `<button class="node" style="left:${x(n.meter)}px" data-dir="${dir.key}" data-m="${n.meter}" aria-label="${dir.name} at ${fmt(n.meter)} m">
+            <img src="${w.folder}/${n.file}" alt="" loading="lazy" decoding="async" style="height:${h}px">
+            <div class="prox-guides"></div>
+            <div class="prox-band" style="background:rgba(208,59,59,${(0.15 + 0.6 * a).toFixed(2)})"><span>&lt;0.8 m${n.near_field >= NEAR ? ' · breach' : ''}</span></div></button>`;
+        }
+        row += vectorSvg(w, dir, W, x);
+      } else {
+        row += `<p class="note" style="position:absolute;top:80px;left:80px">No ${dir.name.toLowerCase()} walk on this day.</p>`;
+      }
+      row += `</div>`;
+      html += row;
+      if (k === 0) {
+        html += `<div class="axis" style="width:${W}px">`;
+        for (let m = 0; m <= L + 0.01; m += 5) html += `<div class="t ${m % 25 ? 'minor' : ''}" style="left:${x(m)}px"></div>` + (m % 25 ? '' : `<div class="l" style="left:${x(m)}px">${m} m</div>`);
+        html += `</div>`;
+      }
+    });
+    $('canvas').innerHTML = html;
+    $('canvas').style.width = W + 'px';
+    $('canvas').className = 'canvas view-' + state.view;
+    $('canvas').querySelectorAll('.node').forEach(el => {
+      const go = () => setMeter(+el.dataset.m, el.dataset.dir);
+      el.addEventListener('mouseenter', go); el.addEventListener('focus', go); el.addEventListener('click', go);
+    });
+    state.x = x;
+  }
+  function vectorSvg(w, dir, W, x) {
+    const H = 196, top = dir.key === 'forward' ? 40 : 18, band = 120;
+    const kerbY = dir.key === 'forward' ? top + band : top;    // kerb on the road side
+    let s = `<svg class="vector" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true">
+      <defs><pattern id="hatch-${dir.key}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(${dir.key === 'forward' ? 45 : 135})"><line x1="0" y1="0" x2="0" y2="6" stroke="var(--hatch)" stroke-width="2"/></pattern></defs>
+      <rect x="${x(0)}" y="${top}" width="${L * ppm}" height="${band}" fill="var(--surface)" stroke="var(--line)"/>
+      <line x1="${x(0)}" x2="${x(L)}" y1="${kerbY}" y2="${kerbY}" stroke="var(--fg-2)" stroke-width="3"/>
+      <text x="${x(0) + 4}" y="${kerbY + (dir.key === 'forward' ? 14 : -5)}" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">kerb</text>`;
+    const nodes = w.nodes.slice().sort((a, b) => a.meter - b.meter), half = Math.max(2, (L / Math.max(1, nodes.length - 1)) / 2);
+    let path = '';
+    nodes.forEach((n, i) => {
+      const x0 = x(Math.max(0, n.meter - half)), x1 = x(Math.min(L, n.meter + half));
+      const occ = Math.max(0, Math.min(0.75, (n.obstruction - 1) / 4));           // share of path width taken
+      if (n.obstruction >= OBS) s += `<rect x="${x0 + 1}" y="${kerbY === top ? top : top + band - band * occ}" width="${Math.max(1, x1 - x0 - 2)}" height="${band * occ}" fill="url(#hatch-${dir.key})" stroke="var(--fg-2)" stroke-width="1"><title>${fmt(n.meter)} m · obstruction ${n.obstruction}</title></rect>`;
+      const freeMid = kerbY === top ? top + band * occ + (band * (1 - occ)) / 2 : top + (band * (1 - occ)) / 2;
+      path += `${i ? 'L' : 'M'}${x(n.meter).toFixed(1)} ${freeMid.toFixed(1)} `;
+      if (n.near_field >= NEAR) s += `<line x1="${x(n.meter)}" x2="${x(n.meter)}" y1="${freeMid - 9}" y2="${freeMid + 9}" stroke="var(--critical)" stroke-width="3"><title>${fmt(n.meter)} m · body-zone breach (near-field ${n.near_field})</title></line>`;
+    });
+    s += `<path d="${path}" fill="none" stroke="${dir.color}" stroke-width="2" stroke-linejoin="round"/>`;
+    (w.stops || []).forEach(e => s += `<path d="M${x(e.meter)} ${top + band / 2 + 8} l-8 -15 h16 z" fill="${dir.color}" stroke="var(--surface)" stroke-width="2"/><text x="${x(e.meter)}" y="${top + band / 2 + 22}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--fg)">${fmt(e.duration_s)} s</text>`);
+    (w.slowdowns || []).forEach(e => s += `<path d="M${x(e.meter)} ${top + band / 2 + 6} l-6 -11 h12 z" fill="var(--surface)" stroke="${dir.color}" stroke-width="1.5"/>`);
+    return s + `</svg>`;
+  }
+  function scrollTracksTo(m) {
+    const t = $('tracks'); t.scrollLeft = state.x(m) - t.clientWidth / 2;
+  }
+
+  /* ---------- Linked hover ---------- */
+  function setMeter(m, from, e) {
+    state.meter = m;
+    const d = day();
+    document.querySelectorAll('.node.hot, .node.pair').forEach(n => n.classList.remove('hot', 'pair'));
+    DIRS.forEach(dir => {
+      const n = nearest(walk(d, dir.key), m); if (!n) return;
+      const el = document.querySelector(`.node[data-dir="${dir.key}"][data-m="${n.meter}"]`);
+      if (el) el.classList.add(from === dir.key ? 'hot' : 'pair');
+    });
+    const c = $('tCursor'); if (c) { c.style.left = state.x(m) + 'px'; c.style.display = 'block'; }
+    profileCursor(m, from === 'profile' ? e : null);
+    renderInspector(m);
+  }
+
+  /* ---------- Inspector ---------- */
+  function cls(n) { return !n ? null : n.obstruction >= OBS ? 'crit' : n.obstruction >= 1.1 ? 'mid' : 'ok'; }
+  const clsText = { crit: 'Obstructed', mid: 'Busy', ok: 'Clear' };
+  function eventsNear(w, m, r = 5) {
+    if (!w) return { stop: 0, slow: 0 };
+    return { stop: (w.stops || []).filter(e => Math.abs(e.meter - m) <= r).reduce((a, e) => a + e.duration_s, 0),
+             slow: (w.slowdowns || []).filter(e => Math.abs(e.meter - m) <= r).reduce((a, e) => a + e.duration_s, 0) };
+  }
+  function renderInspector(m) {
+    const d = day();
+    if (m == null) m = 0;
+    const info = DIRS.map(dir => { const w = walk(d, dir.key); return { dir, w, n: nearest(w, m), ev: eventsNear(w, m) }; });
+    const [N, S] = info;
+    let verdict;
+    if (!N.n || !S.n) verdict = `Only one direction has a frame near ${fmt(m)} m.`;
+    else {
+      const a = cls(N.n), b = cls(S.n);
+      if (a === b) verdict = `<strong>Both directions ${clsText[a].toLowerCase()}</strong> here (index ${fmt(N.n.obstruction, 2)} vs ${fmt(S.n.obstruction, 2)}).`;
+      else verdict = `<strong>Northbound ${clsText[a].toLowerCase()}, Southbound ${clsText[b].toLowerCase()}.</strong> Index ${fmt(N.n.obstruction, 2)} vs ${fmt(S.n.obstruction, 2)}, a ${fmt(Math.max(N.n.obstruction, S.n.obstruction) / Math.max(0.05, Math.min(N.n.obstruction, S.n.obstruction)), 1)}× difference.`;
+    }
+    const bin = Math.min(Math.ceil(L / BIN) - 1, Math.floor(m / BIN));
+    const per = DIRS.map(dir => ({ dir, p: persistence(dir.key)[bin] }));
+    const perText = per.map(({ dir, p }) => `${dir.short}: ${p.n ? `${p.c}/${p.n} days, <span class="flag ${p.cls === 'static' ? 'crit' : p.cls === 'clear' ? 'ok' : 'mid'}">${p.cls}</span>` : 'no frames'}`).join('<br>');
+    const row = (k, f) => `<tr><td>${k}</td>${info.map(i => `<td>${i.n ? f(i) : '–'}</td>`).join('')}</tr>`;
+    $('inspector').innerHTML = `
+      <div class="insp-head"><span class="lbl">Spatial inspector</span><span class="mono" style="color:var(--muted);font-size:12px">Day ${pad(d.day)}${d.mock ? ' (copy)' : ''}</span></div>
+      <div class="insp-head"><span class="m">${fmt(m)} m</span><span class="note">${BIN} m bin ${bin * BIN}–${Math.min(L, (bin + 1) * BIN)}</span></div>
+      <div class="pair">${info.map(i => `<figure><div class="ph ${i.n ? '' : 'empty'}" style="border-top-color:${i.dir.color}">${i.n ? `<img src="${i.w.folder}/${i.n.file}" alt="${i.dir.name} frame at ${fmt(i.n.meter)} m">` : ''}</div><figcaption style="color:var(--fg)">${i.dir.name}</figcaption></figure>`).join('')}</div>
+      <table class="mx"><thead><tr><th></th><th>NB</th><th>SB</th></tr></thead><tbody>
+        ${row('Frame position', i => fmt(i.n.meter, 1) + ' m')}
+        ${row('Obstruction', i => `<span class="flag ${cls(i.n)}">${fmt(i.n.obstruction, 2)}</span>`)}
+        ${row('Body zone (<0.8 m)', i => i.n.near_field >= NEAR ? `<span class="flag crit">${fmt(i.n.near_field, 2)}</span>` : fmt(i.n.near_field, 2))}
+        ${row('Stopped within 5 m', i => i.ev.stop ? fmt(i.ev.stop, 1) + ' s' : '0 s')}
+        ${row('Slowed within 5 m', i => i.ev.slow ? fmt(i.ev.slow, 1) + ' s' : '0 s')}
+        ${row('Video time', i => fmt(i.n.t, 1) + ' s')}
+      </tbody></table>
+      <div class="verdict">${verdict}</div>
+      <div class="verdict"><span class="lbl" style="display:block;margin-bottom:4px">Persistence at this spot</span>${perText}${d.mock || realDays.length < 2 ? '<br><span class="note">Persistence needs at least 3 surveyed days. Placeholder days are not counted.</span>' : ''}</div>`;
+  }
+
+  /* ---------- Persistence panel ---------- */
+  function renderPersistence() {
+    const tiles = [];
+    DIRS.forEach(dir => {
+      const p = persistence(dir.key).filter(x => x.n);
+      const c = k => p.filter(x => x.cls === k).length;
+      const total = Math.ceil(L / BIN);
+      tiles.push(`<div class="stat"><span class="lbl" style="color:${dir.color}">${dir.name}, ${BIN} m spots</span>` + (p.length
+        ? `<span class="v">${c('static') + c('transient') + c('unconfirmed')} <span style="font-size:14px;font-weight:500">of ${total} obstructed</span></span><span class="k">${c('static')} static · ${c('transient')} transient · ${c('unconfirmed')} unconfirmed · ${c('clear')} clear</span>`
+        : `<span class="v">–</span><span class="k">No ${dir.name.toLowerCase()} footage yet</span>`) + `</div>`);
+    });
+    const d = day();
+    DIRS.forEach(dir => {
+      const w = walk(d, dir.key); if (!w) return;
+      const st = stretches(w, +$('fBench').value || 12);
+      const of = obstacleFree(w);
+      tiles.push(`<div class="stat"><span class="lbl" style="color:${dir.color}">${dir.short} · Day ${pad(d.day)}</span><span class="v">${fmt(of.m)} m</span><span class="k">longest obstacle-free stretch (${fmt(of.from)}–${fmt(of.to)} m) · ${w.summary.stops} stops, ${w.summary.slowdowns ?? 0} slowdowns</span></div>`);
+    });
+    $('persistStats').innerHTML = tiles.join('');
+    const realN = realDays.length;
+    $('persistNote').textContent = `Based on ${realN} surveyed day${realN === 1 ? '' : 's'} of ${days.length}.` + (realN < 3 ? ' Spots stay "unconfirmed" until 3 days are surveyed; placeholder days are not counted.' : '');
+  }
+
+  /* ---------- Evidence summary ---------- */
+  function buildEvidence() {
+    const bench = +$('fBench').value || 12;
+    const ref = realDays[realDays.length - 1];
+    const street = $('fStreet').value || D.corridor.name;
+    const lines = [];
+    const today = new Date().toISOString().slice(0, 10);
+    lines.push(`TO: Assistant Municipal Commissioner / Ward Officer, ${$('fWard').value} Ward, Brihanmumbai Municipal Corporation (BMC)`);
+    lines.push(`CC: The Walking Project, Mumbai`);
+    lines.push(`FROM: ${$('fAuthor').value}`);
+    lines.push(`DATE: ${today}`);
+    lines.push(`SUBJECT: Footpath walkability evidence, ${street} (${fmt(L)} m)`);
+    lines.push('');
+    lines.push(`METHOD`);
+    const both = DIRS.every(dir => realDays.some(d => d[dir.key]));
+    lines.push(`The ${fmt(L)} m footpath was walked ${both ? 'in both directions' : 'in one direction'} with a chest-height phone camera on ${realDays.length} day${realDays.length === 1 ? '' : 's'} (${realDays.map(d => 'Day ' + d.day).join(', ')}). A frame was kept every ${D.corridor.step_s} s of walking. Stops and slowdowns were detected from frame-to-frame motion. Positions are estimated from walking time at a steady pace and are accurate to roughly ±10 m.`);
+    if (realDays.length < 7) lines.push(`Note: ${7 - realDays.length} of the planned 7 survey days are not yet recorded. Persistence findings below are provisional.`);
+    lines.push('');
+    lines.push(`FINDINGS, DAY ${ref.day}`);
+    DIRS.forEach(dir => {
+      const w = walk(ref, dir.key); if (!w) return;
+      const st = stretches(w, bench), s = w.summary;
+      lines.push(`${dir.name} (${dir.key === 'forward' ? 'Point A to Point B' : 'Point B to Point A'}):`);
+      lines.push(`  - Walk took ${fmt(s.duration_s)} s, of which ${fmt(s.stopped_s)} s standing still (${s.stops} stops) and ${fmt(s.slowed_s ?? 0)} s slowed (${s.slowdowns ?? 0} slowdowns).`);
+      lines.push(`  - Longest uninterrupted stretch: ${fmt(st.longest.m)} m (${fmt(st.longest.s)} s).`);
+      lines.push(`  - ${fmt(st.shareOk * 100)}% of the corridor was walked in uninterrupted stretches of at least ${bench} s.`);
+      const of = obstacleFree(w);
+      lines.push(`  - ${BENCH.m100.label}: ${of.m >= BENCH.m100.metres ? `met (longest obstacle-free stretch ${fmt(of.m)} m, ${fmt(of.from)}–${fmt(of.to)} m)` : `NOT met (longest obstacle-free stretch is ${fmt(of.m)} m, ${fmt(of.from)}–${fmt(of.to)} m)`}.`);
+      const obs = w.nodes.filter(n => n.obstruction >= OBS).length, br = w.nodes.filter(n => n.near_field >= NEAR).length;
+      lines.push(`  - ${obs} of ${w.nodes.length} sampled frames (${fmt(100 * obs / w.nodes.length)}%) show an obstructed walking zone; ${br} show clutter within roughly 0.8 m of the body.`);
+    });
+    lines.push('');
+    lines.push(`LOCATIONS NEEDING ACTION (worst first)`);
+    const spots = [];
+    DIRS.forEach(dir => {
+      const p = persistence(dir.key), bins = binsFor(walk(ref, dir.key));
+      bins.forEach((v, i) => { if (v != null && v >= OBS) spots.push({ dir, i, v, p: p[i] }); });
+    });
+    spots.sort((a, b) => b.p.c - a.p.c || b.v - a.v);
+    if (!spots.length) lines.push('  None above the obstruction threshold.');
+    spots.slice(0, 8).forEach(sp => lines.push(`  - ${sp.i * BIN}–${Math.min(L, (sp.i + 1) * BIN)} m, ${sp.dir.name}: obstruction index ${fmt(sp.v, 2)}; obstructed on ${sp.p.c} of ${sp.p.n} survey day${sp.p.n === 1 ? '' : 's'} (${sp.p.cls}).`));
+    lines.push('');
+    lines.push(`REQUEST`);
+    lines.push(`1. Inspect the locations above and clear encroachments on the walking zone.`);
+    lines.push(`2. For locations obstructed on most survey days, review the fixed infrastructure (poles, junction boxes, ramps, broken slabs) for relocation or repair.`);
+    lines.push(`3. For locations obstructed on some days only, review hawking and two-wheeler parking enforcement at those times.`);
+    lines.push('');
+    lines.push(`SOURCES AND BENCHMARKS`);
+    lines.push(`- ${BENCH.m100.label}: ${BENCH.m100.source}`);
+    lines.push(`- ${bench}-second ${BENCH.secLabel}: ${BENCH.secSource}`);
+    lines.push(`- Obstruction and body-zone measures are image-based indicators, not physical measurements. Photographs for each location are available on request.`);
+    return lines.join('\n');
+  }
+  const dlg = $('evidence');
+  $('fStreet').value = D.corridor.name;
+  $('exportBtn').addEventListener('click', () => { $('evText').value = buildEvidence(); $('copyMsg').textContent = ''; dlg.showModal(); });
+  $('closeDlg').addEventListener('click', () => dlg.close());
+  ['fWard', 'fStreet', 'fAuthor', 'fBench'].forEach(id => $(id).addEventListener('input', () => { $('evText').value = buildEvidence(); if (id === 'fBench') renderPersistence(); }));
+  $('copyBtn').addEventListener('click', () => {
+    navigator.clipboard.writeText($('evText').value).then(() => $('copyMsg').textContent = 'Copied.',
+      () => { $('evText').select(); $('copyMsg').textContent = 'Press Ctrl+C (Cmd+C) to copy the selected text.'; });
+  });
+  $('dlBtn').addEventListener('click', () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([$('evText').value], { type: 'text/plain' }));
+    a.download = `street-intelligence-evidence-${new Date().toISOString().slice(0, 10)}.txt`;
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+
+  /* ---------- Go ---------- */
+  function renderAll() {
+    renderTicks(); renderProfile(); renderTracks(); renderPersistence();
+    setMeter(state.meter ?? 0);
+  }
+  renderAll();
+})();
+</script>
+</body>
+</html>
