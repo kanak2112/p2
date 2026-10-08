@@ -19,6 +19,8 @@ How it works
      produce duplicate frames.
   3. Position along the corridor is estimated from walking time, assuming a
      steady pace while moving (stops excluded). It is an estimate, not GPS.
+     Later days are then lined up with the first surveyed day by matching
+     frames on appearance, so the same spot gets the same metre across days.
   4. Each kept frame gets two image measures (proxies, not object detection):
        obstruction  edge density in the walking zone (lower-middle of frame),
                     relative to this walk's median. ~1.0 = typical for this walk.
@@ -236,6 +238,50 @@ def process_walk(path, out_dir, direction, length_m, step_s, height, motion_thre
             "nodes": nodes, "stops": stops, "slowdowns": slowdowns, "stretches": stretches, "summary": summary}
 
 
+def frame_signature(path):
+    """Coarse appearance of the upper 60% of a frame (buildings, awnings, signs), normalised for brightness."""
+    g = cv2.cvtColor(cv2.imread(path), cv2.COLOR_BGR2GRAY)
+    g = cv2.resize(g[:int(g.shape[0] * 0.6)], (12, 20), interpolation=cv2.INTER_AREA).astype(np.float32).ravel()
+    return (g - g.mean()) / (g.std() + 1e-6)
+
+
+def align_to_reference(walk, ref):
+    """
+    Re-estimate frame positions by matching this walk's frames to a reference walk of the same direction
+    (dynamic time warping on frame appearance). Walking-time positions drift with pace; the reference
+    day's positions become the common scale, so the same spot lines up across days.
+    """
+    A = np.array([frame_signature(os.path.join(HERE, ref["folder"], n["file"])) for n in ref["nodes"]])
+    B = np.array([frame_signature(os.path.join(HERE, walk["folder"], n["file"])) for n in walk["nodes"]])
+    cost = 1 - (B @ A.T) / A.shape[1]
+    n, k = cost.shape
+    D = np.full((n + 1, k + 1), np.inf)
+    D[0, 0] = 0
+    for i in range(1, n + 1):
+        for j in range(1, k + 1):
+            D[i, j] = cost[i - 1, j - 1] + min(D[i - 1, j], D[i, j - 1], D[i - 1, j - 1])
+    i, j, match = n, k, {}
+    while i > 0 and j > 0:
+        match.setdefault(i - 1, []).append(j - 1)
+        step = int(np.argmin([D[i - 1, j - 1], D[i - 1, j], D[i, j - 1]]))
+        i, j = (i - 1, j - 1) if step == 0 else (i - 1, j) if step == 1 else (i, j - 1)
+
+    forward = ref["nodes"][-1]["meter"] > ref["nodes"][0]["meter"]
+    metres = [float(np.mean([ref["nodes"][j]["meter"] for j in match[a]])) for a in range(n)]
+    metres = list(np.maximum.accumulate(metres) if forward else np.minimum.accumulate(metres))
+    for nd, m in zip(walk["nodes"], metres):
+        nd["meter_time"] = nd["meter"]
+        nd["meter"] = round(m, 1)
+    # Remap stops and slowdowns through video time.
+    ts = [nd["t"] for nd in walk["nodes"]]
+    for key in ("stops", "slowdowns"):
+        for e in walk.get(key, []):
+            e["meter"] = round(float(np.interp(e["t"], ts, metres)), 1)
+    walk["aligned_to"] = ref["folder"]
+    shifts = [abs(nd["meter"] - nd["meter_time"]) for nd in walk["nodes"]]
+    print(f"  aligned to {ref['folder']}: median shift {np.median(shifts):.1f} m, max {max(shifts):.1f} m")
+
+
 def link_or_copy(src, dst):
     if os.path.islink(dst):
         os.remove(dst)
@@ -283,7 +329,16 @@ def main():
     if "forward" not in day and "return" not in day:
         sys.exit("No videos processed. Put point_a_to_b.mp4 and point_b_to_a.mp4 next to this script.")
 
+    for key in ("forward", "return"):  # a real day without this direction must not keep an old placeholder link
+        stale = os.path.join(DATA, f"day{args.day}_{key}")
+        if key not in day and os.path.islink(stale):
+            os.remove(stale)
+
     real = {d["day"]: d for d in manifest.get("days", []) if not d.get("mock")}
+    for key in ("forward", "return"):  # line this day up with the first surveyed day of the same direction
+        refs = [r for r in sorted(real) if r != args.day and key in real[r] and not real[r][key].get("aligned_to")]
+        if key in day and refs and min(refs) < args.day:
+            align_to_reference(day[key], real[min(refs)][key])
     real[args.day] = day
 
     # Fill days 1..7 that have no footage with copies of the latest earlier real day (or the first real day).
@@ -292,13 +347,15 @@ def main():
         if n in real:
             days.append(real[n])
             continue
-        src_n = max([r for r in real if r < n], default=min(real))
-        src = real[src_n]
-        mock = {"day": n, "mock": True, "source_day": src_n}
+        mock = {"day": n, "mock": True}
         for key in ("forward", "return"):
-            if key in src:
-                mock[key] = src[key]  # same frames and measures; image paths point at the real folder
-                link_or_copy(os.path.join(DATA, f"day{src_n}_{key}"), os.path.join(DATA, f"day{n}_{key}"))
+            have = [r for r in real if key in real[r]]
+            if not have:
+                continue
+            src_n = max([r for r in have if r < n], default=min(have))
+            mock[key] = real[src_n][key]  # same frames and measures; image paths point at the real folder
+            mock.setdefault("source_day", src_n)
+            link_or_copy(os.path.join(DATA, f"day{src_n}_{key}"), os.path.join(DATA, f"day{n}_{key}"))
         days.append(mock)
 
     manifest = {

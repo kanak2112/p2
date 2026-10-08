@@ -5,7 +5,7 @@
   "length_m": 300.0,
   "step_s": 3.0
  },
- "generated": "2026-10-06T11:29:48",
+ "generated": "2026-10-08T09:46:20",
  "days": [
   {
    "day": 1,
@@ -901,1337 +901,833 @@
   },
   {
    "day": 2,
-   "mock": true,
-   "source_day": 1,
+   "mock": false,
+   "processed": "2026-10-08",
    "forward": {
-    "folder": "data/day1_forward",
-    "source": "point_a_to_b.mp4",
+    "folder": "data/day2_forward",
+    "source": "day2_a_to_b.mp4",
     "nodes": [
      {
       "i": 0,
       "file": "frame_000.jpg",
       "meter": 0.0,
       "t": 0.0,
-      "obstruction": 1.44,
-      "near_field": 0.71
+      "obstruction": 0.4,
+      "near_field": 0.86,
+      "meter_time": 0.0
      },
      {
       "i": 1,
       "file": "frame_001.jpg",
       "meter": 6.1,
       "t": 3.1,
-      "obstruction": 1.3,
-      "near_field": 0.7
+      "obstruction": 1.24,
+      "near_field": 2.36,
+      "meter_time": 7.3
      },
      {
       "i": 2,
       "file": "frame_002.jpg",
       "meter": 12.2,
       "t": 6.1,
-      "obstruction": 0.92,
-      "near_field": 0.08
+      "obstruction": 2.05,
+      "near_field": 3.65,
+      "meter_time": 14.7
      },
      {
       "i": 3,
       "file": "frame_003.jpg",
-      "meter": 18.2,
+      "meter": 24.3,
       "t": 9.2,
-      "obstruction": 0.15,
-      "near_field": 0.34
+      "obstruction": 0.79,
+      "near_field": 0.47,
+      "meter_time": 22.0
      },
      {
       "i": 4,
       "file": "frame_004.jpg",
-      "meter": 24.3,
+      "meter": 36.5,
       "t": 12.2,
-      "obstruction": 1.06,
-      "near_field": 1.44
+      "obstruction": 1.47,
+      "near_field": 2.44,
+      "meter_time": 29.4
      },
      {
       "i": 5,
       "file": "frame_005.jpg",
-      "meter": 30.4,
+      "meter": 42.6,
       "t": 15.3,
-      "obstruction": 1.04,
-      "near_field": 0.5
+      "obstruction": 1.46,
+      "near_field": 2.21,
+      "meter_time": 36.7
      },
      {
       "i": 6,
       "file": "frame_006.jpg",
-      "meter": 36.5,
+      "meter": 48.6,
       "t": 18.3,
-      "obstruction": 1.08,
-      "near_field": 0.32
+      "obstruction": 1.18,
+      "near_field": 1.8,
+      "meter_time": 44.1
      },
      {
       "i": 7,
       "file": "frame_007.jpg",
-      "meter": 42.6,
+      "meter": 57.8,
       "t": 21.4,
-      "obstruction": 0.85,
-      "near_field": 0.15
+      "obstruction": 1.45,
+      "near_field": 0.62,
+      "meter_time": 51.4
      },
      {
       "i": 8,
       "file": "frame_008.jpg",
-      "meter": 48.6,
+      "meter": 70.0,
       "t": 24.5,
-      "obstruction": 0.38,
-      "near_field": 0.35
+      "obstruction": 1.01,
+      "near_field": 1.14,
+      "meter_time": 58.8
      },
      {
       "i": 9,
       "file": "frame_009.jpg",
-      "meter": 54.7,
+      "meter": 79.1,
       "t": 27.5,
-      "obstruction": 0.69,
-      "near_field": 0.28
+      "obstruction": 1.4,
+      "near_field": 1.84,
+      "meter_time": 66.1
      },
      {
       "i": 10,
       "file": "frame_010.jpg",
-      "meter": 60.8,
+      "meter": 85.1,
       "t": 30.6,
-      "obstruction": 0.87,
-      "near_field": 1.18
+      "obstruction": 1.81,
+      "near_field": 3.81,
+      "meter_time": 73.5
      },
      {
       "i": 11,
       "file": "frame_011.jpg",
-      "meter": 66.9,
+      "meter": 97.3,
       "t": 33.6,
-      "obstruction": 0.39,
-      "near_field": 0.31
+      "obstruction": 2.45,
+      "near_field": 5.0,
+      "meter_time": 80.8
      },
      {
       "i": 12,
       "file": "frame_012.jpg",
-      "meter": 73.0,
+      "meter": 109.5,
       "t": 36.7,
-      "obstruction": 0.27,
-      "near_field": 0.13
+      "obstruction": 2.92,
+      "near_field": 4.15,
+      "meter_time": 88.2
      },
      {
       "i": 13,
       "file": "frame_013.jpg",
-      "meter": 79.1,
+      "meter": 115.5,
       "t": 39.8,
-      "obstruction": 2.37,
-      "near_field": 2.8
+      "obstruction": 1.81,
+      "near_field": 3.52,
+      "meter_time": 95.5
      },
      {
       "i": 14,
       "file": "frame_014.jpg",
-      "meter": 85.1,
+      "meter": 121.6,
       "t": 42.8,
-      "obstruction": 1.18,
-      "near_field": 0.42
+      "obstruction": 2.07,
+      "near_field": 3.98,
+      "meter_time": 102.9
      },
      {
       "i": 15,
       "file": "frame_015.jpg",
-      "meter": 91.2,
+      "meter": 127.7,
       "t": 45.9,
-      "obstruction": 0.21,
-      "near_field": 0.01
+      "obstruction": 2.53,
+      "near_field": 2.83,
+      "meter_time": 110.2
      },
      {
       "i": 16,
       "file": "frame_016.jpg",
-      "meter": 97.3,
+      "meter": 133.8,
       "t": 48.9,
-      "obstruction": 1.55,
-      "near_field": 0.95
+      "obstruction": 3.36,
+      "near_field": 5.0,
+      "meter_time": 117.6
      },
      {
       "i": 17,
       "file": "frame_017.jpg",
-      "meter": 103.4,
+      "meter": 139.9,
       "t": 52.0,
-      "obstruction": 0.87,
-      "near_field": 0.2
+      "obstruction": 4.92,
+      "near_field": 5.0,
+      "meter_time": 124.9
      },
      {
       "i": 18,
       "file": "frame_018.jpg",
-      "meter": 109.5,
+      "meter": 145.9,
       "t": 55.0,
-      "obstruction": 1.1,
-      "near_field": 0.53
+      "obstruction": 2.79,
+      "near_field": 5.0,
+      "meter_time": 132.2
      },
      {
       "i": 19,
       "file": "frame_019.jpg",
-      "meter": 115.5,
+      "meter": 152.0,
       "t": 58.1,
-      "obstruction": 1.1,
-      "near_field": 0.47
+      "obstruction": 2.75,
+      "near_field": 5.0,
+      "meter_time": 139.6
      },
      {
       "i": 20,
       "file": "frame_020.jpg",
-      "meter": 121.6,
+      "meter": 158.1,
       "t": 61.2,
-      "obstruction": 1.65,
-      "near_field": 2.95
+      "obstruction": 0.27,
+      "near_field": 0.28,
+      "meter_time": 146.9
      },
      {
       "i": 21,
       "file": "frame_021.jpg",
-      "meter": 127.7,
+      "meter": 164.2,
       "t": 64.2,
-      "obstruction": 1.09,
-      "near_field": 0.97
+      "obstruction": 0.61,
+      "near_field": 0.41,
+      "meter_time": 154.3
      },
      {
       "i": 22,
       "file": "frame_022.jpg",
-      "meter": 133.8,
+      "meter": 179.4,
       "t": 67.3,
-      "obstruction": 1.61,
-      "near_field": 0.12
+      "obstruction": 0.74,
+      "near_field": 0.46,
+      "meter_time": 161.6
      },
      {
       "i": 23,
       "file": "frame_023.jpg",
-      "meter": 139.9,
+      "meter": 194.6,
       "t": 70.3,
-      "obstruction": 2.41,
-      "near_field": 3.67
+      "obstruction": 0.28,
+      "near_field": 0.16,
+      "meter_time": 169.0
      },
      {
       "i": 24,
       "file": "frame_024.jpg",
-      "meter": 145.9,
+      "meter": 200.7,
       "t": 73.4,
-      "obstruction": 1.65,
-      "near_field": 2.17
+      "obstruction": 1.59,
+      "near_field": 1.4,
+      "meter_time": 176.3
      },
      {
       "i": 25,
       "file": "frame_025.jpg",
-      "meter": 152.0,
+      "meter": 206.8,
       "t": 76.4,
-      "obstruction": 2.66,
-      "near_field": 4.93
+      "obstruction": 0.5,
+      "near_field": 0.74,
+      "meter_time": 183.7
      },
      {
       "i": 26,
       "file": "frame_026.jpg",
-      "meter": 158.1,
+      "meter": 206.8,
       "t": 79.5,
-      "obstruction": 1.39,
-      "near_field": 1.38
+      "obstruction": 0.86,
+      "near_field": 1.21,
+      "meter_time": 191.0
      },
      {
       "i": 27,
       "file": "frame_027.jpg",
-      "meter": 164.2,
+      "meter": 212.8,
       "t": 82.6,
-      "obstruction": 0.88,
-      "near_field": 0.8
+      "obstruction": 0.99,
+      "near_field": 0.77,
+      "meter_time": 198.4
      },
      {
       "i": 28,
       "file": "frame_028.jpg",
-      "meter": 170.3,
+      "meter": 218.9,
       "t": 85.6,
-      "obstruction": 0.23,
-      "near_field": 0.63
+      "obstruction": 0.07,
+      "near_field": 0.1,
+      "meter_time": 205.7
      },
      {
       "i": 29,
       "file": "frame_029.jpg",
-      "meter": 176.4,
+      "meter": 225.0,
       "t": 88.7,
-      "obstruction": 2.04,
-      "near_field": 1.8
+      "obstruction": 0.3,
+      "near_field": 0.11,
+      "meter_time": 213.1
      },
      {
       "i": 30,
       "file": "frame_030.jpg",
-      "meter": 182.4,
+      "meter": 225.0,
       "t": 91.7,
-      "obstruction": 1.27,
-      "near_field": 0.8
+      "obstruction": 0.08,
+      "near_field": 0.09,
+      "meter_time": 220.4
      },
      {
       "i": 31,
       "file": "frame_031.jpg",
-      "meter": 188.5,
+      "meter": 231.1,
       "t": 94.8,
-      "obstruction": 1.02,
-      "near_field": 1.29
+      "obstruction": 0.74,
+      "near_field": 0.08,
+      "meter_time": 227.8
      },
      {
       "i": 32,
       "file": "frame_032.jpg",
-      "meter": 194.6,
-      "t": 97.8,
-      "obstruction": 1.73,
-      "near_field": 0.51
+      "meter": 237.2,
+      "t": 97.9,
+      "obstruction": 0.75,
+      "near_field": 0.09,
+      "meter_time": 235.1
      },
      {
       "i": 33,
       "file": "frame_033.jpg",
-      "meter": 200.7,
+      "meter": 246.2,
       "t": 100.9,
-      "obstruction": 3.84,
-      "near_field": 4.97
+      "obstruction": 0.41,
+      "near_field": 0.1,
+      "meter_time": 242.4
      },
      {
       "i": 34,
       "file": "frame_034.jpg",
-      "meter": 206.8,
+      "meter": 255.4,
       "t": 104.0,
-      "obstruction": 4.66,
-      "near_field": 5.0
+      "obstruction": 0.12,
+      "near_field": 0.1,
+      "meter_time": 249.8
      },
      {
       "i": 35,
       "file": "frame_035.jpg",
-      "meter": 212.8,
+      "meter": 261.5,
       "t": 107.0,
-      "obstruction": 2.21,
-      "near_field": 4.26
+      "obstruction": 0.19,
+      "near_field": 0.09,
+      "meter_time": 257.1
      },
      {
       "i": 36,
       "file": "frame_036.jpg",
-      "meter": 218.9,
+      "meter": 267.6,
       "t": 110.1,
-      "obstruction": 0.98,
-      "near_field": 1.18
+      "obstruction": 1.05,
+      "near_field": 0.23,
+      "meter_time": 264.5
      },
      {
       "i": 37,
       "file": "frame_037.jpg",
-      "meter": 225.0,
+      "meter": 273.6,
       "t": 113.1,
-      "obstruction": 0.52,
-      "near_field": 2.11
+      "obstruction": 0.67,
+      "near_field": 1.25,
+      "meter_time": 271.8
      },
      {
       "i": 38,
       "file": "frame_038.jpg",
-      "meter": 231.1,
+      "meter": 279.7,
       "t": 116.2,
-      "obstruction": 0.06,
-      "near_field": 0.05
+      "obstruction": 0.45,
+      "near_field": 0.23,
+      "meter_time": 279.2
      },
      {
       "i": 39,
       "file": "frame_039.jpg",
-      "meter": 237.2,
+      "meter": 285.8,
       "t": 119.3,
-      "obstruction": 0.17,
-      "near_field": 0.0
+      "obstruction": 0.14,
+      "near_field": 0.14,
+      "meter_time": 286.5
      },
      {
       "i": 40,
       "file": "frame_040.jpg",
-      "meter": 243.2,
+      "meter": 291.9,
       "t": 122.3,
-      "obstruction": 0.75,
-      "near_field": 0.0
+      "obstruction": 0.48,
+      "near_field": 0.13,
+      "meter_time": 293.9
      },
      {
       "i": 41,
       "file": "frame_041.jpg",
-      "meter": 249.3,
-      "t": 125.4,
-      "obstruction": 1.12,
-      "near_field": 0.07
-     },
-     {
-      "i": 42,
-      "file": "frame_042.jpg",
-      "meter": 255.4,
-      "t": 128.4,
-      "obstruction": 0.44,
-      "near_field": 0.0
-     },
-     {
-      "i": 43,
-      "file": "frame_043.jpg",
-      "meter": 261.5,
-      "t": 131.5,
-      "obstruction": 0.28,
-      "near_field": 0.0
-     },
-     {
-      "i": 44,
-      "file": "frame_044.jpg",
-      "meter": 267.6,
-      "t": 134.5,
-      "obstruction": 0.69,
-      "near_field": 0.06
-     },
-     {
-      "i": 45,
-      "file": "frame_045.jpg",
-      "meter": 273.6,
-      "t": 137.6,
-      "obstruction": 0.41,
-      "near_field": 0.06
-     },
-     {
-      "i": 46,
-      "file": "frame_046.jpg",
-      "meter": 279.7,
-      "t": 140.7,
-      "obstruction": 0.08,
-      "near_field": 0.25
-     },
-     {
-      "i": 47,
-      "file": "frame_047.jpg",
-      "meter": 285.8,
-      "t": 143.7,
-      "obstruction": 0.8,
-      "near_field": 0.08
-     },
-     {
-      "i": 48,
-      "file": "frame_048.jpg",
-      "meter": 291.9,
-      "t": 146.8,
-      "obstruction": 0.69,
-      "near_field": 0.09
-     },
-     {
-      "i": 49,
-      "file": "frame_049.jpg",
       "meter": 298.0,
-      "t": 149.8,
-      "obstruction": 0.09,
-      "near_field": 0.0
+      "t": 124.9,
+      "obstruction": 2.23,
+      "near_field": 5.0,
+      "meter_time": 300.0
      }
     ],
     "stops": [],
-    "slowdowns": [
-     {
-      "t": 122.8,
-      "duration_s": 2.5,
-      "meter": 244.3
-     }
-    ],
+    "slowdowns": [],
     "stretches": [
      {
-      "seconds": 150.8,
+      "seconds": 124.9,
       "meters": 300.0,
       "from_m": 0.0,
       "to_m": 300.0
      }
     ],
     "summary": {
-     "duration_s": 151.3,
-     "walking_s": 150.8,
+     "duration_s": 125.4,
+     "walking_s": 124.9,
      "stops": 0,
      "stopped_s": 0,
-     "slowdowns": 1,
-     "slowed_s": 2.5,
-     "longest_uninterrupted_s": 150.8,
+     "slowdowns": 0,
+     "slowed_s": 0,
+     "longest_uninterrupted_s": 124.9,
      "longest_uninterrupted_m": 300.0,
-     "motion_threshold": 12.78,
+     "motion_threshold": 11.43,
      "frame_size": [
       338,
       600
      ]
-    }
-   },
-   "return": {
-    "folder": "data/day1_return",
-    "source": "point_b_to_a.mp4",
-    "nodes": [
-     {
-      "i": 0,
-      "file": "frame_000.jpg",
-      "meter": 300.0,
-      "t": 0.0,
-      "obstruction": 1.87,
-      "near_field": 1.57
-     },
-     {
-      "i": 1,
-      "file": "frame_001.jpg",
-      "meter": 294.0,
-      "t": 3.1,
-      "obstruction": 1.0,
-      "near_field": 0.79
-     },
-     {
-      "i": 2,
-      "file": "frame_002.jpg",
-      "meter": 288.0,
-      "t": 6.1,
-      "obstruction": 0.93,
-      "near_field": 0.29
-     },
-     {
-      "i": 3,
-      "file": "frame_003.jpg",
-      "meter": 282.1,
-      "t": 9.2,
-      "obstruction": 2.01,
-      "near_field": 1.3
-     },
-     {
-      "i": 4,
-      "file": "frame_004.jpg",
-      "meter": 276.1,
-      "t": 12.2,
-      "obstruction": 0.49,
-      "near_field": 0.66
-     },
-     {
-      "i": 5,
-      "file": "frame_005.jpg",
-      "meter": 270.1,
-      "t": 15.3,
-      "obstruction": 0.01,
-      "near_field": 0.0
-     },
-     {
-      "i": 6,
-      "file": "frame_006.jpg",
-      "meter": 264.1,
-      "t": 18.3,
-      "obstruction": 0.03,
-      "near_field": 0.0
-     },
-     {
-      "i": 7,
-      "file": "frame_007.jpg",
-      "meter": 258.1,
-      "t": 21.4,
-      "obstruction": 0.11,
-      "near_field": 0.0
-     },
-     {
-      "i": 8,
-      "file": "frame_008.jpg",
-      "meter": 252.2,
-      "t": 24.5,
-      "obstruction": 2.76,
-      "near_field": 1.82
-     },
-     {
-      "i": 9,
-      "file": "frame_009.jpg",
-      "meter": 246.2,
-      "t": 27.5,
-      "obstruction": 0.88,
-      "near_field": 0.35
-     },
-     {
-      "i": 10,
-      "file": "frame_010.jpg",
-      "meter": 240.2,
-      "t": 30.6,
-      "obstruction": 0.96,
-      "near_field": 0.16
-     },
-     {
-      "i": 11,
-      "file": "frame_011.jpg",
-      "meter": 234.2,
-      "t": 33.6,
-      "obstruction": 1.1,
-      "near_field": 0.51
-     },
-     {
-      "i": 12,
-      "file": "frame_012.jpg",
-      "meter": 228.2,
-      "t": 36.7,
-      "obstruction": 0.47,
-      "near_field": 1.09
-     },
-     {
-      "i": 13,
-      "file": "frame_013.jpg",
-      "meter": 222.3,
-      "t": 39.8,
-      "obstruction": 0.0,
-      "near_field": 0.0
-     },
-     {
-      "i": 14,
-      "file": "frame_014.jpg",
-      "meter": 216.3,
-      "t": 42.8,
-      "obstruction": 1.02,
-      "near_field": 0.2
-     },
-     {
-      "i": 15,
-      "file": "frame_015.jpg",
-      "meter": 210.3,
-      "t": 45.9,
-      "obstruction": 0.75,
-      "near_field": 0.0
-     },
-     {
-      "i": 16,
-      "file": "frame_016.jpg",
-      "meter": 204.3,
-      "t": 48.9,
-      "obstruction": 0.31,
-      "near_field": 0.32
-     },
-     {
-      "i": 17,
-      "file": "frame_017.jpg",
-      "meter": 198.3,
-      "t": 52.0,
-      "obstruction": 1.77,
-      "near_field": 1.31
-     },
-     {
-      "i": 18,
-      "file": "frame_018.jpg",
-      "meter": 192.4,
-      "t": 55.0,
-      "obstruction": 0.68,
-      "near_field": 0.85
-     },
-     {
-      "i": 19,
-      "file": "frame_019.jpg",
-      "meter": 186.4,
-      "t": 58.1,
-      "obstruction": 1.26,
-      "near_field": 0.86
-     },
-     {
-      "i": 20,
-      "file": "frame_020.jpg",
-      "meter": 180.4,
-      "t": 61.2,
-      "obstruction": 0.07,
-      "near_field": 0.0
-     },
-     {
-      "i": 21,
-      "file": "frame_021.jpg",
-      "meter": 174.4,
-      "t": 64.2,
-      "obstruction": 0.36,
-      "near_field": 0.0
-     },
-     {
-      "i": 22,
-      "file": "frame_022.jpg",
-      "meter": 168.4,
-      "t": 67.3,
-      "obstruction": 0.07,
-      "near_field": 0.0
-     },
-     {
-      "i": 23,
-      "file": "frame_023.jpg",
-      "meter": 162.5,
-      "t": 70.3,
-      "obstruction": 0.89,
-      "near_field": 0.83
-     },
-     {
-      "i": 24,
-      "file": "frame_024.jpg",
-      "meter": 156.5,
-      "t": 73.4,
-      "obstruction": 0.72,
-      "near_field": 0.67
-     },
-     {
-      "i": 25,
-      "file": "frame_025.jpg",
-      "meter": 150.5,
-      "t": 76.5,
-      "obstruction": 0.21,
-      "near_field": 0.17
-     },
-     {
-      "i": 26,
-      "file": "frame_026.jpg",
-      "meter": 144.5,
-      "t": 79.5,
-      "obstruction": 2.21,
-      "near_field": 0.82
-     },
-     {
-      "i": 27,
-      "file": "frame_027.jpg",
-      "meter": 138.5,
-      "t": 82.6,
-      "obstruction": 0.32,
-      "near_field": 0.25
-     },
-     {
-      "i": 28,
-      "file": "frame_028.jpg",
-      "meter": 132.6,
-      "t": 85.6,
-      "obstruction": 1.58,
-      "near_field": 0.39
-     },
-     {
-      "i": 29,
-      "file": "frame_029.jpg",
-      "meter": 126.6,
-      "t": 88.7,
-      "obstruction": 2.49,
-      "near_field": 1.1
-     },
-     {
-      "i": 30,
-      "file": "frame_030.jpg",
-      "meter": 120.6,
-      "t": 91.7,
-      "obstruction": 2.61,
-      "near_field": 0.9
-     },
-     {
-      "i": 31,
-      "file": "frame_031.jpg",
-      "meter": 114.6,
-      "t": 94.8,
-      "obstruction": 2.81,
-      "near_field": 1.28
-     },
-     {
-      "i": 32,
-      "file": "frame_032.jpg",
-      "meter": 108.6,
-      "t": 97.9,
-      "obstruction": 0.47,
-      "near_field": 0.5
-     },
-     {
-      "i": 33,
-      "file": "frame_033.jpg",
-      "meter": 102.7,
-      "t": 100.9,
-      "obstruction": 0.99,
-      "near_field": 0.09
-     },
-     {
-      "i": 34,
-      "file": "frame_034.jpg",
-      "meter": 96.7,
-      "t": 104.0,
-      "obstruction": 0.45,
-      "near_field": 0.07
-     },
-     {
-      "i": 35,
-      "file": "frame_035.jpg",
-      "meter": 90.7,
-      "t": 107.0,
-      "obstruction": 0.3,
-      "near_field": 1.12
-     },
-     {
-      "i": 36,
-      "file": "frame_036.jpg",
-      "meter": 84.7,
-      "t": 110.1,
-      "obstruction": 1.1,
-      "near_field": 0.0
-     },
-     {
-      "i": 37,
-      "file": "frame_037.jpg",
-      "meter": 78.7,
-      "t": 113.1,
-      "obstruction": 2.12,
-      "near_field": 1.15
-     },
-     {
-      "i": 38,
-      "file": "frame_038.jpg",
-      "meter": 72.8,
-      "t": 116.2,
-      "obstruction": 1.96,
-      "near_field": 2.93
-     },
-     {
-      "i": 39,
-      "file": "frame_039.jpg",
-      "meter": 66.8,
-      "t": 119.3,
-      "obstruction": 2.22,
-      "near_field": 2.33
-     },
-     {
-      "i": 40,
-      "file": "frame_040.jpg",
-      "meter": 60.8,
-      "t": 122.3,
-      "obstruction": 3.81,
-      "near_field": 5.0
-     },
-     {
-      "i": 41,
-      "file": "frame_041.jpg",
-      "meter": 54.8,
-      "t": 125.4,
-      "obstruction": 3.17,
-      "near_field": 2.34
-     },
-     {
-      "i": 42,
-      "file": "frame_042.jpg",
-      "meter": 48.8,
-      "t": 128.4,
-      "obstruction": 2.29,
-      "near_field": 1.61
-     },
-     {
-      "i": 43,
-      "file": "frame_043.jpg",
-      "meter": 42.9,
-      "t": 131.5,
-      "obstruction": 3.07,
-      "near_field": 3.72
-     },
-     {
-      "i": 44,
-      "file": "frame_044.jpg",
-      "meter": 36.9,
-      "t": 134.6,
-      "obstruction": 2.92,
-      "near_field": 1.53
-     },
-     {
-      "i": 45,
-      "file": "frame_045.jpg",
-      "meter": 30.9,
-      "t": 137.6,
-      "obstruction": 1.59,
-      "near_field": 0.26
-     },
-     {
-      "i": 46,
-      "file": "frame_046.jpg",
-      "meter": 24.9,
-      "t": 140.7,
-      "obstruction": 0.91,
-      "near_field": 0.0
-     },
-     {
-      "i": 47,
-      "file": "frame_047.jpg",
-      "meter": 18.9,
-      "t": 143.7,
-      "obstruction": 3.92,
-      "near_field": 5.0
-     },
-     {
-      "i": 48,
-      "file": "frame_048.jpg",
-      "meter": 13.0,
-      "t": 146.8,
-      "obstruction": 1.12,
-      "near_field": 0.0
-     },
-     {
-      "i": 49,
-      "file": "frame_049.jpg",
-      "meter": 7.0,
-      "t": 149.8,
-      "obstruction": 1.25,
-      "near_field": 0.18
-     },
-     {
-      "i": 50,
-      "file": "frame_050.jpg",
-      "meter": 1.0,
-      "t": 152.9,
-      "obstruction": 0.22,
-      "near_field": 0.06
-     }
-    ],
-    "stops": [],
-    "slowdowns": [
-     {
-      "t": 18.3,
-      "duration_s": 4.6,
-      "meter": 264.1
-     },
-     {
-      "t": 36.7,
-      "duration_s": 4.1,
-      "meter": 228.2
-     }
-    ],
-    "stretches": [
-     {
-      "seconds": 153.4,
-      "meters": 300.0,
-      "from_m": 300.0,
-      "to_m": 0.0
-     }
-    ],
-    "summary": {
-     "duration_s": 153.9,
-     "walking_s": 153.4,
-     "stops": 0,
-     "stopped_s": 0,
-     "slowdowns": 2,
-     "slowed_s": 8.7,
-     "longest_uninterrupted_s": 153.4,
-     "longest_uninterrupted_m": 300.0,
-     "motion_threshold": 14.45,
-     "frame_size": [
-      338,
-      600
-     ]
-    }
+    },
+    "aligned_to": "data/day1_forward"
    }
   },
   {
    "day": 3,
    "mock": true,
-   "source_day": 1,
    "forward": {
-    "folder": "data/day1_forward",
-    "source": "point_a_to_b.mp4",
+    "folder": "data/day2_forward",
+    "source": "day2_a_to_b.mp4",
     "nodes": [
      {
       "i": 0,
       "file": "frame_000.jpg",
       "meter": 0.0,
       "t": 0.0,
-      "obstruction": 1.44,
-      "near_field": 0.71
+      "obstruction": 0.4,
+      "near_field": 0.86,
+      "meter_time": 0.0
      },
      {
       "i": 1,
       "file": "frame_001.jpg",
       "meter": 6.1,
       "t": 3.1,
-      "obstruction": 1.3,
-      "near_field": 0.7
+      "obstruction": 1.24,
+      "near_field": 2.36,
+      "meter_time": 7.3
      },
      {
       "i": 2,
       "file": "frame_002.jpg",
       "meter": 12.2,
       "t": 6.1,
-      "obstruction": 0.92,
-      "near_field": 0.08
+      "obstruction": 2.05,
+      "near_field": 3.65,
+      "meter_time": 14.7
      },
      {
       "i": 3,
       "file": "frame_003.jpg",
-      "meter": 18.2,
+      "meter": 24.3,
       "t": 9.2,
-      "obstruction": 0.15,
-      "near_field": 0.34
+      "obstruction": 0.79,
+      "near_field": 0.47,
+      "meter_time": 22.0
      },
      {
       "i": 4,
       "file": "frame_004.jpg",
-      "meter": 24.3,
+      "meter": 36.5,
       "t": 12.2,
-      "obstruction": 1.06,
-      "near_field": 1.44
+      "obstruction": 1.47,
+      "near_field": 2.44,
+      "meter_time": 29.4
      },
      {
       "i": 5,
       "file": "frame_005.jpg",
-      "meter": 30.4,
+      "meter": 42.6,
       "t": 15.3,
-      "obstruction": 1.04,
-      "near_field": 0.5
+      "obstruction": 1.46,
+      "near_field": 2.21,
+      "meter_time": 36.7
      },
      {
       "i": 6,
       "file": "frame_006.jpg",
-      "meter": 36.5,
+      "meter": 48.6,
       "t": 18.3,
-      "obstruction": 1.08,
-      "near_field": 0.32
+      "obstruction": 1.18,
+      "near_field": 1.8,
+      "meter_time": 44.1
      },
      {
       "i": 7,
       "file": "frame_007.jpg",
-      "meter": 42.6,
+      "meter": 57.8,
       "t": 21.4,
-      "obstruction": 0.85,
-      "near_field": 0.15
+      "obstruction": 1.45,
+      "near_field": 0.62,
+      "meter_time": 51.4
      },
      {
       "i": 8,
       "file": "frame_008.jpg",
-      "meter": 48.6,
+      "meter": 70.0,
       "t": 24.5,
-      "obstruction": 0.38,
-      "near_field": 0.35
+      "obstruction": 1.01,
+      "near_field": 1.14,
+      "meter_time": 58.8
      },
      {
       "i": 9,
       "file": "frame_009.jpg",
-      "meter": 54.7,
+      "meter": 79.1,
       "t": 27.5,
-      "obstruction": 0.69,
-      "near_field": 0.28
+      "obstruction": 1.4,
+      "near_field": 1.84,
+      "meter_time": 66.1
      },
      {
       "i": 10,
       "file": "frame_010.jpg",
-      "meter": 60.8,
+      "meter": 85.1,
       "t": 30.6,
-      "obstruction": 0.87,
-      "near_field": 1.18
+      "obstruction": 1.81,
+      "near_field": 3.81,
+      "meter_time": 73.5
      },
      {
       "i": 11,
       "file": "frame_011.jpg",
-      "meter": 66.9,
+      "meter": 97.3,
       "t": 33.6,
-      "obstruction": 0.39,
-      "near_field": 0.31
+      "obstruction": 2.45,
+      "near_field": 5.0,
+      "meter_time": 80.8
      },
      {
       "i": 12,
       "file": "frame_012.jpg",
-      "meter": 73.0,
+      "meter": 109.5,
       "t": 36.7,
-      "obstruction": 0.27,
-      "near_field": 0.13
+      "obstruction": 2.92,
+      "near_field": 4.15,
+      "meter_time": 88.2
      },
      {
       "i": 13,
       "file": "frame_013.jpg",
-      "meter": 79.1,
+      "meter": 115.5,
       "t": 39.8,
-      "obstruction": 2.37,
-      "near_field": 2.8
+      "obstruction": 1.81,
+      "near_field": 3.52,
+      "meter_time": 95.5
      },
      {
       "i": 14,
       "file": "frame_014.jpg",
-      "meter": 85.1,
+      "meter": 121.6,
       "t": 42.8,
-      "obstruction": 1.18,
-      "near_field": 0.42
+      "obstruction": 2.07,
+      "near_field": 3.98,
+      "meter_time": 102.9
      },
      {
       "i": 15,
       "file": "frame_015.jpg",
-      "meter": 91.2,
+      "meter": 127.7,
       "t": 45.9,
-      "obstruction": 0.21,
-      "near_field": 0.01
+      "obstruction": 2.53,
+      "near_field": 2.83,
+      "meter_time": 110.2
      },
      {
       "i": 16,
       "file": "frame_016.jpg",
-      "meter": 97.3,
+      "meter": 133.8,
       "t": 48.9,
-      "obstruction": 1.55,
-      "near_field": 0.95
+      "obstruction": 3.36,
+      "near_field": 5.0,
+      "meter_time": 117.6
      },
      {
       "i": 17,
       "file": "frame_017.jpg",
-      "meter": 103.4,
+      "meter": 139.9,
       "t": 52.0,
-      "obstruction": 0.87,
-      "near_field": 0.2
+      "obstruction": 4.92,
+      "near_field": 5.0,
+      "meter_time": 124.9
      },
      {
       "i": 18,
       "file": "frame_018.jpg",
-      "meter": 109.5,
+      "meter": 145.9,
       "t": 55.0,
-      "obstruction": 1.1,
-      "near_field": 0.53
+      "obstruction": 2.79,
+      "near_field": 5.0,
+      "meter_time": 132.2
      },
      {
       "i": 19,
       "file": "frame_019.jpg",
-      "meter": 115.5,
+      "meter": 152.0,
       "t": 58.1,
-      "obstruction": 1.1,
-      "near_field": 0.47
+      "obstruction": 2.75,
+      "near_field": 5.0,
+      "meter_time": 139.6
      },
      {
       "i": 20,
       "file": "frame_020.jpg",
-      "meter": 121.6,
+      "meter": 158.1,
       "t": 61.2,
-      "obstruction": 1.65,
-      "near_field": 2.95
+      "obstruction": 0.27,
+      "near_field": 0.28,
+      "meter_time": 146.9
      },
      {
       "i": 21,
       "file": "frame_021.jpg",
-      "meter": 127.7,
+      "meter": 164.2,
       "t": 64.2,
-      "obstruction": 1.09,
-      "near_field": 0.97
+      "obstruction": 0.61,
+      "near_field": 0.41,
+      "meter_time": 154.3
      },
      {
       "i": 22,
       "file": "frame_022.jpg",
-      "meter": 133.8,
+      "meter": 179.4,
       "t": 67.3,
-      "obstruction": 1.61,
-      "near_field": 0.12
+      "obstruction": 0.74,
+      "near_field": 0.46,
+      "meter_time": 161.6
      },
      {
       "i": 23,
       "file": "frame_023.jpg",
-      "meter": 139.9,
+      "meter": 194.6,
       "t": 70.3,
-      "obstruction": 2.41,
-      "near_field": 3.67
+      "obstruction": 0.28,
+      "near_field": 0.16,
+      "meter_time": 169.0
      },
      {
       "i": 24,
       "file": "frame_024.jpg",
-      "meter": 145.9,
+      "meter": 200.7,
       "t": 73.4,
-      "obstruction": 1.65,
-      "near_field": 2.17
+      "obstruction": 1.59,
+      "near_field": 1.4,
+      "meter_time": 176.3
      },
      {
       "i": 25,
       "file": "frame_025.jpg",
-      "meter": 152.0,
+      "meter": 206.8,
       "t": 76.4,
-      "obstruction": 2.66,
-      "near_field": 4.93
+      "obstruction": 0.5,
+      "near_field": 0.74,
+      "meter_time": 183.7
      },
      {
       "i": 26,
       "file": "frame_026.jpg",
-      "meter": 158.1,
+      "meter": 206.8,
       "t": 79.5,
-      "obstruction": 1.39,
-      "near_field": 1.38
+      "obstruction": 0.86,
+      "near_field": 1.21,
+      "meter_time": 191.0
      },
      {
       "i": 27,
       "file": "frame_027.jpg",
-      "meter": 164.2,
+      "meter": 212.8,
       "t": 82.6,
-      "obstruction": 0.88,
-      "near_field": 0.8
+      "obstruction": 0.99,
+      "near_field": 0.77,
+      "meter_time": 198.4
      },
      {
       "i": 28,
       "file": "frame_028.jpg",
-      "meter": 170.3,
+      "meter": 218.9,
       "t": 85.6,
-      "obstruction": 0.23,
-      "near_field": 0.63
+      "obstruction": 0.07,
+      "near_field": 0.1,
+      "meter_time": 205.7
      },
      {
       "i": 29,
       "file": "frame_029.jpg",
-      "meter": 176.4,
+      "meter": 225.0,
       "t": 88.7,
-      "obstruction": 2.04,
-      "near_field": 1.8
+      "obstruction": 0.3,
+      "near_field": 0.11,
+      "meter_time": 213.1
      },
      {
       "i": 30,
       "file": "frame_030.jpg",
-      "meter": 182.4,
+      "meter": 225.0,
       "t": 91.7,
-      "obstruction": 1.27,
-      "near_field": 0.8
+      "obstruction": 0.08,
+      "near_field": 0.09,
+      "meter_time": 220.4
      },
      {
       "i": 31,
       "file": "frame_031.jpg",
-      "meter": 188.5,
+      "meter": 231.1,
       "t": 94.8,
-      "obstruction": 1.02,
-      "near_field": 1.29
+      "obstruction": 0.74,
+      "near_field": 0.08,
+      "meter_time": 227.8
      },
      {
       "i": 32,
       "file": "frame_032.jpg",
-      "meter": 194.6,
-      "t": 97.8,
-      "obstruction": 1.73,
-      "near_field": 0.51
+      "meter": 237.2,
+      "t": 97.9,
+      "obstruction": 0.75,
+      "near_field": 0.09,
+      "meter_time": 235.1
      },
      {
       "i": 33,
       "file": "frame_033.jpg",
-      "meter": 200.7,
+      "meter": 246.2,
       "t": 100.9,
-      "obstruction": 3.84,
-      "near_field": 4.97
+      "obstruction": 0.41,
+      "near_field": 0.1,
+      "meter_time": 242.4
      },
      {
       "i": 34,
       "file": "frame_034.jpg",
-      "meter": 206.8,
+      "meter": 255.4,
       "t": 104.0,
-      "obstruction": 4.66,
-      "near_field": 5.0
+      "obstruction": 0.12,
+      "near_field": 0.1,
+      "meter_time": 249.8
      },
      {
       "i": 35,
       "file": "frame_035.jpg",
-      "meter": 212.8,
+      "meter": 261.5,
       "t": 107.0,
-      "obstruction": 2.21,
-      "near_field": 4.26
+      "obstruction": 0.19,
+      "near_field": 0.09,
+      "meter_time": 257.1
      },
      {
       "i": 36,
       "file": "frame_036.jpg",
-      "meter": 218.9,
+      "meter": 267.6,
       "t": 110.1,
-      "obstruction": 0.98,
-      "near_field": 1.18
+      "obstruction": 1.05,
+      "near_field": 0.23,
+      "meter_time": 264.5
      },
      {
       "i": 37,
       "file": "frame_037.jpg",
-      "meter": 225.0,
+      "meter": 273.6,
       "t": 113.1,
-      "obstruction": 0.52,
-      "near_field": 2.11
+      "obstruction": 0.67,
+      "near_field": 1.25,
+      "meter_time": 271.8
      },
      {
       "i": 38,
       "file": "frame_038.jpg",
-      "meter": 231.1,
+      "meter": 279.7,
       "t": 116.2,
-      "obstruction": 0.06,
-      "near_field": 0.05
+      "obstruction": 0.45,
+      "near_field": 0.23,
+      "meter_time": 279.2
      },
      {
       "i": 39,
       "file": "frame_039.jpg",
-      "meter": 237.2,
+      "meter": 285.8,
       "t": 119.3,
-      "obstruction": 0.17,
-      "near_field": 0.0
+      "obstruction": 0.14,
+      "near_field": 0.14,
+      "meter_time": 286.5
      },
      {
       "i": 40,
       "file": "frame_040.jpg",
-      "meter": 243.2,
+      "meter": 291.9,
       "t": 122.3,
-      "obstruction": 0.75,
-      "near_field": 0.0
+      "obstruction": 0.48,
+      "near_field": 0.13,
+      "meter_time": 293.9
      },
      {
       "i": 41,
       "file": "frame_041.jpg",
-      "meter": 249.3,
-      "t": 125.4,
-      "obstruction": 1.12,
-      "near_field": 0.07
-     },
-     {
-      "i": 42,
-      "file": "frame_042.jpg",
-      "meter": 255.4,
-      "t": 128.4,
-      "obstruction": 0.44,
-      "near_field": 0.0
-     },
-     {
-      "i": 43,
-      "file": "frame_043.jpg",
-      "meter": 261.5,
-      "t": 131.5,
-      "obstruction": 0.28,
-      "near_field": 0.0
-     },
-     {
-      "i": 44,
-      "file": "frame_044.jpg",
-      "meter": 267.6,
-      "t": 134.5,
-      "obstruction": 0.69,
-      "near_field": 0.06
-     },
-     {
-      "i": 45,
-      "file": "frame_045.jpg",
-      "meter": 273.6,
-      "t": 137.6,
-      "obstruction": 0.41,
-      "near_field": 0.06
-     },
-     {
-      "i": 46,
-      "file": "frame_046.jpg",
-      "meter": 279.7,
-      "t": 140.7,
-      "obstruction": 0.08,
-      "near_field": 0.25
-     },
-     {
-      "i": 47,
-      "file": "frame_047.jpg",
-      "meter": 285.8,
-      "t": 143.7,
-      "obstruction": 0.8,
-      "near_field": 0.08
-     },
-     {
-      "i": 48,
-      "file": "frame_048.jpg",
-      "meter": 291.9,
-      "t": 146.8,
-      "obstruction": 0.69,
-      "near_field": 0.09
-     },
-     {
-      "i": 49,
-      "file": "frame_049.jpg",
       "meter": 298.0,
-      "t": 149.8,
-      "obstruction": 0.09,
-      "near_field": 0.0
+      "t": 124.9,
+      "obstruction": 2.23,
+      "near_field": 5.0,
+      "meter_time": 300.0
      }
     ],
     "stops": [],
-    "slowdowns": [
-     {
-      "t": 122.8,
-      "duration_s": 2.5,
-      "meter": 244.3
-     }
-    ],
+    "slowdowns": [],
     "stretches": [
      {
-      "seconds": 150.8,
+      "seconds": 124.9,
       "meters": 300.0,
       "from_m": 0.0,
       "to_m": 300.0
      }
     ],
     "summary": {
-     "duration_s": 151.3,
-     "walking_s": 150.8,
+     "duration_s": 125.4,
+     "walking_s": 124.9,
      "stops": 0,
      "stopped_s": 0,
-     "slowdowns": 1,
-     "slowed_s": 2.5,
-     "longest_uninterrupted_s": 150.8,
+     "slowdowns": 0,
+     "slowed_s": 0,
+     "longest_uninterrupted_s": 124.9,
      "longest_uninterrupted_m": 300.0,
-     "motion_threshold": 12.78,
+     "motion_threshold": 11.43,
      "frame_size": [
       338,
       600
      ]
-    }
+    },
+    "aligned_to": "data/day1_forward"
    },
+   "source_day": 2,
    "return": {
     "folder": "data/day1_return",
     "source": "point_b_to_a.mp4",
@@ -2686,444 +2182,417 @@
   {
    "day": 4,
    "mock": true,
-   "source_day": 1,
    "forward": {
-    "folder": "data/day1_forward",
-    "source": "point_a_to_b.mp4",
+    "folder": "data/day2_forward",
+    "source": "day2_a_to_b.mp4",
     "nodes": [
      {
       "i": 0,
       "file": "frame_000.jpg",
       "meter": 0.0,
       "t": 0.0,
-      "obstruction": 1.44,
-      "near_field": 0.71
+      "obstruction": 0.4,
+      "near_field": 0.86,
+      "meter_time": 0.0
      },
      {
       "i": 1,
       "file": "frame_001.jpg",
       "meter": 6.1,
       "t": 3.1,
-      "obstruction": 1.3,
-      "near_field": 0.7
+      "obstruction": 1.24,
+      "near_field": 2.36,
+      "meter_time": 7.3
      },
      {
       "i": 2,
       "file": "frame_002.jpg",
       "meter": 12.2,
       "t": 6.1,
-      "obstruction": 0.92,
-      "near_field": 0.08
+      "obstruction": 2.05,
+      "near_field": 3.65,
+      "meter_time": 14.7
      },
      {
       "i": 3,
       "file": "frame_003.jpg",
-      "meter": 18.2,
+      "meter": 24.3,
       "t": 9.2,
-      "obstruction": 0.15,
-      "near_field": 0.34
+      "obstruction": 0.79,
+      "near_field": 0.47,
+      "meter_time": 22.0
      },
      {
       "i": 4,
       "file": "frame_004.jpg",
-      "meter": 24.3,
+      "meter": 36.5,
       "t": 12.2,
-      "obstruction": 1.06,
-      "near_field": 1.44
+      "obstruction": 1.47,
+      "near_field": 2.44,
+      "meter_time": 29.4
      },
      {
       "i": 5,
       "file": "frame_005.jpg",
-      "meter": 30.4,
+      "meter": 42.6,
       "t": 15.3,
-      "obstruction": 1.04,
-      "near_field": 0.5
+      "obstruction": 1.46,
+      "near_field": 2.21,
+      "meter_time": 36.7
      },
      {
       "i": 6,
       "file": "frame_006.jpg",
-      "meter": 36.5,
+      "meter": 48.6,
       "t": 18.3,
-      "obstruction": 1.08,
-      "near_field": 0.32
+      "obstruction": 1.18,
+      "near_field": 1.8,
+      "meter_time": 44.1
      },
      {
       "i": 7,
       "file": "frame_007.jpg",
-      "meter": 42.6,
+      "meter": 57.8,
       "t": 21.4,
-      "obstruction": 0.85,
-      "near_field": 0.15
+      "obstruction": 1.45,
+      "near_field": 0.62,
+      "meter_time": 51.4
      },
      {
       "i": 8,
       "file": "frame_008.jpg",
-      "meter": 48.6,
+      "meter": 70.0,
       "t": 24.5,
-      "obstruction": 0.38,
-      "near_field": 0.35
+      "obstruction": 1.01,
+      "near_field": 1.14,
+      "meter_time": 58.8
      },
      {
       "i": 9,
       "file": "frame_009.jpg",
-      "meter": 54.7,
+      "meter": 79.1,
       "t": 27.5,
-      "obstruction": 0.69,
-      "near_field": 0.28
+      "obstruction": 1.4,
+      "near_field": 1.84,
+      "meter_time": 66.1
      },
      {
       "i": 10,
       "file": "frame_010.jpg",
-      "meter": 60.8,
+      "meter": 85.1,
       "t": 30.6,
-      "obstruction": 0.87,
-      "near_field": 1.18
+      "obstruction": 1.81,
+      "near_field": 3.81,
+      "meter_time": 73.5
      },
      {
       "i": 11,
       "file": "frame_011.jpg",
-      "meter": 66.9,
+      "meter": 97.3,
       "t": 33.6,
-      "obstruction": 0.39,
-      "near_field": 0.31
+      "obstruction": 2.45,
+      "near_field": 5.0,
+      "meter_time": 80.8
      },
      {
       "i": 12,
       "file": "frame_012.jpg",
-      "meter": 73.0,
+      "meter": 109.5,
       "t": 36.7,
-      "obstruction": 0.27,
-      "near_field": 0.13
+      "obstruction": 2.92,
+      "near_field": 4.15,
+      "meter_time": 88.2
      },
      {
       "i": 13,
       "file": "frame_013.jpg",
-      "meter": 79.1,
+      "meter": 115.5,
       "t": 39.8,
-      "obstruction": 2.37,
-      "near_field": 2.8
+      "obstruction": 1.81,
+      "near_field": 3.52,
+      "meter_time": 95.5
      },
      {
       "i": 14,
       "file": "frame_014.jpg",
-      "meter": 85.1,
+      "meter": 121.6,
       "t": 42.8,
-      "obstruction": 1.18,
-      "near_field": 0.42
+      "obstruction": 2.07,
+      "near_field": 3.98,
+      "meter_time": 102.9
      },
      {
       "i": 15,
       "file": "frame_015.jpg",
-      "meter": 91.2,
+      "meter": 127.7,
       "t": 45.9,
-      "obstruction": 0.21,
-      "near_field": 0.01
+      "obstruction": 2.53,
+      "near_field": 2.83,
+      "meter_time": 110.2
      },
      {
       "i": 16,
       "file": "frame_016.jpg",
-      "meter": 97.3,
+      "meter": 133.8,
       "t": 48.9,
-      "obstruction": 1.55,
-      "near_field": 0.95
+      "obstruction": 3.36,
+      "near_field": 5.0,
+      "meter_time": 117.6
      },
      {
       "i": 17,
       "file": "frame_017.jpg",
-      "meter": 103.4,
+      "meter": 139.9,
       "t": 52.0,
-      "obstruction": 0.87,
-      "near_field": 0.2
+      "obstruction": 4.92,
+      "near_field": 5.0,
+      "meter_time": 124.9
      },
      {
       "i": 18,
       "file": "frame_018.jpg",
-      "meter": 109.5,
+      "meter": 145.9,
       "t": 55.0,
-      "obstruction": 1.1,
-      "near_field": 0.53
+      "obstruction": 2.79,
+      "near_field": 5.0,
+      "meter_time": 132.2
      },
      {
       "i": 19,
       "file": "frame_019.jpg",
-      "meter": 115.5,
+      "meter": 152.0,
       "t": 58.1,
-      "obstruction": 1.1,
-      "near_field": 0.47
+      "obstruction": 2.75,
+      "near_field": 5.0,
+      "meter_time": 139.6
      },
      {
       "i": 20,
       "file": "frame_020.jpg",
-      "meter": 121.6,
+      "meter": 158.1,
       "t": 61.2,
-      "obstruction": 1.65,
-      "near_field": 2.95
+      "obstruction": 0.27,
+      "near_field": 0.28,
+      "meter_time": 146.9
      },
      {
       "i": 21,
       "file": "frame_021.jpg",
-      "meter": 127.7,
+      "meter": 164.2,
       "t": 64.2,
-      "obstruction": 1.09,
-      "near_field": 0.97
+      "obstruction": 0.61,
+      "near_field": 0.41,
+      "meter_time": 154.3
      },
      {
       "i": 22,
       "file": "frame_022.jpg",
-      "meter": 133.8,
+      "meter": 179.4,
       "t": 67.3,
-      "obstruction": 1.61,
-      "near_field": 0.12
+      "obstruction": 0.74,
+      "near_field": 0.46,
+      "meter_time": 161.6
      },
      {
       "i": 23,
       "file": "frame_023.jpg",
-      "meter": 139.9,
+      "meter": 194.6,
       "t": 70.3,
-      "obstruction": 2.41,
-      "near_field": 3.67
+      "obstruction": 0.28,
+      "near_field": 0.16,
+      "meter_time": 169.0
      },
      {
       "i": 24,
       "file": "frame_024.jpg",
-      "meter": 145.9,
+      "meter": 200.7,
       "t": 73.4,
-      "obstruction": 1.65,
-      "near_field": 2.17
+      "obstruction": 1.59,
+      "near_field": 1.4,
+      "meter_time": 176.3
      },
      {
       "i": 25,
       "file": "frame_025.jpg",
-      "meter": 152.0,
+      "meter": 206.8,
       "t": 76.4,
-      "obstruction": 2.66,
-      "near_field": 4.93
+      "obstruction": 0.5,
+      "near_field": 0.74,
+      "meter_time": 183.7
      },
      {
       "i": 26,
       "file": "frame_026.jpg",
-      "meter": 158.1,
+      "meter": 206.8,
       "t": 79.5,
-      "obstruction": 1.39,
-      "near_field": 1.38
+      "obstruction": 0.86,
+      "near_field": 1.21,
+      "meter_time": 191.0
      },
      {
       "i": 27,
       "file": "frame_027.jpg",
-      "meter": 164.2,
+      "meter": 212.8,
       "t": 82.6,
-      "obstruction": 0.88,
-      "near_field": 0.8
+      "obstruction": 0.99,
+      "near_field": 0.77,
+      "meter_time": 198.4
      },
      {
       "i": 28,
       "file": "frame_028.jpg",
-      "meter": 170.3,
+      "meter": 218.9,
       "t": 85.6,
-      "obstruction": 0.23,
-      "near_field": 0.63
+      "obstruction": 0.07,
+      "near_field": 0.1,
+      "meter_time": 205.7
      },
      {
       "i": 29,
       "file": "frame_029.jpg",
-      "meter": 176.4,
+      "meter": 225.0,
       "t": 88.7,
-      "obstruction": 2.04,
-      "near_field": 1.8
+      "obstruction": 0.3,
+      "near_field": 0.11,
+      "meter_time": 213.1
      },
      {
       "i": 30,
       "file": "frame_030.jpg",
-      "meter": 182.4,
+      "meter": 225.0,
       "t": 91.7,
-      "obstruction": 1.27,
-      "near_field": 0.8
+      "obstruction": 0.08,
+      "near_field": 0.09,
+      "meter_time": 220.4
      },
      {
       "i": 31,
       "file": "frame_031.jpg",
-      "meter": 188.5,
+      "meter": 231.1,
       "t": 94.8,
-      "obstruction": 1.02,
-      "near_field": 1.29
+      "obstruction": 0.74,
+      "near_field": 0.08,
+      "meter_time": 227.8
      },
      {
       "i": 32,
       "file": "frame_032.jpg",
-      "meter": 194.6,
-      "t": 97.8,
-      "obstruction": 1.73,
-      "near_field": 0.51
+      "meter": 237.2,
+      "t": 97.9,
+      "obstruction": 0.75,
+      "near_field": 0.09,
+      "meter_time": 235.1
      },
      {
       "i": 33,
       "file": "frame_033.jpg",
-      "meter": 200.7,
+      "meter": 246.2,
       "t": 100.9,
-      "obstruction": 3.84,
-      "near_field": 4.97
+      "obstruction": 0.41,
+      "near_field": 0.1,
+      "meter_time": 242.4
      },
      {
       "i": 34,
       "file": "frame_034.jpg",
-      "meter": 206.8,
+      "meter": 255.4,
       "t": 104.0,
-      "obstruction": 4.66,
-      "near_field": 5.0
+      "obstruction": 0.12,
+      "near_field": 0.1,
+      "meter_time": 249.8
      },
      {
       "i": 35,
       "file": "frame_035.jpg",
-      "meter": 212.8,
+      "meter": 261.5,
       "t": 107.0,
-      "obstruction": 2.21,
-      "near_field": 4.26
+      "obstruction": 0.19,
+      "near_field": 0.09,
+      "meter_time": 257.1
      },
      {
       "i": 36,
       "file": "frame_036.jpg",
-      "meter": 218.9,
+      "meter": 267.6,
       "t": 110.1,
-      "obstruction": 0.98,
-      "near_field": 1.18
+      "obstruction": 1.05,
+      "near_field": 0.23,
+      "meter_time": 264.5
      },
      {
       "i": 37,
       "file": "frame_037.jpg",
-      "meter": 225.0,
+      "meter": 273.6,
       "t": 113.1,
-      "obstruction": 0.52,
-      "near_field": 2.11
+      "obstruction": 0.67,
+      "near_field": 1.25,
+      "meter_time": 271.8
      },
      {
       "i": 38,
       "file": "frame_038.jpg",
-      "meter": 231.1,
+      "meter": 279.7,
       "t": 116.2,
-      "obstruction": 0.06,
-      "near_field": 0.05
+      "obstruction": 0.45,
+      "near_field": 0.23,
+      "meter_time": 279.2
      },
      {
       "i": 39,
       "file": "frame_039.jpg",
-      "meter": 237.2,
+      "meter": 285.8,
       "t": 119.3,
-      "obstruction": 0.17,
-      "near_field": 0.0
+      "obstruction": 0.14,
+      "near_field": 0.14,
+      "meter_time": 286.5
      },
      {
       "i": 40,
       "file": "frame_040.jpg",
-      "meter": 243.2,
+      "meter": 291.9,
       "t": 122.3,
-      "obstruction": 0.75,
-      "near_field": 0.0
+      "obstruction": 0.48,
+      "near_field": 0.13,
+      "meter_time": 293.9
      },
      {
       "i": 41,
       "file": "frame_041.jpg",
-      "meter": 249.3,
-      "t": 125.4,
-      "obstruction": 1.12,
-      "near_field": 0.07
-     },
-     {
-      "i": 42,
-      "file": "frame_042.jpg",
-      "meter": 255.4,
-      "t": 128.4,
-      "obstruction": 0.44,
-      "near_field": 0.0
-     },
-     {
-      "i": 43,
-      "file": "frame_043.jpg",
-      "meter": 261.5,
-      "t": 131.5,
-      "obstruction": 0.28,
-      "near_field": 0.0
-     },
-     {
-      "i": 44,
-      "file": "frame_044.jpg",
-      "meter": 267.6,
-      "t": 134.5,
-      "obstruction": 0.69,
-      "near_field": 0.06
-     },
-     {
-      "i": 45,
-      "file": "frame_045.jpg",
-      "meter": 273.6,
-      "t": 137.6,
-      "obstruction": 0.41,
-      "near_field": 0.06
-     },
-     {
-      "i": 46,
-      "file": "frame_046.jpg",
-      "meter": 279.7,
-      "t": 140.7,
-      "obstruction": 0.08,
-      "near_field": 0.25
-     },
-     {
-      "i": 47,
-      "file": "frame_047.jpg",
-      "meter": 285.8,
-      "t": 143.7,
-      "obstruction": 0.8,
-      "near_field": 0.08
-     },
-     {
-      "i": 48,
-      "file": "frame_048.jpg",
-      "meter": 291.9,
-      "t": 146.8,
-      "obstruction": 0.69,
-      "near_field": 0.09
-     },
-     {
-      "i": 49,
-      "file": "frame_049.jpg",
       "meter": 298.0,
-      "t": 149.8,
-      "obstruction": 0.09,
-      "near_field": 0.0
+      "t": 124.9,
+      "obstruction": 2.23,
+      "near_field": 5.0,
+      "meter_time": 300.0
      }
     ],
     "stops": [],
-    "slowdowns": [
-     {
-      "t": 122.8,
-      "duration_s": 2.5,
-      "meter": 244.3
-     }
-    ],
+    "slowdowns": [],
     "stretches": [
      {
-      "seconds": 150.8,
+      "seconds": 124.9,
       "meters": 300.0,
       "from_m": 0.0,
       "to_m": 300.0
      }
     ],
     "summary": {
-     "duration_s": 151.3,
-     "walking_s": 150.8,
+     "duration_s": 125.4,
+     "walking_s": 124.9,
      "stops": 0,
      "stopped_s": 0,
-     "slowdowns": 1,
-     "slowed_s": 2.5,
-     "longest_uninterrupted_s": 150.8,
+     "slowdowns": 0,
+     "slowed_s": 0,
+     "longest_uninterrupted_s": 124.9,
      "longest_uninterrupted_m": 300.0,
-     "motion_threshold": 12.78,
+     "motion_threshold": 11.43,
      "frame_size": [
       338,
       600
      ]
-    }
+    },
+    "aligned_to": "data/day1_forward"
    },
+   "source_day": 2,
    "return": {
     "folder": "data/day1_return",
     "source": "point_b_to_a.mp4",
@@ -3578,444 +3047,417 @@
   {
    "day": 5,
    "mock": true,
-   "source_day": 1,
    "forward": {
-    "folder": "data/day1_forward",
-    "source": "point_a_to_b.mp4",
+    "folder": "data/day2_forward",
+    "source": "day2_a_to_b.mp4",
     "nodes": [
      {
       "i": 0,
       "file": "frame_000.jpg",
       "meter": 0.0,
       "t": 0.0,
-      "obstruction": 1.44,
-      "near_field": 0.71
+      "obstruction": 0.4,
+      "near_field": 0.86,
+      "meter_time": 0.0
      },
      {
       "i": 1,
       "file": "frame_001.jpg",
       "meter": 6.1,
       "t": 3.1,
-      "obstruction": 1.3,
-      "near_field": 0.7
+      "obstruction": 1.24,
+      "near_field": 2.36,
+      "meter_time": 7.3
      },
      {
       "i": 2,
       "file": "frame_002.jpg",
       "meter": 12.2,
       "t": 6.1,
-      "obstruction": 0.92,
-      "near_field": 0.08
+      "obstruction": 2.05,
+      "near_field": 3.65,
+      "meter_time": 14.7
      },
      {
       "i": 3,
       "file": "frame_003.jpg",
-      "meter": 18.2,
+      "meter": 24.3,
       "t": 9.2,
-      "obstruction": 0.15,
-      "near_field": 0.34
+      "obstruction": 0.79,
+      "near_field": 0.47,
+      "meter_time": 22.0
      },
      {
       "i": 4,
       "file": "frame_004.jpg",
-      "meter": 24.3,
+      "meter": 36.5,
       "t": 12.2,
-      "obstruction": 1.06,
-      "near_field": 1.44
+      "obstruction": 1.47,
+      "near_field": 2.44,
+      "meter_time": 29.4
      },
      {
       "i": 5,
       "file": "frame_005.jpg",
-      "meter": 30.4,
+      "meter": 42.6,
       "t": 15.3,
-      "obstruction": 1.04,
-      "near_field": 0.5
+      "obstruction": 1.46,
+      "near_field": 2.21,
+      "meter_time": 36.7
      },
      {
       "i": 6,
       "file": "frame_006.jpg",
-      "meter": 36.5,
+      "meter": 48.6,
       "t": 18.3,
-      "obstruction": 1.08,
-      "near_field": 0.32
+      "obstruction": 1.18,
+      "near_field": 1.8,
+      "meter_time": 44.1
      },
      {
       "i": 7,
       "file": "frame_007.jpg",
-      "meter": 42.6,
+      "meter": 57.8,
       "t": 21.4,
-      "obstruction": 0.85,
-      "near_field": 0.15
+      "obstruction": 1.45,
+      "near_field": 0.62,
+      "meter_time": 51.4
      },
      {
       "i": 8,
       "file": "frame_008.jpg",
-      "meter": 48.6,
+      "meter": 70.0,
       "t": 24.5,
-      "obstruction": 0.38,
-      "near_field": 0.35
+      "obstruction": 1.01,
+      "near_field": 1.14,
+      "meter_time": 58.8
      },
      {
       "i": 9,
       "file": "frame_009.jpg",
-      "meter": 54.7,
+      "meter": 79.1,
       "t": 27.5,
-      "obstruction": 0.69,
-      "near_field": 0.28
+      "obstruction": 1.4,
+      "near_field": 1.84,
+      "meter_time": 66.1
      },
      {
       "i": 10,
       "file": "frame_010.jpg",
-      "meter": 60.8,
+      "meter": 85.1,
       "t": 30.6,
-      "obstruction": 0.87,
-      "near_field": 1.18
+      "obstruction": 1.81,
+      "near_field": 3.81,
+      "meter_time": 73.5
      },
      {
       "i": 11,
       "file": "frame_011.jpg",
-      "meter": 66.9,
+      "meter": 97.3,
       "t": 33.6,
-      "obstruction": 0.39,
-      "near_field": 0.31
+      "obstruction": 2.45,
+      "near_field": 5.0,
+      "meter_time": 80.8
      },
      {
       "i": 12,
       "file": "frame_012.jpg",
-      "meter": 73.0,
+      "meter": 109.5,
       "t": 36.7,
-      "obstruction": 0.27,
-      "near_field": 0.13
+      "obstruction": 2.92,
+      "near_field": 4.15,
+      "meter_time": 88.2
      },
      {
       "i": 13,
       "file": "frame_013.jpg",
-      "meter": 79.1,
+      "meter": 115.5,
       "t": 39.8,
-      "obstruction": 2.37,
-      "near_field": 2.8
+      "obstruction": 1.81,
+      "near_field": 3.52,
+      "meter_time": 95.5
      },
      {
       "i": 14,
       "file": "frame_014.jpg",
-      "meter": 85.1,
+      "meter": 121.6,
       "t": 42.8,
-      "obstruction": 1.18,
-      "near_field": 0.42
+      "obstruction": 2.07,
+      "near_field": 3.98,
+      "meter_time": 102.9
      },
      {
       "i": 15,
       "file": "frame_015.jpg",
-      "meter": 91.2,
+      "meter": 127.7,
       "t": 45.9,
-      "obstruction": 0.21,
-      "near_field": 0.01
+      "obstruction": 2.53,
+      "near_field": 2.83,
+      "meter_time": 110.2
      },
      {
       "i": 16,
       "file": "frame_016.jpg",
-      "meter": 97.3,
+      "meter": 133.8,
       "t": 48.9,
-      "obstruction": 1.55,
-      "near_field": 0.95
+      "obstruction": 3.36,
+      "near_field": 5.0,
+      "meter_time": 117.6
      },
      {
       "i": 17,
       "file": "frame_017.jpg",
-      "meter": 103.4,
+      "meter": 139.9,
       "t": 52.0,
-      "obstruction": 0.87,
-      "near_field": 0.2
+      "obstruction": 4.92,
+      "near_field": 5.0,
+      "meter_time": 124.9
      },
      {
       "i": 18,
       "file": "frame_018.jpg",
-      "meter": 109.5,
+      "meter": 145.9,
       "t": 55.0,
-      "obstruction": 1.1,
-      "near_field": 0.53
+      "obstruction": 2.79,
+      "near_field": 5.0,
+      "meter_time": 132.2
      },
      {
       "i": 19,
       "file": "frame_019.jpg",
-      "meter": 115.5,
+      "meter": 152.0,
       "t": 58.1,
-      "obstruction": 1.1,
-      "near_field": 0.47
+      "obstruction": 2.75,
+      "near_field": 5.0,
+      "meter_time": 139.6
      },
      {
       "i": 20,
       "file": "frame_020.jpg",
-      "meter": 121.6,
+      "meter": 158.1,
       "t": 61.2,
-      "obstruction": 1.65,
-      "near_field": 2.95
+      "obstruction": 0.27,
+      "near_field": 0.28,
+      "meter_time": 146.9
      },
      {
       "i": 21,
       "file": "frame_021.jpg",
-      "meter": 127.7,
+      "meter": 164.2,
       "t": 64.2,
-      "obstruction": 1.09,
-      "near_field": 0.97
+      "obstruction": 0.61,
+      "near_field": 0.41,
+      "meter_time": 154.3
      },
      {
       "i": 22,
       "file": "frame_022.jpg",
-      "meter": 133.8,
+      "meter": 179.4,
       "t": 67.3,
-      "obstruction": 1.61,
-      "near_field": 0.12
+      "obstruction": 0.74,
+      "near_field": 0.46,
+      "meter_time": 161.6
      },
      {
       "i": 23,
       "file": "frame_023.jpg",
-      "meter": 139.9,
+      "meter": 194.6,
       "t": 70.3,
-      "obstruction": 2.41,
-      "near_field": 3.67
+      "obstruction": 0.28,
+      "near_field": 0.16,
+      "meter_time": 169.0
      },
      {
       "i": 24,
       "file": "frame_024.jpg",
-      "meter": 145.9,
+      "meter": 200.7,
       "t": 73.4,
-      "obstruction": 1.65,
-      "near_field": 2.17
+      "obstruction": 1.59,
+      "near_field": 1.4,
+      "meter_time": 176.3
      },
      {
       "i": 25,
       "file": "frame_025.jpg",
-      "meter": 152.0,
+      "meter": 206.8,
       "t": 76.4,
-      "obstruction": 2.66,
-      "near_field": 4.93
+      "obstruction": 0.5,
+      "near_field": 0.74,
+      "meter_time": 183.7
      },
      {
       "i": 26,
       "file": "frame_026.jpg",
-      "meter": 158.1,
+      "meter": 206.8,
       "t": 79.5,
-      "obstruction": 1.39,
-      "near_field": 1.38
+      "obstruction": 0.86,
+      "near_field": 1.21,
+      "meter_time": 191.0
      },
      {
       "i": 27,
       "file": "frame_027.jpg",
-      "meter": 164.2,
+      "meter": 212.8,
       "t": 82.6,
-      "obstruction": 0.88,
-      "near_field": 0.8
+      "obstruction": 0.99,
+      "near_field": 0.77,
+      "meter_time": 198.4
      },
      {
       "i": 28,
       "file": "frame_028.jpg",
-      "meter": 170.3,
+      "meter": 218.9,
       "t": 85.6,
-      "obstruction": 0.23,
-      "near_field": 0.63
+      "obstruction": 0.07,
+      "near_field": 0.1,
+      "meter_time": 205.7
      },
      {
       "i": 29,
       "file": "frame_029.jpg",
-      "meter": 176.4,
+      "meter": 225.0,
       "t": 88.7,
-      "obstruction": 2.04,
-      "near_field": 1.8
+      "obstruction": 0.3,
+      "near_field": 0.11,
+      "meter_time": 213.1
      },
      {
       "i": 30,
       "file": "frame_030.jpg",
-      "meter": 182.4,
+      "meter": 225.0,
       "t": 91.7,
-      "obstruction": 1.27,
-      "near_field": 0.8
+      "obstruction": 0.08,
+      "near_field": 0.09,
+      "meter_time": 220.4
      },
      {
       "i": 31,
       "file": "frame_031.jpg",
-      "meter": 188.5,
+      "meter": 231.1,
       "t": 94.8,
-      "obstruction": 1.02,
-      "near_field": 1.29
+      "obstruction": 0.74,
+      "near_field": 0.08,
+      "meter_time": 227.8
      },
      {
       "i": 32,
       "file": "frame_032.jpg",
-      "meter": 194.6,
-      "t": 97.8,
-      "obstruction": 1.73,
-      "near_field": 0.51
+      "meter": 237.2,
+      "t": 97.9,
+      "obstruction": 0.75,
+      "near_field": 0.09,
+      "meter_time": 235.1
      },
      {
       "i": 33,
       "file": "frame_033.jpg",
-      "meter": 200.7,
+      "meter": 246.2,
       "t": 100.9,
-      "obstruction": 3.84,
-      "near_field": 4.97
+      "obstruction": 0.41,
+      "near_field": 0.1,
+      "meter_time": 242.4
      },
      {
       "i": 34,
       "file": "frame_034.jpg",
-      "meter": 206.8,
+      "meter": 255.4,
       "t": 104.0,
-      "obstruction": 4.66,
-      "near_field": 5.0
+      "obstruction": 0.12,
+      "near_field": 0.1,
+      "meter_time": 249.8
      },
      {
       "i": 35,
       "file": "frame_035.jpg",
-      "meter": 212.8,
+      "meter": 261.5,
       "t": 107.0,
-      "obstruction": 2.21,
-      "near_field": 4.26
+      "obstruction": 0.19,
+      "near_field": 0.09,
+      "meter_time": 257.1
      },
      {
       "i": 36,
       "file": "frame_036.jpg",
-      "meter": 218.9,
+      "meter": 267.6,
       "t": 110.1,
-      "obstruction": 0.98,
-      "near_field": 1.18
+      "obstruction": 1.05,
+      "near_field": 0.23,
+      "meter_time": 264.5
      },
      {
       "i": 37,
       "file": "frame_037.jpg",
-      "meter": 225.0,
+      "meter": 273.6,
       "t": 113.1,
-      "obstruction": 0.52,
-      "near_field": 2.11
+      "obstruction": 0.67,
+      "near_field": 1.25,
+      "meter_time": 271.8
      },
      {
       "i": 38,
       "file": "frame_038.jpg",
-      "meter": 231.1,
+      "meter": 279.7,
       "t": 116.2,
-      "obstruction": 0.06,
-      "near_field": 0.05
+      "obstruction": 0.45,
+      "near_field": 0.23,
+      "meter_time": 279.2
      },
      {
       "i": 39,
       "file": "frame_039.jpg",
-      "meter": 237.2,
+      "meter": 285.8,
       "t": 119.3,
-      "obstruction": 0.17,
-      "near_field": 0.0
+      "obstruction": 0.14,
+      "near_field": 0.14,
+      "meter_time": 286.5
      },
      {
       "i": 40,
       "file": "frame_040.jpg",
-      "meter": 243.2,
+      "meter": 291.9,
       "t": 122.3,
-      "obstruction": 0.75,
-      "near_field": 0.0
+      "obstruction": 0.48,
+      "near_field": 0.13,
+      "meter_time": 293.9
      },
      {
       "i": 41,
       "file": "frame_041.jpg",
-      "meter": 249.3,
-      "t": 125.4,
-      "obstruction": 1.12,
-      "near_field": 0.07
-     },
-     {
-      "i": 42,
-      "file": "frame_042.jpg",
-      "meter": 255.4,
-      "t": 128.4,
-      "obstruction": 0.44,
-      "near_field": 0.0
-     },
-     {
-      "i": 43,
-      "file": "frame_043.jpg",
-      "meter": 261.5,
-      "t": 131.5,
-      "obstruction": 0.28,
-      "near_field": 0.0
-     },
-     {
-      "i": 44,
-      "file": "frame_044.jpg",
-      "meter": 267.6,
-      "t": 134.5,
-      "obstruction": 0.69,
-      "near_field": 0.06
-     },
-     {
-      "i": 45,
-      "file": "frame_045.jpg",
-      "meter": 273.6,
-      "t": 137.6,
-      "obstruction": 0.41,
-      "near_field": 0.06
-     },
-     {
-      "i": 46,
-      "file": "frame_046.jpg",
-      "meter": 279.7,
-      "t": 140.7,
-      "obstruction": 0.08,
-      "near_field": 0.25
-     },
-     {
-      "i": 47,
-      "file": "frame_047.jpg",
-      "meter": 285.8,
-      "t": 143.7,
-      "obstruction": 0.8,
-      "near_field": 0.08
-     },
-     {
-      "i": 48,
-      "file": "frame_048.jpg",
-      "meter": 291.9,
-      "t": 146.8,
-      "obstruction": 0.69,
-      "near_field": 0.09
-     },
-     {
-      "i": 49,
-      "file": "frame_049.jpg",
       "meter": 298.0,
-      "t": 149.8,
-      "obstruction": 0.09,
-      "near_field": 0.0
+      "t": 124.9,
+      "obstruction": 2.23,
+      "near_field": 5.0,
+      "meter_time": 300.0
      }
     ],
     "stops": [],
-    "slowdowns": [
-     {
-      "t": 122.8,
-      "duration_s": 2.5,
-      "meter": 244.3
-     }
-    ],
+    "slowdowns": [],
     "stretches": [
      {
-      "seconds": 150.8,
+      "seconds": 124.9,
       "meters": 300.0,
       "from_m": 0.0,
       "to_m": 300.0
      }
     ],
     "summary": {
-     "duration_s": 151.3,
-     "walking_s": 150.8,
+     "duration_s": 125.4,
+     "walking_s": 124.9,
      "stops": 0,
      "stopped_s": 0,
-     "slowdowns": 1,
-     "slowed_s": 2.5,
-     "longest_uninterrupted_s": 150.8,
+     "slowdowns": 0,
+     "slowed_s": 0,
+     "longest_uninterrupted_s": 124.9,
      "longest_uninterrupted_m": 300.0,
-     "motion_threshold": 12.78,
+     "motion_threshold": 11.43,
      "frame_size": [
       338,
       600
      ]
-    }
+    },
+    "aligned_to": "data/day1_forward"
    },
+   "source_day": 2,
    "return": {
     "folder": "data/day1_return",
     "source": "point_b_to_a.mp4",
@@ -4470,444 +3912,417 @@
   {
    "day": 6,
    "mock": true,
-   "source_day": 1,
    "forward": {
-    "folder": "data/day1_forward",
-    "source": "point_a_to_b.mp4",
+    "folder": "data/day2_forward",
+    "source": "day2_a_to_b.mp4",
     "nodes": [
      {
       "i": 0,
       "file": "frame_000.jpg",
       "meter": 0.0,
       "t": 0.0,
-      "obstruction": 1.44,
-      "near_field": 0.71
+      "obstruction": 0.4,
+      "near_field": 0.86,
+      "meter_time": 0.0
      },
      {
       "i": 1,
       "file": "frame_001.jpg",
       "meter": 6.1,
       "t": 3.1,
-      "obstruction": 1.3,
-      "near_field": 0.7
+      "obstruction": 1.24,
+      "near_field": 2.36,
+      "meter_time": 7.3
      },
      {
       "i": 2,
       "file": "frame_002.jpg",
       "meter": 12.2,
       "t": 6.1,
-      "obstruction": 0.92,
-      "near_field": 0.08
+      "obstruction": 2.05,
+      "near_field": 3.65,
+      "meter_time": 14.7
      },
      {
       "i": 3,
       "file": "frame_003.jpg",
-      "meter": 18.2,
+      "meter": 24.3,
       "t": 9.2,
-      "obstruction": 0.15,
-      "near_field": 0.34
+      "obstruction": 0.79,
+      "near_field": 0.47,
+      "meter_time": 22.0
      },
      {
       "i": 4,
       "file": "frame_004.jpg",
-      "meter": 24.3,
+      "meter": 36.5,
       "t": 12.2,
-      "obstruction": 1.06,
-      "near_field": 1.44
+      "obstruction": 1.47,
+      "near_field": 2.44,
+      "meter_time": 29.4
      },
      {
       "i": 5,
       "file": "frame_005.jpg",
-      "meter": 30.4,
+      "meter": 42.6,
       "t": 15.3,
-      "obstruction": 1.04,
-      "near_field": 0.5
+      "obstruction": 1.46,
+      "near_field": 2.21,
+      "meter_time": 36.7
      },
      {
       "i": 6,
       "file": "frame_006.jpg",
-      "meter": 36.5,
+      "meter": 48.6,
       "t": 18.3,
-      "obstruction": 1.08,
-      "near_field": 0.32
+      "obstruction": 1.18,
+      "near_field": 1.8,
+      "meter_time": 44.1
      },
      {
       "i": 7,
       "file": "frame_007.jpg",
-      "meter": 42.6,
+      "meter": 57.8,
       "t": 21.4,
-      "obstruction": 0.85,
-      "near_field": 0.15
+      "obstruction": 1.45,
+      "near_field": 0.62,
+      "meter_time": 51.4
      },
      {
       "i": 8,
       "file": "frame_008.jpg",
-      "meter": 48.6,
+      "meter": 70.0,
       "t": 24.5,
-      "obstruction": 0.38,
-      "near_field": 0.35
+      "obstruction": 1.01,
+      "near_field": 1.14,
+      "meter_time": 58.8
      },
      {
       "i": 9,
       "file": "frame_009.jpg",
-      "meter": 54.7,
+      "meter": 79.1,
       "t": 27.5,
-      "obstruction": 0.69,
-      "near_field": 0.28
+      "obstruction": 1.4,
+      "near_field": 1.84,
+      "meter_time": 66.1
      },
      {
       "i": 10,
       "file": "frame_010.jpg",
-      "meter": 60.8,
+      "meter": 85.1,
       "t": 30.6,
-      "obstruction": 0.87,
-      "near_field": 1.18
+      "obstruction": 1.81,
+      "near_field": 3.81,
+      "meter_time": 73.5
      },
      {
       "i": 11,
       "file": "frame_011.jpg",
-      "meter": 66.9,
+      "meter": 97.3,
       "t": 33.6,
-      "obstruction": 0.39,
-      "near_field": 0.31
+      "obstruction": 2.45,
+      "near_field": 5.0,
+      "meter_time": 80.8
      },
      {
       "i": 12,
       "file": "frame_012.jpg",
-      "meter": 73.0,
+      "meter": 109.5,
       "t": 36.7,
-      "obstruction": 0.27,
-      "near_field": 0.13
+      "obstruction": 2.92,
+      "near_field": 4.15,
+      "meter_time": 88.2
      },
      {
       "i": 13,
       "file": "frame_013.jpg",
-      "meter": 79.1,
+      "meter": 115.5,
       "t": 39.8,
-      "obstruction": 2.37,
-      "near_field": 2.8
+      "obstruction": 1.81,
+      "near_field": 3.52,
+      "meter_time": 95.5
      },
      {
       "i": 14,
       "file": "frame_014.jpg",
-      "meter": 85.1,
+      "meter": 121.6,
       "t": 42.8,
-      "obstruction": 1.18,
-      "near_field": 0.42
+      "obstruction": 2.07,
+      "near_field": 3.98,
+      "meter_time": 102.9
      },
      {
       "i": 15,
       "file": "frame_015.jpg",
-      "meter": 91.2,
+      "meter": 127.7,
       "t": 45.9,
-      "obstruction": 0.21,
-      "near_field": 0.01
+      "obstruction": 2.53,
+      "near_field": 2.83,
+      "meter_time": 110.2
      },
      {
       "i": 16,
       "file": "frame_016.jpg",
-      "meter": 97.3,
+      "meter": 133.8,
       "t": 48.9,
-      "obstruction": 1.55,
-      "near_field": 0.95
+      "obstruction": 3.36,
+      "near_field": 5.0,
+      "meter_time": 117.6
      },
      {
       "i": 17,
       "file": "frame_017.jpg",
-      "meter": 103.4,
+      "meter": 139.9,
       "t": 52.0,
-      "obstruction": 0.87,
-      "near_field": 0.2
+      "obstruction": 4.92,
+      "near_field": 5.0,
+      "meter_time": 124.9
      },
      {
       "i": 18,
       "file": "frame_018.jpg",
-      "meter": 109.5,
+      "meter": 145.9,
       "t": 55.0,
-      "obstruction": 1.1,
-      "near_field": 0.53
+      "obstruction": 2.79,
+      "near_field": 5.0,
+      "meter_time": 132.2
      },
      {
       "i": 19,
       "file": "frame_019.jpg",
-      "meter": 115.5,
+      "meter": 152.0,
       "t": 58.1,
-      "obstruction": 1.1,
-      "near_field": 0.47
+      "obstruction": 2.75,
+      "near_field": 5.0,
+      "meter_time": 139.6
      },
      {
       "i": 20,
       "file": "frame_020.jpg",
-      "meter": 121.6,
+      "meter": 158.1,
       "t": 61.2,
-      "obstruction": 1.65,
-      "near_field": 2.95
+      "obstruction": 0.27,
+      "near_field": 0.28,
+      "meter_time": 146.9
      },
      {
       "i": 21,
       "file": "frame_021.jpg",
-      "meter": 127.7,
+      "meter": 164.2,
       "t": 64.2,
-      "obstruction": 1.09,
-      "near_field": 0.97
+      "obstruction": 0.61,
+      "near_field": 0.41,
+      "meter_time": 154.3
      },
      {
       "i": 22,
       "file": "frame_022.jpg",
-      "meter": 133.8,
+      "meter": 179.4,
       "t": 67.3,
-      "obstruction": 1.61,
-      "near_field": 0.12
+      "obstruction": 0.74,
+      "near_field": 0.46,
+      "meter_time": 161.6
      },
      {
       "i": 23,
       "file": "frame_023.jpg",
-      "meter": 139.9,
+      "meter": 194.6,
       "t": 70.3,
-      "obstruction": 2.41,
-      "near_field": 3.67
+      "obstruction": 0.28,
+      "near_field": 0.16,
+      "meter_time": 169.0
      },
      {
       "i": 24,
       "file": "frame_024.jpg",
-      "meter": 145.9,
+      "meter": 200.7,
       "t": 73.4,
-      "obstruction": 1.65,
-      "near_field": 2.17
+      "obstruction": 1.59,
+      "near_field": 1.4,
+      "meter_time": 176.3
      },
      {
       "i": 25,
       "file": "frame_025.jpg",
-      "meter": 152.0,
+      "meter": 206.8,
       "t": 76.4,
-      "obstruction": 2.66,
-      "near_field": 4.93
+      "obstruction": 0.5,
+      "near_field": 0.74,
+      "meter_time": 183.7
      },
      {
       "i": 26,
       "file": "frame_026.jpg",
-      "meter": 158.1,
+      "meter": 206.8,
       "t": 79.5,
-      "obstruction": 1.39,
-      "near_field": 1.38
+      "obstruction": 0.86,
+      "near_field": 1.21,
+      "meter_time": 191.0
      },
      {
       "i": 27,
       "file": "frame_027.jpg",
-      "meter": 164.2,
+      "meter": 212.8,
       "t": 82.6,
-      "obstruction": 0.88,
-      "near_field": 0.8
+      "obstruction": 0.99,
+      "near_field": 0.77,
+      "meter_time": 198.4
      },
      {
       "i": 28,
       "file": "frame_028.jpg",
-      "meter": 170.3,
+      "meter": 218.9,
       "t": 85.6,
-      "obstruction": 0.23,
-      "near_field": 0.63
+      "obstruction": 0.07,
+      "near_field": 0.1,
+      "meter_time": 205.7
      },
      {
       "i": 29,
       "file": "frame_029.jpg",
-      "meter": 176.4,
+      "meter": 225.0,
       "t": 88.7,
-      "obstruction": 2.04,
-      "near_field": 1.8
+      "obstruction": 0.3,
+      "near_field": 0.11,
+      "meter_time": 213.1
      },
      {
       "i": 30,
       "file": "frame_030.jpg",
-      "meter": 182.4,
+      "meter": 225.0,
       "t": 91.7,
-      "obstruction": 1.27,
-      "near_field": 0.8
+      "obstruction": 0.08,
+      "near_field": 0.09,
+      "meter_time": 220.4
      },
      {
       "i": 31,
       "file": "frame_031.jpg",
-      "meter": 188.5,
+      "meter": 231.1,
       "t": 94.8,
-      "obstruction": 1.02,
-      "near_field": 1.29
+      "obstruction": 0.74,
+      "near_field": 0.08,
+      "meter_time": 227.8
      },
      {
       "i": 32,
       "file": "frame_032.jpg",
-      "meter": 194.6,
-      "t": 97.8,
-      "obstruction": 1.73,
-      "near_field": 0.51
+      "meter": 237.2,
+      "t": 97.9,
+      "obstruction": 0.75,
+      "near_field": 0.09,
+      "meter_time": 235.1
      },
      {
       "i": 33,
       "file": "frame_033.jpg",
-      "meter": 200.7,
+      "meter": 246.2,
       "t": 100.9,
-      "obstruction": 3.84,
-      "near_field": 4.97
+      "obstruction": 0.41,
+      "near_field": 0.1,
+      "meter_time": 242.4
      },
      {
       "i": 34,
       "file": "frame_034.jpg",
-      "meter": 206.8,
+      "meter": 255.4,
       "t": 104.0,
-      "obstruction": 4.66,
-      "near_field": 5.0
+      "obstruction": 0.12,
+      "near_field": 0.1,
+      "meter_time": 249.8
      },
      {
       "i": 35,
       "file": "frame_035.jpg",
-      "meter": 212.8,
+      "meter": 261.5,
       "t": 107.0,
-      "obstruction": 2.21,
-      "near_field": 4.26
+      "obstruction": 0.19,
+      "near_field": 0.09,
+      "meter_time": 257.1
      },
      {
       "i": 36,
       "file": "frame_036.jpg",
-      "meter": 218.9,
+      "meter": 267.6,
       "t": 110.1,
-      "obstruction": 0.98,
-      "near_field": 1.18
+      "obstruction": 1.05,
+      "near_field": 0.23,
+      "meter_time": 264.5
      },
      {
       "i": 37,
       "file": "frame_037.jpg",
-      "meter": 225.0,
+      "meter": 273.6,
       "t": 113.1,
-      "obstruction": 0.52,
-      "near_field": 2.11
+      "obstruction": 0.67,
+      "near_field": 1.25,
+      "meter_time": 271.8
      },
      {
       "i": 38,
       "file": "frame_038.jpg",
-      "meter": 231.1,
+      "meter": 279.7,
       "t": 116.2,
-      "obstruction": 0.06,
-      "near_field": 0.05
+      "obstruction": 0.45,
+      "near_field": 0.23,
+      "meter_time": 279.2
      },
      {
       "i": 39,
       "file": "frame_039.jpg",
-      "meter": 237.2,
+      "meter": 285.8,
       "t": 119.3,
-      "obstruction": 0.17,
-      "near_field": 0.0
+      "obstruction": 0.14,
+      "near_field": 0.14,
+      "meter_time": 286.5
      },
      {
       "i": 40,
       "file": "frame_040.jpg",
-      "meter": 243.2,
+      "meter": 291.9,
       "t": 122.3,
-      "obstruction": 0.75,
-      "near_field": 0.0
+      "obstruction": 0.48,
+      "near_field": 0.13,
+      "meter_time": 293.9
      },
      {
       "i": 41,
       "file": "frame_041.jpg",
-      "meter": 249.3,
-      "t": 125.4,
-      "obstruction": 1.12,
-      "near_field": 0.07
-     },
-     {
-      "i": 42,
-      "file": "frame_042.jpg",
-      "meter": 255.4,
-      "t": 128.4,
-      "obstruction": 0.44,
-      "near_field": 0.0
-     },
-     {
-      "i": 43,
-      "file": "frame_043.jpg",
-      "meter": 261.5,
-      "t": 131.5,
-      "obstruction": 0.28,
-      "near_field": 0.0
-     },
-     {
-      "i": 44,
-      "file": "frame_044.jpg",
-      "meter": 267.6,
-      "t": 134.5,
-      "obstruction": 0.69,
-      "near_field": 0.06
-     },
-     {
-      "i": 45,
-      "file": "frame_045.jpg",
-      "meter": 273.6,
-      "t": 137.6,
-      "obstruction": 0.41,
-      "near_field": 0.06
-     },
-     {
-      "i": 46,
-      "file": "frame_046.jpg",
-      "meter": 279.7,
-      "t": 140.7,
-      "obstruction": 0.08,
-      "near_field": 0.25
-     },
-     {
-      "i": 47,
-      "file": "frame_047.jpg",
-      "meter": 285.8,
-      "t": 143.7,
-      "obstruction": 0.8,
-      "near_field": 0.08
-     },
-     {
-      "i": 48,
-      "file": "frame_048.jpg",
-      "meter": 291.9,
-      "t": 146.8,
-      "obstruction": 0.69,
-      "near_field": 0.09
-     },
-     {
-      "i": 49,
-      "file": "frame_049.jpg",
       "meter": 298.0,
-      "t": 149.8,
-      "obstruction": 0.09,
-      "near_field": 0.0
+      "t": 124.9,
+      "obstruction": 2.23,
+      "near_field": 5.0,
+      "meter_time": 300.0
      }
     ],
     "stops": [],
-    "slowdowns": [
-     {
-      "t": 122.8,
-      "duration_s": 2.5,
-      "meter": 244.3
-     }
-    ],
+    "slowdowns": [],
     "stretches": [
      {
-      "seconds": 150.8,
+      "seconds": 124.9,
       "meters": 300.0,
       "from_m": 0.0,
       "to_m": 300.0
      }
     ],
     "summary": {
-     "duration_s": 151.3,
-     "walking_s": 150.8,
+     "duration_s": 125.4,
+     "walking_s": 124.9,
      "stops": 0,
      "stopped_s": 0,
-     "slowdowns": 1,
-     "slowed_s": 2.5,
-     "longest_uninterrupted_s": 150.8,
+     "slowdowns": 0,
+     "slowed_s": 0,
+     "longest_uninterrupted_s": 124.9,
      "longest_uninterrupted_m": 300.0,
-     "motion_threshold": 12.78,
+     "motion_threshold": 11.43,
      "frame_size": [
       338,
       600
      ]
-    }
+    },
+    "aligned_to": "data/day1_forward"
    },
+   "source_day": 2,
    "return": {
     "folder": "data/day1_return",
     "source": "point_b_to_a.mp4",
@@ -5362,444 +4777,417 @@
   {
    "day": 7,
    "mock": true,
-   "source_day": 1,
    "forward": {
-    "folder": "data/day1_forward",
-    "source": "point_a_to_b.mp4",
+    "folder": "data/day2_forward",
+    "source": "day2_a_to_b.mp4",
     "nodes": [
      {
       "i": 0,
       "file": "frame_000.jpg",
       "meter": 0.0,
       "t": 0.0,
-      "obstruction": 1.44,
-      "near_field": 0.71
+      "obstruction": 0.4,
+      "near_field": 0.86,
+      "meter_time": 0.0
      },
      {
       "i": 1,
       "file": "frame_001.jpg",
       "meter": 6.1,
       "t": 3.1,
-      "obstruction": 1.3,
-      "near_field": 0.7
+      "obstruction": 1.24,
+      "near_field": 2.36,
+      "meter_time": 7.3
      },
      {
       "i": 2,
       "file": "frame_002.jpg",
       "meter": 12.2,
       "t": 6.1,
-      "obstruction": 0.92,
-      "near_field": 0.08
+      "obstruction": 2.05,
+      "near_field": 3.65,
+      "meter_time": 14.7
      },
      {
       "i": 3,
       "file": "frame_003.jpg",
-      "meter": 18.2,
+      "meter": 24.3,
       "t": 9.2,
-      "obstruction": 0.15,
-      "near_field": 0.34
+      "obstruction": 0.79,
+      "near_field": 0.47,
+      "meter_time": 22.0
      },
      {
       "i": 4,
       "file": "frame_004.jpg",
-      "meter": 24.3,
+      "meter": 36.5,
       "t": 12.2,
-      "obstruction": 1.06,
-      "near_field": 1.44
+      "obstruction": 1.47,
+      "near_field": 2.44,
+      "meter_time": 29.4
      },
      {
       "i": 5,
       "file": "frame_005.jpg",
-      "meter": 30.4,
+      "meter": 42.6,
       "t": 15.3,
-      "obstruction": 1.04,
-      "near_field": 0.5
+      "obstruction": 1.46,
+      "near_field": 2.21,
+      "meter_time": 36.7
      },
      {
       "i": 6,
       "file": "frame_006.jpg",
-      "meter": 36.5,
+      "meter": 48.6,
       "t": 18.3,
-      "obstruction": 1.08,
-      "near_field": 0.32
+      "obstruction": 1.18,
+      "near_field": 1.8,
+      "meter_time": 44.1
      },
      {
       "i": 7,
       "file": "frame_007.jpg",
-      "meter": 42.6,
+      "meter": 57.8,
       "t": 21.4,
-      "obstruction": 0.85,
-      "near_field": 0.15
+      "obstruction": 1.45,
+      "near_field": 0.62,
+      "meter_time": 51.4
      },
      {
       "i": 8,
       "file": "frame_008.jpg",
-      "meter": 48.6,
+      "meter": 70.0,
       "t": 24.5,
-      "obstruction": 0.38,
-      "near_field": 0.35
+      "obstruction": 1.01,
+      "near_field": 1.14,
+      "meter_time": 58.8
      },
      {
       "i": 9,
       "file": "frame_009.jpg",
-      "meter": 54.7,
+      "meter": 79.1,
       "t": 27.5,
-      "obstruction": 0.69,
-      "near_field": 0.28
+      "obstruction": 1.4,
+      "near_field": 1.84,
+      "meter_time": 66.1
      },
      {
       "i": 10,
       "file": "frame_010.jpg",
-      "meter": 60.8,
+      "meter": 85.1,
       "t": 30.6,
-      "obstruction": 0.87,
-      "near_field": 1.18
+      "obstruction": 1.81,
+      "near_field": 3.81,
+      "meter_time": 73.5
      },
      {
       "i": 11,
       "file": "frame_011.jpg",
-      "meter": 66.9,
+      "meter": 97.3,
       "t": 33.6,
-      "obstruction": 0.39,
-      "near_field": 0.31
+      "obstruction": 2.45,
+      "near_field": 5.0,
+      "meter_time": 80.8
      },
      {
       "i": 12,
       "file": "frame_012.jpg",
-      "meter": 73.0,
+      "meter": 109.5,
       "t": 36.7,
-      "obstruction": 0.27,
-      "near_field": 0.13
+      "obstruction": 2.92,
+      "near_field": 4.15,
+      "meter_time": 88.2
      },
      {
       "i": 13,
       "file": "frame_013.jpg",
-      "meter": 79.1,
+      "meter": 115.5,
       "t": 39.8,
-      "obstruction": 2.37,
-      "near_field": 2.8
+      "obstruction": 1.81,
+      "near_field": 3.52,
+      "meter_time": 95.5
      },
      {
       "i": 14,
       "file": "frame_014.jpg",
-      "meter": 85.1,
+      "meter": 121.6,
       "t": 42.8,
-      "obstruction": 1.18,
-      "near_field": 0.42
+      "obstruction": 2.07,
+      "near_field": 3.98,
+      "meter_time": 102.9
      },
      {
       "i": 15,
       "file": "frame_015.jpg",
-      "meter": 91.2,
+      "meter": 127.7,
       "t": 45.9,
-      "obstruction": 0.21,
-      "near_field": 0.01
+      "obstruction": 2.53,
+      "near_field": 2.83,
+      "meter_time": 110.2
      },
      {
       "i": 16,
       "file": "frame_016.jpg",
-      "meter": 97.3,
+      "meter": 133.8,
       "t": 48.9,
-      "obstruction": 1.55,
-      "near_field": 0.95
+      "obstruction": 3.36,
+      "near_field": 5.0,
+      "meter_time": 117.6
      },
      {
       "i": 17,
       "file": "frame_017.jpg",
-      "meter": 103.4,
+      "meter": 139.9,
       "t": 52.0,
-      "obstruction": 0.87,
-      "near_field": 0.2
+      "obstruction": 4.92,
+      "near_field": 5.0,
+      "meter_time": 124.9
      },
      {
       "i": 18,
       "file": "frame_018.jpg",
-      "meter": 109.5,
+      "meter": 145.9,
       "t": 55.0,
-      "obstruction": 1.1,
-      "near_field": 0.53
+      "obstruction": 2.79,
+      "near_field": 5.0,
+      "meter_time": 132.2
      },
      {
       "i": 19,
       "file": "frame_019.jpg",
-      "meter": 115.5,
+      "meter": 152.0,
       "t": 58.1,
-      "obstruction": 1.1,
-      "near_field": 0.47
+      "obstruction": 2.75,
+      "near_field": 5.0,
+      "meter_time": 139.6
      },
      {
       "i": 20,
       "file": "frame_020.jpg",
-      "meter": 121.6,
+      "meter": 158.1,
       "t": 61.2,
-      "obstruction": 1.65,
-      "near_field": 2.95
+      "obstruction": 0.27,
+      "near_field": 0.28,
+      "meter_time": 146.9
      },
      {
       "i": 21,
       "file": "frame_021.jpg",
-      "meter": 127.7,
+      "meter": 164.2,
       "t": 64.2,
-      "obstruction": 1.09,
-      "near_field": 0.97
+      "obstruction": 0.61,
+      "near_field": 0.41,
+      "meter_time": 154.3
      },
      {
       "i": 22,
       "file": "frame_022.jpg",
-      "meter": 133.8,
+      "meter": 179.4,
       "t": 67.3,
-      "obstruction": 1.61,
-      "near_field": 0.12
+      "obstruction": 0.74,
+      "near_field": 0.46,
+      "meter_time": 161.6
      },
      {
       "i": 23,
       "file": "frame_023.jpg",
-      "meter": 139.9,
+      "meter": 194.6,
       "t": 70.3,
-      "obstruction": 2.41,
-      "near_field": 3.67
+      "obstruction": 0.28,
+      "near_field": 0.16,
+      "meter_time": 169.0
      },
      {
       "i": 24,
       "file": "frame_024.jpg",
-      "meter": 145.9,
+      "meter": 200.7,
       "t": 73.4,
-      "obstruction": 1.65,
-      "near_field": 2.17
+      "obstruction": 1.59,
+      "near_field": 1.4,
+      "meter_time": 176.3
      },
      {
       "i": 25,
       "file": "frame_025.jpg",
-      "meter": 152.0,
+      "meter": 206.8,
       "t": 76.4,
-      "obstruction": 2.66,
-      "near_field": 4.93
+      "obstruction": 0.5,
+      "near_field": 0.74,
+      "meter_time": 183.7
      },
      {
       "i": 26,
       "file": "frame_026.jpg",
-      "meter": 158.1,
+      "meter": 206.8,
       "t": 79.5,
-      "obstruction": 1.39,
-      "near_field": 1.38
+      "obstruction": 0.86,
+      "near_field": 1.21,
+      "meter_time": 191.0
      },
      {
       "i": 27,
       "file": "frame_027.jpg",
-      "meter": 164.2,
+      "meter": 212.8,
       "t": 82.6,
-      "obstruction": 0.88,
-      "near_field": 0.8
+      "obstruction": 0.99,
+      "near_field": 0.77,
+      "meter_time": 198.4
      },
      {
       "i": 28,
       "file": "frame_028.jpg",
-      "meter": 170.3,
+      "meter": 218.9,
       "t": 85.6,
-      "obstruction": 0.23,
-      "near_field": 0.63
+      "obstruction": 0.07,
+      "near_field": 0.1,
+      "meter_time": 205.7
      },
      {
       "i": 29,
       "file": "frame_029.jpg",
-      "meter": 176.4,
+      "meter": 225.0,
       "t": 88.7,
-      "obstruction": 2.04,
-      "near_field": 1.8
+      "obstruction": 0.3,
+      "near_field": 0.11,
+      "meter_time": 213.1
      },
      {
       "i": 30,
       "file": "frame_030.jpg",
-      "meter": 182.4,
+      "meter": 225.0,
       "t": 91.7,
-      "obstruction": 1.27,
-      "near_field": 0.8
+      "obstruction": 0.08,
+      "near_field": 0.09,
+      "meter_time": 220.4
      },
      {
       "i": 31,
       "file": "frame_031.jpg",
-      "meter": 188.5,
+      "meter": 231.1,
       "t": 94.8,
-      "obstruction": 1.02,
-      "near_field": 1.29
+      "obstruction": 0.74,
+      "near_field": 0.08,
+      "meter_time": 227.8
      },
      {
       "i": 32,
       "file": "frame_032.jpg",
-      "meter": 194.6,
-      "t": 97.8,
-      "obstruction": 1.73,
-      "near_field": 0.51
+      "meter": 237.2,
+      "t": 97.9,
+      "obstruction": 0.75,
+      "near_field": 0.09,
+      "meter_time": 235.1
      },
      {
       "i": 33,
       "file": "frame_033.jpg",
-      "meter": 200.7,
+      "meter": 246.2,
       "t": 100.9,
-      "obstruction": 3.84,
-      "near_field": 4.97
+      "obstruction": 0.41,
+      "near_field": 0.1,
+      "meter_time": 242.4
      },
      {
       "i": 34,
       "file": "frame_034.jpg",
-      "meter": 206.8,
+      "meter": 255.4,
       "t": 104.0,
-      "obstruction": 4.66,
-      "near_field": 5.0
+      "obstruction": 0.12,
+      "near_field": 0.1,
+      "meter_time": 249.8
      },
      {
       "i": 35,
       "file": "frame_035.jpg",
-      "meter": 212.8,
+      "meter": 261.5,
       "t": 107.0,
-      "obstruction": 2.21,
-      "near_field": 4.26
+      "obstruction": 0.19,
+      "near_field": 0.09,
+      "meter_time": 257.1
      },
      {
       "i": 36,
       "file": "frame_036.jpg",
-      "meter": 218.9,
+      "meter": 267.6,
       "t": 110.1,
-      "obstruction": 0.98,
-      "near_field": 1.18
+      "obstruction": 1.05,
+      "near_field": 0.23,
+      "meter_time": 264.5
      },
      {
       "i": 37,
       "file": "frame_037.jpg",
-      "meter": 225.0,
+      "meter": 273.6,
       "t": 113.1,
-      "obstruction": 0.52,
-      "near_field": 2.11
+      "obstruction": 0.67,
+      "near_field": 1.25,
+      "meter_time": 271.8
      },
      {
       "i": 38,
       "file": "frame_038.jpg",
-      "meter": 231.1,
+      "meter": 279.7,
       "t": 116.2,
-      "obstruction": 0.06,
-      "near_field": 0.05
+      "obstruction": 0.45,
+      "near_field": 0.23,
+      "meter_time": 279.2
      },
      {
       "i": 39,
       "file": "frame_039.jpg",
-      "meter": 237.2,
+      "meter": 285.8,
       "t": 119.3,
-      "obstruction": 0.17,
-      "near_field": 0.0
+      "obstruction": 0.14,
+      "near_field": 0.14,
+      "meter_time": 286.5
      },
      {
       "i": 40,
       "file": "frame_040.jpg",
-      "meter": 243.2,
+      "meter": 291.9,
       "t": 122.3,
-      "obstruction": 0.75,
-      "near_field": 0.0
+      "obstruction": 0.48,
+      "near_field": 0.13,
+      "meter_time": 293.9
      },
      {
       "i": 41,
       "file": "frame_041.jpg",
-      "meter": 249.3,
-      "t": 125.4,
-      "obstruction": 1.12,
-      "near_field": 0.07
-     },
-     {
-      "i": 42,
-      "file": "frame_042.jpg",
-      "meter": 255.4,
-      "t": 128.4,
-      "obstruction": 0.44,
-      "near_field": 0.0
-     },
-     {
-      "i": 43,
-      "file": "frame_043.jpg",
-      "meter": 261.5,
-      "t": 131.5,
-      "obstruction": 0.28,
-      "near_field": 0.0
-     },
-     {
-      "i": 44,
-      "file": "frame_044.jpg",
-      "meter": 267.6,
-      "t": 134.5,
-      "obstruction": 0.69,
-      "near_field": 0.06
-     },
-     {
-      "i": 45,
-      "file": "frame_045.jpg",
-      "meter": 273.6,
-      "t": 137.6,
-      "obstruction": 0.41,
-      "near_field": 0.06
-     },
-     {
-      "i": 46,
-      "file": "frame_046.jpg",
-      "meter": 279.7,
-      "t": 140.7,
-      "obstruction": 0.08,
-      "near_field": 0.25
-     },
-     {
-      "i": 47,
-      "file": "frame_047.jpg",
-      "meter": 285.8,
-      "t": 143.7,
-      "obstruction": 0.8,
-      "near_field": 0.08
-     },
-     {
-      "i": 48,
-      "file": "frame_048.jpg",
-      "meter": 291.9,
-      "t": 146.8,
-      "obstruction": 0.69,
-      "near_field": 0.09
-     },
-     {
-      "i": 49,
-      "file": "frame_049.jpg",
       "meter": 298.0,
-      "t": 149.8,
-      "obstruction": 0.09,
-      "near_field": 0.0
+      "t": 124.9,
+      "obstruction": 2.23,
+      "near_field": 5.0,
+      "meter_time": 300.0
      }
     ],
     "stops": [],
-    "slowdowns": [
-     {
-      "t": 122.8,
-      "duration_s": 2.5,
-      "meter": 244.3
-     }
-    ],
+    "slowdowns": [],
     "stretches": [
      {
-      "seconds": 150.8,
+      "seconds": 124.9,
       "meters": 300.0,
       "from_m": 0.0,
       "to_m": 300.0
      }
     ],
     "summary": {
-     "duration_s": 151.3,
-     "walking_s": 150.8,
+     "duration_s": 125.4,
+     "walking_s": 124.9,
      "stops": 0,
      "stopped_s": 0,
-     "slowdowns": 1,
-     "slowed_s": 2.5,
-     "longest_uninterrupted_s": 150.8,
+     "slowdowns": 0,
+     "slowed_s": 0,
+     "longest_uninterrupted_s": 124.9,
      "longest_uninterrupted_m": 300.0,
-     "motion_threshold": 12.78,
+     "motion_threshold": 11.43,
      "frame_size": [
       338,
       600
      ]
-    }
+    },
+    "aligned_to": "data/day1_forward"
    },
+   "source_day": 2,
    "return": {
     "folder": "data/day1_return",
     "source": "point_b_to_a.mp4",

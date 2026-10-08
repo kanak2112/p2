@@ -299,14 +299,15 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
   $('subtitle').textContent = `${D.corridor.name} · ${fmt(L)} m footpath corridor · ${D.corridor.city}`;
   const mocks = days.filter(d => d.mock).map(d => d.day);
   $('status').innerHTML = `<span class="pill">${realDays.length} surveyed day${realDays.length === 1 ? '' : 's'}</span>` +
-    (mocks.length ? `<span class="pill warn">Days ${mocks[0]}–${mocks[mocks.length - 1]} are copies of Day ${days.find(d => d.mock).source_day}</span>` : '');
+    (mocks.length ? `<span class="pill warn">Days ${mocks[0]}–${mocks[mocks.length - 1]} are placeholders repeating the latest surveyed walks</span>` : '');
   const slider = $('day');
   slider.min = 0; slider.max = days.length - 1; slider.value = 0;
   $('dayLabel').textContent = `Day ${days[0].day} – ${days[days.length - 1].day}`;
   function renderTicks() {
     $('ticks').innerHTML = days.map((d, i) => `<span class="${d.mock ? '' : 'real'} ${i === state.idx ? 'on' : ''}" title="${d.mock ? 'Placeholder copy' : 'Surveyed'}">${d.day}</span>`).join('');
     const d = day();
-    $('dayline').textContent = d.mock ? `Day ${pad(d.day)} · placeholder (copy of Day ${pad(d.source_day)})` : `Day ${pad(d.day)} · surveyed ${d.processed || ''}`;
+    const src = k => d[k] ? `${k === 'forward' ? 'NB' : 'SB'} from Day ${pad(+d[k].folder.match(/day(\d+)_/)[1])}` : null;
+    $('dayline').textContent = d.mock ? `Day ${pad(d.day)} · placeholder (${['forward', 'return'].map(src).filter(Boolean).join(', ')})` : `Day ${pad(d.day)} · surveyed ${d.processed || ''}`;
   }
   slider.addEventListener('input', () => { state.idx = +slider.value; renderAll(); });
 
