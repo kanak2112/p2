@@ -244,7 +244,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
   <div class="dlg">
     <div class="card-head" style="margin:0"><h2>Civic evidence summary</h2><button class="btn ghost" id="closeDlg">Close</button></div>
     <div class="fields">
-      <label for="fWard">BMC ward<input id="fWard" value="K/West"></label>
+      <label for="fWard">BMC ward<input id="fWard" value="K/East"></label>
       <label for="fStreet">Street / corridor<input id="fStreet"></label>
       <label for="fAuthor">Prepared by<input id="fAuthor" value="M.Des Stage 2, Street Intelligence"></label>
       <label for="fBench">Uninterrupted-walk threshold (s)<input id="fBench" type="number" min="1" max="120" value="12"></label>
@@ -379,10 +379,15 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
     }
     s += `<line x1="${M.l}" x2="${PW - M.r}" y1="${py(OBS)}" y2="${py(OBS)}" stroke="var(--fg-2)" stroke-dasharray="4 3" stroke-width="1"/>`;
     s += `<text x="${PW - M.r}" y="${py(OBS) - 5}" text-anchor="end" style="fill:var(--fg-2)">obstructed above ${OBS}</text>`;
-    for (let m = 0; m <= L + 0.01; m += 25) {
+    const xt = []; for (let m = 0; m <= L + 0.01; m += 25) xt.push(m); if (L - xt[xt.length - 1] > 8) xt.push(L);
+    for (const m of xt) {
       s += `<line x1="${px(m)}" x2="${px(m)}" y1="${PH - M.b}" y2="${PH - M.b + 4}" stroke="var(--muted)"/>`;
-      s += `<text x="${px(m)}" y="${PH - M.b + 15}" text-anchor="middle">${m}</text>`;
+      s += `<text x="${px(m)}" y="${PH - M.b + 15}" text-anchor="middle">${fmt(m)}</text>`;
     }
+    // map landmarks used to pin positions
+    Object.entries(D.corridor.landmarks || {}).forEach(([k, m]) => {
+      s += `<line x1="${px(m)}" x2="${px(m)}" y1="${M.t}" y2="${PH - M.b}" stroke="var(--line)" stroke-dasharray="2 3"><title>${k.replace(/_/g, ' ')} · ${m} m (map)</title></line>`;
+    });
     s += `<text x="${M.l}" y="${M.t - 12}" style="fill:var(--fg-2)">Obstruction index (1 = typical frame)</text>`;
     for (const dir of DIRS) {
       const w = walk(d, dir.key); if (!w) continue;
@@ -458,6 +463,8 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
       if (k === 0) {
         html += `<div class="axis" style="width:${W}px">`;
         for (let m = 0; m <= L + 0.01; m += 5) html += `<div class="t ${m % 25 ? 'minor' : ''}" style="left:${x(m)}px"></div>` + (m % 25 ? '' : `<div class="l" style="left:${x(m)}px">${m} m</div>`);
+        if (L % 25) html += `<div class="t" style="left:${x(L)}px"></div><div class="l" style="left:${x(L)}px">${fmt(L)} m</div>`;
+        Object.entries(D.corridor.landmarks || {}).forEach(([k, m]) => html += `<div class="t" style="left:${x(m)}px;height:100%;background:var(--line)" title="${k.replace(/_/g, ' ')} · ${m} m"></div>`);
         html += `</div>`;
       }
     });
@@ -539,7 +546,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
     $('inspector').innerHTML = `
       <div class="insp-head"><span class="lbl">Spatial inspector</span><span class="mono" style="color:var(--muted);font-size:12px">Day ${pad(d.day)}${d.mock ? ' (copy)' : ''}</span></div>
       <div class="insp-head"><span class="m">${fmt(m)} m</span><span class="note">${BIN} m bin ${bin * BIN}–${Math.min(L, (bin + 1) * BIN)}</span></div>
-      <div class="pair">${info.map(i => `<figure><div class="ph ${i.n ? '' : 'empty'}" style="border-top-color:${i.dir.color}">${i.n ? `<img src="${i.w.folder}/${i.n.file}" alt="${i.dir.name} frame at ${fmt(i.n.meter)} m">` : ''}</div><figcaption style="color:var(--fg)">${i.dir.name}</figcaption></figure>`).join('')}</div>
+      <div class="pair">${info.map(i => `<figure><div class="ph ${i.n ? '' : 'empty'}" style="border-top-color:${i.dir.color}">${i.n ? `<img src="${i.w.folder}/${i.n.file}" alt="${i.dir.name} frame at ${fmt(i.n.meter)} m">` : ''}</div><figcaption style="color:var(--fg)">${i.dir.short} <span style="color:var(--muted);font-weight:500;letter-spacing:0;text-transform:none">· facing ${i.dir.key === 'forward' ? 'B' : 'A'}</span></figcaption></figure>`).join('')}</div>
       <table class="mx"><thead><tr><th></th><th>NB</th><th>SB</th></tr></thead><tbody>
         ${row('Frame position', i => fmt(i.n.meter, 1) + ' m')}
         ${row('Obstruction', i => `<span class="flag ${cls(i.n)}">${fmt(i.n.obstruction, 2)}</span>`)}
@@ -590,7 +597,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
     lines.push('');
     lines.push(`METHOD`);
     const both = DIRS.every(dir => realDays.some(d => d[dir.key]));
-    lines.push(`The ${fmt(L)} m footpath was walked ${both ? 'in both directions' : 'in one direction'} with a chest-height phone camera on ${realDays.length} day${realDays.length === 1 ? '' : 's'} (${realDays.map(d => 'Day ' + d.day).join(', ')}). A frame was kept every ${D.corridor.step_s} s of walking. Stops and slowdowns were detected from frame-to-frame motion. Positions are estimated from walking time at a steady pace and are accurate to roughly ±10 m.`);
+    lines.push(`The ${fmt(L)} m footpath was walked ${both ? 'in both directions' : 'in one direction'} with a chest-height phone camera on ${realDays.length} day${realDays.length === 1 ? '' : 's'} (${realDays.map(d => 'Day ' + d.day).join(', ')}). A frame was kept every ${D.corridor.step_s} s of walking. Stops and slowdowns were detected from frame-to-frame motion. Positions are pinned to ${Object.keys(D.corridor.landmarks || {}).length} map landmarks and interpolated by walking time between them; later days are matched to Day 1 by frame appearance. Expect roughly ±10 m.`);
     if (realDays.length < 7) lines.push(`Note: ${7 - realDays.length} of the planned 7 survey days are not yet recorded. Persistence findings below are provisional.`);
     lines.push('');
     lines.push(`FINDINGS, DAY ${ref.day}`);
@@ -630,6 +637,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
   }
   const dlg = $('evidence');
   $('fStreet').value = D.corridor.name;
+  if (D.corridor.ward) $('fWard').value = D.corridor.ward;
   $('exportBtn').addEventListener('click', () => { $('evText').value = buildEvidence(); $('copyMsg').textContent = ''; dlg.showModal(); });
   $('closeDlg').addEventListener('click', () => dlg.close());
   ['fWard', 'fStreet', 'fAuthor', 'fBench'].forEach(id => $(id).addEventListener('input', () => { $('evText').value = buildEvidence(); if (id === 'fBench') renderPersistence(); }));

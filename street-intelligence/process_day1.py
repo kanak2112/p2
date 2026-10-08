@@ -136,7 +136,7 @@ def edge_density(gray, top, bottom, left, right):
     return float(np.mean(cv2.Canny(roi, 60, 160) > 0))
 
 
-def process_walk(path, out_dir, direction, length_m, step_s, height, motion_thresh):
+def process_walk(path, out_dir, direction, length_m, step_s, height, motion_thresh, pins=None):
     print(f"\n{os.path.basename(path)} -> {os.path.relpath(out_dir, HERE)}  ({direction})")
     m = analyse_motion(path, motion_thresh)
     times, still = m["times"], m["still"]
@@ -148,9 +148,20 @@ def process_walk(path, out_dir, direction, length_m, step_s, height, motion_thre
         moving[i] = moving[i - 1] + (0.0 if still[i] else times[i] - times[i - 1])
     total_moving = moving[-1] or 1.0
 
+    # Position = walking time mapped onto metres. With landmark pins (video second -> metre), the mapping is
+    # piecewise linear between pins, so a slow crowded stretch no longer pushes every later frame out of place.
+    start_m, end_m = (0.0, length_m) if direction == "forward" else (length_m, 0.0)
+    knots_t, knots_m = [0.0], [start_m]
+    for sec, m_at in sorted(pins or []):
+        knots_t.append(float(np.interp(sec, times, moving)))
+        knots_m.append(float(m_at))
+    knots_t.append(total_moving)
+    knots_m.append(end_m)
+    if pins:
+        print(f"  pinned to {len(pins)} landmark(s)")
+
     def metre(i):
-        p = moving[i] / total_moving
-        return round((p if direction == "forward" else 1 - p) * length_m, 1)
+        return round(float(np.interp(moving[i], knots_t, knots_m)), 1)
 
     # Pick node probes: one every step_s of walking time, plus the end of the walk.
     picks, nxt = [], 0.0
@@ -298,16 +309,24 @@ def main():
     ap.add_argument("--day", type=int, default=1)
     ap.add_argument("--forward", default="point_a_to_b.mp4", help="forward walk video (0 m -> end)")
     ap.add_argument("--return", dest="ret", default="point_b_to_a.mp4", help="return walk video (end -> 0 m)")
-    ap.add_argument("--length", type=float, default=300.0, help="corridor length in metres")
+    ap.add_argument("--length", type=float, default=None, help="corridor length in metres (default: landmarks.json, else 300)")
     ap.add_argument("--step", type=float, default=3.0, help="seconds of walking between kept frames")
     ap.add_argument("--height", type=int, default=600, help="output frame height in px")
     ap.add_argument("--motion-thresh", type=float, default=None,
                     help="mean pixel change below which the walker counts as still (default: automatic)")
-    ap.add_argument("--corridor-name", default="Point A to Point B")
+    ap.add_argument("--corridor-name", default="R.K. Chouhan Communications to Amratlal G. Vasani, Jijamata Rd / Old Nagardas Rd")
+    ap.add_argument("--area", default="Andheri East, Mumbai")
     args = ap.parse_args()
 
     def resolve(p):
         return p if os.path.isabs(p) or os.path.exists(p) else os.path.join(HERE, p)
+
+    landmarks = {}
+    if os.path.exists(os.path.join(HERE, "landmarks.json")):
+        with open(os.path.join(HERE, "landmarks.json")) as f:
+            landmarks = json.load(f)
+    if args.length is None:
+        args.length = float(landmarks.get("length_m", 300.0))
 
     os.makedirs(DATA, exist_ok=True)
     manifest_path = os.path.join(DATA, "manifest.json")
@@ -325,7 +344,8 @@ def main():
         out = os.path.join(DATA, f"day{args.day}_{direction}")
         if os.path.islink(out):
             os.remove(out)
-        day[key] = process_walk(path, out, direction, args.length, args.step, args.height, args.motion_thresh)
+        pins = [(sec, landmarks["landmarks"][name]) for name, sec in landmarks.get("walks", {}).get(os.path.basename(path), {}).items()]
+        day[key] = process_walk(path, out, direction, args.length, args.step, args.height, args.motion_thresh, pins)
     if "forward" not in day and "return" not in day:
         sys.exit("No videos processed. Put point_a_to_b.mp4 and point_b_to_a.mp4 next to this script.")
 
@@ -359,7 +379,8 @@ def main():
         days.append(mock)
 
     manifest = {
-        "corridor": {"name": args.corridor_name, "city": "Mumbai", "length_m": args.length, "step_s": args.step},
+        "corridor": {"name": args.corridor_name, "city": args.area, "ward": "K/East",
+                     "landmarks": landmarks.get("landmarks", {}), "length_m": args.length, "step_s": args.step},
         "generated": dt.datetime.now().isoformat(timespec="seconds"),
         "days": days,
     }

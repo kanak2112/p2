@@ -1,0 +1,13 @@
+{
+  "_note": "Landmark positions in metres from Point A (R.K. Chouhan Communications), read off Google Maps. For each reference video, the second (video time) at which the walker passes each landmark, found by eye. Positions between landmarks are interpolated by walking time.",
+  "length_m": 220,
+  "landmarks": {
+    "turn_onto_highway_service_rd": 104,
+    "underpass_walkway_east_end": 162,
+    "underpass_walkway_west_end": 191
+  },
+  "walks": {
+    "point_a_to_b.mp4": {"turn_onto_highway_service_rd": 77, "underpass_walkway_east_end": 118, "underpass_walkway_west_end": 133},
+    "point_b_to_a.mp4": {"turn_onto_highway_service_rd": 62, "underpass_walkway_east_end": 34, "underpass_walkway_west_end": 16}
+  }
+}
