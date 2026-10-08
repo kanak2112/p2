@@ -29,6 +29,7 @@ Placeholders are labelled in the page and are never counted as evidence.
 |---|---|---|
 | Stops | ≥1.5 s with almost no frame-to-frame motion | High |
 | Slowdowns | ≥2 s below ~55% of normal walking motion | Medium |
+| Spot shown (m) | Camera position ± look-ahead (default 5 m, slider 2–8 m): A→B frames show the ground ahead, B→A frames the ground behind in corridor terms | Tune per landmark |
 | Frame position (m) | Pinned to map landmarks (landmarks.json), walking time between them; later days matched to Day 1 by appearance | ±10 m roughly |
 | Obstruction index | Edge density in the walking zone vs. the walk's typical frame; ≥1.4 = obstructed | Image proxy: reacts to vehicles, stalls, crowds, also busy paving |
 | Body zone (<0.8 m) | Same measure in the bottom band of the frame | Image proxy, not a distance measurement |

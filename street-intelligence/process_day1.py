@@ -21,7 +21,13 @@ How it works
      steady pace while moving (stops excluded). It is an estimate, not GPS.
      Later days are then lined up with the first surveyed day by matching
      frames on appearance, so the same spot gets the same metre across days.
-  4. Each kept frame gets two image measures (proxies, not object detection):
+  4. All positions in the manifest are CAMERA positions (where the walker stood).
+     A forward-facing camera shows the ground a few metres ahead, so the viewer
+     shifts every frame and score to the spot it looks at:
+         spot = camera + look-ahead (forward walk),  camera - look-ahead (return)
+     A frame per second is also packed into spots_*.jpg sheets, so the viewer can
+     show the exact view of any spot from each direction.
+  5. Each kept frame gets two image measures (proxies, not object detection):
        obstruction  edge density in the walking zone (lower-middle of frame),
                     relative to this walk's median. ~1.0 = typical for this walk.
        near_field   the same measure in the bottom band, roughly the space
@@ -53,6 +59,9 @@ MIN_STOP_SEC = 1.5
 SLOW_RATIO = 0.55   # motion below this share of the walk's median = slowdown
 MIN_SLOW_SEC = 2.0
 SCHEDULE_DAYS = 7
+DENSE_SEC = 1.0          # spot views: one frame per second of video (~1.5 m at walking pace)
+DENSE_W = 240            # spot-view frame width in px
+SHEET_COLS, SHEET_PER = 10, 50   # spot views are packed into sprite sheets of 10 x 5 frames
 
 
 def small_gray(frame):
@@ -204,12 +213,18 @@ def process_walk(path, out_dir, direction, length_m, step_s, height, motion_thre
     # Second pass: save picked frames and measure them.
     os.makedirs(out_dir, exist_ok=True)
     for name in os.listdir(out_dir):
-        if name.startswith("frame_") and name.endswith(".jpg"):
+        if (name.startswith("frame_") or name.startswith("spots_")) and name.endswith(".jpg"):
             os.remove(os.path.join(out_dir, name))
     wanted = {i: k for k, i in enumerate(picks)}
+    dense_every = max(1, round(DENSE_SEC / PROBE_SEC))
     cap = cv2.VideoCapture(path)
-    nodes = []
+    nodes, dense, dense_t, dense_m = [], [], [], []
     for p, _, frame in iter_probes(cap, m["every"]):
+        if p % dense_every == 0:
+            h, w = frame.shape[:2]
+            dense.append(cv2.resize(frame, (DENSE_W, round(DENSE_W * h / w)), interpolation=cv2.INTER_AREA))
+            dense_t.append(round(float(times[p]), 1))
+            dense_m.append(metre(p))
         if p not in wanted:
             continue
         k = wanted[p]
@@ -223,6 +238,23 @@ def process_walk(path, out_dir, direction, length_m, step_s, height, motion_thre
                       "_obs": edge_density(gray, 0.55, 1.0, 0.2, 0.8),
                       "_near": edge_density(gray, 0.82, 1.0, 0.25, 0.75)})
     cap.release()
+
+    # Spot views: pack the per-second frames into sprite sheets (few files, one request each).
+    sheets, rows = [], []
+    for k in range(0, len(dense), SHEET_PER):
+        chunk = dense[k:k + SHEET_PER]
+        nrows = -(-len(chunk) // SHEET_COLS)
+        fh, fw = chunk[0].shape[:2]
+        sheet = np.zeros((nrows * fh, SHEET_COLS * fw, 3), np.uint8)
+        for j, fr in enumerate(chunk):
+            r, c = divmod(j, SHEET_COLS)
+            sheet[r * fh:(r + 1) * fh, c * fw:(c + 1) * fw] = fr
+        name = f"spots_{len(sheets)}.jpg"
+        Image.fromarray(cv2.cvtColor(sheet, cv2.COLOR_BGR2RGB)).save(os.path.join(out_dir, name), "JPEG", quality=72, optimize=True)
+        sheets.append(name)
+        rows.append(nrows)
+    spot_views = {"t": dense_t, "m": dense_m, "sheets": sheets, "rows": rows, "cols": SHEET_COLS,
+                  "per_sheet": SHEET_PER, "size": [int(dense[0].shape[1]), int(dense[0].shape[0])] if dense else None}
 
     # Express measures relative to this walk's median, so lighting differences between days matter less.
     for key, out in (("_obs", "obstruction"), ("_near", "near_field")):
@@ -246,7 +278,8 @@ def process_walk(path, out_dir, direction, length_m, step_s, height, motion_thre
           f"{len(slowdowns)} slowdowns ({summary['slowed_s']} s), "
           f"longest uninterrupted walk {summary['longest_uninterrupted_s']} s / {summary['longest_uninterrupted_m']} m")
     return {"folder": f"data/{os.path.basename(out_dir)}", "source": os.path.basename(path),
-            "nodes": nodes, "stops": stops, "slowdowns": slowdowns, "stretches": stretches, "summary": summary}
+            "nodes": nodes, "stops": stops, "slowdowns": slowdowns, "stretches": stretches, "summary": summary,
+            "spot_views": spot_views}
 
 
 def frame_signature(path):
@@ -288,6 +321,9 @@ def align_to_reference(walk, ref):
     for key in ("stops", "slowdowns"):
         for e in walk.get(key, []):
             e["meter"] = round(float(np.interp(e["t"], ts, metres)), 1)
+    sv = walk.get("spot_views")
+    if sv:
+        sv["m"] = [round(float(np.interp(t, ts, metres)), 1) for t in sv["t"]]
     walk["aligned_to"] = ref["folder"]
     shifts = [abs(nd["meter"] - nd["meter_time"]) for nd in walk["nodes"]]
     print(f"  aligned to {ref['folder']}: median shift {np.median(shifts):.1f} m, max {max(shifts):.1f} m")
