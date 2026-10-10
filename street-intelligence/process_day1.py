@@ -329,6 +329,19 @@ def align_to_reference(walk, ref):
     print(f"  aligned to {ref['folder']}: median shift {np.median(shifts):.1f} m, max {max(shifts):.1f} m")
 
 
+def lighting_of(walk):
+    """Daylight / dusk / night from the median brightness of the kept frames (video timestamps are often stripped)."""
+    # Auto-exposure evens out overall brightness, so use the top 30% of the frame (sky / ceiling / street lights).
+    vals = []
+    for n in walk["nodes"]:
+        g = cv2.cvtColor(cv2.imread(os.path.join(HERE, walk["folder"], n["file"])), cv2.COLOR_BGR2GRAY)
+        vals.append(float(np.mean(g[:int(g.shape[0] * 0.3)])))
+    b = float(np.median(vals)) if vals else 0.0
+    walk["brightness"] = round(b, 1)
+    walk["lighting"] = "daylight" if b >= 95 else "night"
+    return walk["lighting"]
+
+
 def link_or_copy(src, dst):
     if os.path.islink(dst):
         os.remove(dst)
@@ -391,6 +404,9 @@ def main():
             os.remove(stale)
 
     real = {d["day"]: d for d in manifest.get("days", []) if not d.get("mock")}
+    for key in ("forward", "return"):
+        if key in day:
+            lighting_of(day[key])
     for key in ("forward", "return"):  # line this day up with the first surveyed day of the same direction
         refs = [r for r in sorted(real) if r != args.day and key in real[r] and not real[r][key].get("aligned_to")]
         if key in day and refs and min(refs) < args.day:

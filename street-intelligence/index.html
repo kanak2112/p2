@@ -193,6 +193,36 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
 .dlg .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .empty-state { padding: 28px; text-align: left; }
 .empty-state code { font-family: var(--font-mono); background: var(--sunken); padding: 1px 5px; border-radius: 4px; }
+/* Overview */
+.ov-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 900px) { .ov-grid { grid-template-columns: minmax(0, 1fr); } }
+.route svg { display: block; width: 100%; height: auto; }
+.route text { font-family: var(--font-mono); font-size: 11px; fill: var(--fg-2); }
+.route .seg-hit { cursor: pointer; }
+.head-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.head-stats .stat .v { font-size: 30px; }
+.head-stats .stat.lead { grid-column: 1 / -1; }
+.legend-status { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--fg-2); margin-top: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.chip::before { font-size: 11px; }
+.chip.static::before { content: "■"; color: var(--critical); }
+.chip.transient::before { content: "▲"; color: var(--warning); }
+.chip.clear::before { content: "●"; color: var(--good); }
+.chip.unconfirmed::before, .chip.none::before { content: "○"; color: var(--muted); }
+.spot-table-wrap { overflow-x: auto; }
+table.spots { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 640px; }
+.spots th { text-align: left; font: 600 11px var(--font-display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); }
+.spots td { padding: 6px 8px; border-bottom: 1px solid var(--grid); vertical-align: middle; font-variant-numeric: tabular-nums; }
+.spots tr { cursor: pointer; }
+.spots tr:hover td, .spots tr.on td { background: var(--sunken); }
+.spots .thumb { width: 44px; border-top-width: 2px; }
+.spots .thumb .aim { display: none; }
+.spots .rank { font: 600 15px var(--font-display); color: var(--muted); }
+.spots .resp { color: var(--fg-2); font-size: 12.5px; }
+.btn.sm { padding: 4px 10px; font-size: 12.5px; }
+details.calib summary { cursor: pointer; font-size: 13px; color: var(--fg-2); }
+details.calib[open] summary { margin-bottom: 6px; }
+#cardCanvas { width: 100%; height: auto; border-radius: 6px; border: 1px solid var(--line); background: #fff; }
 @media (prefers-reduced-motion: reduce) { .tracks { scroll-behavior: auto; } }
 </style>
 </head>
@@ -216,32 +246,55 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
       <span class="dayline" id="dayline"></span>
     </div>
     <div class="group">
-      <span class="lbl">View</span>
-      <div class="seg" role="group" aria-label="View">
-        <button data-view="photo" aria-pressed="true">Photo horizon</button>
-        <button data-view="prox" aria-pressed="false">Proxemic grid</button>
-        <button data-view="vector" aria-pressed="false">Vector corridor</button>
+      <span class="lbl">Photo tracks show</span>
+      <div class="seg" role="group" aria-label="Photo tracks show">
+        <button data-view="photo" aria-pressed="true">Photos</button>
+        <button data-view="prox" aria-pressed="false">+ Body-zone band <small>(experimental)</small></button>
+        <button data-view="vector" aria-pressed="false">Schematic <small>(experimental)</small></button>
       </div>
     </div>
     <span class="spacer"></span>
-    <button class="btn" id="exportBtn">Civic evidence summary</button>
+    <button class="btn" id="exportBtn">Written summary for BMC</button>
   </div>
+
+  <section class="card">
+    <div class="card-head"><h2>Footpath overview</h2><span class="note" id="ovNote"></span></div>
+    <div class="ov-grid">
+      <div>
+        <div class="route" id="route"></div>
+        <div class="legend-status">
+          <span class="chip static">Blocked every surveyed day</span>
+          <span class="chip transient">Blocked on some days</span>
+          <span class="chip clear">Clear every day</span>
+          <span class="chip unconfirmed">Too few days</span>
+        </div>
+        <p class="note" style="margin-top:6px;font-size:12px">Inner line: seen from A (A→B walks). Outer line: seen from B (B→A walks). Route traced from Google Maps as a schematic, not survey-accurate. Click any part to inspect it.</p>
+      </div>
+      <div class="head-stats" id="headline"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Spots ranked by how often they are blocked</h2><span class="note">10 m spots · click a row to inspect, or make an evidence card</span></div>
+    <div class="spot-table-wrap" id="spotList"></div>
+    <button class="btn ghost sm" id="moreSpots" style="margin-top:10px">Show all spots</button>
+  </section>
 
   <div class="layout">
     <div style="display:flex;flex-direction:column;gap:18px;min-width:0">
       <section class="card">
         <div class="card-head">
-          <h2>Corridor profile</h2>
+          <h2>Clutter along the footpath</h2>
           <div class="legend">
-            <span><i class="sw-line" style="background:var(--nb)"></i>Northbound obstruction</span>
-            <span><i class="sw-line" style="background:var(--sb)"></i>Southbound obstruction</span>
+            <span><i class="sw-line" style="background:var(--nb)"></i>Seen from A</span>
+            <span><i class="sw-line" style="background:var(--sb)"></i>Seen from B</span>
             <span><svg width="12" height="12" aria-hidden="true"><path d="M6 11 L1 2 L11 2 Z" fill="var(--fg)"></path></svg>Stop</span>
             <span><svg width="12" height="12" aria-hidden="true"><path d="M6 11 L1 2 L11 2 Z" fill="none" stroke="var(--fg)" stroke-width="1.5"></path></svg>Slowdown</span>
           </div>
         </div>
         <div class="profile" id="profile"></div>
         <div class="persist-key">
-          <span class="lbl" style="font-size:11px">7-day persistence, per 10 m</span>
+          <span class="lbl" style="font-size:11px">Days blocked, per 10 m</span>
           <span><span class="ramp" id="rampKey"></span> days obstructed (0 → 7)</span>
         </div>
         <p class="note" style="margin-top:8px">Obstruction is an image measure: edge density in the walking zone of each frame, relative to that walk's typical frame (1.0). Above 1.4 counts as obstructed. It reacts to parked vehicles, stalls and crowds, and also to busy paving, so check the photos.</p>
@@ -266,7 +319,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
       </section>
 
       <section class="card">
-        <div class="card-head"><h2>7-day persistence</h2><span class="note" id="persistNote"></span></div>
+        <div class="card-head"><h2>Persistence across surveyed days</h2><span class="note" id="persistNote"></span></div>
         <div class="stats" id="persistStats"></div>
         <p class="note" style="margin-top:10px">Static: obstructed on 6 or 7 of the surveyed days, likely fixed infrastructure (poles, transformers, ramps, broken slabs). Transient: obstructed on some days only, likely hawkers, parked two-wheelers or crowds. Clear: never obstructed.</p>
       </section>
@@ -274,11 +327,12 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
 
     <aside class="card inspector">
       <div class="insp-head"><span class="lbl">Spot inspector</span><span class="mono" id="inspDay" style="color:var(--muted);font-size:12px"></span></div>
+      <details class="calib"><summary>Calibrate photo alignment</summary>
       <div class="look">
         <div class="row1"><label for="look">Look-ahead</label><b class="mono" id="lookVal">5.0 m</b></div>
         <input type="range" id="look" min="2" max="8" step="0.5" value="5">
         <span class="note" style="font-size:12px">Each photo shows the spot from a few metres away, walking towards it. Drag until the circle sits on the same object across the days in a row.</span>
-      </div>
+      </div></details>
       <div id="inspector" aria-live="polite" style="display:flex;flex-direction:column;gap:12px"></div>
     </aside>
   </div>
@@ -298,6 +352,18 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
       <button class="btn" id="copyBtn">Copy text</button>
       <button class="btn ghost" id="dlBtn">Download .txt</button>
       <span class="note" id="copyMsg"></span>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="cardDlg">
+  <div class="dlg">
+    <div class="card-head" style="margin:0"><h2 id="cardTitle">Evidence card</h2><button class="btn ghost" id="closeCard">Close</button></div>
+    <canvas id="cardCanvas" width="1200" height="900" aria-label="Evidence card image"></canvas>
+    <div class="actions">
+      <button class="btn" id="saveCard">Save image (PNG)</button>
+      <button class="btn ghost" id="copyCard">Copy text</button>
+      <span class="note" id="cardMsg"></span>
     </div>
   </div>
 </dialog>
@@ -327,12 +393,13 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
   }
 
   const L = D.corridor.length_m;
-  const days = D.days.slice().sort((a, b) => a.day - b.day);
-  const realDays = days.filter(d => !d.mock);
+  // Placeholder (mock) days are kept in the data for the script, but never shown or counted.
+  const days = D.days.filter(d => !d.mock).sort((a, b) => a.day - b.day);
+  const realDays = days;
   const state = { idx: 0, view: 'photo', meter: null, cmp: 'days', side: 'forward', rows: [] };
   const DIRS = [
-    { key: 'forward', short: 'NB', name: 'Northbound', color: 'var(--nb)', cls: 'nb' },
-    { key: 'return', short: 'SB', name: 'Southbound', color: 'var(--sb)', cls: 'sb' }
+    { key: 'forward', short: 'A', name: 'A→B walk', side: 'Seen from A', color: 'var(--nb)', cls: 'nb' },
+    { key: 'return', short: 'B', name: 'B→A walk', side: 'Seen from B', color: 'var(--sb)', cls: 'sb' }
   ];
   const fmt = (n, d = 0) => Number(n).toFixed(d);
   const pad = n => String(n).padStart(2, '0');
@@ -374,23 +441,23 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
 
   /* ---------- Header & slider ---------- */
   $('subtitle').textContent = `${D.corridor.name} · ${fmt(L)} m footpath corridor · ${D.corridor.city}`;
-  const mocks = days.filter(d => d.mock).map(d => d.day);
+  const light = w => (w && w.lighting) || 'unknown';
+  const lightCount = key => { const c = {}; realDays.forEach(d => { if (d[key]) c[light(d[key])] = (c[light(d[key])] || 0) + 1; }); return Object.entries(c).map(([k, v]) => `${v} ${k}`).join(', '); };
   $('status').innerHTML = `<span class="pill">${realDays.length} surveyed day${realDays.length === 1 ? '' : 's'}</span>` +
-    (mocks.length ? `<span class="pill warn">Days ${mocks[0]}–${mocks[mocks.length - 1]} are placeholders repeating the latest surveyed walks</span>` : '');
+    `<span class="pill">A→B: ${lightCount('forward')}</span><span class="pill">B→A: ${lightCount('return')}</span>`;
   const slider = $('day');
   slider.min = 0; slider.max = days.length - 1; slider.value = 0;
   $('dayLabel').textContent = `Day ${days[0].day} – ${days[days.length - 1].day}`;
   function renderTicks() {
-    $('ticks').innerHTML = days.map((d, i) => `<span class="${d.mock ? '' : 'real'} ${i === state.idx ? 'on' : ''}" title="${d.mock ? 'Placeholder copy' : 'Surveyed'}">${d.day}</span>`).join('');
+    $('ticks').innerHTML = days.map((d, i) => `<span class="real ${i === state.idx ? 'on' : ''}">${d.day}</span>`).join('');
     const d = day();
-    const src = k => d[k] ? `${k === 'forward' ? 'NB' : 'SB'} from Day ${pad(+d[k].folder.match(/day(\d+)_/)[1])}` : null;
-    $('dayline').textContent = d.mock ? `Day ${pad(d.day)} · placeholder (${['forward', 'return'].map(src).filter(Boolean).join(', ')})` : `Day ${pad(d.day)} · surveyed ${d.processed || ''}`;
+    $('dayline').textContent = `Day ${pad(d.day)} · A→B ${d.forward ? light(d.forward) : 'not filmed'} · B→A ${d.return ? light(d.return) : 'not filmed'}`;
   }
   slider.addEventListener('input', () => { state.idx = +slider.value; renderAll(); });
 
-  document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => {
     state.view = b.dataset.view;
-    document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    document.querySelectorAll('[data-view]').forEach(x => x.setAttribute('aria-pressed', x === b));
     $('canvas').className = 'canvas view-' + state.view;
     if (state.view === 'photo') { renderTracks(); setMeter(state.meter ?? 0); return; }
     $('trackNote').textContent = {
@@ -405,6 +472,13 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
     let best = null, bd = Infinity;
     for (const n of w.nodes) { const d = Math.abs(n.meter - m); if (d < bd) { bd = d; best = n; } }
     return bd <= MATCH ? best : null;
+  }
+  // Worst-scoring frame whose spot falls in 10 m bin i: the same rule persistence counts with.
+  function binWorst(w, i) {
+    if (!w) return null;
+    let best = null;
+    for (const n of w.nodes) if (Math.min(Math.ceil(L / BIN) - 1, Math.floor(n.meter / BIN)) === i && (!best || n.obstruction > best.obstruction)) best = n;
+    return best;
   }
   function binsFor(w) {
     const nb = Math.ceil(L / BIN), out = new Array(nb).fill(null);
@@ -465,7 +539,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
     Object.entries(D.corridor.landmarks || {}).forEach(([k, m]) => {
       s += `<line x1="${px(m)}" x2="${px(m)}" y1="${M.t}" y2="${PH - M.b}" stroke="var(--line)" stroke-dasharray="2 3"><title>${k.replace(/_/g, ' ')} · ${m} m (map)</title></line>`;
     });
-    s += `<text x="${M.l}" y="${M.t - 12}" style="fill:var(--fg-2)">Obstruction index (1 = typical frame)</text>`;
+    s += `<text x="${M.l}" y="${M.t - 12}" style="fill:var(--fg-2)">Walking-zone clutter (1 = typical frame; above ${OBS} counts as obstructed)</text>`;
     for (const dir of DIRS) {
       const w = walk(d, dir.key); if (!w) continue;
       const pts = w.nodes.slice().sort((a, b) => a.meter - b.meter).map(n => `${px(n.meter).toFixed(1)},${py(n.obstruction).toFixed(1)}`).join(' ');
@@ -615,6 +689,9 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
     });
     const c = $('tCursor'); if (c) { c.style.left = state.x(m) + 'px'; c.style.display = 'block'; }
     profileCursor(m, from === 'profile' ? e : null);
+    routeCursor(m);
+    $('spotList').querySelectorAll('tr.on').forEach(t => t.classList.remove('on'));
+    const tr = $('spotList').querySelector(`tr[data-bin="${Math.min(NB_BINS - 1, Math.floor(m / BIN))}"]`); if (tr) tr.classList.add('on');
     renderInspector(m);
   }
 
@@ -634,7 +711,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
     const sides = DIRS.map(dir => {
       const p = persistence(dir.key)[bin];
       const tiles = realDays.filter(od => od[dir.key]).map(od => {
-        const w = walk(od, dir.key), n = nearest(w, m), ph = photo(w, m, dir.color);
+        const w = walk(od, dir.key), n = binWorst(w, bin), ph = photo(w, m, dir.color);
         const flag = n ? `<span class="flag ${cls(n)}">${fmt(n.obstruction, 2)}</span>` : '–';
         return `<figure class="${od.day === d.day ? 'sel' : ''}">${ph.html}<figcaption><span>Day ${pad(od.day)}</span>${flag}</figcaption></figure>`;
       });
@@ -758,12 +835,215 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
     LOOK = +$('look').value; vcache = new WeakMap();
     $('lookVal').textContent = fmt(LOOK, 1) + ' m';
     try { localStorage.setItem('si-look', LOOK); } catch (e) {}
-    renderProfile(); renderTracks(); renderPersistence(); setMeter(state.meter ?? 0);
+    renderProfile(); renderTracks(); renderPersistence(); renderRoute(); renderHeadline(); renderSpotList(); setMeter(state.meter ?? 0);
   });
 
   /* ---------- Go ---------- */
+  /* ---------- Footpath overview ---------- */
+  const NB_BINS = Math.ceil(L / BIN);
+  const binRange = i => `${i * BIN}–${Math.min(L, (i + 1) * BIN)} m`;
+  const CLS_WORD = { static: 'Blocked every day', transient: 'Blocked some days', clear: 'Clear every day', unconfirmed: 'Too few days', none: 'No footage' };
+  // Route traced from the Google Maps screenshot (pixel coordinates, north up). A = R.K. Chouhan end, B = Amratlal end.
+  const ROUTE = [[1333, 143], [1083, 298], [1070, 340], [1102, 406], [912, 494]];
+  const seglen = ROUTE.slice(1).map((p, i) => Math.hypot(p[0] - ROUTE[i][0], p[1] - ROUTE[i][1]));
+  const routeLen = seglen.reduce((a, b) => a + b, 0);
+  function routeAt(m) {   // point + unit direction at corridor metre m
+    let d = Math.max(0, Math.min(L, m)) / L * routeLen;
+    for (let i = 0; i < seglen.length; i++) {
+      if (d <= seglen[i] || i === seglen.length - 1) {
+        const [x0, y0] = ROUTE[i], [x1, y1] = ROUTE[i + 1], t = Math.min(1, d / seglen[i]);
+        return { x: x0 + (x1 - x0) * t, y: y0 + (y1 - y0) * t, dx: (x1 - x0) / seglen[i], dy: (y1 - y0) / seglen[i] };
+      }
+      d -= seglen[i];
+    }
+  }
+  const STATUS = { static: 'var(--critical)', transient: 'var(--warning)', clear: 'var(--good)', unconfirmed: 'var(--p2)', none: 'var(--line)' };
+  function renderRoute() {
+    const per = { forward: persistence('forward'), return: persistence('return') };
+    let s = `<svg viewBox="860 100 520 440" role="img" aria-label="Schematic route of the corridor coloured by how often each 10 m spot is blocked">`;
+    // Western Express Highway: two carriageways crossing the route near B
+    s += `<path d="M845 120 L1005 540 L1080 540 L925 120 Z" fill="var(--sunken)"/><path d="M940 120 L1100 540 L1160 540 L1000 120 Z" fill="var(--sunken)"/>`;
+    s += `<text x="1004" y="138" style="font-size:10px;fill:var(--muted)">Western Express Hwy (flyover)</text>`;
+    s += `<polyline points="${ROUTE.map(p => p.join(',')).join(' ')}" fill="none" stroke="var(--line)" stroke-width="26" stroke-linejoin="round" stroke-linecap="round"/>`;
+    DIRS.forEach((dir, k) => {
+      const off = k ? 7 : -7;
+      for (let i = 0; i < NB_BINS; i++) {
+        const pts = [];
+        for (let m = i * BIN; m <= Math.min(L, (i + 1) * BIN) + 0.01; m += 2) { const q = routeAt(Math.min(m, L)); pts.push(`${(q.x - q.dy * off).toFixed(1)},${(q.y + q.dx * off).toFixed(1)}`); }
+        const p = per[dir.key][i];
+        s += `<polyline points="${pts.join(' ')}" fill="none" stroke="${STATUS[p.cls]}" stroke-width="6" stroke-linecap="butt"><title>${binRange(i)} · ${dir.side}: ${CLS_WORD[p.cls]} (${p.c}/${p.n})</title></polyline>`;
+      }
+    });
+    for (let i = 0; i < NB_BINS; i++) {   // invisible wide hit targets
+      const a = routeAt(i * BIN), b = routeAt(Math.min(L, (i + 1) * BIN));
+      s += `<line class="seg-hit" data-bin="${i}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="transparent" stroke-width="30"><title>${binRange(i)}</title></line>`;
+    }
+    Object.entries(D.corridor.landmarks || {}).forEach(([k, m]) => { const q = routeAt(m); s += `<circle cx="${q.x}" cy="${q.y}" r="3.5" fill="var(--surface)" stroke="var(--fg)" stroke-width="1.5"><title>${k.replace(/_/g, ' ')} · ${m} m</title></circle>`; });
+    const a = routeAt(0), b = routeAt(L);
+    s += `<circle cx="${a.x}" cy="${a.y}" r="11" fill="var(--fg)"/><text x="${a.x}" y="${a.y + 4}" text-anchor="middle" style="fill:var(--bg);font-weight:600">A</text>`;
+    s += `<circle cx="${b.x}" cy="${b.y}" r="11" fill="var(--fg)"/><text x="${b.x}" y="${b.y + 4}" text-anchor="middle" style="fill:var(--bg);font-weight:600">B</text>`;
+    s += `<text x="${a.x - 4}" y="${a.y - 18}" text-anchor="end">A · R.K. Chouhan Communications</text>`;
+    s += `<text x="${b.x + 2}" y="${b.y + 30}" text-anchor="middle">B · Amratlal G. Vasani</text>`;
+    s += `<text x="1215" y="250" transform="rotate(-32 1215 250)" text-anchor="middle" style="font-size:10px;fill:var(--muted)">Jijamata Rd / Old Nagardas Rd</text>`;
+    s += `<text x="1128" y="360" style="font-size:10px;fill:var(--muted)">service road</text>`;
+    s += `<g class="here" id="routeHere"></g></svg>`;
+    $('route').innerHTML = s;
+    $('route').querySelectorAll('.seg-hit').forEach(el => {
+      const m = +el.dataset.bin * BIN + BIN / 2;
+      el.addEventListener('mouseenter', () => setMeter(m));
+      el.addEventListener('click', () => { setMeter(m); scrollTracksTo(m); });
+    });
+  }
+  function routeCursor(m) {
+    const g = $('routeHere'); if (!g) return;
+    const q = routeAt(m);
+    g.innerHTML = `<circle cx="${q.x}" cy="${q.y}" r="16" fill="none" stroke="var(--fg)" stroke-width="2"/>`;
+  }
+  function walkStats(w) {
+    const ns = w.nodes;
+    return { obsShare: ns.filter(n => n.obstruction >= OBS).length / ns.length, free: obstacleFree(w) };
+  }
+  function renderHeadline() {
+    const walks = [];
+    realDays.forEach(d => DIRS.forEach(dir => { const w = walk(d, dir.key); if (w) walks.push({ d, dir, w, st: walkStats(w) }); }));
+    const ok100 = walks.filter(x => x.st.free.m >= BENCH.m100.metres).length;
+    const best = walks.reduce((a, x) => x.st.free.m > a.st.free.m ? x : a, walks[0]);
+    const shares = walks.map(x => x.st.obsShare * 100);
+    const every = []; DIRS.forEach(dir => persistence(dir.key).forEach((p, i) => { if (p.cls === 'static') every.push({ i, dir }); }));
+    const bothSides = [...new Set(every.map(e => e.i))].filter(i => every.filter(e => e.i === i).length === 2);
+    const slow = walks.reduce((a, x) => a + (x.w.summary.slowdowns || 0) + (x.w.summary.stops || 0), 0);
+    $('headline').innerHTML = `
+      <div class="stat lead"><span class="lbl">100 m without an obstacle</span><span class="v">${ok100} of ${walks.length} walks</span>
+        <span class="k">Best: ${fmt(best.st.free.m)} m (Day ${pad(best.d.day)}, ${best.dir.side}). Benchmark: Neural City, State of Indian Streets 2026.</span></div>
+      <div class="stat"><span class="lbl">Walk obstructed</span><span class="v">${fmt(Math.min(...shares))}–${fmt(Math.max(...shares))}%</span><span class="k">of sampled frames, varying by day and direction</span></div>
+      <div class="stat"><span class="lbl">Blocked every day</span><span class="v">${new Set(every.map(e => e.i)).size} spots</span><span class="k">${bothSides.length ? `${bothSides.map(binRange).join(', ')} from both sides` : 'none from both sides'}</span></div>
+      <div class="stat"><span class="lbl">Surveyed</span><span class="v">${realDays.length} days</span><span class="k">${walks.length} walks · ${fmt(L)} m · ward ${D.corridor.ward || '–'}</span></div>
+      <div class="stat"><span class="lbl">Stops + slowdowns</span><span class="v">${slow}</span><span class="k">across all walks</span></div>`;
+    $('ovNote').textContent = `${D.corridor.name} · ${D.corridor.city}`;
+  }
+  let showAll = false;
+  function spotRows() {
+    const A = persistence('forward'), B = persistence('return');
+    const share = p => p.n ? p.c / p.n : 0;
+    const latest = realDays[realDays.length - 1];
+    const lm = Object.entries(D.corridor.landmarks || {});
+    return [...Array(NB_BINS).keys()].map(i => {
+      const near = lm.filter(([, m]) => Math.abs(m - (i * BIN + BIN / 2)) <= 12).map(([k]) => k.replace(/_approx$/, '').replace(/_/g, ' '))[0] || '';
+      const resp = [A[i], B[i]].some(p => p.cls === 'static') ? 'Build: repair or relocate the fixed obstruction'
+        : [A[i], B[i]].some(p => p.cls === 'transient') ? 'Manage: parking, vending or timing'
+        : [A[i], B[i]].some(p => p.cls === 'unconfirmed') ? 'Keep surveying' : '—';
+      return { i, A: A[i], B: B[i], score: share(A[i]) + share(B[i]), near, resp, latest };
+    }).sort((a, b) => b.score - a.score || a.i - b.i);
+  }
+  function renderSpotList() {
+    const rows = spotRows(), shown = showAll ? rows : rows.slice(0, 8);
+    $('spotList').innerHTML = `<table class="spots"><thead><tr><th>#</th><th>Spot</th><th>Photo</th><th>Seen from A</th><th>Seen from B</th><th>Likely response</th><th></th></tr></thead><tbody>
+      ${shown.map((r, k) => {
+        const w = walk(r.latest, 'forward') || walk(r.latest, 'return');
+        const ph = w ? photo(w, r.i * BIN + BIN / 2, w.key === 'forward' ? 'var(--nb)' : 'var(--sb)', 'thumb').html : '';
+        const cell = p => `<span class="chip ${p.cls}">${CLS_WORD[p.cls]}</span> <span class="mono" style="color:var(--muted)">${p.n ? `${p.c}/${p.n}` : ''}</span>`;
+        return `<tr data-bin="${r.i}"><td class="rank">${k + 1}</td><td><b class="mono">${binRange(r.i)}</b>${r.near ? `<br><span class="note" style="font-size:12px">${r.near}</span>` : ''}</td>
+          <td>${ph}</td><td>${cell(r.A)}</td><td>${cell(r.B)}</td><td class="resp">${r.resp}</td>
+          <td><button class="btn ghost sm" data-card="${r.i}">Evidence card</button></td></tr>`;
+      }).join('')}</tbody></table>`;
+    $('moreSpots').textContent = showAll ? 'Show top 8' : `Show all ${rows.length} spots`;
+    $('spotList').querySelectorAll('tr[data-bin]').forEach(tr => tr.addEventListener('click', e => {
+      const i = +tr.dataset.bin, m = i * BIN + BIN / 2;
+      if (e.target.closest('[data-card]')) { openCard(i); return; }
+      setMeter(m); scrollTracksTo(m);
+    }));
+  }
+  $('moreSpots').addEventListener('click', () => { showAll = !showAll; renderSpotList(); });
+
+  /* ---------- Evidence card (drawn on canvas so the preview is exactly the saved image) ---------- */
+  const imgCache = {};
+  const loadImg = src => imgCache[src] || (imgCache[src] = new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; }));
+  let cardText = '', cardName = 'evidence-card.png';
+  async function openCard(i) {
+    const S = i * BIN + BIN / 2, A = persistence('forward')[i], B = persistence('return')[i];
+    const r = spotRows().find(x => x.i === i);
+    $('cardTitle').textContent = `Evidence card · ${binRange(i)}`;
+    $('cardMsg').textContent = '';
+    if (!$('cardDlg').open) $('cardDlg').showModal();
+    const cv = $('cardCanvas'), ctx = cv.getContext('2d');
+    const W = 1200, pad = 40, tw = 150, th = 267, gap = 12;
+    const rowsDef = DIRS.map(dir => ({ dir, p: dir.key === 'forward' ? A : B, items: realDays.filter(d => d[dir.key]).map(d => ({ d, w: walk(d, dir.key) })) }));
+    const H = 210 + rowsDef.length * (th + 92) + 150;
+    cv.width = W; cv.height = H;
+    const C = { ink: '#151a18', mid: '#4d5753', mute: '#6f7975', line: '#ccd2cf', A: '#2a78d6', B: '#eb6834', crit: '#d03b3b', warn: '#c98500', good: '#0a8a0a' };
+    const font = (w, sz, fam = 'Barlow, system-ui, sans-serif') => `${w} ${sz}px ${fam}`;
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = C.ink; ctx.font = font(700, 34, '"Barlow Semi Condensed", Barlow, sans-serif');
+    ctx.fillText(`Footpath evidence · spot ${binRange(i)}`, pad, 62);
+    ctx.fillStyle = C.mid; ctx.font = font(400, 18);
+    ctx.fillText(`${D.corridor.name}, ${D.corridor.city} · BMC ward ${D.corridor.ward || ''}`, pad, 94);
+    ctx.fillText(`${fmt(L)} m corridor walked twice daily (A→B and B→A) on ${realDays.length} days${r && r.near ? ` · near: ${r.near}` : ''}`, pad, 120);
+    ctx.strokeStyle = C.line; ctx.beginPath(); ctx.moveTo(pad, 142); ctx.lineTo(W - pad, 142); ctx.stroke();
+    let y = 180;
+    for (const row of rowsDef) {
+      const col = row.dir.key === 'forward' ? C.A : C.B;
+      ctx.fillStyle = col; ctx.font = font(700, 20, '"Barlow Semi Condensed", Barlow, sans-serif');
+      ctx.fillText(`${row.dir.side.toUpperCase()} (${row.dir.name}s)`, pad, y);
+      const pc = row.p, word = CLS_WORD[pc.cls];
+      ctx.fillStyle = pc.cls === 'static' ? C.crit : pc.cls === 'transient' ? C.warn : pc.cls === 'clear' ? C.good : C.mute;
+      ctx.font = font(600, 18); ctx.fillText(`${word}${pc.n ? ` · obstructed on ${pc.c} of ${pc.n} days` : ''}`, pad + 330, y);
+      y += 14;
+      for (let k = 0; k < row.items.length; k++) {
+        const { d, w } = row.items[k], x = pad + k * (tw + gap);
+        const v = viewFor(w, S), n = binWorst(w, i);
+        ctx.fillStyle = '#eef0ef'; ctx.fillRect(x, y, tw, th);
+        try {
+          if (v) {
+            const sv = w.spot_views, sh = Math.floor(v.idx / sv.per_sheet), kk = v.idx % sv.per_sheet;
+            const im = await loadImg(`${w.folder}/${sv.sheets[sh]}`);
+            const [fw, fh] = sv.size;
+            ctx.drawImage(im, (kk % sv.cols) * fw, Math.floor(kk / sv.cols) * fh, fw, fh, x, y, tw, th);
+          } else if (n) {
+            const im = await loadImg(`${w.folder}/${n.file}`);
+            ctx.drawImage(im, x, y, tw, th);
+          }
+        } catch (e) {}
+        ctx.fillStyle = col; ctx.fillRect(x, y, tw, 4);
+        if (n && n.obstruction >= OBS) { ctx.strokeStyle = C.crit; ctx.lineWidth = 4; ctx.strokeRect(x + 2, y + 2, tw - 4, th - 4); ctx.lineWidth = 1; }
+        ctx.fillStyle = C.ink; ctx.font = font(600, 15); ctx.fillText(`Day ${d.day}`, x, y + th + 22);
+        ctx.fillStyle = C.mute; ctx.font = font(400, 13, '"IBM Plex Mono", monospace');
+        ctx.fillText(`${light(w)}${n ? ` · ${fmt(n.obstruction, 2)}` : ''}`, x, y + th + 42);
+      }
+      y += th + 78;
+    }
+    ctx.fillStyle = C.ink; ctx.font = font(600, 18);
+    ctx.fillText(`Likely response: ${r ? r.resp : '—'}`, pad, y);
+    ctx.fillStyle = C.mute; ctx.font = font(400, 14);
+    const foot = [
+      `Red frame = that day's worst frame in this 10 m spot scored as obstructed (clutter index ≥ ${OBS}). An image measure, not a width.`,
+      `Each photo looks at the spot from about ${fmt(LOOK, 1)} m away while walking towards it. Positions are accurate to roughly ±10 m.`,
+      `Street Intelligence · M.Des Stage 2 · generated ${new Date().toISOString().slice(0, 10)}`
+    ];
+    foot.forEach((t, k) => ctx.fillText(t, pad, y + 34 + k * 22));
+    cardName = `evidence-${i * BIN}-${Math.min(L, (i + 1) * BIN)}m.png`;
+    cardText = [`Footpath evidence · spot ${binRange(i)} · ${D.corridor.name}, ${D.corridor.city} (ward ${D.corridor.ward || ''})`,
+      ...rowsDef.map(row => `${row.dir.side}: ${CLS_WORD[row.p.cls]}${row.p.n ? ` (obstructed on ${row.p.c} of ${row.p.n} survey days: ${row.items.map(({ d, w }) => { const n = binWorst(w, i); return `Day ${d.day} ${light(w)} ${n ? (n.obstruction >= OBS ? 'obstructed' : 'clear') : 'no frame'}`; }).join('; ')})` : ''}`),
+      `Likely response: ${r ? r.resp : '—'}`,
+      `Method: phone video walked twice daily; obstruction is an image-based indicator, positions ±10 m.`].join('\n');
+  }
+  $('closeCard').addEventListener('click', () => $('cardDlg').close());
+  $('copyCard').addEventListener('click', () => navigator.clipboard.writeText(cardText).then(() => $('cardMsg').textContent = 'Copied.', () => $('cardMsg').textContent = 'Copy is blocked here; select the text from the written summary instead.'));
+  $('saveCard').addEventListener('click', async () => {
+    const blob = await new Promise(res => $('cardCanvas').toBlob(res, 'image/png'));
+    let downloads = null;
+    try { downloads = window.claude && window.claude.use ? await window.claude.use('downloads') : null; } catch (e) {}
+    if (downloads) {
+      try { await downloads.save({ filename: cardName, data: blob }); $('cardMsg').textContent = 'Saved.'; }
+      catch (e) { $('cardMsg').textContent = e && e.code === 'declined' ? 'Not saved.' : 'Saving is not available here. Right-click the image to save it.'; }
+      return;
+    }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = cardName;
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+
   function renderAll() {
     renderTicks(); renderProfile(); renderTracks(); renderPersistence();
+    renderRoute(); renderHeadline(); renderSpotList();
     setMeter(state.meter ?? 0);
   }
   renderAll();

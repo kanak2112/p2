@@ -773,7 +773,9 @@
       240,
       427
      ]
-    }
+    },
+    "brightness": 110.1,
+    "lighting": "daylight"
    },
    "return": {
     "folder": "data/day1_return",
@@ -1549,7 +1551,9 @@
       240,
       427
      ]
-    }
+    },
+    "brightness": 132.7,
+    "lighting": "daylight"
    }
   },
   {
@@ -2232,7 +2236,9 @@
       427
      ]
     },
-    "aligned_to": "data/day1_forward"
+    "aligned_to": "data/day1_forward",
+    "brightness": 102.1,
+    "lighting": "daylight"
    },
    "return": {
     "folder": "data/day2_return",
@@ -3034,7 +3040,9 @@
       427
      ]
     },
-    "aligned_to": "data/day1_return"
+    "aligned_to": "data/day1_return",
+    "brightness": 84.1,
+    "lighting": "night"
    }
   },
   {
@@ -3781,7 +3789,9 @@
       427
      ]
     },
-    "aligned_to": "data/day1_forward"
+    "aligned_to": "data/day1_forward",
+    "brightness": 111.3,
+    "lighting": "daylight"
    },
    "return": {
     "folder": "data/day3_return",
@@ -4570,7 +4580,9 @@
       427
      ]
     },
-    "aligned_to": "data/day1_return"
+    "aligned_to": "data/day1_return",
+    "brightness": 71.0,
+    "lighting": "night"
    }
   },
   {
@@ -5326,7 +5338,9 @@
       427
      ]
     },
-    "aligned_to": "data/day1_forward"
+    "aligned_to": "data/day1_forward",
+    "brightness": 113.3,
+    "lighting": "daylight"
    },
    "return": {
     "folder": "data/day4_return",
@@ -6130,7 +6144,9 @@
       427
      ]
     },
-    "aligned_to": "data/day1_return"
+    "aligned_to": "data/day1_return",
+    "brightness": 84.6,
+    "lighting": "night"
    }
   },
   {
@@ -6885,7 +6901,9 @@
       427
      ]
     },
-    "aligned_to": "data/day1_forward"
+    "aligned_to": "data/day1_forward",
+    "lighting": "daylight",
+    "brightness": 113.3
    },
    "source_day": 4,
    "return": {
@@ -7690,7 +7708,9 @@
       427
      ]
     },
-    "aligned_to": "data/day1_return"
+    "aligned_to": "data/day1_return",
+    "lighting": "night",
+    "brightness": 84.6
    }
   },
   {
@@ -8445,7 +8465,9 @@
       427
      ]
     },
-    "aligned_to": "data/day1_forward"
+    "aligned_to": "data/day1_forward",
+    "lighting": "daylight",
+    "brightness": 113.3
    },
    "source_day": 4,
    "return": {
@@ -9250,7 +9272,9 @@
       427
      ]
     },
-    "aligned_to": "data/day1_return"
+    "aligned_to": "data/day1_return",
+    "lighting": "night",
+    "brightness": 84.6
    }
   },
   {
@@ -10005,7 +10029,9 @@
       427
      ]
     },
-    "aligned_to": "data/day1_forward"
+    "aligned_to": "data/day1_forward",
+    "lighting": "daylight",
+    "brightness": 113.3
    },
    "source_day": 4,
    "return": {
@@ -10810,7 +10836,9 @@
       427
      ]
     },
-    "aligned_to": "data/day1_return"
+    "aligned_to": "data/day1_return",
+    "lighting": "night",
+    "brightness": 84.6
    }
   }
  ]
