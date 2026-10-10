@@ -55,7 +55,7 @@ header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content:
 h1 { font-size: clamp(28px, 4.2vw, 40px); font-weight: 700; line-height: 1; letter-spacing: -.01em; }
 .sub { margin: 6px 0 0; color: var(--fg-2); }
 .status { display: flex; flex-wrap: wrap; gap: 6px; }
-.pill { font: 500 12px var(--font-mono); padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--fg-2); background: var(--surface); white-space: nowrap; }
+.pill { font: 500 12px var(--font-mono); padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--fg-2); background: var(--surface); }
 .pill.warn { border-color: var(--warning); }
 .pill.warn::before { content: "▲ "; color: var(--warning); }
 
@@ -135,9 +135,10 @@ h1 { font-size: clamp(28px, 4.2vw, 40px); font-weight: 700; line-height: 1; lett
 .insp-head .m { font: 600 30px var(--font-display); line-height: 1; }
 .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .pair figure { margin: 0; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.pair .ph { aspect-ratio: 338 / 600; background: var(--sunken); border-radius: 4px; overflow: hidden; position: relative; border-top: 3px solid; }
-.pair .ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.pair .ph.empty::after { content: "No frame within 6 m"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 12px; color: var(--muted); text-align: center; padding: 8px; }
+[hidden] { display: none !important; }
+.ph { aspect-ratio: 338 / 600; background: var(--sunken); border-radius: 4px; overflow: hidden; position: relative; border-top: 3px solid; max-width: 100%; }
+.ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ph.empty::after { content: "No frame within 6 m"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 12px; color: var(--muted); text-align: center; padding: 8px; }
 .pair figcaption { font: 600 12px var(--font-display); letter-spacing: .07em; text-transform: uppercase; }
 .pair .cam { font: 11px var(--font-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
 .ph.sprite { background-repeat: no-repeat; background-color: var(--sunken); }
@@ -145,6 +146,20 @@ h1 { font-size: clamp(28px, 4.2vw, 40px); font-weight: 700; line-height: 1; lett
 .look { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--fg-2); padding: 10px 12px; border-radius: 6px; background: var(--sunken); }
 .look .row1 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .look input { width: 100%; accent-color: var(--fg); margin: 0; }
+.row.trk .node { top: 28px; }
+.row.trk .row-label { position: sticky; bottom: auto; border-radius: 0 0 6px 0; }
+.row.trk.sel .row-label { outline: 2px solid var(--fg); outline-offset: -2px; }
+.row.trk + .row.trk { border-top: 1px solid var(--line); }
+.track-ctl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.track-ctl .seg button { padding: 5px 10px; font-size: 13px; }
+.side { display: flex; flex-direction: column; gap: 6px; }
+.side-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.side-head b { font: 600 13px var(--font-display); letter-spacing: .06em; text-transform: uppercase; }
+.side-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; }
+.side-grid figure { margin: 0; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.side-grid figure.sel .ph { outline: 2px solid var(--fg); outline-offset: 1px; }
+.side-grid figcaption { display: flex; justify-content: space-between; gap: 4px; font: 11px var(--font-mono); color: var(--fg-2); font-variant-numeric: tabular-nums; }
+.side-grid .ph .aim { width: 18px; height: 18px; margin-left: -9px; }
 .days-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 6px; }
 .days-grid figure { margin: 0; display: flex; flex-direction: column; gap: 2px; }
 .days-grid .ph { border-top-width: 2px; }
@@ -234,9 +249,19 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
 
       <section class="card" style="padding:12px">
         <div class="card-head" style="padding-inline:4px">
-          <h2>Dual-track corridor</h2>
-          <span class="note" id="trackNote">Frames sit at the spot they show, not where the camera stood. Hover one to compare that spot from both sides.</span>
+          <h2>Photo tracks</h2>
+          <div class="track-ctl">
+            <div class="seg" role="group" aria-label="Compare">
+              <button data-cmp="days" aria-pressed="true">Same side, across days</button>
+              <button data-cmp="dirs" aria-pressed="false">Both sides, one day</button>
+            </div>
+            <div class="seg" role="group" aria-label="Side" id="sideSeg">
+              <button data-side="forward" aria-pressed="true">Seen from A</button>
+              <button data-side="return" aria-pressed="false">Seen from B</button>
+            </div>
+          </div>
         </div>
+        <p class="note" id="trackNote" style="margin:0 4px 10px"></p>
         <div class="tracks" id="tracks"><div class="canvas" id="canvas"></div></div>
       </section>
 
@@ -252,7 +277,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
       <div class="look">
         <div class="row1"><label for="look">Look-ahead</label><b class="mono" id="lookVal">5.0 m</b></div>
         <input type="range" id="look" min="2" max="8" step="0.5" value="5">
-        <span class="note" style="font-size:12px">Each photo shows the spot from a few metres away, walking towards it. Drag until the same object sits inside both circles.</span>
+        <span class="note" style="font-size:12px">Each photo shows the spot from a few metres away, walking towards it. Drag until the circle sits on the same object across the days in a row.</span>
       </div>
       <div id="inspector" aria-live="polite" style="display:flex;flex-direction:column;gap:12px"></div>
     </aside>
@@ -304,7 +329,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
   const L = D.corridor.length_m;
   const days = D.days.slice().sort((a, b) => a.day - b.day);
   const realDays = days.filter(d => !d.mock);
-  const state = { idx: 0, view: 'photo', meter: null };
+  const state = { idx: 0, view: 'photo', meter: null, cmp: 'days', side: 'forward', rows: [] };
   const DIRS = [
     { key: 'forward', short: 'NB', name: 'Northbound', color: 'var(--nb)', cls: 'nb' },
     { key: 'return', short: 'SB', name: 'Southbound', color: 'var(--sb)', cls: 'sb' }
@@ -327,7 +352,8 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
   // Exact per-second view of spot S from this walk: camera LOOK metres before S in walking direction.
   function viewFor(w, S) {
     const sv = w && w.spot_views; if (!sv || !sv.m.length) return null;
-    const target = w.key === 'forward' ? S - LOOK : S + LOOK;
+    const lo = Math.min(...sv.m), hi = Math.max(...sv.m);
+    const target = Math.max(lo, Math.min(hi, w.key === 'forward' ? S - LOOK : S + LOOK));
     let bi = 0, bd = Infinity;
     sv.m.forEach((m, i) => { const dd = Math.abs(m - target); if (dd < bd) { bd = dd; bi = i; } });
     return bd <= 4 ? { idx: bi, cam: sv.m[bi], t: sv.t[bi] } : null;
@@ -366,8 +392,8 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
     state.view = b.dataset.view;
     document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', x === b));
     $('canvas').className = 'canvas view-' + state.view;
+    if (state.view === 'photo') { renderTracks(); setMeter(state.meter ?? 0); return; }
     $('trackNote').textContent = {
-      photo: 'Frames sit at the spot they show, not where the camera stood. Hover one to compare that spot from both sides.',
       prox: 'Red band: the strip within roughly 0.8 m of the body. It darkens with near-field clutter in the frame (an image measure, not a distance measurement).',
       vector: 'Top-down schematic drawn from the measures. Blocks show obstructed frames, red ticks show body-zone breaches, triangles show stops. Not a surveyed plan.'
     }[state.view];
@@ -462,7 +488,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
       });
     });
     s += `<rect id="pHit" x="${M.l}" y="0" width="${PW - M.l - M.r}" height="${PH - M.b}" fill="transparent" style="cursor:crosshair"/>`;
-    s += `<line id="pCursor" x1="0" x2="0" y1="${M.t}" y2="${PH - M.b + 52}" stroke="var(--fg)" stroke-width="1.5" visibility="hidden"/>`;
+    s += `<line id="pCursor" x1="0" x2="0" y1="${M.t}" y2="${PH - M.b + 52}" stroke="var(--fg)" stroke-width="1.5" visibility="hidden" pointer-events="none"/>`;
     s += `</svg><div class="tip" id="pTip" hidden></div>`;
     $('profile').innerHTML = s;
     const svg = $('profile').querySelector('svg');
@@ -487,47 +513,69 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
 
   /* ---------- Dual tracks ---------- */
   let ppm = 15;
+  // Rows to show: one direction across all surveyed days (photos of a spot match day to day),
+  // or both directions on the selected day (same spot, seen from its two sides; photos never look alike).
+  function trackRows() {
+    if (state.cmp === 'days') {
+      const dir = DIRS.find(x => x.key === state.side);
+      return realDays.filter(d => d[dir.key]).map(d => ({ d, dir, label: `Day ${pad(d.day)} · seen from ${dir.key === 'forward' ? 'A' : 'B'}`, sel: d.day === day().day }));
+    }
+    return DIRS.map(dir => ({ d: day(), dir, label: `${dir.name} · seen from ${dir.key === 'forward' ? 'A' : 'B'} · Day ${pad(day().day)}`, sel: false }));
+  }
+  function axisHtml(W, x) {
+    let html = `<div class="axis" style="width:${W}px">`;
+    for (let m = 0; m <= L + 0.01; m += 5) html += `<div class="t ${m % 25 ? 'minor' : ''}" style="left:${x(m)}px"></div>` + (m % 25 ? '' : `<div class="l" style="left:${x(m)}px">${m} m</div>`);
+    if (L % 25) html += `<div class="t" style="left:${x(L)}px"></div><div class="l" style="left:${x(L)}px">${fmt(L)} m</div>`;
+    Object.entries(D.corridor.landmarks || {}).forEach(([k, m]) => html += `<div class="t" style="left:${x(m)}px;height:100%;background:var(--line)" title="${k.replace(/_/g, ' ')} · ${m} m"></div>`);
+    return html + `</div>`;
+  }
   function renderTracks() {
-    const d = day();
-    const spacings = DIRS.map(dir => { const w = walk(d, dir.key); return w && w.nodes.length > 1 ? L / (w.nodes.length - 1) : 10; });
-    const h = 160, thumbW = h * ((d.forward || d.return).summary.frame_size?.[0] || 338) / ((d.forward || d.return).summary.frame_size?.[1] || 600);
-    ppm = Math.max(6, Math.min(40, (thumbW + 4) / Math.min(...spacings)));
+    const rows = state.rows = trackRows();
+    $('sideSeg').hidden = state.cmp !== 'days';
+    document.querySelectorAll('[data-cmp]').forEach(b => b.setAttribute('aria-pressed', b.dataset.cmp === state.cmp));
+    document.querySelectorAll('[data-side]').forEach(b => b.setAttribute('aria-pressed', b.dataset.side === state.side));
+    $('trackNote').textContent = state.view === 'photo'
+      ? (state.cmp === 'days'
+        ? `Each row is one surveyed day, all seen from the ${state.side === 'forward' ? 'A' : 'B'} side, so photos stacked above each other show the same spot on different days. Frames sit at the spot they show.`
+        : 'The same day from both sides. Photos at the same metre show the same spot from opposite directions, so they will not look alike; compare what blocks the path, not the scenery.')
+      : $('trackNote').textContent;
+    const ref = rows[0] && walk(rows[0].d, rows[0].dir.key);
+    const spacing = Math.min(...rows.map(r => { const w = walk(r.d, r.dir.key); return w && w.nodes.length > 1 ? L / (w.nodes.length - 1) : 10; }), 10);
+    const h = 160, fs = (ref && ref.summary.frame_size) || [338, 600], thumbW = h * fs[0] / fs[1];
+    ppm = Math.max(6, Math.min(40, (thumbW + 4) / spacing));
     const W = L * ppm + 120, x = m => 60 + m * ppm;
     let html = `<div class="cursor" id="tCursor"></div>`;
-    DIRS.forEach((dir, k) => {
-      const w = walk(d, dir.key);
-      let row = `<div class="row ${dir.cls}" style="width:${W}px"><span class="row-label"><i></i>${dir.name} · ${dir.key === 'forward' ? `0 → ${fmt(L)} m` : `${fmt(L)} → 0 m`}</span>`;
+    if (state.cmp === 'days') html += axisHtml(W, x);
+    rows.forEach((r, i) => {
+      const w = walk(r.d, r.dir.key);
+      let row = `<div class="row trk ${r.dir.cls} ${r.sel ? 'sel' : ''}" style="width:${W}px;height:196px"><span class="row-label"><i></i>${r.label}</span>`;
       if (w) {
         for (const n of w.nodes) {
           const a = Math.max(0, Math.min(1, (n.near_field - 0.8) / 2.2));
-          row += `<button class="node" style="left:${x(n.meter)}px" data-dir="${dir.key}" data-m="${n.meter}" aria-label="${dir.name} at ${fmt(n.meter)} m">
+          row += `<button class="node" style="left:${x(n.meter)}px" data-row="${i}" data-m="${n.meter}" aria-label="${r.label}, ${fmt(n.meter)} m">
             <img src="${w.folder}/${n.file}" alt="" loading="lazy" decoding="async" style="height:${h}px">
             <div class="prox-guides"></div>
             <div class="prox-band" style="background:rgba(208,59,59,${(0.15 + 0.6 * a).toFixed(2)})"><span>&lt;0.8 m${n.near_field >= NEAR ? ' · breach' : ''}</span></div></button>`;
         }
-        row += vectorSvg(w, dir, W, x);
+        row += vectorSvg(w, r.dir, W, x);
       } else {
-        row += `<p class="note" style="position:absolute;top:80px;left:80px">No ${dir.name.toLowerCase()} walk on this day.</p>`;
+        row += `<p class="note" style="position:absolute;top:80px;left:80px">No walk from this side on this day.</p>`;
       }
-      row += `</div>`;
-      html += row;
-      if (k === 0) {
-        html += `<div class="axis" style="width:${W}px">`;
-        for (let m = 0; m <= L + 0.01; m += 5) html += `<div class="t ${m % 25 ? 'minor' : ''}" style="left:${x(m)}px"></div>` + (m % 25 ? '' : `<div class="l" style="left:${x(m)}px">${m} m</div>`);
-        if (L % 25) html += `<div class="t" style="left:${x(L)}px"></div><div class="l" style="left:${x(L)}px">${fmt(L)} m</div>`;
-        Object.entries(D.corridor.landmarks || {}).forEach(([k, m]) => html += `<div class="t" style="left:${x(m)}px;height:100%;background:var(--line)" title="${k.replace(/_/g, ' ')} · ${m} m"></div>`);
-        html += `</div>`;
-      }
+      html += row + `</div>`;
+      if (state.cmp === 'dirs' && i === 0) html += axisHtml(W, x);
     });
+    if (!rows.length) html += `<p class="note" style="padding:16px">No surveyed walks from this side yet.</p>`;
     $('canvas').innerHTML = html;
     $('canvas').style.width = W + 'px';
     $('canvas').className = 'canvas view-' + state.view;
     $('canvas').querySelectorAll('.node').forEach(el => {
-      const go = () => setMeter(+el.dataset.m, el.dataset.dir);
+      const go = () => setMeter(+el.dataset.m, +el.dataset.row);
       el.addEventListener('mouseenter', go); el.addEventListener('focus', go); el.addEventListener('click', go);
     });
     state.x = x;
   }
+  document.querySelectorAll('[data-cmp]').forEach(b => b.addEventListener('click', () => { state.cmp = b.dataset.cmp; renderTracks(); setMeter(state.meter ?? 0); }));
+  document.querySelectorAll('[data-side]').forEach(b => b.addEventListener('click', () => { state.side = b.dataset.side; renderTracks(); setMeter(state.meter ?? 0); }));
   function vectorSvg(w, dir, W, x) {
     const H = 196, top = dir.key === 'forward' ? 40 : 18, band = 120;
     const kerbY = dir.key === 'forward' ? top + band : top;    // kerb on the road side
@@ -560,10 +608,10 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
     state.meter = m;
     const d = day();
     document.querySelectorAll('.node.hot, .node.pair').forEach(n => n.classList.remove('hot', 'pair'));
-    DIRS.forEach(dir => {
-      const n = nearest(walk(d, dir.key), m); if (!n) return;
-      const el = document.querySelector(`.node[data-dir="${dir.key}"][data-m="${n.meter}"]`);
-      if (el) el.classList.add(from === dir.key ? 'hot' : 'pair');
+    state.rows.forEach((r, i) => {
+      const n = nearest(walk(r.d, r.dir.key), m); if (!n) return;
+      const el = document.querySelector(`.node[data-row="${i}"][data-m="${n.meter}"]`);
+      if (el) el.classList.add(from === i ? 'hot' : 'pair');
     });
     const c = $('tCursor'); if (c) { c.style.left = state.x(m) + 'px'; c.style.display = 'block'; }
     profileCursor(m, from === 'profile' ? e : null);
@@ -581,38 +629,34 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
   function renderInspector(m) {
     const d = day();
     if (m == null) m = 0;
-    $('inspDay').textContent = `Day ${pad(d.day)}${d.mock ? ' (placeholder)' : ''}`;
-    const info = DIRS.map(dir => { const w = walk(d, dir.key); return { dir, w, n: nearest(w, m), ev: eventsNear(w, m), ph: w ? photo(w, m, dir.color) : { v: null, html: `<div class="ph empty" style="border-top-color:${dir.color}"></div>` } }; });
-    const [N, S] = info;
-    let verdict;
-    if (!N.n || !S.n) verdict = `Only one direction has a frame near ${fmt(m)} m.`;
-    else {
-      const a = cls(N.n), b = cls(S.n);
-      if (a === b) verdict = `<strong>Both directions ${clsText[a].toLowerCase()}</strong> at this spot (index ${fmt(N.n.obstruction, 2)} vs ${fmt(S.n.obstruction, 2)}).`;
-      else verdict = `<strong>Approaching from A: ${clsText[a].toLowerCase()}. From B: ${clsText[b].toLowerCase()}.</strong> Index ${fmt(N.n.obstruction, 2)} vs ${fmt(S.n.obstruction, 2)}, a ${fmt(Math.max(N.n.obstruction, S.n.obstruction) / Math.max(0.05, Math.min(N.n.obstruction, S.n.obstruction)), 1)}× difference.`;
-    }
+    $('inspDay').textContent = `Selected: Day ${pad(d.day)}${d.mock ? ' (placeholder)' : ''}`;
     const bin = Math.min(Math.ceil(L / BIN) - 1, Math.floor(m / BIN));
-    const per = DIRS.map(dir => ({ dir, p: persistence(dir.key)[bin] }));
-    const perText = per.map(({ dir, p }) => `${dir.short}: ${p.n ? `${p.c}/${p.n} days, <span class="flag ${p.cls === 'static' ? 'crit' : p.cls === 'clear' ? 'ok' : 'mid'}">${p.cls}</span>` : 'no frames'}`).join('<br>');
-    const row = (k, f) => `<tr><td>${k}</td>${info.map(i => `<td>${i.n ? f(i) : '–'}</td>`).join('')}</tr>`;
-    const others = realDays.filter(x => x.day !== d.day);
-    const otherHtml = others.length ? `<div class="days-grid">${others.flatMap(od => DIRS.map(dir => {
-        const w = walk(od, dir.key); if (!w) return '';
-        return `<figure>${photo(w, m, dir.color).html}<figcaption>D${pad(od.day)} ${dir.short}</figcaption></figure>`;
-      })).join('')}</div>` : '<span class="note">No other surveyed days yet.</span>';
+    const sides = DIRS.map(dir => {
+      const p = persistence(dir.key)[bin];
+      const tiles = realDays.filter(od => od[dir.key]).map(od => {
+        const w = walk(od, dir.key), n = nearest(w, m), ph = photo(w, m, dir.color);
+        const flag = n ? `<span class="flag ${cls(n)}">${fmt(n.obstruction, 2)}</span>` : '–';
+        return `<figure class="${od.day === d.day ? 'sel' : ''}">${ph.html}<figcaption><span>Day ${pad(od.day)}</span>${flag}</figcaption></figure>`;
+      });
+      return { dir, p, tiles };
+    });
+    const word = c => c === 'static' ? 'obstructed on most days' : c === 'transient' ? 'obstructed on some days' : c === 'clear' ? 'clear on every day' : c === 'unconfirmed' ? 'not enough days yet' : 'no footage';
+    const [A, B] = sides;
+    let compare = '';
+    if (A.p.n && B.p.n) {
+      compare = A.p.cls === B.p.cls
+        ? `<strong>Same from both sides:</strong> ${word(A.p.cls)} (A side ${A.p.c}/${A.p.n}, B side ${B.p.c}/${B.p.n}).`
+        : `<strong>Differs by side.</strong> From A: ${word(A.p.cls)} (${A.p.c}/${A.p.n} days). From B: ${word(B.p.cls)} (${B.p.c}/${B.p.n} days). Check the photos: something may block the path when approached one way but not the other.`;
+    }
     $('inspector').innerHTML = `
       <div class="insp-head"><span class="m">${fmt(m)} m</span><span class="note">${BIN} m bin ${bin * BIN}–${Math.min(L, (bin + 1) * BIN)}</span></div>
-      <div class="pair">${info.map(i => `<figure>${i.ph.html}<figcaption style="color:var(--fg)">${i.dir.short} <span style="color:var(--muted);font-weight:500;letter-spacing:0;text-transform:none">· from ${i.dir.key === 'forward' ? 'A' : 'B'} side</span></figcaption>
-        <span class="cam">${i.ph.v ? `camera ${fmt(i.ph.v.cam)} m · ${fmt(i.ph.v.t)} s` : 'no footage'}</span></figure>`).join('')}</div>
-      <table class="mx"><thead><tr><th></th><th>NB</th><th>SB</th></tr></thead><tbody>
-        ${row('Obstruction', i => `<span class="flag ${cls(i.n)}">${fmt(i.n.obstruction, 2)}</span>`)}
-        ${row('Body zone (<0.8 m)', i => i.n.near_field >= NEAR ? `<span class="flag crit">${fmt(i.n.near_field, 2)}</span>` : fmt(i.n.near_field, 2))}
-        ${row('Stopped within 5 m', i => i.ev.stop ? fmt(i.ev.stop, 1) + ' s' : '0 s')}
-        ${row('Slowed within 5 m', i => i.ev.slow ? fmt(i.ev.slow, 1) + ' s' : '0 s')}
-      </tbody></table>
-      <div class="verdict">${verdict}</div>
-      <div class="verdict"><span class="lbl" style="display:block;margin-bottom:6px">Same spot, other surveyed days</span>${otherHtml}</div>
-      <div class="verdict"><span class="lbl" style="display:block;margin-bottom:4px">Persistence at this spot</span>${perText}${realDays.length < 3 ? '<br><span class="note">Persistence needs at least 3 surveyed days. Placeholder days are not counted.</span>' : ''}</div>`;
+      ${sides.map(sd => `<div class="side">
+        <div class="side-head"><b style="color:${sd.dir.color}">Seen from ${sd.dir.key === 'forward' ? 'A' : 'B'}</b><span class="note" style="font-size:12px">${sd.dir.key === 'forward' ? 'A→B' : 'B→A'} walks · ${sd.p.n ? `${sd.p.c}/${sd.p.n} days obstructed, <span class="flag ${sd.p.cls === 'static' ? 'crit' : sd.p.cls === 'clear' ? 'ok' : 'mid'}">${sd.p.cls}</span>` : 'no footage'}</span></div>
+        ${sd.tiles.length ? `<div class="side-grid">${sd.tiles.join('')}</div>` : '<span class="note">No surveyed walks from this side yet.</span>'}
+      </div>`).join('')}
+      <p class="note" style="font-size:12px">Photos in a row show this spot on different days from the same side, so they should look alike. The two rows show it from opposite sides, so they will not.</p>
+      ${compare ? `<div class="verdict">${compare}</div>` : ''}
+      ${realDays.length < 3 ? '<div class="verdict"><span class="note">Persistence needs at least 3 surveyed days. Placeholder days are not counted.</span></div>' : ''}`;
   }
 
   /* ---------- Persistence panel ---------- */
