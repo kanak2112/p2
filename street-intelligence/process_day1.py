@@ -256,11 +256,13 @@ def process_walk(path, out_dir, direction, length_m, step_s, height, motion_thre
     spot_views = {"t": dense_t, "m": dense_m, "sheets": sheets, "rows": rows, "cols": SHEET_COLS,
                   "per_sheet": SHEET_PER, "size": [int(dense[0].shape[1]), int(dense[0].shape[0])] if dense else None}
 
-    # Express measures relative to this walk's median, so lighting differences between days matter less.
+    # Provisional scores relative to this walk; main() re-normalises across comparable walks.
     for key, out in (("_obs", "obstruction"), ("_near", "near_field")):
         med = max(float(np.median([nd[key] for nd in nodes])), 0.02)  # floor: plain paving has few edges
         for nd in nodes:
-            nd[out] = round(min(nd.pop(key) / med, 5.0), 2)
+            raw = nd.pop(key)
+            nd[out + "_raw"] = round(raw, 4)
+            nd[out] = round(min(raw / med, 5.0), 2)
 
     summary = {
         "duration_s": round(m["duration"], 1),
@@ -342,6 +344,32 @@ def lighting_of(walk):
     return walk["lighting"]
 
 
+def renormalise(days):
+    """
+    Score every frame against the typical frame of ALL surveyed walks in the same direction and light,
+    not its own walk, so a day that is worse throughout actually scores worse. 1.0 = typical frame.
+    """
+    groups = {}
+    for d in days:
+        if d.get("mock"):
+            continue
+        for key in ("forward", "return"):
+            if key in d:
+                groups.setdefault((key, d[key].get("lighting")), []).append(d[key])
+    for (key, light), walks in groups.items():
+        for out in ("obstruction", "near_field"):
+            vals = [n[out + "_raw"] for w in walks for n in w["nodes"] if out + "_raw" in n]
+            if not vals:
+                continue
+            med = max(float(np.median(vals)), 0.02)
+            for w in walks:
+                for n in w["nodes"]:
+                    if out + "_raw" in n:
+                        n[out] = round(min(n[out + "_raw"] / med, 5.0), 2)
+        for w in walks:
+            w["scored_against"] = f"{len(walks)} {light} {key} walk(s)"
+
+
 def link_or_copy(src, dst):
     if os.path.islink(dst):
         os.remove(dst)
@@ -407,10 +435,13 @@ def main():
     for key in ("forward", "return"):
         if key in day:
             lighting_of(day[key])
-    for key in ("forward", "return"):  # line this day up with the first surveyed day of the same direction
-        refs = [r for r in sorted(real) if r != args.day and key in real[r] and not real[r][key].get("aligned_to")]
-        if key in day and refs and min(refs) < args.day:
-            align_to_reference(day[key], real[min(refs)][key])
+    for key in ("forward", "return"):
+        # Line this day up with an earlier surveyed walk of the same direction, preferring one filmed in the
+        # same light (night-to-night matching is far more reliable than night-to-day).
+        refs = [r for r in sorted(real) if r < args.day and key in real[r]]
+        if key in day and refs:
+            same = [r for r in refs if real[r][key].get("lighting") == day[key].get("lighting")]
+            align_to_reference(day[key], real[min(same) if same else min(refs)][key])
     real[args.day] = day
 
     # Fill days 1..7 that have no footage with copies of the latest earlier real day (or the first real day).
@@ -430,6 +461,7 @@ def main():
             link_or_copy(os.path.join(DATA, f"day{src_n}_{key}"), os.path.join(DATA, f"day{n}_{key}"))
         days.append(mock)
 
+    renormalise(days)
     manifest = {
         "corridor": {"name": args.corridor_name, "city": args.area, "ward": "K/East",
                      "landmarks": landmarks.get("landmarks", {}), "length_m": args.length, "step_s": args.step},

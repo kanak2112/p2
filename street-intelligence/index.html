@@ -8,361 +8,246 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: toolbar, then a corridor profile chart over the full length, then two photo tracks on one shared metre axis; inspector on the right. */
+/* Layout: findings (route + three numbers) on top; then a main column (spot x day grid, ranked spots,
+   photo tracks, method) beside a sticky spot inspector. One data encoding everywhere: days blocked. */
 :root {
   color-scheme: light;
-  --bg: #eef0ef;
-  --surface: #fbfcfb;
-  --sunken: #e3e6e4;
-  --line: #ccd2cf;
-  --grid: #e1e5e3;
-  --fg: #151a18;
-  --fg-2: #4d5753;
-  --muted: #6f7975;
-  --nb: #2a78d6;           /* Northbound / forward  (categorical slot 1) */
-  --sb: #eb6834;           /* Southbound / return   (categorical slot 2) */
-  --critical: #d03b3b;
-  --warning: #fab219;
-  --good: #0ca30c;
-  --p0: #f0f1f0; --p1: #d3d6d4; --p2: #a9aeab; --p3: #7b817e; --p4: #4c524f; --p5: #1f2422;   /* persistence ink ramp */
-  --hatch: rgba(21, 26, 24, .55);
+  --bg: #f3f4f2;
+  --panel: #fbfbfa;
+  --sunken: #e8eae7;
+  --line: #d6d9d5;
+  --grid: #e6e8e5;
+  --fg: #141816;
+  --fg-2: #4a524e;
+  --muted: #727a76;
+  /* Days-blocked ramp: one hue, 0 (never) -> 4 (every surveyed day). Per-day states reuse it:
+     clear = r0, busy = r1, obstructed = r4. */
+  --r0: #e3e6e2; --r1: #f1cbbd; --r2: #e3957c; --r3: #c65a3d; --r4: #8c2915;
   --font-display: "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif;
   --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 40px;
+  --radius: 6px;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   color-scheme: dark;
-  --bg: #121514; --surface: #1a1e1c; --sunken: #0e1110; --line: #2e3532; --grid: #232927; --fg: #eef1ef; --fg-2: #bfc6c2; --muted: #8d9792;
-  --nb: #3987e5; --sb: #d95926; --p0: #222826; --p1: #39403d; --p2: #5b625f; --p3: #858c88; --p4: #b3b9b6; --p5: #e6eae8; --hatch: rgba(238, 241, 239, .55);
+  --bg: #121513; --panel: #181c1a; --sunken: #202523; --line: #323935; --grid: #262c29;
+  --fg: #eef1ef; --fg-2: #bcc4c0; --muted: #8b9590;
+  --r0: #2a302d; --r1: #55302a; --r2: #874031; --r3: #c05a3f; --r4: #f08262;
 } }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #121514; --surface: #1a1e1c; --sunken: #0e1110; --line: #2e3532; --grid: #232927; --fg: #eef1ef; --fg-2: #bfc6c2; --muted: #8d9792;
-  --nb: #3987e5; --sb: #d95926; --p0: #222826; --p1: #39403d; --p2: #5b625f; --p3: #858c88; --p4: #b3b9b6; --p5: #e6eae8; --hatch: rgba(238, 241, 239, .55);
+  --bg: #121513; --panel: #181c1a; --sunken: #202523; --line: #323935; --grid: #262c29;
+  --fg: #eef1ef; --fg-2: #bcc4c0; --muted: #8b9590;
+  --r0: #2a302d; --r1: #55302a; --r2: #874031; --r3: #c05a3f; --r4: #f08262;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
-body { background: var(--bg); color: var(--fg); font: 15px/1.5 var(--font-body); }
-.wrap { max-width: 1480px; margin: 0 auto; padding-inline: 20px; padding-block: 22px 56px; display: flex; flex-direction: column; gap: 18px; }
-@media (max-width: 520px) { .wrap { padding-inline: 16px; } }
-h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
-.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
-.lbl { font-family: var(--font-display); font-weight: 600; font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
-button { font: inherit; color: inherit; }
-button:focus-visible, input:focus-visible, textarea:focus-visible, .node:focus-visible { outline: 2px solid var(--nb); outline-offset: 2px; }
-
-header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px 24px; }
-h1 { font-size: clamp(28px, 4.2vw, 40px); font-weight: 700; line-height: 1; letter-spacing: -.01em; }
-.sub { margin: 6px 0 0; color: var(--fg-2); }
-.status { display: flex; flex-wrap: wrap; gap: 6px; }
-.pill { font: 500 12px var(--font-mono); padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--fg-2); background: var(--surface); }
-.pill.warn { border-color: var(--warning); }
-.pill.warn::before { content: "▲ "; color: var(--warning); }
-
-.toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 36px; padding-block: 14px; border-block: 1px solid var(--line); }
-.group { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-.slider { display: flex; flex-direction: column; gap: 2px; width: min(340px, 100%); }
-.slider input { width: 100%; accent-color: var(--fg); margin: 0; }
-.ticks { display: flex; justify-content: space-between; font: 11px var(--font-mono); color: var(--muted); padding-inline: 2px; }
-.ticks span { width: 18px; text-align: center; }
-.ticks span.real { color: var(--fg); font-weight: 500; }
-.ticks span.on { text-decoration: underline; text-underline-offset: 3px; }
-.dayline { font: 500 13px var(--font-mono); color: var(--fg-2); }
-.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--surface); }
-.seg button { border: 0; background: none; padding: 7px 13px; cursor: pointer; font-weight: 500; font-size: 14px; }
-.seg button + button { border-left: 1px solid var(--line); }
-.seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
-.btn { border: 1px solid var(--fg); background: var(--fg); color: var(--bg); padding: 8px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; }
-.btn.ghost { background: transparent; color: var(--fg); border-color: var(--line); }
-.spacer { flex: 1; }
-
-.layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 18px; align-items: start; }
-@media (max-width: 1080px) { .layout { grid-template-columns: minmax(0, 1fr); } }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
-.card-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; margin-bottom: 10px; }
-.card-head h2 { font-size: 19px; font-weight: 600; }
-.note { font-size: 13px; color: var(--muted); margin: 0; max-width: 70ch; }
-
-/* Legend */
-.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--fg-2); }
-.legend span { display: inline-flex; align-items: center; gap: 6px; }
-.sw-line { width: 18px; height: 2px; border-radius: 1px; display: inline-block; }
-.sw-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
-
-/* Profile chart */
-.profile { position: relative; }
-.profile svg { display: block; width: 100%; height: auto; overflow: visible; }
-.profile text { font-family: var(--font-mono); font-size: 10.5px; fill: var(--muted); }
-.tip { position: absolute; pointer-events: none; background: var(--fg); color: var(--bg); font: 12px/1.45 var(--font-mono); padding: 7px 9px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, calc(-100% - 10px)); z-index: 5; }
-.tip b { font-weight: 500; }
-.persist-key { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; font-size: 12.5px; color: var(--fg-2); margin-top: 6px; }
-.ramp { display: inline-flex; gap: 2px; vertical-align: middle; }
-.ramp i { width: 14px; height: 10px; border-radius: 2px; display: inline-block; }
-
-/* Dual-track canvas */
-.tracks { overflow-x: auto; overflow-y: hidden; border-radius: 6px; background: var(--sunken); scroll-behavior: smooth; }
-.canvas { position: relative; }
-.row { position: relative; }
-.row.nb, .row.sb { height: 196px; }
-.row-label { position: sticky; left: 0; z-index: 4; display: inline-flex; gap: 6px; align-items: center; font: 600 12px var(--font-display); letter-spacing: .08em; text-transform: uppercase; padding: 4px 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 0 0 6px 0; color: var(--fg); }
-.nb .row-label i, .sb .row-label i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
-.nb .row-label i { background: var(--nb); } .sb .row-label i { background: var(--sb); }
-.row.sb .row-label { position: absolute; top: auto; bottom: 0; border-radius: 0 6px 0 0; }
-.node { position: absolute; top: 28px; height: 160px; padding: 0; border: 2px solid transparent; border-radius: 4px; overflow: hidden; background: #000; cursor: pointer; transform: translateX(-50%); }
-.row.sb .node { top: 6px; }
-.node img { display: block; height: 100%; width: auto; }
-.node.hot { border-color: var(--fg); z-index: 3; }
-.node.pair { border-color: var(--fg); z-index: 3; box-shadow: 0 0 0 3px var(--surface); }
-.nb .node.hot { border-color: var(--nb); } .sb .node.hot { border-color: var(--sb); }
-.prox-band { position: absolute; left: 0; right: 0; bottom: 0; height: 18%; display: none; border-top: 1px dashed rgba(255,255,255,.8); }
-.prox-band span { position: absolute; left: 3px; top: 1px; font: 500 9px var(--font-mono); color: #fff; text-shadow: 0 0 3px #000; }
-.view-prox .prox-band { display: block; }
-.prox-guides { position: absolute; inset: 0; display: none; background: repeating-linear-gradient(90deg, transparent 0 calc(25% - 1px), rgba(255,255,255,.35) calc(25% - 1px) 25%); }
-.view-prox .prox-guides { display: block; }
-.vector { position: absolute; inset: 0; display: none; }
-.view-vector .vector { display: block; }
-.view-vector .node { display: none; }
-.axis { position: relative; height: 40px; background: var(--surface); border-block: 1px solid var(--line); }
-.axis .t { position: absolute; top: 0; width: 1px; height: 8px; background: var(--muted); }
-.axis .t.minor { height: 4px; background: var(--line); }
-.axis .l { position: absolute; top: 10px; transform: translateX(-50%); font: 11px var(--font-mono); color: var(--fg-2); white-space: nowrap; }
-.axis .ev { position: absolute; bottom: 4px; width: 9px; height: 9px; border-radius: 50%; transform: translateX(-50%); }
-.cursor { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--fg); opacity: .7; pointer-events: none; display: none; z-index: 6; }
-
-/* Inspector */
-.inspector { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); display: flex; flex-direction: column; gap: 12px; }
-.insp-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-.insp-head .m { font: 600 30px var(--font-display); line-height: 1; }
-.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.pair figure { margin: 0; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 [hidden] { display: none !important; }
-.ph { aspect-ratio: 338 / 600; background: var(--sunken); border-radius: 4px; overflow: hidden; position: relative; border-top: 3px solid; max-width: 100%; }
-.ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.ph.empty::after { content: "No frame within 6 m"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 12px; color: var(--muted); text-align: center; padding: 8px; }
-.pair figcaption { font: 600 12px var(--font-display); letter-spacing: .07em; text-transform: uppercase; }
-.pair .cam { font: 11px var(--font-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
-.ph.sprite { background-repeat: no-repeat; background-color: var(--sunken); }
-.ph .aim { position: absolute; left: 50%; bottom: 22%; width: 26px; height: 26px; margin-left: -13px; border: 2px solid rgba(255,255,255,.85); border-radius: 50%; box-shadow: 0 0 0 1px rgba(0,0,0,.5); pointer-events: none; }
-.look { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--fg-2); padding: 10px 12px; border-radius: 6px; background: var(--sunken); }
-.look .row1 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-.look input { width: 100%; accent-color: var(--fg); margin: 0; }
-.row.trk .node { top: 28px; }
-.row.trk .row-label { position: sticky; bottom: auto; border-radius: 0 0 6px 0; }
-.row.trk.sel .row-label { outline: 2px solid var(--fg); outline-offset: -2px; }
-.row.trk + .row.trk { border-top: 1px solid var(--line); }
-.track-ctl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.track-ctl .seg button { padding: 5px 10px; font-size: 13px; }
-.side { display: flex; flex-direction: column; gap: 6px; }
-.side-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-.side-head b { font: 600 13px var(--font-display); letter-spacing: .06em; text-transform: uppercase; }
-.side-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; }
-.side-grid figure { margin: 0; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.side-grid figure.sel .ph { outline: 2px solid var(--fg); outline-offset: 1px; }
-.side-grid figcaption { display: flex; justify-content: space-between; gap: 4px; font: 11px var(--font-mono); color: var(--fg-2); font-variant-numeric: tabular-nums; }
-.side-grid .ph .aim { width: 18px; height: 18px; margin-left: -9px; }
-.days-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 6px; }
-.days-grid figure { margin: 0; display: flex; flex-direction: column; gap: 2px; }
-.days-grid .ph { border-top-width: 2px; }
-.days-grid .aim { display: none; }
-.days-grid figcaption { font: 11px var(--font-mono); color: var(--fg-2); }
-table.mx { width: 100%; border-collapse: collapse; font-size: 13px; }
-.mx th, .mx td { padding: 5px 4px; border-bottom: 1px solid var(--grid); text-align: right; font-variant-numeric: tabular-nums; }
-.mx th:first-child, .mx td:first-child { text-align: left; color: var(--fg-2); font-weight: 400; }
-.mx thead th { font: 600 11px var(--font-display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-.verdict { font-size: 14px; padding: 10px 12px; border-radius: 6px; background: var(--sunken); }
-.verdict strong { font-weight: 600; }
-.flag { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
-.flag.crit::before { content: "■"; color: var(--critical); }
-.flag.ok::before { content: "●"; color: var(--good); }
-.flag.mid::before { content: "▲"; color: var(--warning); }
+body { background: var(--bg); color: var(--fg); font: 15px/1.5 var(--font-body); }
+.wrap { max-width: 1440px; margin: 0 auto; padding-inline: 24px; padding-block: 28px 64px; display: flex; flex-direction: column; gap: var(--s6); }
+@media (max-width: 560px) { .wrap { padding-inline: 16px; gap: 32px; } }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; font-weight: 600; }
+h1 { font-size: clamp(30px, 4vw, 44px); font-weight: 700; line-height: 1; letter-spacing: -.01em; }
+h2 { font-size: 21px; line-height: 1.2; }
+p { margin: 0; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.note { font-size: 13px; color: var(--muted); max-width: 72ch; }
+button { font: inherit; color: inherit; }
+button:focus-visible, input:focus-visible, summary:focus-visible, .col:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+section { display: flex; flex-direction: column; gap: var(--s4); min-width: 0; }
+.sec-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: var(--s2) var(--s4); padding-bottom: var(--s2); border-bottom: 1px solid var(--line); }
 
-/* Persistence + metrics */
-.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
-.stat { padding: 10px 12px; border-radius: 6px; background: var(--sunken); display: flex; flex-direction: column; gap: 2px; }
-.stat .v { font: 600 24px var(--font-display); line-height: 1.1; font-variant-numeric: tabular-nums; }
-.stat .k { font-size: 12.5px; color: var(--fg-2); }
+/* Header */
+header { display: flex; flex-direction: column; gap: var(--s2); }
+header .meta { color: var(--fg-2); font-size: 15px; }
 
-/* Modal */
-dialog { border: 0; padding: 0; border-radius: 10px; background: var(--surface); color: var(--fg); width: min(860px, calc(100vw - 32px)); max-height: calc(100vh - 48px); }
-dialog::backdrop { background: rgba(0, 0, 0, .55); }
-.dlg { display: flex; flex-direction: column; gap: 12px; padding: 20px; }
-.dlg .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
-.dlg label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--fg-2); }
-.dlg input, .dlg textarea { font: 14px var(--font-body); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; width: 100%; }
-.dlg textarea { font: 13px/1.55 var(--font-mono); min-height: 360px; resize: vertical; }
-.dlg .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.empty-state { padding: 28px; text-align: left; }
-.empty-state code { font-family: var(--font-mono); background: var(--sunken); padding: 1px 5px; border-radius: 4px; }
-/* Overview */
-.ov-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
-@media (max-width: 900px) { .ov-grid { grid-template-columns: minmax(0, 1fr); } }
+/* Findings */
+.findings { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: var(--s5); align-items: center; }
+@media (max-width: 900px) { .findings { grid-template-columns: minmax(0, 1fr); } }
 .route svg { display: block; width: 100%; height: auto; }
 .route text { font-family: var(--font-mono); font-size: 11px; fill: var(--fg-2); }
-.route .seg-hit { cursor: pointer; }
-.head-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.head-stats .stat .v { font-size: 30px; }
-.head-stats .stat.lead { grid-column: 1 / -1; }
-.legend-status { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--fg-2); margin-top: 8px; }
-.chip { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
-.chip::before { font-size: 11px; }
-.chip.static::before { content: "■"; color: var(--critical); }
-.chip.transient::before { content: "▲"; color: var(--warning); }
-.chip.clear::before { content: "●"; color: var(--good); }
-.chip.unconfirmed::before, .chip.none::before { content: "○"; color: var(--muted); }
-.spot-table-wrap { overflow-x: auto; }
-table.spots { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 640px; }
-.spots th { text-align: left; font: 600 11px var(--font-display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); }
-.spots td { padding: 6px 8px; border-bottom: 1px solid var(--grid); vertical-align: middle; font-variant-numeric: tabular-nums; }
-.spots tr { cursor: pointer; }
-.spots tr:hover td, .spots tr.on td { background: var(--sunken); }
-.spots .thumb { width: 44px; border-top-width: 2px; }
-.spots .thumb .aim { display: none; }
-.spots .rank { font: 600 15px var(--font-display); color: var(--muted); }
-.spots .resp { color: var(--fg-2); font-size: 12.5px; }
-.btn.sm { padding: 4px 10px; font-size: 12.5px; }
+.route .hit { cursor: pointer; }
+.nums { display: flex; flex-direction: column; gap: var(--s5); }
+.num { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: var(--s4); align-items: baseline; padding-bottom: var(--s4); border-bottom: 1px solid var(--line); }
+.num:last-child { border-bottom: 0; }
+.num .v { white-space: nowrap; font: 700 46px/1 var(--font-display); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.num .k { font-size: 16px; line-height: 1.35; }
+@media (max-width: 560px) { .num { grid-template-columns: minmax(0, 1fr); gap: var(--s1); } .num .v { font-size: 40px; } }
+.num .k small { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; }
+.ramp-key { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2) var(--s3); font-size: 12.5px; color: var(--fg-2); }
+.ramp-key .sw { display: inline-flex; gap: 2px; }
+.ramp-key .sw i { width: 18px; height: 10px; border-radius: 2px; display: inline-block; }
+
+/* Main grid */
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: var(--s6); align-items: start; }
+.main { display: flex; flex-direction: column; gap: var(--s6); min-width: 0; }
+@media (max-width: 1100px) {
+  /* Single column: put the inspector right after the grid it explains. */
+  .layout { display: flex; flex-direction: column; align-items: stretch; }
+  .main { display: contents; }
+  .o-grid { order: 1; } .layout .inspector { order: 2; position: static; } .o-spots { order: 3; } .o-tracks { order: 4; } .o-method { order: 5; }
+}
+
+/* Spot x day grid */
+.matrix-wrap { overflow-x: auto; }
+.matrix svg { display: block; width: 100%; min-width: 640px; height: auto; }
+.matrix text { font-family: var(--font-mono); font-size: 11px; fill: var(--fg-2); }
+.matrix .rowlab { font-family: var(--font-body); font-size: 13px; fill: var(--fg); }
+.matrix .grp { font-family: var(--font-display); font-weight: 600; font-size: 13px; letter-spacing: .08em; fill: var(--muted); }
+.matrix .col { cursor: pointer; }
+.matrix .colsel { fill: none; stroke: var(--fg); stroke-width: 2; pointer-events: none; }
+.tip { position: fixed; z-index: 20; pointer-events: none; background: var(--fg); color: var(--bg); font: 12px/1.45 var(--font-mono); padding: 6px 9px; border-radius: 4px; max-width: 280px; }
+
+/* Ranked spots */
+.tbl-wrap { overflow-x: auto; }
+table.spots { width: 100%; border-collapse: collapse; min-width: 600px; font-size: 14px; }
+.spots th { text-align: left; font: 600 11px var(--font-display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 0 var(--s2) var(--s2); border-bottom: 1px solid var(--line); }
+.spots td { padding: var(--s2); border-bottom: 1px solid var(--grid); vertical-align: middle; font-variant-numeric: tabular-nums; }
+.spots tbody tr { cursor: pointer; }
+.spots tbody tr:hover td, .spots tbody tr.on td { background: var(--sunken); }
+.spots .rk { font: 600 15px var(--font-display); color: var(--muted); width: 2ch; }
+.spots .where small { display: block; color: var(--muted); font-size: 12.5px; }
+.strip { display: inline-flex; gap: 2px; vertical-align: middle; margin-right: 6px; }
+.strip i { width: 12px; height: 16px; border-radius: 2px; display: inline-block; }
+.strip i.na { background: transparent; box-shadow: inset 0 0 0 1px var(--line); }
+.resp { color: var(--fg-2); }
+.linkbtn { border: 0; background: none; padding: 0; color: var(--fg); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; font-size: 13.5px; }
+.ghost { border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius); padding: 6px 12px; cursor: pointer; font-size: 13.5px; }
+.ghost:hover { border-color: var(--muted); }
+
+/* Photos */
+.ph { position: relative; aspect-ratio: 9 / 16; background: var(--sunken); border-radius: 3px; overflow: hidden; max-width: 100%; background-repeat: no-repeat; }
+.ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ph .aim { position: absolute; left: 50%; bottom: 22%; width: 18px; height: 18px; margin-left: -9px; border: 2px solid rgba(255,255,255,.9); border-radius: 50%; box-shadow: 0 0 0 1px rgba(0,0,0,.45); pointer-events: none; }
+.ph.thumb { width: 40px; }
+.ph.thumb .aim { display: none; }
+.ph.empty::after { content: "No footage"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 11px; color: var(--muted); }
+
+/* Tracks */
+.ctl { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--panel); }
+.seg button { border: 0; background: none; padding: 6px 12px; cursor: pointer; font-size: 13.5px; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.tracks { overflow-x: auto; overflow-y: hidden; border-radius: var(--radius); background: var(--sunken); }
+.canvas { position: relative; }
+.trk { position: relative; height: 150px; border-top: 1px solid var(--line); }
+.trk .lab { position: sticky; left: 0; z-index: 3; display: inline-block; font-size: 12.5px; padding: 3px 8px; background: var(--panel); border-bottom-right-radius: 4px; }
+.node { position: absolute; top: 24px; height: 118px; padding: 0; border: 2px solid transparent; border-radius: 3px; overflow: hidden; background: #000; cursor: pointer; transform: translateX(-50%); }
+.node img { display: block; height: 100%; width: auto; }
+.node.hot { border-color: var(--fg); z-index: 2; }
+.axis { position: relative; height: 26px; background: var(--panel); }
+.axis .t { position: absolute; bottom: 0; width: 1px; height: 6px; background: var(--muted); }
+.axis .l { position: absolute; top: 4px; transform: translateX(-50%); font: 11px var(--font-mono); color: var(--fg-2); white-space: nowrap; }
+.cursor { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--fg); opacity: .6; pointer-events: none; display: none; z-index: 4; }
+
+/* Inspector */
+.inspector { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); display: flex; flex-direction: column; gap: var(--s4); padding: var(--s4); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+.insp-top { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s2); }
+.insp-top .m { font: 700 30px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.side { display: flex; flex-direction: column; gap: var(--s2); }
+.side-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s2); font-size: 13.5px; }
+.side-head b { font-weight: 600; }
+.days { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.days figure { margin: 0; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.days figcaption { display: flex; align-items: center; gap: 4px; font: 11px var(--font-mono); color: var(--fg-2); }
+.days figcaption i { width: 10px; height: 10px; border-radius: 2px; flex: none; }
+.verdict { font-size: 14px; padding: var(--s3); border-radius: 4px; background: var(--sunken); }
 details.calib summary { cursor: pointer; font-size: 13px; color: var(--fg-2); }
-details.calib[open] summary { margin-bottom: 6px; }
-#cardCanvas { width: 100%; height: auto; border-radius: 6px; border: 1px solid var(--line); background: #fff; }
-@media (prefers-reduced-motion: reduce) { .tracks { scroll-behavior: auto; } }
+details.calib .row { display: flex; justify-content: space-between; font-size: 13px; margin-top: var(--s2); }
+details.calib input { width: 100%; accent-color: var(--fg); }
+.btn { border: 1px solid var(--fg); background: var(--fg); color: var(--bg); border-radius: var(--radius); padding: 8px 14px; cursor: pointer; font-weight: 600; font-size: 14px; }
+
+/* Method */
+.method { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--s4) var(--s5); font-size: 14px; color: var(--fg-2); }
+.method b { display: block; color: var(--fg); font-weight: 600; margin-bottom: 2px; }
+
+/* Card dialog */
+dialog { border: 0; padding: 0; border-radius: 8px; background: var(--panel); color: var(--fg); width: min(860px, calc(100vw - 32px)); max-height: calc(100vh - 48px); }
+dialog::backdrop { background: rgba(0, 0, 0, .55); }
+.dlg { display: flex; flex-direction: column; gap: var(--s3); padding: var(--s5); }
+#cardCanvas { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 4px; background: #fff; }
+.actions { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
+.empty-state { padding: var(--s5); }
+.empty-state code { font-family: var(--font-mono); background: var(--sunken); padding: 1px 5px; border-radius: 3px; }
 </style>
 </head>
 <body>
 <div class="wrap" id="app">
   <header>
-    <div>
-      <h1>Street Intelligence</h1>
-      <p class="sub" id="subtitle">Longitudinal pedestrian diagnostic · Mumbai</p>
-    </div>
-    <div class="status" id="status"></div>
+    <h1>Street Intelligence</h1>
+    <p class="meta" id="meta"></p>
   </header>
 
-  <div class="toolbar">
-    <div class="group">
-      <span class="lbl" id="dayLabel">Day</span>
-      <div class="slider">
-        <input type="range" id="day" min="1" max="7" step="1" value="1" aria-label="Survey day">
-        <div class="ticks" id="ticks"></div>
-      </div>
-      <span class="dayline" id="dayline"></span>
-    </div>
-    <div class="group">
-      <span class="lbl">Photo tracks show</span>
-      <div class="seg" role="group" aria-label="Photo tracks show">
-        <button data-view="photo" aria-pressed="true">Photos</button>
-        <button data-view="prox" aria-pressed="false">+ Body-zone band <small>(experimental)</small></button>
-        <button data-view="vector" aria-pressed="false">Schematic <small>(experimental)</small></button>
-      </div>
-    </div>
-    <span class="spacer"></span>
-    <button class="btn" id="exportBtn">Written summary for BMC</button>
-  </div>
-
-  <section class="card">
-    <div class="card-head"><h2>Footpath overview</h2><span class="note" id="ovNote"></span></div>
-    <div class="ov-grid">
+  <section>
+    <div class="findings">
       <div>
         <div class="route" id="route"></div>
-        <div class="legend-status">
-          <span class="chip static">Blocked every surveyed day</span>
-          <span class="chip transient">Blocked on some days</span>
-          <span class="chip clear">Clear every day</span>
-          <span class="chip unconfirmed">Too few days</span>
-        </div>
-        <p class="note" style="margin-top:6px;font-size:12px">Inner line: seen from A (A→B walks). Outer line: seen from B (B→A walks). Route traced from Google Maps as a schematic, not survey-accurate. Click any part to inspect it.</p>
+        <div class="ramp-key" id="rampKey"></div>
       </div>
-      <div class="head-stats" id="headline"></div>
+      <div class="nums" id="nums"></div>
     </div>
-  </section>
-
-  <section class="card">
-    <div class="card-head"><h2>Spots ranked by how often they are blocked</h2><span class="note">10 m spots · click a row to inspect, or make an evidence card</span></div>
-    <div class="spot-table-wrap" id="spotList"></div>
-    <button class="btn ghost sm" id="moreSpots" style="margin-top:10px">Show all spots</button>
   </section>
 
   <div class="layout">
-    <div style="display:flex;flex-direction:column;gap:18px;min-width:0">
-      <section class="card">
-        <div class="card-head">
-          <h2>Clutter along the footpath</h2>
-          <div class="legend">
-            <span><i class="sw-line" style="background:var(--nb)"></i>Seen from A</span>
-            <span><i class="sw-line" style="background:var(--sb)"></i>Seen from B</span>
-            <span><svg width="12" height="12" aria-hidden="true"><path d="M6 11 L1 2 L11 2 Z" fill="var(--fg)"></path></svg>Stop</span>
-            <span><svg width="12" height="12" aria-hidden="true"><path d="M6 11 L1 2 L11 2 Z" fill="none" stroke="var(--fg)" stroke-width="1.5"></path></svg>Slowdown</span>
-          </div>
-        </div>
-        <div class="profile" id="profile"></div>
-        <div class="persist-key">
-          <span class="lbl" style="font-size:11px">Days blocked, per 10 m</span>
-          <span><span class="ramp" id="rampKey"></span> days obstructed (0 → 7)</span>
-        </div>
-        <p class="note" style="margin-top:8px">Obstruction is an image measure: edge density in the walking zone of each frame, relative to that walk's typical frame (1.0). Above 1.4 counts as obstructed. It reacts to parked vehicles, stalls and crowds, and also to busy paving, so check the photos.</p>
+    <div class="main">
+      <section class="o-grid">
+        <div class="sec-head"><h2>Every spot, every day</h2><span class="note">10 m spots · click a column to inspect</span></div>
+        <div class="matrix-wrap matrix" id="matrix"></div>
       </section>
 
-      <section class="card" style="padding:12px">
-        <div class="card-head" style="padding-inline:4px">
+      <section class="o-spots">
+        <div class="sec-head"><h2>Spots ranked</h2><button class="linkbtn" id="moreSpots"></button></div>
+        <div class="tbl-wrap" id="spotList"></div>
+      </section>
+
+      <section class="o-tracks">
+        <div class="sec-head">
           <h2>Photo tracks</h2>
-          <div class="track-ctl">
+          <div class="ctl">
             <div class="seg" role="group" aria-label="Compare">
-              <button data-cmp="days" aria-pressed="true">Same side, across days</button>
+              <button data-cmp="days" aria-pressed="true">One side, all days</button>
               <button data-cmp="dirs" aria-pressed="false">Both sides, one day</button>
             </div>
             <div class="seg" role="group" aria-label="Side" id="sideSeg">
-              <button data-side="forward" aria-pressed="true">Seen from A</button>
-              <button data-side="return" aria-pressed="false">Seen from B</button>
+              <button data-side="forward" aria-pressed="true">A side</button>
+              <button data-side="return" aria-pressed="false">B side</button>
             </div>
+            <div class="seg" role="group" aria-label="Day" id="daySeg" hidden></div>
           </div>
         </div>
-        <p class="note" id="trackNote" style="margin:0 4px 10px"></p>
+        <p class="note" id="trackNote"></p>
         <div class="tracks" id="tracks"><div class="canvas" id="canvas"></div></div>
       </section>
 
-      <section class="card">
-        <div class="card-head"><h2>Persistence across surveyed days</h2><span class="note" id="persistNote"></span></div>
-        <div class="stats" id="persistStats"></div>
-        <p class="note" style="margin-top:10px">Static: obstructed on 6 or 7 of the surveyed days, likely fixed infrastructure (poles, transformers, ramps, broken slabs). Transient: obstructed on some days only, likely hawkers, parked two-wheelers or crowds. Clear: never obstructed.</p>
+      <section class="o-method">
+        <div class="sec-head"><h2>Method and limits</h2></div>
+        <div class="method" id="method"></div>
       </section>
     </div>
 
-    <aside class="card inspector">
-      <div class="insp-head"><span class="lbl">Spot inspector</span><span class="mono" id="inspDay" style="color:var(--muted);font-size:12px"></span></div>
-      <details class="calib"><summary>Calibrate photo alignment</summary>
-      <div class="look">
-        <div class="row1"><label for="look">Look-ahead</label><b class="mono" id="lookVal">5.0 m</b></div>
-        <input type="range" id="look" min="2" max="8" step="0.5" value="5">
-        <span class="note" style="font-size:12px">Each photo shows the spot from a few metres away, walking towards it. Drag until the circle sits on the same object across the days in a row.</span>
-      </div></details>
-      <div id="inspector" aria-live="polite" style="display:flex;flex-direction:column;gap:12px"></div>
+    <aside class="inspector" aria-live="polite">
+      <div id="inspector" style="display:flex;flex-direction:column;gap:16px"></div>
+      <details class="calib">
+        <summary>Calibrate photo alignment</summary>
+        <div class="row"><label for="look">Look-ahead</label><span class="mono" id="lookVal"></span></div>
+        <input type="range" id="look" min="2" max="8" step="0.5">
+        <p class="note" style="font-size:12px">Each photo shows the spot from a few metres away. Drag until the circle sits on the same object across a row.</p>
+      </details>
     </aside>
   </div>
 </div>
 
-<dialog id="evidence">
-  <div class="dlg">
-    <div class="card-head" style="margin:0"><h2>Civic evidence summary</h2><button class="btn ghost" id="closeDlg">Close</button></div>
-    <div class="fields">
-      <label for="fWard">BMC ward<input id="fWard" value="K/East"></label>
-      <label for="fStreet">Street / corridor<input id="fStreet"></label>
-      <label for="fAuthor">Prepared by<input id="fAuthor" value="M.Des Stage 2, Street Intelligence"></label>
-      <label for="fBench">Uninterrupted-walk threshold (s)<input id="fBench" type="number" min="1" max="120" value="12"></label>
-    </div>
-    <textarea id="evText" aria-label="Summary text" spellcheck="false"></textarea>
-    <div class="actions">
-      <button class="btn" id="copyBtn">Copy text</button>
-      <button class="btn ghost" id="dlBtn">Download .txt</button>
-      <span class="note" id="copyMsg"></span>
-    </div>
-  </div>
-</dialog>
+<div class="tip" id="tip" hidden></div>
 
 <dialog id="cardDlg">
   <div class="dlg">
-    <div class="card-head" style="margin:0"><h2 id="cardTitle">Evidence card</h2><button class="btn ghost" id="closeCard">Close</button></div>
+    <div class="sec-head" style="border:0;padding:0"><h2 id="cardTitle">Evidence card</h2><button class="ghost" id="closeCard">Close</button></div>
     <canvas id="cardCanvas" width="1200" height="900" aria-label="Evidence card image"></canvas>
     <div class="actions">
-      <button class="btn" id="saveCard">Save image (PNG)</button>
-      <button class="btn ghost" id="copyCard">Copy text</button>
+      <button class="btn" id="saveCard">Save image</button>
+      <button class="ghost" id="copyCard">Copy text</button>
       <span class="note" id="cardMsg"></span>
     </div>
   </div>
@@ -373,50 +258,84 @@ details.calib[open] summary { margin-bottom: 6px; }
 (() => {
   const D = window.STREET_DATA;
   const $ = id => document.getElementById(id);
-  const OBS = 1.4;              // obstruction index counted as "obstructed"
-  const NEAR = 1.4;             // near-field index counted as a body-zone breach
-  const BIN = 10;               // persistence bin, metres
-  const MATCH = 6;              // max metres to pair a frame across directions
+  const OBS = 1.4;     // clutter index counted as obstructed
+  const BUSY = 1.1;    // clutter index counted as busy
+  const BIN = 10;      // spot length, metres
+  const MATCH = 6;     // max metres between a spot and a frame
+  const BENCH_M = 100; // Neural City, State of Indian Streets 2026: 100 m walkable without obstacles
 
-  // Benchmarks cited in the evidence summary. Edit the sources here.
-  const BENCH = {
-    m100: { metres: 100, label: "100 m continuous walk without obstacles",
-            source: "Neural City, State of Indian Streets 2026 (as reported in DT Next, 2026). Reported that 5.5% of Mumbai's roads meet this standard." },
-    secLabel: "uninterrupted walking stretch",
-    secSource: "Threshold set by the study team. No published WRI India source for a 12-second benchmark was found; add the exact citation before sending."
-  };
-
-  if (!D || !D.days || !D.days.length) {
-    $('app').innerHTML = `<div class="card empty-state"><h2>No processed walks yet</h2>
-      <p class="note" style="margin-top:8px">Put <code>point_a_to_b.mp4</code> and <code>point_b_to_a.mp4</code> next to <code>process_day1.py</code>, run <code>python process_day1.py</code>, then reload this page.</p></div>`;
+  if (!D || !D.days || !D.days.some(d => !d.mock)) {
+    $('app').innerHTML = `<div class="empty-state"><h2>No processed walks yet</h2><p class="note" style="margin-top:8px">Put <code>point_a_to_b.mp4</code> and <code>point_b_to_a.mp4</code> next to <code>process_day1.py</code>, run <code>python process_day1.py</code>, then reload.</p></div>`;
     return;
   }
 
   const L = D.corridor.length_m;
-  // Placeholder (mock) days are kept in the data for the script, but never shown or counted.
-  const days = D.days.filter(d => !d.mock).sort((a, b) => a.day - b.day);
-  const realDays = days;
-  const state = { idx: 0, view: 'photo', meter: null, cmp: 'days', side: 'forward', rows: [] };
-  const DIRS = [
-    { key: 'forward', short: 'A', name: 'A→B walk', side: 'Seen from A', color: 'var(--nb)', cls: 'nb' },
-    { key: 'return', short: 'B', name: 'B→A walk', side: 'Seen from B', color: 'var(--sb)', cls: 'sb' }
+  const NB = Math.ceil(L / BIN);
+  const days = D.days.filter(d => !d.mock).sort((a, b) => a.day - b.day);   // placeholders are never shown or counted
+  const SIDES = [
+    { key: 'forward', name: 'A side', walk: 'A→B walks' },
+    { key: 'return', name: 'B side', walk: 'B→A walks' }
   ];
+  const state = { meter: 75, cmp: 'days', side: 'forward', dayIdx: 0, rows: [] };
   const fmt = (n, d = 0) => Number(n).toFixed(d);
-  const pad = n => String(n).padStart(2, '0');
-  const day = () => days[state.idx];
-  // The manifest stores CAMERA positions. A forward-facing camera shows the ground a few metres ahead,
-  // so every frame and score is shifted to the spot it looks at: +LOOK for the forward walk, -LOOK for the return.
+  const range = i => `${i * BIN}–${Math.min(L, (i + 1) * BIN)} m`;
+  const light = w => (w && w.lighting) || '';
+  const binOf = m => Math.min(NB - 1, Math.max(0, Math.floor(m / BIN)));
+  const LANDMARK_NAMES = { turn_onto_highway_service_rd: 'turn to service road', underpass_walkway_east_end: 'underpass', underpass_walkway_west_end: 'underpass end', green_bins_approx: 'green bins' };
+  const landmarks = Object.entries(D.corridor.landmarks || {}).map(([k, m]) => ({ name: LANDMARK_NAMES[k] || k.replace(/_/g, ' '), m })).sort((a, b) => a.m - b.m);
+  const RAMP = ['var(--r0)', 'var(--r1)', 'var(--r2)', 'var(--r3)', 'var(--r4)'];
+  const shareColor = (c, n) => n ? RAMP[Math.round(4 * c / n)] : 'none';
+  const stateColor = v => v == null ? 'none' : v >= OBS ? 'var(--r4)' : v >= BUSY ? 'var(--r1)' : 'var(--r0)';
+  const stateWord = v => v == null ? 'no footage' : v >= OBS ? 'obstructed' : v >= BUSY ? 'busy' : 'clear';
+
+  /* ---------- Positions: frames are shifted to the spot they look at ---------- */
+  // The manifest stores CAMERA positions. A forward-facing camera shows the ground a few metres ahead.
   let LOOK = 5;
   try { const v = +localStorage.getItem('si-look'); if (v >= 2 && v <= 8) LOOK = v; } catch (e) {}
   let vcache = new WeakMap();
   const r1 = x => Math.round(x * 10) / 10;
   const spotOf = (cam, key) => r1(Math.max(0, Math.min(L, key === 'forward' ? cam + LOOK : cam - LOOK)));
   function walk(d, key) {
-    const w = d[key]; if (!w) return null;
+    const w = d && d[key]; if (!w) return null;
     if (!vcache.has(w)) vcache.set(w, { ...w, key, nodes: w.nodes.map(n => ({ ...n, cam: n.meter, meter: spotOf(n.meter, key) })) });
     return vcache.get(w);
   }
-  // Exact per-second view of spot S from this walk: camera LOOK metres before S in walking direction.
+  function nearest(w, m) {
+    if (!w) return null;
+    let best = null, bd = Infinity;
+    for (const n of w.nodes) { const d = Math.abs(n.meter - m); if (d < bd) { bd = d; best = n; } }
+    return bd <= MATCH ? best : null;
+  }
+  function binWorst(w, i) {   // worst frame of a walk within spot i: the rule every count uses
+    if (!w) return null;
+    let best = null;
+    for (const n of w.nodes) if (binOf(n.meter) === i && (!best || n.obstruction > best.obstruction)) best = n;
+    return best;
+  }
+  let pcache = {};
+  function persistence(key) {
+    if (pcache[key]) return pcache[key];
+    return pcache[key] = [...Array(NB).keys()].map(i => {
+      let c = 0, n = 0;
+      days.forEach(d => { const b = binWorst(walk(d, key), i); if (b) { n++; if (b.obstruction >= OBS) c++; } });
+      const cls = !n ? 'none' : c === 0 ? 'clear' : n < 3 ? 'unconfirmed' : c === n ? 'every' : 'some';
+      return { c, n, cls };
+    });
+  }
+  function obstacleFree(w) {
+    const ns = w.nodes.slice().sort((a, b) => a.meter - b.meter);
+    let from = 0, best = { m: 0, from: 0, to: 0 };
+    const close = to => { if (to - from > best.m) best = { m: to - from, from, to }; };
+    for (const n of ns) if (n.obstruction >= OBS) { close(n.meter); from = n.meter; }
+    close(L);
+    return best;
+  }
+  const respFor = (a, b) => [a, b].some(p => p.cls === 'every') ? 'Build: repair or relocate'
+    : [a, b].some(p => p.cls === 'some') ? 'Manage: parking, vending, timing'
+    : [a, b].some(p => p.cls === 'unconfirmed') ? 'Keep surveying' : '';
+  const nearLandmark = i => (landmarks.find(l => Math.abs(l.m - (i * BIN + BIN / 2)) <= 8) || {}).name || '';
+
+  /* ---------- Photos from the per-second spot views ---------- */
   function viewFor(w, S) {
     const sv = w && w.spot_views; if (!sv || !sv.m.length) return null;
     const lo = Math.min(...sv.m), hi = Math.max(...sv.m);
@@ -429,425 +348,41 @@ details.calib[open] summary { margin-bottom: 6px; }
     const sv = w.spot_views, sh = Math.floor(idx / sv.per_sheet), k = idx % sv.per_sheet;
     const col = k % sv.cols, row = Math.floor(k / sv.cols), rows = sv.rows[sh];
     return `background-image:url('${w.folder}/${sv.sheets[sh]}');background-size:${sv.cols * 100}% ${rows * 100}%;` +
-      `background-position:${sv.cols > 1 ? col / (sv.cols - 1) * 100 : 0}% ${rows > 1 ? row / (rows - 1) * 100 : 0}%;aspect-ratio:${sv.size[0]} / ${sv.size[1]}`;
+      `background-position:${sv.cols > 1 ? col / (sv.cols - 1) * 100 : 0}% ${rows > 1 ? row / (rows - 1) * 100 : 0}%`;
   }
-  function photo(w, S, color, cls = '') {
-    const v = viewFor(w, S);
-    if (v) return { v, html: `<div class="ph sprite ${cls}" style="border-top-color:${color};${spriteStyle(w, v.idx)}" role="img" aria-label="View of ${fmt(S)} m from camera at ${fmt(v.cam)} m"><span class="aim"></span></div>` };
-    const n = nearest(w, S);
-    if (n) return { v: { cam: n.cam, t: n.t }, html: `<div class="ph ${cls}" style="border-top-color:${color}"><img src="${w.folder}/${n.file}" alt=""></div>` };
-    return { v: null, html: `<div class="ph empty ${cls}" style="border-top-color:${color}"></div>` };
-  }
-
-  /* ---------- Header & slider ---------- */
-  $('subtitle').textContent = `${D.corridor.name} · ${fmt(L)} m footpath corridor · ${D.corridor.city}`;
-  const light = w => (w && w.lighting) || 'unknown';
-  const lightCount = key => { const c = {}; realDays.forEach(d => { if (d[key]) c[light(d[key])] = (c[light(d[key])] || 0) + 1; }); return Object.entries(c).map(([k, v]) => `${v} ${k}`).join(', '); };
-  $('status').innerHTML = `<span class="pill">${realDays.length} surveyed day${realDays.length === 1 ? '' : 's'}</span>` +
-    `<span class="pill">A→B: ${lightCount('forward')}</span><span class="pill">B→A: ${lightCount('return')}</span>`;
-  const slider = $('day');
-  slider.min = 0; slider.max = days.length - 1; slider.value = 0;
-  $('dayLabel').textContent = `Day ${days[0].day} – ${days[days.length - 1].day}`;
-  function renderTicks() {
-    $('ticks').innerHTML = days.map((d, i) => `<span class="real ${i === state.idx ? 'on' : ''}">${d.day}</span>`).join('');
-    const d = day();
-    $('dayline').textContent = `Day ${pad(d.day)} · A→B ${d.forward ? light(d.forward) : 'not filmed'} · B→A ${d.return ? light(d.return) : 'not filmed'}`;
-  }
-  slider.addEventListener('input', () => { state.idx = +slider.value; renderAll(); });
-
-  document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => {
-    state.view = b.dataset.view;
-    document.querySelectorAll('[data-view]').forEach(x => x.setAttribute('aria-pressed', x === b));
-    $('canvas').className = 'canvas view-' + state.view;
-    if (state.view === 'photo') { renderTracks(); setMeter(state.meter ?? 0); return; }
-    $('trackNote').textContent = {
-      prox: 'Red band: the strip within roughly 0.8 m of the body. It darkens with near-field clutter in the frame (an image measure, not a distance measurement).',
-      vector: 'Top-down schematic drawn from the measures. Blocks show obstructed frames, red ticks show body-zone breaches, triangles show stops. Not a surveyed plan.'
-    }[state.view];
-  }));
-
-  /* ---------- Derived measures ---------- */
-  function nearest(w, m) {
-    if (!w) return null;
-    let best = null, bd = Infinity;
-    for (const n of w.nodes) { const d = Math.abs(n.meter - m); if (d < bd) { bd = d; best = n; } }
-    return bd <= MATCH ? best : null;
-  }
-  // Worst-scoring frame whose spot falls in 10 m bin i: the same rule persistence counts with.
-  function binWorst(w, i) {
-    if (!w) return null;
-    let best = null;
-    for (const n of w.nodes) if (Math.min(Math.ceil(L / BIN) - 1, Math.floor(n.meter / BIN)) === i && (!best || n.obstruction > best.obstruction)) best = n;
-    return best;
-  }
-  function binsFor(w) {
-    const nb = Math.ceil(L / BIN), out = new Array(nb).fill(null);
-    if (!w) return out;
-    for (const n of w.nodes) { const b = Math.min(nb - 1, Math.floor(n.meter / BIN)); out[b] = Math.max(out[b] ?? 0, n.obstruction); }
-    return out;
-  }
-  function persistence(key) {
-    const nb = Math.ceil(L / BIN), counts = new Array(nb).fill(0), seen = new Array(nb).fill(0);
-    for (const d of realDays) {   // placeholder copies are never counted as evidence
-      const bins = binsFor(walk(d, key));
-      bins.forEach((v, i) => { if (v != null) { seen[i]++; if (v >= OBS) counts[i]++; } });
-    }
-    return counts.map((c, i) => ({ c, n: seen[i], cls: !seen[i] ? 'none' : c === 0 ? 'clear' : seen[i] < 3 ? 'unconfirmed' : c / seen[i] >= 0.85 ? 'static' : 'transient' }));
-  }
-  // Interruptions (stops and slowdowns) split the walk into stretches; returns stretch lengths in m and s.
-  function stretches(w, minSec) {
-    if (!w) return null;
-    const pace = L / Math.max(1, w.summary.walking_s);
-    const fwd = w === day().forward || w.nodes[0].meter < w.nodes[w.nodes.length - 1].meter;
-    const marks = [...(w.stops || []), ...(w.slowdowns || [])].map(e => fwd ? e.meter : L - e.meter).sort((a, b) => a - b);
-    const cuts = [0, ...marks, L], out = [];
-    for (let i = 1; i < cuts.length; i++) { const m = cuts[i] - cuts[i - 1]; if (m > 0.5) out.push({ m, s: m / pace }); }
-    const okM = out.filter(x => x.s >= minSec).reduce((a, x) => a + x.m, 0);
-    const longest = out.reduce((a, x) => x.m > a.m ? x : a, { m: 0, s: 0 });
-    return { list: out, shareOk: okM / L, longest, pace };
-  }
-  // Longest stretch with no obstructed frame (for the 100 m obstacle-free benchmark).
-  function obstacleFree(w) {
-    if (!w) return null;
-    const ns = w.nodes.slice().sort((a, b) => a.meter - b.meter);
-    let from = 0, best = { m: 0, from: 0, to: 0 };
-    const close = to => { if (to - from > best.m) best = { m: to - from, from, to }; };
-    for (const n of ns) if (n.obstruction >= OBS) { close(n.meter); from = n.meter; }
-    close(L);
-    return best;
+  function photo(w, S, cls = '') {
+    const v = w && viewFor(w, S);
+    if (v) return `<div class="ph ${cls}" style="${spriteStyle(w, v.idx)}" role="img" aria-label="Spot at ${fmt(S)} m"><span class="aim"></span></div>`;
+    const n = w && nearest(w, S);
+    if (n) return `<div class="ph ${cls}"><img src="${w.folder}/${n.file}" alt=""></div>`;
+    return `<div class="ph empty ${cls}"></div>`;
   }
 
-  /* ---------- Profile chart (SVG, full corridor) ---------- */
-  const PW = 1000, PH = 230, M = { l: 38, r: 14, t: 26, b: 64 };
-  const px = m => M.l + (PW - M.l - M.r) * m / L;
-  const YMAX = 5, py = v => M.t + (PH - M.t - M.b) * (1 - Math.min(v, YMAX) / YMAX);
-  function renderProfile() {
-    const d = day();
-    let s = `<svg viewBox="0 0 ${PW} ${PH}" role="img" aria-label="Obstruction along the corridor for both directions, with stops, slowdowns and 7-day persistence">`;
-    for (let v = 0; v <= YMAX; v++) {
-      s += `<line x1="${M.l}" x2="${PW - M.r}" y1="${py(v)}" y2="${py(v)}" stroke="var(--grid)" stroke-width="1"/>`;
-      s += `<text x="${M.l - 6}" y="${py(v) + 3.5}" text-anchor="end">${v}</text>`;
-    }
-    s += `<line x1="${M.l}" x2="${PW - M.r}" y1="${py(OBS)}" y2="${py(OBS)}" stroke="var(--fg-2)" stroke-dasharray="4 3" stroke-width="1"/>`;
-    s += `<text x="${PW - M.r}" y="${py(OBS) - 5}" text-anchor="end" style="fill:var(--fg-2)">obstructed above ${OBS}</text>`;
-    const xt = []; for (let m = 0; m <= L + 0.01; m += 25) xt.push(m); if (L - xt[xt.length - 1] > 8) xt.push(L);
-    for (const m of xt) {
-      s += `<line x1="${px(m)}" x2="${px(m)}" y1="${PH - M.b}" y2="${PH - M.b + 4}" stroke="var(--muted)"/>`;
-      s += `<text x="${px(m)}" y="${PH - M.b + 15}" text-anchor="middle">${fmt(m)}</text>`;
-    }
-    // map landmarks used to pin positions
-    Object.entries(D.corridor.landmarks || {}).forEach(([k, m]) => {
-      s += `<line x1="${px(m)}" x2="${px(m)}" y1="${M.t}" y2="${PH - M.b}" stroke="var(--line)" stroke-dasharray="2 3"><title>${k.replace(/_/g, ' ')} · ${m} m (map)</title></line>`;
-    });
-    s += `<text x="${M.l}" y="${M.t - 12}" style="fill:var(--fg-2)">Walking-zone clutter (1 = typical frame; above ${OBS} counts as obstructed)</text>`;
-    for (const dir of DIRS) {
-      const w = walk(d, dir.key); if (!w) continue;
-      const pts = w.nodes.slice().sort((a, b) => a.meter - b.meter).map(n => `${px(n.meter).toFixed(1)},${py(n.obstruction).toFixed(1)}`).join(' ');
-      s += `<polyline points="${pts}" fill="none" stroke="${dir.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
-    }
-    // stops and slowdowns as triangles on the top edge, one lane per direction
-    DIRS.forEach((dir, k) => {
-      const w = walk(d, dir.key); if (!w) return;
-      (w.slowdowns || []).forEach(e => s += `<path d="M${px(e.meter)} ${py(0) - 2} l-5 -9 h10 z" fill="var(--surface)" stroke="${dir.color}" stroke-width="1.5"><title>${dir.name} slowdown ${fmt(e.duration_s, 1)} s at ${fmt(e.meter)} m</title></path>`);
-      (w.stops || []).forEach(e => s += `<path d="M${px(e.meter)} ${py(0) - 2} l-6 -11 h12 z" fill="${dir.color}" stroke="var(--surface)" stroke-width="1.5"><title>${dir.name} stop ${fmt(e.duration_s, 1)} s at ${fmt(e.meter)} m</title></path>`);
-    });
-    // persistence strips
-    DIRS.forEach((dir, k) => {
-      const y = PH - M.b + 24 + k * 15;
-      s += `<text x="${M.l - 6}" y="${y + 9}" text-anchor="end" style="fill:${dir.color};font-weight:500">${dir.short}</text>`;
-      persistence(dir.key).forEach((p, i) => {
-        const x0 = px(i * BIN) + 1, x1 = px(Math.min(L, (i + 1) * BIN)) - 1;
-        const step = p.n ? Math.round(5 * p.c / Math.max(p.n, 1)) : -1;
-        s += `<rect x="${x0}" y="${y}" width="${Math.max(1, x1 - x0)}" height="12" rx="2" fill="${step < 0 ? 'none' : `var(--p${step})`}" stroke="${step < 0 ? 'var(--line)' : 'none'}"><title>${dir.name} ${i * BIN}–${Math.min(L, (i + 1) * BIN)} m: obstructed on ${p.c} of ${p.n} days (${p.cls})</title></rect>`;
-      });
-    });
-    s += `<rect id="pHit" x="${M.l}" y="0" width="${PW - M.l - M.r}" height="${PH - M.b}" fill="transparent" style="cursor:crosshair"/>`;
-    s += `<line id="pCursor" x1="0" x2="0" y1="${M.t}" y2="${PH - M.b + 52}" stroke="var(--fg)" stroke-width="1.5" visibility="hidden" pointer-events="none"/>`;
-    s += `</svg><div class="tip" id="pTip" hidden></div>`;
-    $('profile').innerHTML = s;
-    const svg = $('profile').querySelector('svg');
-    const toMeter = e => { const r = svg.getBoundingClientRect(); const x = (e.clientX - r.left) * PW / r.width; return Math.max(0, Math.min(L, (x - M.l) / (PW - M.l - M.r) * L)); };
-    $('pHit').addEventListener('mousemove', e => setMeter(toMeter(e), 'profile', e));
-    $('pHit').addEventListener('mouseleave', () => { $('pTip').hidden = true; });
-    $('pHit').addEventListener('click', e => { setMeter(toMeter(e)); scrollTracksTo(state.meter); });
-    $('rampKey').innerHTML = [0, 1, 2, 3, 4, 5].map(i => `<i style="background:var(--p${i})"></i>`).join('');
-  }
-  function profileCursor(m, e) {
-    const c = $('pCursor'); if (!c) return;
-    c.setAttribute('x1', px(m)); c.setAttribute('x2', px(m)); c.setAttribute('visibility', 'visible');
-    const tip = $('pTip');
-    if (!e) { tip.hidden = true; return; }
-    const d = day(), r = $('profile').getBoundingClientRect(), svgR = $('profile').querySelector('svg').getBoundingClientRect();
-    const rows = DIRS.map(dir => { const n = nearest(walk(d, dir.key), m); return `<span style="color:${dir.color}">■</span> ${dir.short} ${n ? fmt(n.obstruction, 2) : '–'}`; }).join('<br>');
-    tip.innerHTML = `<b>${fmt(m)} m</b><br>${rows}`;
-    tip.style.left = (svgR.left - r.left + px(m) * svgR.width / PW) + 'px';
-    tip.style.top = (svgR.top - r.top + M.t * svgR.height / PH) + 'px';
-    tip.hidden = false;
+  /* ---------- Header + three numbers ---------- */
+  const lightCount = key => { const c = {}; days.forEach(d => { if (d[key]) c[light(d[key])] = (c[light(d[key])] || 0) + 1; }); return Object.entries(c).map(([k, v]) => `${v} ${k}`).join(', '); };
+  const nWalks = days.reduce((a, d) => a + SIDES.filter(s => d[s.key]).length, 0);
+  $('meta').textContent = `Jijamata Rd / Old Nagardas Rd, Andheri East · ward ${D.corridor.ward || ''} · ${fmt(L)} m · ${days.length} days · ${nWalks} walks (A→B ${lightCount('forward')}; B→A ${lightCount('return')})`;
+
+  function renderNums() {
+    const walks = [];
+    days.forEach(d => SIDES.forEach(s => { const w = walk(d, s.key); if (w) walks.push({ d, s, w, f: obstacleFree(w) }); }));
+    const ok = walks.filter(x => x.f.m >= BENCH_M).length;
+    const best = walks.reduce((a, x) => x.f.m > a.f.m ? x : a, walks[0]);
+    const shares = walks.map(x => 100 * x.w.nodes.filter(n => n.obstruction >= OBS).length / x.w.nodes.length);
+    const A = persistence('forward'), B = persistence('return');
+    const every = [...Array(NB).keys()].filter(i => A[i].cls === 'every' || B[i].cls === 'every');
+    const both = every.filter(i => A[i].cls === 'every' && B[i].cls === 'every');
+    $('nums').innerHTML = `
+      <div class="num"><span class="v">${ok}/${walks.length}</span><span class="k">walks had ${BENCH_M} m without an obstacle<small>Longest: ${fmt(best.f.m)} m. Benchmark: Neural City, 2026.</small></span></div>
+      <div class="num"><span class="v">${fmt(Math.min(...shares))}–${fmt(Math.max(...shares))}%</span><span class="k">of each walk obstructed<small>Varies by day and direction.</small></span></div>
+      <div class="num"><span class="v">${every.length}</span><span class="k">spots blocked on every surveyed day<small>${both.length ? `${both.map(range).join(', ')} from both sides.` : 'None from both sides.'}</small></span></div>`;
   }
 
-  /* ---------- Dual tracks ---------- */
-  let ppm = 15;
-  // Rows to show: one direction across all surveyed days (photos of a spot match day to day),
-  // or both directions on the selected day (same spot, seen from its two sides; photos never look alike).
-  function trackRows() {
-    if (state.cmp === 'days') {
-      const dir = DIRS.find(x => x.key === state.side);
-      return realDays.filter(d => d[dir.key]).map(d => ({ d, dir, label: `Day ${pad(d.day)} · seen from ${dir.key === 'forward' ? 'A' : 'B'}`, sel: d.day === day().day }));
-    }
-    return DIRS.map(dir => ({ d: day(), dir, label: `${dir.name} · seen from ${dir.key === 'forward' ? 'A' : 'B'} · Day ${pad(day().day)}`, sel: false }));
-  }
-  function axisHtml(W, x) {
-    let html = `<div class="axis" style="width:${W}px">`;
-    for (let m = 0; m <= L + 0.01; m += 5) html += `<div class="t ${m % 25 ? 'minor' : ''}" style="left:${x(m)}px"></div>` + (m % 25 ? '' : `<div class="l" style="left:${x(m)}px">${m} m</div>`);
-    if (L % 25) html += `<div class="t" style="left:${x(L)}px"></div><div class="l" style="left:${x(L)}px">${fmt(L)} m</div>`;
-    Object.entries(D.corridor.landmarks || {}).forEach(([k, m]) => html += `<div class="t" style="left:${x(m)}px;height:100%;background:var(--line)" title="${k.replace(/_/g, ' ')} · ${m} m"></div>`);
-    return html + `</div>`;
-  }
-  function renderTracks() {
-    const rows = state.rows = trackRows();
-    $('sideSeg').hidden = state.cmp !== 'days';
-    document.querySelectorAll('[data-cmp]').forEach(b => b.setAttribute('aria-pressed', b.dataset.cmp === state.cmp));
-    document.querySelectorAll('[data-side]').forEach(b => b.setAttribute('aria-pressed', b.dataset.side === state.side));
-    $('trackNote').textContent = state.view === 'photo'
-      ? (state.cmp === 'days'
-        ? `Each row is one surveyed day, all seen from the ${state.side === 'forward' ? 'A' : 'B'} side, so photos stacked above each other show the same spot on different days. Frames sit at the spot they show.`
-        : 'The same day from both sides. Photos at the same metre show the same spot from opposite directions, so they will not look alike; compare what blocks the path, not the scenery.')
-      : $('trackNote').textContent;
-    const ref = rows[0] && walk(rows[0].d, rows[0].dir.key);
-    const spacing = Math.min(...rows.map(r => { const w = walk(r.d, r.dir.key); return w && w.nodes.length > 1 ? L / (w.nodes.length - 1) : 10; }), 10);
-    const h = 160, fs = (ref && ref.summary.frame_size) || [338, 600], thumbW = h * fs[0] / fs[1];
-    ppm = Math.max(6, Math.min(40, (thumbW + 4) / spacing));
-    const W = L * ppm + 120, x = m => 60 + m * ppm;
-    let html = `<div class="cursor" id="tCursor"></div>`;
-    if (state.cmp === 'days') html += axisHtml(W, x);
-    rows.forEach((r, i) => {
-      const w = walk(r.d, r.dir.key);
-      let row = `<div class="row trk ${r.dir.cls} ${r.sel ? 'sel' : ''}" style="width:${W}px;height:196px"><span class="row-label"><i></i>${r.label}</span>`;
-      if (w) {
-        for (const n of w.nodes) {
-          const a = Math.max(0, Math.min(1, (n.near_field - 0.8) / 2.2));
-          row += `<button class="node" style="left:${x(n.meter)}px" data-row="${i}" data-m="${n.meter}" aria-label="${r.label}, ${fmt(n.meter)} m">
-            <img src="${w.folder}/${n.file}" alt="" loading="lazy" decoding="async" style="height:${h}px">
-            <div class="prox-guides"></div>
-            <div class="prox-band" style="background:rgba(208,59,59,${(0.15 + 0.6 * a).toFixed(2)})"><span>&lt;0.8 m${n.near_field >= NEAR ? ' · breach' : ''}</span></div></button>`;
-        }
-        row += vectorSvg(w, r.dir, W, x);
-      } else {
-        row += `<p class="note" style="position:absolute;top:80px;left:80px">No walk from this side on this day.</p>`;
-      }
-      html += row + `</div>`;
-      if (state.cmp === 'dirs' && i === 0) html += axisHtml(W, x);
-    });
-    if (!rows.length) html += `<p class="note" style="padding:16px">No surveyed walks from this side yet.</p>`;
-    $('canvas').innerHTML = html;
-    $('canvas').style.width = W + 'px';
-    $('canvas').className = 'canvas view-' + state.view;
-    $('canvas').querySelectorAll('.node').forEach(el => {
-      const go = () => setMeter(+el.dataset.m, +el.dataset.row);
-      el.addEventListener('mouseenter', go); el.addEventListener('focus', go); el.addEventListener('click', go);
-    });
-    state.x = x;
-  }
-  document.querySelectorAll('[data-cmp]').forEach(b => b.addEventListener('click', () => { state.cmp = b.dataset.cmp; renderTracks(); setMeter(state.meter ?? 0); }));
-  document.querySelectorAll('[data-side]').forEach(b => b.addEventListener('click', () => { state.side = b.dataset.side; renderTracks(); setMeter(state.meter ?? 0); }));
-  function vectorSvg(w, dir, W, x) {
-    const H = 196, top = dir.key === 'forward' ? 40 : 18, band = 120;
-    const kerbY = dir.key === 'forward' ? top + band : top;    // kerb on the road side
-    let s = `<svg class="vector" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true">
-      <defs><pattern id="hatch-${dir.key}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(${dir.key === 'forward' ? 45 : 135})"><line x1="0" y1="0" x2="0" y2="6" stroke="var(--hatch)" stroke-width="2"/></pattern></defs>
-      <rect x="${x(0)}" y="${top}" width="${L * ppm}" height="${band}" fill="var(--surface)" stroke="var(--line)"/>
-      <line x1="${x(0)}" x2="${x(L)}" y1="${kerbY}" y2="${kerbY}" stroke="var(--fg-2)" stroke-width="3"/>
-      <text x="${x(0) + 4}" y="${kerbY + (dir.key === 'forward' ? 14 : -5)}" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">kerb</text>`;
-    const nodes = w.nodes.slice().sort((a, b) => a.meter - b.meter), half = Math.max(2, (L / Math.max(1, nodes.length - 1)) / 2);
-    let path = '';
-    nodes.forEach((n, i) => {
-      const x0 = x(Math.max(0, n.meter - half)), x1 = x(Math.min(L, n.meter + half));
-      const occ = Math.max(0, Math.min(0.75, (n.obstruction - 1) / 4));           // share of path width taken
-      if (n.obstruction >= OBS) s += `<rect x="${x0 + 1}" y="${kerbY === top ? top : top + band - band * occ}" width="${Math.max(1, x1 - x0 - 2)}" height="${band * occ}" fill="url(#hatch-${dir.key})" stroke="var(--fg-2)" stroke-width="1"><title>${fmt(n.meter)} m · obstruction ${n.obstruction}</title></rect>`;
-      const freeMid = kerbY === top ? top + band * occ + (band * (1 - occ)) / 2 : top + (band * (1 - occ)) / 2;
-      path += `${i ? 'L' : 'M'}${x(n.meter).toFixed(1)} ${freeMid.toFixed(1)} `;
-      if (n.near_field >= NEAR) s += `<line x1="${x(n.meter)}" x2="${x(n.meter)}" y1="${freeMid - 9}" y2="${freeMid + 9}" stroke="var(--critical)" stroke-width="3"><title>${fmt(n.meter)} m · body-zone breach (near-field ${n.near_field})</title></line>`;
-    });
-    s += `<path d="${path}" fill="none" stroke="${dir.color}" stroke-width="2" stroke-linejoin="round"/>`;
-    (w.stops || []).forEach(e => s += `<path d="M${x(e.meter)} ${top + band / 2 + 8} l-8 -15 h16 z" fill="${dir.color}" stroke="var(--surface)" stroke-width="2"/><text x="${x(e.meter)}" y="${top + band / 2 + 22}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--fg)">${fmt(e.duration_s)} s</text>`);
-    (w.slowdowns || []).forEach(e => s += `<path d="M${x(e.meter)} ${top + band / 2 + 6} l-6 -11 h12 z" fill="var(--surface)" stroke="${dir.color}" stroke-width="1.5"/>`);
-    return s + `</svg>`;
-  }
-  function scrollTracksTo(m) {
-    const t = $('tracks'); t.scrollLeft = state.x(m) - t.clientWidth / 2;
-  }
-
-  /* ---------- Linked hover ---------- */
-  function setMeter(m, from, e) {
-    state.meter = m;
-    const d = day();
-    document.querySelectorAll('.node.hot, .node.pair').forEach(n => n.classList.remove('hot', 'pair'));
-    state.rows.forEach((r, i) => {
-      const n = nearest(walk(r.d, r.dir.key), m); if (!n) return;
-      const el = document.querySelector(`.node[data-row="${i}"][data-m="${n.meter}"]`);
-      if (el) el.classList.add(from === i ? 'hot' : 'pair');
-    });
-    const c = $('tCursor'); if (c) { c.style.left = state.x(m) + 'px'; c.style.display = 'block'; }
-    profileCursor(m, from === 'profile' ? e : null);
-    routeCursor(m);
-    $('spotList').querySelectorAll('tr.on').forEach(t => t.classList.remove('on'));
-    const tr = $('spotList').querySelector(`tr[data-bin="${Math.min(NB_BINS - 1, Math.floor(m / BIN))}"]`); if (tr) tr.classList.add('on');
-    renderInspector(m);
-  }
-
-  /* ---------- Inspector ---------- */
-  function cls(n) { return !n ? null : n.obstruction >= OBS ? 'crit' : n.obstruction >= 1.1 ? 'mid' : 'ok'; }
-  const clsText = { crit: 'Obstructed', mid: 'Busy', ok: 'Clear' };
-  function eventsNear(w, m, r = 5) {
-    if (!w) return { stop: 0, slow: 0 };
-    return { stop: (w.stops || []).filter(e => Math.abs(e.meter - m) <= r).reduce((a, e) => a + e.duration_s, 0),
-             slow: (w.slowdowns || []).filter(e => Math.abs(e.meter - m) <= r).reduce((a, e) => a + e.duration_s, 0) };
-  }
-  function renderInspector(m) {
-    const d = day();
-    if (m == null) m = 0;
-    $('inspDay').textContent = `Selected: Day ${pad(d.day)}${d.mock ? ' (placeholder)' : ''}`;
-    const bin = Math.min(Math.ceil(L / BIN) - 1, Math.floor(m / BIN));
-    const sides = DIRS.map(dir => {
-      const p = persistence(dir.key)[bin];
-      const tiles = realDays.filter(od => od[dir.key]).map(od => {
-        const w = walk(od, dir.key), n = binWorst(w, bin), ph = photo(w, m, dir.color);
-        const flag = n ? `<span class="flag ${cls(n)}">${fmt(n.obstruction, 2)}</span>` : '–';
-        return `<figure class="${od.day === d.day ? 'sel' : ''}">${ph.html}<figcaption><span>Day ${pad(od.day)}</span>${flag}</figcaption></figure>`;
-      });
-      return { dir, p, tiles };
-    });
-    const word = c => c === 'static' ? 'obstructed on most days' : c === 'transient' ? 'obstructed on some days' : c === 'clear' ? 'clear on every day' : c === 'unconfirmed' ? 'not enough days yet' : 'no footage';
-    const [A, B] = sides;
-    let compare = '';
-    if (A.p.n && B.p.n) {
-      compare = A.p.cls === B.p.cls
-        ? `<strong>Same from both sides:</strong> ${word(A.p.cls)} (A side ${A.p.c}/${A.p.n}, B side ${B.p.c}/${B.p.n}).`
-        : `<strong>Differs by side.</strong> From A: ${word(A.p.cls)} (${A.p.c}/${A.p.n} days). From B: ${word(B.p.cls)} (${B.p.c}/${B.p.n} days). Check the photos: something may block the path when approached one way but not the other.`;
-    }
-    $('inspector').innerHTML = `
-      <div class="insp-head"><span class="m">${fmt(m)} m</span><span class="note">${BIN} m bin ${bin * BIN}–${Math.min(L, (bin + 1) * BIN)}</span></div>
-      ${sides.map(sd => `<div class="side">
-        <div class="side-head"><b style="color:${sd.dir.color}">Seen from ${sd.dir.key === 'forward' ? 'A' : 'B'}</b><span class="note" style="font-size:12px">${sd.dir.key === 'forward' ? 'A→B' : 'B→A'} walks · ${sd.p.n ? `${sd.p.c}/${sd.p.n} days obstructed, <span class="flag ${sd.p.cls === 'static' ? 'crit' : sd.p.cls === 'clear' ? 'ok' : 'mid'}">${sd.p.cls}</span>` : 'no footage'}</span></div>
-        ${sd.tiles.length ? `<div class="side-grid">${sd.tiles.join('')}</div>` : '<span class="note">No surveyed walks from this side yet.</span>'}
-      </div>`).join('')}
-      <p class="note" style="font-size:12px">Photos in a row show this spot on different days from the same side, so they should look alike. The two rows show it from opposite sides, so they will not.</p>
-      ${compare ? `<div class="verdict">${compare}</div>` : ''}
-      ${realDays.length < 3 ? '<div class="verdict"><span class="note">Persistence needs at least 3 surveyed days. Placeholder days are not counted.</span></div>' : ''}`;
-  }
-
-  /* ---------- Persistence panel ---------- */
-  function renderPersistence() {
-    const tiles = [];
-    DIRS.forEach(dir => {
-      const p = persistence(dir.key).filter(x => x.n);
-      const c = k => p.filter(x => x.cls === k).length;
-      const total = Math.ceil(L / BIN);
-      tiles.push(`<div class="stat"><span class="lbl" style="color:${dir.color}">${dir.name}, ${BIN} m spots</span>` + (p.length
-        ? `<span class="v">${c('static') + c('transient') + c('unconfirmed')} <span style="font-size:14px;font-weight:500">of ${total} obstructed</span></span><span class="k">${c('static')} static · ${c('transient')} transient · ${c('unconfirmed')} unconfirmed · ${c('clear')} clear</span>`
-        : `<span class="v">–</span><span class="k">No ${dir.name.toLowerCase()} footage yet</span>`) + `</div>`);
-    });
-    const d = day();
-    DIRS.forEach(dir => {
-      const w = walk(d, dir.key); if (!w) return;
-      const st = stretches(w, +$('fBench').value || 12);
-      const of = obstacleFree(w);
-      tiles.push(`<div class="stat"><span class="lbl" style="color:${dir.color}">${dir.short} · Day ${pad(d.day)}</span><span class="v">${fmt(of.m)} m</span><span class="k">longest obstacle-free stretch (${fmt(of.from)}–${fmt(of.to)} m) · ${w.summary.stops} stops, ${w.summary.slowdowns ?? 0} slowdowns</span></div>`);
-    });
-    $('persistStats').innerHTML = tiles.join('');
-    const realN = realDays.length;
-    $('persistNote').textContent = `Based on ${realN} surveyed day${realN === 1 ? '' : 's'} of ${days.length}.` + (realN < 3 ? ' Spots stay "unconfirmed" until 3 days are surveyed; placeholder days are not counted.' : '');
-  }
-
-  /* ---------- Evidence summary ---------- */
-  function buildEvidence() {
-    const bench = +$('fBench').value || 12;
-    const ref = realDays[realDays.length - 1];
-    const street = $('fStreet').value || D.corridor.name;
-    const lines = [];
-    const today = new Date().toISOString().slice(0, 10);
-    lines.push(`TO: Assistant Municipal Commissioner / Ward Officer, ${$('fWard').value} Ward, Brihanmumbai Municipal Corporation (BMC)`);
-    lines.push(`CC: The Walking Project, Mumbai`);
-    lines.push(`FROM: ${$('fAuthor').value}`);
-    lines.push(`DATE: ${today}`);
-    lines.push(`SUBJECT: Footpath walkability evidence, ${street} (${fmt(L)} m)`);
-    lines.push('');
-    lines.push(`METHOD`);
-    const both = DIRS.every(dir => realDays.some(d => d[dir.key]));
-    lines.push(`The ${fmt(L)} m footpath was walked ${both ? 'in both directions' : 'in one direction'} with a chest-height phone camera on ${realDays.length} day${realDays.length === 1 ? '' : 's'} (${realDays.map(d => 'Day ' + d.day).join(', ')}). A frame was kept every ${D.corridor.step_s} s of walking. Stops and slowdowns were detected from frame-to-frame motion. Each spot is assessed from the frames looking at it while approaching from each side (camera about ${fmt(LOOK, 1)} m before the spot), not from where the camera stood. Positions are pinned to ${Object.keys(D.corridor.landmarks || {}).length} map landmarks and interpolated by walking time between them; later days are matched to Day 1 by frame appearance. Expect roughly ±10 m.`);
-    if (realDays.length < 7) lines.push(`Note: ${7 - realDays.length} of the planned 7 survey days are not yet recorded. Persistence findings below are provisional.`);
-    lines.push('');
-    lines.push(`FINDINGS, DAY ${ref.day}`);
-    DIRS.forEach(dir => {
-      const w = walk(ref, dir.key); if (!w) return;
-      const st = stretches(w, bench), s = w.summary;
-      lines.push(`${dir.name} (${dir.key === 'forward' ? 'Point A to Point B' : 'Point B to Point A'}):`);
-      lines.push(`  - Walk took ${fmt(s.duration_s)} s, of which ${fmt(s.stopped_s)} s standing still (${s.stops} stops) and ${fmt(s.slowed_s ?? 0)} s slowed (${s.slowdowns ?? 0} slowdowns).`);
-      lines.push(`  - Longest uninterrupted stretch: ${fmt(st.longest.m)} m (${fmt(st.longest.s)} s).`);
-      lines.push(`  - ${fmt(st.shareOk * 100)}% of the corridor was walked in uninterrupted stretches of at least ${bench} s.`);
-      const of = obstacleFree(w);
-      lines.push(`  - ${BENCH.m100.label}: ${of.m >= BENCH.m100.metres ? `met (longest obstacle-free stretch ${fmt(of.m)} m, ${fmt(of.from)}–${fmt(of.to)} m)` : `NOT met (longest obstacle-free stretch is ${fmt(of.m)} m, ${fmt(of.from)}–${fmt(of.to)} m)`}.`);
-      const obs = w.nodes.filter(n => n.obstruction >= OBS).length, br = w.nodes.filter(n => n.near_field >= NEAR).length;
-      lines.push(`  - ${obs} of ${w.nodes.length} sampled frames (${fmt(100 * obs / w.nodes.length)}%) show an obstructed walking zone; ${br} show clutter within roughly 0.8 m of the body.`);
-    });
-    lines.push('');
-    lines.push(`LOCATIONS NEEDING ACTION (worst first)`);
-    const spots = [];
-    DIRS.forEach(dir => {
-      const p = persistence(dir.key), bins = binsFor(walk(ref, dir.key));
-      bins.forEach((v, i) => { if (v != null && v >= OBS) spots.push({ dir, i, v, p: p[i] }); });
-    });
-    spots.sort((a, b) => b.p.c - a.p.c || b.v - a.v);
-    if (!spots.length) lines.push('  None above the obstruction threshold.');
-    spots.slice(0, 8).forEach(sp => lines.push(`  - ${sp.i * BIN}–${Math.min(L, (sp.i + 1) * BIN)} m, ${sp.dir.name}: obstruction index ${fmt(sp.v, 2)}; obstructed on ${sp.p.c} of ${sp.p.n} survey day${sp.p.n === 1 ? '' : 's'} (${sp.p.cls}).`));
-    lines.push('');
-    lines.push(`REQUEST`);
-    lines.push(`1. Inspect the locations above and clear encroachments on the walking zone.`);
-    lines.push(`2. For locations obstructed on most survey days, review the fixed infrastructure (poles, junction boxes, ramps, broken slabs) for relocation or repair.`);
-    lines.push(`3. For locations obstructed on some days only, review hawking and two-wheeler parking enforcement at those times.`);
-    lines.push('');
-    lines.push(`SOURCES AND BENCHMARKS`);
-    lines.push(`- ${BENCH.m100.label}: ${BENCH.m100.source}`);
-    lines.push(`- ${bench}-second ${BENCH.secLabel}: ${BENCH.secSource}`);
-    lines.push(`- Obstruction and body-zone measures are image-based indicators, not physical measurements. Photographs for each location are available on request.`);
-    return lines.join('\n');
-  }
-  const dlg = $('evidence');
-  $('fStreet').value = D.corridor.name;
-  if (D.corridor.ward) $('fWard').value = D.corridor.ward;
-  $('exportBtn').addEventListener('click', () => { $('evText').value = buildEvidence(); $('copyMsg').textContent = ''; dlg.showModal(); });
-  $('closeDlg').addEventListener('click', () => dlg.close());
-  ['fWard', 'fStreet', 'fAuthor', 'fBench'].forEach(id => $(id).addEventListener('input', () => { $('evText').value = buildEvidence(); if (id === 'fBench') renderPersistence(); }));
-  $('copyBtn').addEventListener('click', () => {
-    navigator.clipboard.writeText($('evText').value).then(() => $('copyMsg').textContent = 'Copied.',
-      () => { $('evText').select(); $('copyMsg').textContent = 'Press Ctrl+C (Cmd+C) to copy the selected text.'; });
-  });
-  $('dlBtn').addEventListener('click', () => {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([$('evText').value], { type: 'text/plain' }));
-    a.download = `street-intelligence-evidence-${new Date().toISOString().slice(0, 10)}.txt`;
-    document.body.appendChild(a); a.click(); a.remove();
-  });
-
-  /* ---------- Look-ahead ---------- */
-  $('look').value = LOOK; $('lookVal').textContent = fmt(LOOK, 1) + ' m';
-  $('look').addEventListener('input', () => {
-    LOOK = +$('look').value; vcache = new WeakMap();
-    $('lookVal').textContent = fmt(LOOK, 1) + ' m';
-    try { localStorage.setItem('si-look', LOOK); } catch (e) {}
-    renderProfile(); renderTracks(); renderPersistence(); renderRoute(); renderHeadline(); renderSpotList(); setMeter(state.meter ?? 0);
-  });
-
-  /* ---------- Go ---------- */
-  /* ---------- Footpath overview ---------- */
-  const NB_BINS = Math.ceil(L / BIN);
-  const binRange = i => `${i * BIN}–${Math.min(L, (i + 1) * BIN)} m`;
-  const CLS_WORD = { static: 'Blocked every day', transient: 'Blocked some days', clear: 'Clear every day', unconfirmed: 'Too few days', none: 'No footage' };
-  // Route traced from the Google Maps screenshot (pixel coordinates, north up). A = R.K. Chouhan end, B = Amratlal end.
+  /* ---------- Route (schematic traced from Google Maps) ---------- */
   const ROUTE = [[1333, 143], [1083, 298], [1070, 340], [1102, 406], [912, 494]];
   const seglen = ROUTE.slice(1).map((p, i) => Math.hypot(p[0] - ROUTE[i][0], p[1] - ROUTE[i][1]));
   const routeLen = seglen.reduce((a, b) => a + b, 0);
-  function routeAt(m) {   // point + unit direction at corridor metre m
+  function routeAt(m) {
     let d = Math.max(0, Math.min(L, m)) / L * routeLen;
     for (let i = 0; i < seglen.length; i++) {
       if (d <= seglen[i] || i === seglen.length - 1) {
@@ -857,195 +392,321 @@ details.calib[open] summary { margin-bottom: 6px; }
       d -= seglen[i];
     }
   }
-  const STATUS = { static: 'var(--critical)', transient: 'var(--warning)', clear: 'var(--good)', unconfirmed: 'var(--p2)', none: 'var(--line)' };
   function renderRoute() {
     const per = { forward: persistence('forward'), return: persistence('return') };
-    let s = `<svg viewBox="860 100 520 440" role="img" aria-label="Schematic route of the corridor coloured by how often each 10 m spot is blocked">`;
-    // Western Express Highway: two carriageways crossing the route near B
-    s += `<path d="M845 120 L1005 540 L1080 540 L925 120 Z" fill="var(--sunken)"/><path d="M940 120 L1100 540 L1160 540 L1000 120 Z" fill="var(--sunken)"/>`;
-    s += `<text x="1004" y="138" style="font-size:10px;fill:var(--muted)">Western Express Hwy (flyover)</text>`;
-    s += `<polyline points="${ROUTE.map(p => p.join(',')).join(' ')}" fill="none" stroke="var(--line)" stroke-width="26" stroke-linejoin="round" stroke-linecap="round"/>`;
-    DIRS.forEach((dir, k) => {
-      const off = k ? 7 : -7;
-      for (let i = 0; i < NB_BINS; i++) {
+    let s = `<svg viewBox="830 100 560 455" role="img" aria-label="Route coloured by days blocked per 10 m spot">`;
+    s += `<path d="M845 110 L1005 540 L1080 540 L925 110 Z" fill="var(--sunken)"/><path d="M940 110 L1100 540 L1160 540 L1000 110 Z" fill="var(--sunken)"/>`;
+    s += `<text x="1166" y="540" style="fill:var(--muted)">Western Express Hwy</text>`;
+    SIDES.forEach((side, k) => {
+      const off = k ? 6 : -6;
+      for (let i = 0; i < NB; i++) {
         const pts = [];
         for (let m = i * BIN; m <= Math.min(L, (i + 1) * BIN) + 0.01; m += 2) { const q = routeAt(Math.min(m, L)); pts.push(`${(q.x - q.dy * off).toFixed(1)},${(q.y + q.dx * off).toFixed(1)}`); }
-        const p = per[dir.key][i];
-        s += `<polyline points="${pts.join(' ')}" fill="none" stroke="${STATUS[p.cls]}" stroke-width="6" stroke-linecap="butt"><title>${binRange(i)} · ${dir.side}: ${CLS_WORD[p.cls]} (${p.c}/${p.n})</title></polyline>`;
+        const p = per[side.key][i];
+        s += `<polyline points="${pts.join(' ')}" fill="none" stroke="${p.n ? shareColor(p.c, p.n) : 'var(--line)'}" stroke-width="9" stroke-linecap="butt"/>`;
       }
     });
-    for (let i = 0; i < NB_BINS; i++) {   // invisible wide hit targets
+    for (let i = 0; i < NB; i++) {
       const a = routeAt(i * BIN), b = routeAt(Math.min(L, (i + 1) * BIN));
-      s += `<line class="seg-hit" data-bin="${i}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="transparent" stroke-width="30"><title>${binRange(i)}</title></line>`;
+      s += `<line class="hit" data-bin="${i}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="transparent" stroke-width="34"/>`;
     }
-    Object.entries(D.corridor.landmarks || {}).forEach(([k, m]) => { const q = routeAt(m); s += `<circle cx="${q.x}" cy="${q.y}" r="3.5" fill="var(--surface)" stroke="var(--fg)" stroke-width="1.5"><title>${k.replace(/_/g, ' ')} · ${m} m</title></circle>`; });
     const a = routeAt(0), b = routeAt(L);
-    s += `<circle cx="${a.x}" cy="${a.y}" r="11" fill="var(--fg)"/><text x="${a.x}" y="${a.y + 4}" text-anchor="middle" style="fill:var(--bg);font-weight:600">A</text>`;
-    s += `<circle cx="${b.x}" cy="${b.y}" r="11" fill="var(--fg)"/><text x="${b.x}" y="${b.y + 4}" text-anchor="middle" style="fill:var(--bg);font-weight:600">B</text>`;
-    s += `<text x="${a.x - 4}" y="${a.y - 18}" text-anchor="end">A · R.K. Chouhan Communications</text>`;
-    s += `<text x="${b.x + 2}" y="${b.y + 30}" text-anchor="middle">B · Amratlal G. Vasani</text>`;
-    s += `<text x="1215" y="250" transform="rotate(-32 1215 250)" text-anchor="middle" style="font-size:10px;fill:var(--muted)">Jijamata Rd / Old Nagardas Rd</text>`;
-    s += `<text x="1128" y="360" style="font-size:10px;fill:var(--muted)">service road</text>`;
-    s += `<g class="here" id="routeHere"></g></svg>`;
+    s += `<text x="${a.x + 14}" y="${a.y + 4}" style="fill:var(--fg);font-weight:500">A</text><text x="${a.x - 6}" y="${a.y - 16}" text-anchor="end">R.K. Chouhan Communications</text>`;
+    s += `<text x="${b.x - 20}" y="${b.y + 4}" style="fill:var(--fg);font-weight:500">B</text><text x="${b.x}" y="${b.y + 28}" text-anchor="middle">Amratlal G. Vasani</text>`;
+    s += `<text x="1214" y="246" transform="rotate(-32 1214 246)" text-anchor="middle" style="fill:var(--muted)">Jijamata Rd / Old Nagardas Rd</text>`;
+    s += `<g id="routeHere"></g></svg>`;
     $('route').innerHTML = s;
-    $('route').querySelectorAll('.seg-hit').forEach(el => {
-      const m = +el.dataset.bin * BIN + BIN / 2;
-      el.addEventListener('mouseenter', () => setMeter(m));
-      el.addEventListener('click', () => { setMeter(m); scrollTracksTo(m); });
+    $('route').querySelectorAll('.hit').forEach(el => {
+      const i = +el.dataset.bin;
+      el.addEventListener('mouseenter', e => tipShow(e, tipText(i)));
+      el.addEventListener('mousemove', tipMove);
+      el.addEventListener('mouseleave', tipHide);
+      el.addEventListener('click', () => select(i * BIN + BIN / 2, true));
     });
+    $('rampKey').innerHTML = `<span class="sw">${RAMP.map(c => `<i style="background:${c}"></i>`).join('')}</span><span>days blocked: none → every day</span><span style="color:var(--muted)">Inner line A side, outer B side. Schematic.</span>`;
   }
   function routeCursor(m) {
-    const g = $('routeHere'); if (!g) return;
-    const q = routeAt(m);
-    g.innerHTML = `<circle cx="${q.x}" cy="${q.y}" r="16" fill="none" stroke="var(--fg)" stroke-width="2"/>`;
+    const q = routeAt(m), g = $('routeHere'); if (!g) return;
+    g.innerHTML = `<circle cx="${q.x}" cy="${q.y}" r="15" fill="none" stroke="var(--fg)" stroke-width="2"/>`;
   }
-  function walkStats(w) {
-    const ns = w.nodes;
-    return { obsShare: ns.filter(n => n.obstruction >= OBS).length / ns.length, free: obstacleFree(w) };
+
+  /* ---------- Tooltip ---------- */
+  const tip = $('tip');
+  function tipShow(e, html) { tip.innerHTML = html; tip.hidden = false; tipMove(e); }
+  function tipMove(e) { tip.style.left = Math.min(window.innerWidth - 290, e.clientX + 14) + 'px'; tip.style.top = (e.clientY + 14) + 'px'; }
+  function tipHide() { tip.hidden = true; }
+  function tipText(i) {
+    const A = persistence('forward')[i], B = persistence('return')[i];
+    return `${range(i)}${nearLandmark(i) ? ' · ' + nearLandmark(i) : ''}<br>A side: blocked ${A.c}/${A.n} days<br>B side: blocked ${B.c}/${B.n} days`;
   }
-  function renderHeadline() {
-    const walks = [];
-    realDays.forEach(d => DIRS.forEach(dir => { const w = walk(d, dir.key); if (w) walks.push({ d, dir, w, st: walkStats(w) }); }));
-    const ok100 = walks.filter(x => x.st.free.m >= BENCH.m100.metres).length;
-    const best = walks.reduce((a, x) => x.st.free.m > a.st.free.m ? x : a, walks[0]);
-    const shares = walks.map(x => x.st.obsShare * 100);
-    const every = []; DIRS.forEach(dir => persistence(dir.key).forEach((p, i) => { if (p.cls === 'static') every.push({ i, dir }); }));
-    const bothSides = [...new Set(every.map(e => e.i))].filter(i => every.filter(e => e.i === i).length === 2);
-    const slow = walks.reduce((a, x) => a + (x.w.summary.slowdowns || 0) + (x.w.summary.stops || 0), 0);
-    $('headline').innerHTML = `
-      <div class="stat lead"><span class="lbl">100 m without an obstacle</span><span class="v">${ok100} of ${walks.length} walks</span>
-        <span class="k">Best: ${fmt(best.st.free.m)} m (Day ${pad(best.d.day)}, ${best.dir.side}). Benchmark: Neural City, State of Indian Streets 2026.</span></div>
-      <div class="stat"><span class="lbl">Walk obstructed</span><span class="v">${fmt(Math.min(...shares))}–${fmt(Math.max(...shares))}%</span><span class="k">of sampled frames, varying by day and direction</span></div>
-      <div class="stat"><span class="lbl">Blocked every day</span><span class="v">${new Set(every.map(e => e.i)).size} spots</span><span class="k">${bothSides.length ? `${bothSides.map(binRange).join(', ')} from both sides` : 'none from both sides'}</span></div>
-      <div class="stat"><span class="lbl">Surveyed</span><span class="v">${realDays.length} days</span><span class="k">${walks.length} walks · ${fmt(L)} m · ward ${D.corridor.ward || '–'}</span></div>
-      <div class="stat"><span class="lbl">Stops + slowdowns</span><span class="v">${slow}</span><span class="k">across all walks</span></div>`;
-    $('ovNote').textContent = `${D.corridor.name} · ${D.corridor.city}`;
+
+  /* ---------- Spot x day grid ---------- */
+  const MX = { left: 132, top: 38, cw: 0, rh: 22, gap: 3, W: 1000 };
+  function renderMatrix() {
+    MX.cw = (MX.W - MX.left - 8) / NB;
+    const rows = [];
+    SIDES.forEach(side => {
+      rows.push({ type: 'group', label: `${side.name.toUpperCase()} · ${side.walk}` });
+      days.forEach(d => { if (d[side.key]) rows.push({ type: 'day', d, side }); });
+      rows.push({ type: 'sum', side });
+    });
+    let y = MX.top, cells = '', labels = '';
+    rows.forEach((r, ri) => {
+      if (r.type === 'group') { y += ri ? 16 : 0; labels += `<text class="grp" x="0" y="${y + 14}">${r.label}</text>`; y += 20; return; }
+      if (r.type === 'day') {
+        const w = walk(r.d, r.side.key);
+        labels += `<text class="rowlab" x="0" y="${y + 15}">Day ${r.d.day}</text><text x="52" y="${y + 15}" style="fill:var(--muted)">${light(r.d[r.side.key])}</text>`;
+        for (let i = 0; i < NB; i++) {
+          const b = binWorst(w, i), v = b ? b.obstruction : null;
+          cells += `<rect x="${MX.left + i * MX.cw + 1}" y="${y}" width="${MX.cw - 2}" height="${MX.rh}" rx="2" fill="${stateColor(v)}" ${v == null ? 'stroke="var(--line)"' : ''}/>`;
+        }
+      } else {
+        y += 4;
+        labels += `<text class="rowlab" x="0" y="${y + 15}" style="font-weight:600">Days blocked</text>`;
+        const per = persistence(r.side.key);
+        for (let i = 0; i < NB; i++) {
+          const p = per[i];
+          cells += `<rect x="${MX.left + i * MX.cw + 1}" y="${y}" width="${MX.cw - 2}" height="${MX.rh}" rx="2" fill="${p.n ? shareColor(p.c, p.n) : 'none'}"/>`;
+          cells += `<text x="${MX.left + i * MX.cw + MX.cw / 2}" y="${y + 15}" text-anchor="middle" style="fill:${p.n && p.c / p.n > .5 ? 'var(--bg)' : 'var(--fg)'}">${p.n ? p.c : ''}</text>`;
+        }
+      }
+      y += MX.rh + MX.gap;
+    });
+    const H = y + 4;
+    let axis = '';
+    for (let m = 0; m < L; m += 50) axis += `<text x="${MX.left + m / BIN * MX.cw}" y="12" text-anchor="${m ? 'middle' : 'start'}">${m}</text>`;
+    axis += `<text x="${MX.left + L / BIN * MX.cw}" y="12" text-anchor="end">${fmt(L)} m</text>`;
+    landmarks.forEach(l => { const x = MX.left + l.m / BIN * MX.cw; axis += `<line x1="${x}" x2="${x}" y1="18" y2="${H}" stroke="var(--muted)" stroke-dasharray="2 3"/><text x="${x + 3}" y="30" style="fill:var(--muted);font-size:10px">${l.name}</text>`; });
+    let hits = '';
+    for (let i = 0; i < NB; i++) hits += `<rect class="col" data-bin="${i}" x="${MX.left + i * MX.cw}" y="${MX.top}" width="${MX.cw}" height="${H - MX.top}" fill="transparent" tabindex="0" aria-label="${range(i)}"/>`;
+    const key = `<g transform="translate(0 ${H + 8})"><rect x="0" y="0" width="12" height="12" rx="2" fill="var(--r0)"/><text x="17" y="10">clear</text><rect x="64" y="0" width="12" height="12" rx="2" fill="var(--r1)"/><text x="81" y="10">busy</text><rect x="124" y="0" width="12" height="12" rx="2" fill="var(--r4)"/><text x="141" y="10">obstructed</text><text x="232" y="10" style="fill:var(--muted)">per day, worst frame looking at the spot</text></g>`;
+    $('matrix').innerHTML = `<svg viewBox="0 0 ${MX.W} ${H + 26}" role="img" aria-label="Grid of 10 m spots by day and side">${axis}${labels}${cells}${hits}<rect class="colsel" id="colsel" x="0" y="${MX.top - 2}" width="0" height="${H - MX.top + 2}" rx="3"/>${key}</svg>`;
+    $('matrix').querySelectorAll('.col').forEach(el => {
+      const i = +el.dataset.bin;
+      el.addEventListener('click', () => select(i * BIN + BIN / 2, true));
+      el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(i * BIN + BIN / 2, true); } });
+      el.addEventListener('mouseenter', e => tipShow(e, tipText(i)));
+      el.addEventListener('mousemove', tipMove);
+      el.addEventListener('mouseleave', tipHide);
+    });
   }
+  function matrixCursor(m) {
+    const r = $('colsel'); if (!r) return;
+    r.setAttribute('x', MX.left + binOf(m) * MX.cw); r.setAttribute('width', MX.cw);
+  }
+
+  /* ---------- Ranked spots ---------- */
   let showAll = false;
   function spotRows() {
-    const A = persistence('forward'), B = persistence('return');
-    const share = p => p.n ? p.c / p.n : 0;
-    const latest = realDays[realDays.length - 1];
-    const lm = Object.entries(D.corridor.landmarks || {});
-    return [...Array(NB_BINS).keys()].map(i => {
-      const near = lm.filter(([, m]) => Math.abs(m - (i * BIN + BIN / 2)) <= 12).map(([k]) => k.replace(/_approx$/, '').replace(/_/g, ' '))[0] || '';
-      const resp = [A[i], B[i]].some(p => p.cls === 'static') ? 'Build: repair or relocate the fixed obstruction'
-        : [A[i], B[i]].some(p => p.cls === 'transient') ? 'Manage: parking, vending or timing'
-        : [A[i], B[i]].some(p => p.cls === 'unconfirmed') ? 'Keep surveying' : '—';
-      return { i, A: A[i], B: B[i], score: share(A[i]) + share(B[i]), near, resp, latest };
-    }).sort((a, b) => b.score - a.score || a.i - b.i);
+    const A = persistence('forward'), B = persistence('return'), sh = p => p.n ? p.c / p.n : 0;
+    return [...Array(NB).keys()].map(i => ({ i, A: A[i], B: B[i], score: sh(A[i]) + sh(B[i]) })).sort((a, b) => b.score - a.score || a.i - b.i);
   }
-  function renderSpotList() {
+  function stripFor(key, i) {
+    return `<span class="strip">${days.map(d => { const w = walk(d, key); if (!w) return '<i class="na"></i>'; const b = binWorst(w, i); return `<i style="background:${b ? stateColor(b.obstruction) : 'transparent'}" title="Day ${d.day}: ${stateWord(b && b.obstruction)}"></i>`; }).join('')}</span>`;
+  }
+  function renderSpots() {
     const rows = spotRows(), shown = showAll ? rows : rows.slice(0, 8);
-    $('spotList').innerHTML = `<table class="spots"><thead><tr><th>#</th><th>Spot</th><th>Photo</th><th>Seen from A</th><th>Seen from B</th><th>Likely response</th><th></th></tr></thead><tbody>
-      ${shown.map((r, k) => {
-        const w = walk(r.latest, 'forward') || walk(r.latest, 'return');
-        const ph = w ? photo(w, r.i * BIN + BIN / 2, w.key === 'forward' ? 'var(--nb)' : 'var(--sb)', 'thumb').html : '';
-        const cell = p => `<span class="chip ${p.cls}">${CLS_WORD[p.cls]}</span> <span class="mono" style="color:var(--muted)">${p.n ? `${p.c}/${p.n}` : ''}</span>`;
-        return `<tr data-bin="${r.i}"><td class="rank">${k + 1}</td><td><b class="mono">${binRange(r.i)}</b>${r.near ? `<br><span class="note" style="font-size:12px">${r.near}</span>` : ''}</td>
-          <td>${ph}</td><td>${cell(r.A)}</td><td>${cell(r.B)}</td><td class="resp">${r.resp}</td>
-          <td><button class="btn ghost sm" data-card="${r.i}">Evidence card</button></td></tr>`;
-      }).join('')}</tbody></table>`;
-    $('moreSpots').textContent = showAll ? 'Show top 8' : `Show all ${rows.length} spots`;
-    $('spotList').querySelectorAll('tr[data-bin]').forEach(tr => tr.addEventListener('click', e => {
-      const i = +tr.dataset.bin, m = i * BIN + BIN / 2;
+    const latest = days[days.length - 1];
+    $('spotList').innerHTML = `<table class="spots"><thead><tr><th></th><th>Spot</th><th></th><th>A side by day</th><th>B side by day</th><th>Likely response</th><th></th></tr></thead><tbody>
+      ${shown.map((r, k) => `<tr data-bin="${r.i}"><td class="rk">${k + 1}</td>
+        <td class="where"><span class="mono">${range(r.i)}</span>${nearLandmark(r.i) ? `<small>${nearLandmark(r.i)}</small>` : ''}</td>
+        <td>${photo(walk(latest, 'forward') || walk(latest, 'return'), r.i * BIN + BIN / 2, 'thumb')}</td>
+        <td>${stripFor('forward', r.i)}<span class="mono">${r.A.c}/${r.A.n}</span></td>
+        <td>${stripFor('return', r.i)}<span class="mono">${r.B.c}/${r.B.n}</span></td>
+        <td class="resp">${respFor(r.A, r.B)}</td>
+        <td><button class="linkbtn" data-card="${r.i}">Evidence card</button></td></tr>`).join('')}</tbody></table>`;
+    $('moreSpots').textContent = showAll ? 'Show top 8' : `Show all ${rows.length}`;
+    $('spotList').querySelectorAll('tbody tr').forEach(tr => tr.addEventListener('click', e => {
+      const i = +tr.dataset.bin;
       if (e.target.closest('[data-card]')) { openCard(i); return; }
-      setMeter(m); scrollTracksTo(m);
+      select(i * BIN + BIN / 2, true);
     }));
+    highlightRow(state.meter);
   }
-  $('moreSpots').addEventListener('click', () => { showAll = !showAll; renderSpotList(); });
+  $('moreSpots').addEventListener('click', () => { showAll = !showAll; renderSpots(); });
+  function highlightRow(m) {
+    $('spotList').querySelectorAll('tr.on').forEach(t => t.classList.remove('on'));
+    const tr = $('spotList').querySelector(`tr[data-bin="${binOf(m)}"]`); if (tr) tr.classList.add('on');
+  }
 
-  /* ---------- Evidence card (drawn on canvas so the preview is exactly the saved image) ---------- */
+  /* ---------- Photo tracks ---------- */
+  let ppm = 12;
+  function trackRows() {
+    if (state.cmp === 'days') {
+      const s = SIDES.find(x => x.key === state.side);
+      return days.filter(d => d[s.key]).map(d => ({ d, s, label: `Day ${d.day} · ${light(d[s.key])}` }));
+    }
+    const d = days[state.dayIdx];
+    return SIDES.filter(s => d[s.key]).map(s => ({ d, s, label: `${s.name} · ${light(d[s.key])}` }));
+  }
+  function renderTracks() {
+    const rows = state.rows = trackRows();
+    $('sideSeg').hidden = state.cmp !== 'days';
+    $('daySeg').hidden = state.cmp !== 'dirs';
+    $('daySeg').innerHTML = days.map((d, k) => `<button data-day="${k}" aria-pressed="${k === state.dayIdx}">Day ${d.day}</button>`).join('');
+    $('daySeg').querySelectorAll('[data-day]').forEach(b => b.addEventListener('click', () => { state.dayIdx = +b.dataset.day; renderTracks(); select(state.meter, true); }));
+    document.querySelectorAll('[data-cmp]').forEach(b => b.setAttribute('aria-pressed', b.dataset.cmp === state.cmp));
+    document.querySelectorAll('[data-side]').forEach(b => b.setAttribute('aria-pressed', b.dataset.side === state.side));
+    $('trackNote').textContent = state.cmp === 'days'
+      ? 'Each row is one day from the same side, so photos in a column show the same spot on different days.'
+      : 'One day from both sides. Photos in a column show the same spot from opposite directions, so the scenery differs.';
+    const h = 118, thumbW = h * 9 / 16;
+    const spacing = Math.min(10, ...rows.map(r => { const w = walk(r.d, r.s.key); return w && w.nodes.length > 1 ? L / (w.nodes.length - 1) : 10; }));
+    ppm = Math.max(6, Math.min(40, (thumbW + 4) / spacing));
+    const W = L * ppm + 100, x = m => 50 + m * ppm;
+    let html = `<div class="cursor" id="tCursor"></div><div class="axis" style="width:${W}px">`;
+    for (let m = 0; m <= L; m += 10) html += `<div class="t" style="left:${x(m)}px;${m % 50 ? 'height:3px' : ''}"></div>` + (m % 50 ? '' : `<div class="l" style="left:${x(m)}px">${m} m</div>`);
+    html += `</div>`;
+    rows.forEach((r, i) => {
+      const w = walk(r.d, r.s.key);
+      html += `<div class="trk" style="width:${W}px"><span class="lab">${r.label}</span>`;
+      if (w) for (const n of w.nodes) html += `<button class="node" style="left:${x(n.meter)}px" data-row="${i}" data-m="${n.meter}" aria-label="${r.label}, ${fmt(n.meter)} m"><img src="${w.folder}/${n.file}" alt="" loading="lazy" decoding="async" style="height:${h}px"></button>`;
+      html += `</div>`;
+    });
+    $('canvas').innerHTML = html;
+    $('canvas').style.width = W + 'px';
+    $('canvas').querySelectorAll('.node').forEach(el => {
+      el.addEventListener('mouseenter', () => select(+el.dataset.m));
+      el.addEventListener('focus', () => select(+el.dataset.m));
+    });
+    state.x = x;
+  }
+  document.querySelectorAll('[data-cmp]').forEach(b => b.addEventListener('click', () => { state.cmp = b.dataset.cmp; renderTracks(); select(state.meter, true); }));
+  document.querySelectorAll('[data-side]').forEach(b => b.addEventListener('click', () => { state.side = b.dataset.side; renderTracks(); select(state.meter, true); }));
+  function tracksCursor(m, scroll) {
+    document.querySelectorAll('.node.hot').forEach(n => n.classList.remove('hot'));
+    state.rows.forEach((r, i) => {
+      const n = nearest(walk(r.d, r.s.key), m); if (!n) return;
+      const el = document.querySelector(`.node[data-row="${i}"][data-m="${n.meter}"]`); if (el) el.classList.add('hot');
+    });
+    const c = $('tCursor'); if (c) { c.style.left = state.x(m) + 'px'; c.style.display = 'block'; }
+    if (scroll) { const t = $('tracks'); t.scrollLeft = state.x(m) - t.clientWidth / 2; }
+  }
+
+  /* ---------- Inspector ---------- */
+  function renderInspector(m) {
+    const i = binOf(m), S = i * BIN + BIN / 2;
+    const per = { forward: persistence('forward')[i], return: persistence('return')[i] };
+    const sideHtml = side => {
+      const p = per[side.key];
+      const tiles = days.filter(d => d[side.key]).map(d => {
+        const w = walk(d, side.key), b = binWorst(w, i), v = b ? b.obstruction : null;
+        return `<figure>${photo(w, S)}<figcaption><i style="background:${stateColor(v)}"></i>Day ${d.day}${light(w) === 'night' ? ' · night' : ''}</figcaption></figure>`;
+      }).join('');
+      return `<div class="side"><div class="side-head"><b>${side.name}</b><span class="mono" style="color:var(--fg-2)">blocked ${p.c}/${p.n} days</span></div>
+        ${tiles ? `<div class="days">${tiles}</div>` : '<span class="note">No footage from this side.</span>'}</div>`;
+    };
+    const a = per.forward, b = per.return;
+    const word = p => p.cls === 'every' ? 'blocked every day' : p.cls === 'some' ? 'blocked on some days' : p.cls === 'clear' ? 'clear every day' : 'too few days';
+    const verdict = a.cls === b.cls ? `Both sides ${word(a)}.` : `A side ${word(a)}; B side ${word(b)}.`;
+    const resp = respFor(a, b);
+    $('inspector').innerHTML = `
+      <div class="insp-top"><span class="m">${range(i)}</span><span class="note">${nearLandmark(i)}</span></div>
+      ${SIDES.map(sideHtml).join('')}
+      <div class="verdict">${verdict}${resp ? `<br><span style="color:var(--fg-2)">${resp}</span>` : ''}</div>
+      <button class="btn" id="inspCard">Evidence card</button>`;
+    $('inspCard').addEventListener('click', () => openCard(i));
+  }
+
+  /* ---------- Selection ---------- */
+  function select(m, scroll) {
+    state.meter = m;
+    routeCursor(m); matrixCursor(m); highlightRow(m); tracksCursor(m, scroll); renderInspector(m);
+  }
+
+  /* ---------- Look-ahead calibration ---------- */
+  $('look').value = LOOK; $('lookVal').textContent = fmt(LOOK, 1) + ' m';
+  $('look').addEventListener('input', () => {
+    LOOK = +$('look').value; vcache = new WeakMap(); pcache = {};
+    $('lookVal').textContent = fmt(LOOK, 1) + ' m';
+    try { localStorage.setItem('si-look', LOOK); } catch (e) {}
+    renderAll();
+  });
+
+  /* ---------- Method ---------- */
+  $('method').innerHTML = [
+    ['Walks', `A phone at chest height films the ${fmt(L)} m footpath in both directions on each survey day. A frame is kept every ${D.corridor.step_s} s of walking; pauses are skipped.`],
+    ['Position', 'Pinned to landmarks read off Google Maps and interpolated by walking time. Later days are matched to earlier ones by appearance. About ±10 m.'],
+    ['Obstruction', `Edge density in the walking zone of each frame, against the typical frame of all walks in the same direction and light. Above ${OBS} counts as obstructed. An image measure, not a width.`],
+    ['Spots', `${BIN} m stretches. A spot is blocked on a day if any frame looking at it is obstructed. Photos show the spot from about ${fmt(LOOK, 1)} m away.`],
+    ['Light', 'Most B→A walks were filmed at night. Day and night are scored separately, but some B-side change may be light rather than obstruction.'],
+    ['Not yet', 'The measure is not yet checked against hand labels. The route is a schematic. Faces are not blurred.']
+  ].map(([k, v]) => `<div><b>${k}</b>${v}</div>`).join('');
+
+  /* ---------- Evidence card (canvas: the preview is the saved image) ---------- */
   const imgCache = {};
   const loadImg = src => imgCache[src] || (imgCache[src] = new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; }));
-  let cardText = '', cardName = 'evidence-card.png';
+  let cardText = '', cardName = 'evidence.png';
   async function openCard(i) {
-    const S = i * BIN + BIN / 2, A = persistence('forward')[i], B = persistence('return')[i];
-    const r = spotRows().find(x => x.i === i);
-    $('cardTitle').textContent = `Evidence card · ${binRange(i)}`;
+    const S = i * BIN + BIN / 2;
+    const per = { forward: persistence('forward')[i], return: persistence('return')[i] };
+    $('cardTitle').textContent = `Evidence card · ${range(i)}`;
     $('cardMsg').textContent = '';
     if (!$('cardDlg').open) $('cardDlg').showModal();
     const cv = $('cardCanvas'), ctx = cv.getContext('2d');
-    const W = 1200, pad = 40, tw = 150, th = 267, gap = 12;
-    const rowsDef = DIRS.map(dir => ({ dir, p: dir.key === 'forward' ? A : B, items: realDays.filter(d => d[dir.key]).map(d => ({ d, w: walk(d, dir.key) })) }));
-    const H = 210 + rowsDef.length * (th + 92) + 150;
+    const W = 1200, pad = 48, tw = 150, th = 267, gap = 14;
+    const H = 196 + SIDES.length * (th + 108) + 110;
     cv.width = W; cv.height = H;
-    const C = { ink: '#151a18', mid: '#4d5753', mute: '#6f7975', line: '#ccd2cf', A: '#2a78d6', B: '#eb6834', crit: '#d03b3b', warn: '#c98500', good: '#0a8a0a' };
-    const font = (w, sz, fam = 'Barlow, system-ui, sans-serif') => `${w} ${sz}px ${fam}`;
-    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = C.ink; ctx.font = font(700, 34, '"Barlow Semi Condensed", Barlow, sans-serif');
-    ctx.fillText(`Footpath evidence · spot ${binRange(i)}`, pad, 62);
-    ctx.fillStyle = C.mid; ctx.font = font(400, 18);
-    ctx.fillText(`${D.corridor.name}, ${D.corridor.city} · BMC ward ${D.corridor.ward || ''}`, pad, 94);
-    ctx.fillText(`${fmt(L)} m corridor walked twice daily (A→B and B→A) on ${realDays.length} days${r && r.near ? ` · near: ${r.near}` : ''}`, pad, 120);
-    ctx.strokeStyle = C.line; ctx.beginPath(); ctx.moveTo(pad, 142); ctx.lineTo(W - pad, 142); ctx.stroke();
-    let y = 180;
-    for (const row of rowsDef) {
-      const col = row.dir.key === 'forward' ? C.A : C.B;
-      ctx.fillStyle = col; ctx.font = font(700, 20, '"Barlow Semi Condensed", Barlow, sans-serif');
-      ctx.fillText(`${row.dir.side.toUpperCase()} (${row.dir.name}s)`, pad, y);
-      const pc = row.p, word = CLS_WORD[pc.cls];
-      ctx.fillStyle = pc.cls === 'static' ? C.crit : pc.cls === 'transient' ? C.warn : pc.cls === 'clear' ? C.good : C.mute;
-      ctx.font = font(600, 18); ctx.fillText(`${word}${pc.n ? ` · obstructed on ${pc.c} of ${pc.n} days` : ''}`, pad + 330, y);
-      y += 14;
-      for (let k = 0; k < row.items.length; k++) {
-        const { d, w } = row.items[k], x = pad + k * (tw + gap);
-        const v = viewFor(w, S), n = binWorst(w, i);
-        ctx.fillStyle = '#eef0ef'; ctx.fillRect(x, y, tw, th);
+    const C = { ink: '#141816', mid: '#4a524e', mute: '#727a76', line: '#d6d9d5', r0: '#e3e6e2', r1: '#f1cbbd', r4: '#8c2915' };
+    const F = (w, sz, fam = 'Barlow, system-ui, sans-serif') => `${w} ${sz}px ${fam}`;
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = C.ink; ctx.font = F(700, 38, '"Barlow Semi Condensed", Barlow, sans-serif');
+    ctx.fillText(`${range(i)}${nearLandmark(i) ? ' · ' + nearLandmark(i) : ''}`, pad, 74);
+    ctx.fillStyle = C.mid; ctx.font = F(400, 18);
+    ctx.fillText(`Jijamata Rd / Old Nagardas Rd, Andheri East · BMC ward ${D.corridor.ward || ''} · ${fmt(L)} m footpath walked both ways on ${days.length} days`, pad, 108);
+    ctx.strokeStyle = C.line; ctx.beginPath(); ctx.moveTo(pad, 136); ctx.lineTo(W - pad, 136); ctx.stroke();
+    let y = 176;
+    for (const side of SIDES) {
+      const p = per[side.key];
+      ctx.fillStyle = C.ink; ctx.font = F(600, 20); ctx.fillText(side.name, pad, y);
+      ctx.fillStyle = C.mid; ctx.font = F(400, 18); ctx.fillText(`blocked on ${p.c} of ${p.n} days`, pad + 90, y);
+      y += 16;
+      const items = days.filter(d => d[side.key]);
+      for (let k = 0; k < items.length; k++) {
+        const d = items[k], w = walk(d, side.key), v = viewFor(w, S), b = binWorst(w, i), x = pad + k * (tw + gap);
+        ctx.fillStyle = C.r0; ctx.fillRect(x, y, tw, th);
         try {
           if (v) {
-            const sv = w.spot_views, sh = Math.floor(v.idx / sv.per_sheet), kk = v.idx % sv.per_sheet;
-            const im = await loadImg(`${w.folder}/${sv.sheets[sh]}`);
-            const [fw, fh] = sv.size;
-            ctx.drawImage(im, (kk % sv.cols) * fw, Math.floor(kk / sv.cols) * fh, fw, fh, x, y, tw, th);
-          } else if (n) {
-            const im = await loadImg(`${w.folder}/${n.file}`);
-            ctx.drawImage(im, x, y, tw, th);
+            const sv = w.spot_views, sh = Math.floor(v.idx / sv.per_sheet), kk = v.idx % sv.per_sheet, [fw, fh] = sv.size;
+            ctx.drawImage(await loadImg(`${w.folder}/${sv.sheets[sh]}`), (kk % sv.cols) * fw, Math.floor(kk / sv.cols) * fh, fw, fh, x, y, tw, th);
           }
         } catch (e) {}
-        ctx.fillStyle = col; ctx.fillRect(x, y, tw, 4);
-        if (n && n.obstruction >= OBS) { ctx.strokeStyle = C.crit; ctx.lineWidth = 4; ctx.strokeRect(x + 2, y + 2, tw - 4, th - 4); ctx.lineWidth = 1; }
-        ctx.fillStyle = C.ink; ctx.font = font(600, 15); ctx.fillText(`Day ${d.day}`, x, y + th + 22);
-        ctx.fillStyle = C.mute; ctx.font = font(400, 13, '"IBM Plex Mono", monospace');
-        ctx.fillText(`${light(w)}${n ? ` · ${fmt(n.obstruction, 2)}` : ''}`, x, y + th + 42);
+        const val = b ? b.obstruction : null;
+        ctx.fillStyle = val == null ? C.line : val >= OBS ? C.r4 : val >= BUSY ? C.r1 : C.r0;
+        ctx.fillRect(x, y + th + 8, tw, 8);
+        ctx.fillStyle = C.ink; ctx.font = F(600, 15); ctx.fillText(`Day ${d.day}`, x, y + th + 36);
+        ctx.fillStyle = C.mute; ctx.font = F(400, 14); ctx.fillText(`${light(w)} · ${stateWord(val)}`, x, y + th + 56);
       }
-      y += th + 78;
+      y += th + 92;
     }
-    ctx.fillStyle = C.ink; ctx.font = font(600, 18);
-    ctx.fillText(`Likely response: ${r ? r.resp : '—'}`, pad, y);
-    ctx.fillStyle = C.mute; ctx.font = font(400, 14);
-    const foot = [
-      `Red frame = that day's worst frame in this 10 m spot scored as obstructed (clutter index ≥ ${OBS}). An image measure, not a width.`,
-      `Each photo looks at the spot from about ${fmt(LOOK, 1)} m away while walking towards it. Positions are accurate to roughly ±10 m.`,
-      `Street Intelligence · M.Des Stage 2 · generated ${new Date().toISOString().slice(0, 10)}`
-    ];
-    foot.forEach((t, k) => ctx.fillText(t, pad, y + 34 + k * 22));
+    const resp = respFor(per.forward, per.return);
+    if (resp) { ctx.fillStyle = C.ink; ctx.font = F(600, 18); ctx.fillText(resp, pad, y + 6); }
+    ctx.fillStyle = C.mute; ctx.font = F(400, 14);
+    ctx.fillText('Bar under each photo: walking zone clear, busy or obstructed (an image measure, not a width). Positions ±10 m.', pad, y + 32);
+    ctx.fillText(`Street Intelligence · M.Des Stage 2 · ${new Date().toISOString().slice(0, 10)}`, pad, y + 54);
     cardName = `evidence-${i * BIN}-${Math.min(L, (i + 1) * BIN)}m.png`;
-    cardText = [`Footpath evidence · spot ${binRange(i)} · ${D.corridor.name}, ${D.corridor.city} (ward ${D.corridor.ward || ''})`,
-      ...rowsDef.map(row => `${row.dir.side}: ${CLS_WORD[row.p.cls]}${row.p.n ? ` (obstructed on ${row.p.c} of ${row.p.n} survey days: ${row.items.map(({ d, w }) => { const n = binWorst(w, i); return `Day ${d.day} ${light(w)} ${n ? (n.obstruction >= OBS ? 'obstructed' : 'clear') : 'no frame'}`; }).join('; ')})` : ''}`),
-      `Likely response: ${r ? r.resp : '—'}`,
-      `Method: phone video walked twice daily; obstruction is an image-based indicator, positions ±10 m.`].join('\n');
+    cardText = [`${range(i)}${nearLandmark(i) ? ' (' + nearLandmark(i) + ')' : ''}, Jijamata Rd / Old Nagardas Rd, Andheri East, ward ${D.corridor.ward || ''}`,
+      ...SIDES.map(side => `${side.name}: blocked on ${per[side.key].c} of ${per[side.key].n} days (${days.filter(d => d[side.key]).map(d => { const b = binWorst(walk(d, side.key), i); return `Day ${d.day} ${light(d[side.key])}: ${stateWord(b && b.obstruction)}`; }).join('; ')})`),
+      resp, 'Method: phone video, both directions daily; obstruction is an image measure; positions ±10 m.'].filter(Boolean).join('\n');
   }
   $('closeCard').addEventListener('click', () => $('cardDlg').close());
-  $('copyCard').addEventListener('click', () => navigator.clipboard.writeText(cardText).then(() => $('cardMsg').textContent = 'Copied.', () => $('cardMsg').textContent = 'Copy is blocked here; select the text from the written summary instead.'));
+  $('copyCard').addEventListener('click', () => navigator.clipboard.writeText(cardText).then(() => $('cardMsg').textContent = 'Copied.', () => $('cardMsg').textContent = 'Copy is blocked in this view.'));
   $('saveCard').addEventListener('click', async () => {
     const blob = await new Promise(res => $('cardCanvas').toBlob(res, 'image/png'));
     let downloads = null;
     try { downloads = window.claude && window.claude.use ? await window.claude.use('downloads') : null; } catch (e) {}
     if (downloads) {
       try { await downloads.save({ filename: cardName, data: blob }); $('cardMsg').textContent = 'Saved.'; }
-      catch (e) { $('cardMsg').textContent = e && e.code === 'declined' ? 'Not saved.' : 'Saving is not available here. Right-click the image to save it.'; }
+      catch (e) { $('cardMsg').textContent = e && e.code === 'declined' ? 'Not saved.' : 'Saving is unavailable here; right-click the image to save it.'; }
       return;
     }
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = cardName;
     document.body.appendChild(a); a.click(); a.remove();
   });
 
-  function renderAll() {
-    renderTicks(); renderProfile(); renderTracks(); renderPersistence();
-    renderRoute(); renderHeadline(); renderSpotList();
-    setMeter(state.meter ?? 0);
-  }
+  /* ---------- Go ---------- */
+  function renderAll() { renderNums(); renderRoute(); renderMatrix(); renderSpots(); renderTracks(); select(state.meter); }
+  state.meter = spotRows()[0].i * BIN + BIN / 2;   // open on the worst spot
   renderAll();
 })();
 </script>
