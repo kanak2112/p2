@@ -112,8 +112,8 @@ h1 { font-size: clamp(28px, 4.2vw, 40px); font-weight: 700; line-height: 1; lett
 .row.sb .node { top: 6px; }
 .node img { display: block; height: 100%; width: auto; }
 .node.hot { border-color: var(--fg); z-index: 3; }
-.node.pair { border-color: var(--fg); z-index: 3; box-shadow: 0 0 0 3px var(--surface); }
-.nb .node.hot { border-color: var(--nb); } .sb .node.hot { border-color: var(--sb); }
+.node.linked { border-color: var(--fg); z-index: 3; box-shadow: 0 0 0 3px var(--surface); }
+
 .prox-band { position: absolute; left: 0; right: 0; bottom: 0; height: 18%; display: none; border-top: 1px dashed rgba(255,255,255,.8); }
 .prox-band span { position: absolute; left: 3px; top: 1px; font: 500 9px var(--font-mono); color: #fff; text-shadow: 0 0 3px #000; }
 .view-prox .prox-band { display: block; }
@@ -136,7 +136,7 @@ h1 { font-size: clamp(28px, 4.2vw, 40px); font-weight: 700; line-height: 1; lett
 .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .pair figure { margin: 0; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 [hidden] { display: none !important; }
-.ph { aspect-ratio: 338 / 600; background: var(--sunken); border-radius: 4px; overflow: hidden; position: relative; border-top: 3px solid; max-width: 100%; }
+.ph { aspect-ratio: 338 / 600; background: var(--sunken); border-radius: 4px; overflow: hidden; position: relative; max-width: 100%; }
 .ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .ph.empty::after { content: "No frame within 6 m"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 12px; color: var(--muted); text-align: center; padding: 8px; }
 .pair figcaption { font: 600 12px var(--font-display); letter-spacing: .07em; text-transform: uppercase; }
@@ -172,9 +172,11 @@ table.mx { width: 100%; border-collapse: collapse; font-size: 13px; }
 .verdict { font-size: 14px; padding: 10px 12px; border-radius: 6px; background: var(--sunken); }
 .verdict strong { font-weight: 600; }
 .flag { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
-.flag.crit::before { content: "■"; color: var(--critical); }
-.flag.ok::before { content: "●"; color: var(--good); }
-.flag.mid::before { content: "▲"; color: var(--warning); }
+.flag::before, .chip::before { content: ""; width: 9px; height: 9px; border-radius: 2px; display: inline-block; flex: none; }
+.flag.crit::before, .chip.static::before { background: var(--critical); }
+.flag.mid::before, .chip.transient::before { background: var(--warning); }
+.flag.ok::before, .chip.clear::before { background: var(--good); }
+.chip.unconfirmed::before, .chip.none::before { background: transparent; box-shadow: inset 0 0 0 1.5px var(--muted); }
 
 /* Persistence + metrics */
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
@@ -216,11 +218,15 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
 .lb-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font: 13px var(--font-mono); }
 .legend-status { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--fg-2); margin-top: 8px; }
 .chip { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
-.chip::before { font-size: 11px; }
-.chip.static::before { content: "■"; color: var(--critical); }
-.chip.transient::before { content: "▲"; color: var(--warning); }
-.chip.clear::before { content: "●"; color: var(--good); }
-.chip.unconfirmed::before, .chip.none::before { content: "○"; color: var(--muted); }
+.maptip { position: fixed; z-index: 30; pointer-events: none; background: var(--fg); color: var(--bg); font: 12px/1.45 var(--font-mono); padding: 6px 9px; border-radius: 4px; white-space: nowrap; }
+.route-card .route { max-width: 640px; }
+.head-nums { display: flex; flex-wrap: wrap; gap: 8px 28px; }
+.head-nums div { display: flex; flex-direction: column; }
+.head-nums b { font: 700 30px/1.05 var(--font-display); font-variant-numeric: tabular-nums; }
+.head-nums span { font-size: 13px; color: var(--fg-2); }
+.days-seg button { padding: 4px 10px; font-size: 13px; }
+.badge { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 13px; padding: 3px 8px; border-radius: 4px; background: var(--sunken); }
+.row-label i { display: none !important; }
 .spot-table-wrap { overflow-x: auto; }
 table.spots { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 640px; }
 .spots th { text-align: left; font: 600 11px var(--font-display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); }
@@ -245,68 +251,46 @@ details.calib[open] summary { margin-bottom: 6px; }
       <h1>Street Intelligence</h1>
       <p class="sub" id="subtitle">Longitudinal pedestrian diagnostic · Mumbai</p>
     </div>
-    <div class="status" id="status"></div>
+    <div class="head-nums" id="headline"></div>
   </header>
 
-  <div class="toolbar">
-    <div class="group">
-      <span class="lbl" id="dayLabel">Day</span>
-      <div class="slider">
-        <input type="range" id="day" min="1" max="7" step="1" value="1" aria-label="Survey day">
-        <div class="ticks" id="ticks"></div>
-      </div>
-      <span class="dayline" id="dayline"></span>
-    </div>
-    <div class="group" hidden>
-      <span class="lbl">Photo tracks show</span>
-      <div class="seg" role="group" aria-label="Photo tracks show">
-        <button data-view="photo" aria-pressed="true">Photos</button>
-        <button data-view="prox" aria-pressed="false">+ Body-zone band <small>(experimental)</small></button>
-        <button data-view="vector" aria-pressed="false">Schematic <small>(experimental)</small></button>
-      </div>
-    </div>
-    <span class="spacer"></span>
-    <button class="btn" id="exportBtn" hidden>Written summary for BMC</button>
+  <div hidden>
+    <input type="range" id="day" min="0" max="0" value="0" aria-hidden="true" tabindex="-1">
+    <div id="ticks"></div><span id="dayline"></span><span id="dayLabel"></span><span id="status"></span><span id="ovNote"></span>
+    <div class="seg"><button data-view="photo" aria-pressed="true">Photos</button></div>
+    <button id="exportBtn">Summary</button>
   </div>
-
-  <section class="card">
-    <div class="card-head"><h2>Footpath overview</h2><span class="note" id="ovNote"></span></div>
-    <div class="ov-grid">
-      <div>
-        <div class="route" id="route"></div>
-        <div class="legend-status">
-          <span class="chip static">Blocked every surveyed day</span>
-          <span class="chip transient">Blocked on some days</span>
-          <span class="chip clear">Clear every day</span>
-          <span class="chip unconfirmed">Too few days</span>
-        </div>
-        <p class="note" style="margin-top:6px;font-size:12px">Inner line: seen from A. Outer line: seen from B.</p>
-      </div>
-      <div class="head-stats" id="headline"></div>
-    </div>
-  </section>
-
-  <section class="card">
-    <div class="card-head"><h2>Spots ranked</h2></div>
-    <div class="spot-table-wrap" id="spotList"></div>
-    <button class="btn ghost sm" id="moreSpots" style="margin-top:10px">Show all spots</button>
-  </section>
-
   <div class="layout">
     <div style="display:flex;flex-direction:column;gap:18px;min-width:0">
+      <section class="card route-card">
+        <div class="card-head"><h2>Footpath</h2>
+          <div class="legend-status" style="margin:0">
+            <span class="chip static">Fix · blocked every day</span>
+            <span class="chip transient">Manage · some days</span>
+            <span class="chip clear">Clear</span>
+          </div>
+        </div>
+        <div class="route" id="route"></div>
+        <p class="note" style="font-size:12.5px">Inner line A side, outer line B side. Click a stretch to inspect it.</p>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>Spots ranked</h2></div>
+        <div class="spot-table-wrap" id="spotList"></div>
+        <button class="btn ghost sm" id="moreSpots" style="margin-top:10px">Show all spots</button>
+      </section>
+
       <section class="card">
         <div class="card-head">
           <h2>Clutter along the footpath</h2>
+          <div class="seg days-seg" role="group" aria-label="Day" id="profDays"></div>
           <div class="legend">
             <span><i class="sw-line" style="background:var(--nb)"></i>Seen from A</span>
             <span><i class="sw-line" style="background:var(--sb)"></i>Seen from B</span>
           </div>
         </div>
         <div class="profile" id="profile"></div>
-        <div class="persist-key">
-          <span class="lbl" style="font-size:11px">Days blocked, per 10 m</span>
-          <span><span class="ramp" id="rampKey"></span> days obstructed (0 → 7)</span>
-        </div>
+        <span id="rampKey" hidden></span>
       </section>
 
       <section class="card" style="padding:12px">
@@ -335,14 +319,14 @@ details.calib[open] summary { margin-bottom: 6px; }
     </div>
 
     <aside class="card inspector">
-      <div class="insp-head"><span class="lbl">Spot inspector</span><span class="mono" id="inspDay" style="color:var(--muted);font-size:12px"></span></div>
+      <span id="inspDay" hidden></span>
+      <div id="inspector" aria-live="polite" style="display:flex;flex-direction:column;gap:12px"></div>
       <details class="calib"><summary>Calibrate photo alignment</summary>
       <div class="look">
         <div class="row1"><label for="look">Look-ahead</label><b class="mono" id="lookVal">5.0 m</b></div>
         <input type="range" id="look" min="2" max="8" step="0.5" value="5">
         <span class="note" style="font-size:12px">Each photo shows the spot from a few metres away, walking towards it. Drag until the circle sits on the same object across the days in a row.</span>
       </div></details>
-      <div id="inspector" aria-live="polite" style="display:flex;flex-direction:column;gap:12px"></div>
     </aside>
   </div>
 </div>
@@ -457,7 +441,7 @@ details.calib[open] summary { margin-bottom: 6px; }
   }
 
   /* ---------- Header & slider ---------- */
-  $('subtitle').textContent = `${D.corridor.name} · ${fmt(L)} m footpath corridor · ${D.corridor.city}`;
+  $('subtitle').textContent = `Jijamata Rd / Old Nagardas Rd, Andheri East · ${fmt(L)} m · ${realDays.length} days, both directions`;
   const light = w => (w && w.lighting) || 'unknown';
   const lightCount = key => { const c = {}; realDays.forEach(d => { if (d[key]) c[light(d[key])] = (c[light(d[key])] || 0) + 1; }); return Object.entries(c).map(([k, v]) => `${v} ${k}`).join(', '); };
   $('status').innerHTML = `<span class="pill">${realDays.length} surveyed day${realDays.length === 1 ? '' : 's'}</span>` +
@@ -467,6 +451,8 @@ details.calib[open] summary { margin-bottom: 6px; }
   $('dayLabel').textContent = `Day ${days[0].day} – ${days[days.length - 1].day}`;
   function renderTicks() {
     $('ticks').innerHTML = days.map((d, i) => `<span class="real ${i === state.idx ? 'on' : ''}">${d.day}</span>`).join('');
+    $('profDays').innerHTML = days.map((dd, i) => `<button data-di="${i}" aria-pressed="${i === state.idx}">Day ${dd.day}</button>`).join('');
+    $('profDays').querySelectorAll('[data-di]').forEach(b => b.addEventListener('click', () => { state.idx = +b.dataset.di; renderAll(); }));
     const d = day();
     $('dayline').textContent = `Day ${pad(d.day)} · A→B ${d.forward ? light(d.forward) : 'not filmed'} · B→A ${d.return ? light(d.return) : 'not filmed'}`;
   }
@@ -535,7 +521,7 @@ details.calib[open] summary { margin-bottom: 6px; }
   }
 
   /* ---------- Profile chart (SVG, full corridor) ---------- */
-  const PW = 1000, PH = 230, M = { l: 38, r: 14, t: 26, b: 64 };
+  const PW = 1000, PH = 200, M = { l: 38, r: 14, t: 22, b: 28 };
   const px = m => M.l + (PW - M.l - M.r) * m / L;
   const YMAX = 5, py = v => M.t + (PH - M.t - M.b) * (1 - Math.min(v, YMAX) / YMAX);
   function renderProfile() {
@@ -556,30 +542,14 @@ details.calib[open] summary { margin-bottom: 6px; }
     Object.entries(D.corridor.landmarks || {}).forEach(([k, m]) => {
       s += `<line x1="${px(m)}" x2="${px(m)}" y1="${M.t}" y2="${PH - M.b}" stroke="var(--line)" stroke-dasharray="2 3"><title>${k.replace(/_/g, ' ')} · ${m} m (map)</title></line>`;
     });
-    s += `<text x="${M.l}" y="${M.t - 12}" style="fill:var(--fg-2)">Walking-zone clutter (1 = typical frame; above ${OBS} counts as obstructed)</text>`;
+    s += `<text x="${M.l}" y="${M.t - 12}" style="fill:var(--fg-2)">Clutter (1 = typical; above ${OBS} = obstructed)</text>`;
     for (const dir of DIRS) {
       const w = walk(d, dir.key); if (!w) continue;
       const pts = w.nodes.slice().sort((a, b) => a.meter - b.meter).map(n => `${px(n.meter).toFixed(1)},${py(n.obstruction).toFixed(1)}`).join(' ');
       s += `<polyline points="${pts}" fill="none" stroke="${dir.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
     }
-    // stops and slowdowns as triangles on the top edge, one lane per direction
-    DIRS.forEach((dir, k) => {
-      const w = walk(d, dir.key); if (!w) return;
-      (w.slowdowns || []).forEach(e => s += `<path d="M${px(e.meter)} ${py(0) - 2} l-5 -9 h10 z" fill="var(--surface)" stroke="${dir.color}" stroke-width="1.5"><title>${dir.name} slowdown ${fmt(e.duration_s, 1)} s at ${fmt(e.meter)} m</title></path>`);
-      (w.stops || []).forEach(e => s += `<path d="M${px(e.meter)} ${py(0) - 2} l-6 -11 h12 z" fill="${dir.color}" stroke="var(--surface)" stroke-width="1.5"><title>${dir.name} stop ${fmt(e.duration_s, 1)} s at ${fmt(e.meter)} m</title></path>`);
-    });
-    // persistence strips
-    DIRS.forEach((dir, k) => {
-      const y = PH - M.b + 24 + k * 15;
-      s += `<text x="${M.l - 6}" y="${y + 9}" text-anchor="end" style="fill:${dir.color};font-weight:500">${dir.short}</text>`;
-      persistence(dir.key).forEach((p, i) => {
-        const x0 = px(i * BIN) + 1, x1 = px(Math.min(L, (i + 1) * BIN)) - 1;
-        const step = p.n ? Math.round(5 * p.c / Math.max(p.n, 1)) : -1;
-        s += `<rect x="${x0}" y="${y}" width="${Math.max(1, x1 - x0)}" height="12" rx="2" fill="${step < 0 ? 'none' : `var(--p${step})`}" stroke="${step < 0 ? 'var(--line)' : 'none'}"><title>${dir.name} ${i * BIN}–${Math.min(L, (i + 1) * BIN)} m: obstructed on ${p.c} of ${p.n} days (${p.cls})</title></rect>`;
-      });
-    });
     s += `<rect id="pHit" x="${M.l}" y="0" width="${PW - M.l - M.r}" height="${PH - M.b}" fill="transparent" style="cursor:crosshair"/>`;
-    s += `<line id="pCursor" x1="0" x2="0" y1="${M.t}" y2="${PH - M.b + 52}" stroke="var(--fg)" stroke-width="1.5" visibility="hidden" pointer-events="none"/>`;
+    s += `<line id="pCursor" x1="0" x2="0" y1="${M.t}" y2="${PH - M.b}" stroke="var(--fg)" stroke-width="1.5" visibility="hidden" pointer-events="none"/>`;
     s += `</svg><div class="tip" id="pTip" hidden></div>`;
     $('profile').innerHTML = s;
     const svg = $('profile').querySelector('svg');
@@ -704,11 +674,11 @@ details.calib[open] summary { margin-bottom: 6px; }
   function setMeter(m, from, e) {
     state.meter = m;
     const d = day();
-    document.querySelectorAll('.node.hot, .node.pair').forEach(n => n.classList.remove('hot', 'pair'));
+    document.querySelectorAll('.node.hot, .node.linked').forEach(n => n.classList.remove('hot', 'linked'));
     state.rows.forEach((r, i) => {
       const n = nearest(walk(r.d, r.dir.key), m); if (!n) return;
       const el = document.querySelector(`.node[data-row="${i}"][data-m="${n.meter}"]`);
-      if (el) el.classList.add(from === i ? 'hot' : 'pair');
+      if (el) el.classList.add(from === i ? 'hot' : 'linked');
     });
     const c = $('tCursor'); if (c) { c.style.left = state.x(m) + 'px'; c.style.display = 'block'; }
     profileCursor(m, from === 'profile' ? e : null);
@@ -735,8 +705,8 @@ details.calib[open] summary { margin-bottom: 6px; }
       const p = persistence(dir.key)[bin];
       const tiles = realDays.filter(od => od[dir.key]).map(od => {
         const w = walk(od, dir.key), n = binWorst(w, bin), ph = photo(w, m, dir.color);
-        const flag = n ? `<span class="flag ${cls(n)}">${fmt(n.obstruction, 2)}</span>` : '–';
-        return `<figure class="zoom ${od.day === d.day ? 'sel' : ''}" data-day="${od.day}" data-key="${dir.key}">${ph.html}<figcaption><span>Day ${pad(od.day)}</span>${flag}</figcaption></figure>`;
+        const flag = n ? `<span class="flag ${n.obstruction >= OBS ? 'crit' : 'ok'}"></span>` : '';
+        return `<figure class="zoom" data-day="${od.day}" data-key="${dir.key}">${ph.html}<figcaption><span>${flag} Day ${od.day}${light(w) === 'night' ? ' · night' : ''}</span></figcaption></figure>`;
       });
       return { dir, p, tiles };
     });
@@ -749,9 +719,9 @@ details.calib[open] summary { margin-bottom: 6px; }
         : `From A: ${word(A.p.cls)}. From B: ${word(B.p.cls)}.`;
     }
     $('inspector').innerHTML = `
-      <div class="insp-head"><span class="m">${fmt(m)} m</span><span class="note">${BIN} m bin ${bin * BIN}–${Math.min(L, (bin + 1) * BIN)}</span></div>
+      <div class="insp-head"><span class="m">${bin * BIN}–${Math.min(L, (bin + 1) * BIN)} m</span><span class="chip ${needOf(A.p, B.p).cls}">${needOf(A.p, B.p).word}</span></div>
       ${sides.map(sd => `<div class="side">
-        <div class="side-head"><b style="color:${sd.dir.color}">Seen from ${sd.dir.key === 'forward' ? 'A' : 'B'}</b><span class="note" style="font-size:12px">${sd.p.n ? `blocked ${sd.p.c}/${sd.p.n} days, <span class="flag ${sd.p.cls === 'static' ? 'crit' : sd.p.cls === 'clear' ? 'ok' : 'mid'}">${sd.p.cls}</span>` : 'no footage'}</span></div>
+        <div class="side-head"><b>${sd.dir.key === 'forward' ? 'A side' : 'B side'}</b><span class="mono" style="font-size:12.5px;color:var(--fg-2)">${sd.p.n ? `blocked ${sd.p.c}/${sd.p.n} days` : 'no footage'}</span></div>
         ${sd.tiles.length ? `<div class="side-grid">${sd.tiles.join('')}</div>` : '<span class="note">No surveyed walks from this side yet.</span>'}
       </div>`).join('')}
       ${compare ? `<div class="verdict">${compare}</div>` : ''}
@@ -903,10 +873,9 @@ details.calib[open] summary { margin-bottom: 6px; }
     });
     for (let i = 0; i < NB_BINS; i++) {   // invisible wide hit targets
       const a = routeAt(i * BIN), b = routeAt(Math.min(L, (i + 1) * BIN));
-      s += `<line class="seg-hit" data-bin="${i}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="transparent" stroke-width="30"><title>${binRange(i)}</title></line>`;
+      s += `<line class="seg-hit" data-bin="${i}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="transparent" stroke-width="30"></line>`;
     }
-    Object.entries(D.corridor.landmarks || {}).forEach(([k, m]) => { const q = routeAt(m); s += `<circle cx="${q.x}" cy="${q.y}" r="3.5" fill="var(--surface)" stroke="var(--fg)" stroke-width="1.5"><title>${k.replace(/_/g, ' ')} · ${m} m</title></circle>`; });
-    const a = routeAt(0), b = routeAt(L);
+        const a = routeAt(0), b = routeAt(L);
     s += `<circle cx="${a.x}" cy="${a.y}" r="11" fill="var(--fg)"/><text x="${a.x}" y="${a.y + 4}" text-anchor="middle" style="fill:var(--bg);font-weight:600">A</text>`;
     s += `<circle cx="${b.x}" cy="${b.y}" r="11" fill="var(--fg)"/><text x="${b.x}" y="${b.y + 4}" text-anchor="middle" style="fill:var(--bg);font-weight:600">B</text>`;
     s += `<text x="${a.x - 4}" y="${a.y - 18}" text-anchor="end">A · R.K. Chouhan Communications</text>`;
@@ -917,10 +886,16 @@ details.calib[open] summary { margin-bottom: 6px; }
     $('route').innerHTML = s;
     $('route').querySelectorAll('.seg-hit').forEach(el => {
       const m = +el.dataset.bin * BIN + BIN / 2;
-      el.addEventListener('mouseenter', () => setMeter(m));
+      const bin = +el.dataset.bin;
+      el.addEventListener('mouseenter', e => { const A = persistence('forward')[bin], B = persistence('return')[bin], nd = needOf(A, B);
+        mapTip.innerHTML = `${binRange(bin)} · ${nd.word}<br>A side ${A.c}/${A.n} · B side ${B.c}/${B.n} days`; mapTip.hidden = false; moveTip(e); routeCursor(m, true); });
+      el.addEventListener('mousemove', moveTip);
+      el.addEventListener('mouseleave', () => { mapTip.hidden = true; routeCursor(state.meter ?? 0); });
       el.addEventListener('click', () => { setMeter(m); scrollTracksTo(m); });
     });
   }
+  const mapTip = document.createElement('div'); mapTip.className = 'maptip'; mapTip.hidden = true; document.body.appendChild(mapTip);
+  function moveTip(e) { mapTip.style.left = Math.min(innerWidth - 240, e.clientX + 14) + 'px'; mapTip.style.top = (e.clientY + 14) + 'px'; }
   function routeCursor(m) {
     const g = $('routeHere'); if (!g) return;
     const q = routeAt(m);
@@ -932,32 +907,20 @@ details.calib[open] summary { margin-bottom: 6px; }
   }
   function renderHeadline() {
     const walks = [];
-    realDays.forEach(d => DIRS.forEach(dir => { const w = walk(d, dir.key); if (w) walks.push({ d, dir, w, st: walkStats(w) }); }));
+    realDays.forEach(d => DIRS.forEach(dir => { const w = walk(d, dir.key); if (w) walks.push({ w, st: walkStats(w) }); }));
     const ok100 = walks.filter(x => x.st.free.m >= BENCH.m100.metres).length;
-    const best = walks.reduce((a, x) => x.st.free.m > a.st.free.m ? x : a, walks[0]);
+    const best = Math.max(...walks.map(x => x.st.free.m));
     const shares = walks.map(x => x.st.obsShare * 100);
-    const every = []; DIRS.forEach(dir => persistence(dir.key).forEach((p, i) => { if (p.cls === 'static') every.push({ i, dir }); }));
-    const bothSides = [...new Set(every.map(e => e.i))].filter(i => every.filter(e => e.i === i).length === 2);
-    const slow = walks.reduce((a, x) => a + (x.w.summary.slowdowns || 0) + (x.w.summary.stops || 0), 0);
-    const A = persistence('forward'), B = persistence('return');
-    const need = { fix: [], manage: [], clear: [] };
-    for (let i = 0; i < NB_BINS; i++) {
-      if (A[i].cls === 'static' || B[i].cls === 'static') need.fix.push(i);
-      else if (A[i].cls === 'transient' || B[i].cls === 'transient') need.manage.push(i);
-      else if (A[i].cls === 'clear' && B[i].cls === 'clear') need.clear.push(i);
-    }
-    const chips = list => list.map(i => `<button class="spotchip" data-m="${i * BIN + BIN / 2}">${i * BIN}–${Math.min(L, (i + 1) * BIN)}</button>`).join('');
     $('headline').innerHTML = `
-      <div class="stat"><span class="lbl">100 m without an obstacle</span><span class="v">${ok100}/${walks.length} walks</span><span class="k">Longest: ${fmt(best.st.free.m)} m</span></div>
-      <div class="stat"><span class="lbl">Walk obstructed</span><span class="v">${fmt(Math.min(...shares))}–${fmt(Math.max(...shares))}%</span><span class="k">by day and direction</span></div>
-      <div class="plan">
-        <span class="lbl">What each spot needs (metres)</span>
-        <div class="plan-row"><b class="chip static">Fix</b><span class="k">Blocked every day</span><div class="chips">${chips(need.fix) || '–'}</div></div>
-        <div class="plan-row"><b class="chip transient">Manage</b><span class="k">Blocked some days</span><div class="chips">${chips(need.manage) || '–'}</div></div>
-        <div class="plan-row"><b class="chip clear">None</b><span class="k">Clear every day</span><div class="chips">${chips(need.clear) || '–'}</div></div>
-      </div>`;
-    $('headline').querySelectorAll('.spotchip').forEach(b => b.addEventListener('click', () => { setMeter(+b.dataset.m); scrollTracksTo(+b.dataset.m); }));
-    $('ovNote').textContent = '';
+      <div><b>${ok100}/${walks.length}</b><span>walks with 100 m clear · longest ${fmt(best)} m</span></div>
+      <div><b>${fmt(Math.min(...shares))}–${fmt(Math.max(...shares))}%</b><span>of each walk obstructed</span></div>`;
+  }
+  // What a 10 m spot needs: the same rule colours the map, ranks the list and heads the inspector.
+  function needOf(a, b) {
+    if ([a, b].some(p => p.cls === 'static')) return { cls: 'static', word: 'Fix', why: 'blocked every day' };
+    if ([a, b].some(p => p.cls === 'transient')) return { cls: 'transient', word: 'Manage', why: 'blocked some days' };
+    if ([a, b].some(p => p.cls === 'unconfirmed')) return { cls: 'unconfirmed', word: 'Watch', why: 'too few days' };
+    return { cls: 'clear', word: 'Clear', why: 'clear every day' };
   }
   let showAll = false;
   function spotRows() {
@@ -967,21 +930,19 @@ details.calib[open] summary { margin-bottom: 6px; }
     const lm = Object.entries(D.corridor.landmarks || {});
     return [...Array(NB_BINS).keys()].map(i => {
       const near = lm.filter(([, m]) => Math.abs(m - (i * BIN + BIN / 2)) <= 12).map(([k]) => k.replace(/_approx$/, '').replace(/_/g, ' '))[0] || '';
-      const resp = [A[i], B[i]].some(p => p.cls === 'static') ? 'Build: repair or relocate the fixed obstruction'
-        : [A[i], B[i]].some(p => p.cls === 'transient') ? 'Manage: parking, vending or timing'
-        : [A[i], B[i]].some(p => p.cls === 'unconfirmed') ? 'Keep surveying' : '—';
+      const resp = needOf(A[i], B[i]);
       return { i, A: A[i], B: B[i], score: share(A[i]) + share(B[i]), near, resp, latest };
     }).sort((a, b) => b.score - a.score || a.i - b.i);
   }
   function renderSpotList() {
     const rows = spotRows(), shown = showAll ? rows : rows.slice(0, 8);
-    $('spotList').innerHTML = `<table class="spots"><thead><tr><th>#</th><th>Spot</th><th>Photo</th><th>Seen from A</th><th>Seen from B</th><th>Likely response</th><th></th></tr></thead><tbody>
+    $('spotList').innerHTML = `<table class="spots"><thead><tr><th>#</th><th>Spot</th><th></th><th>Needs</th><th>A side</th><th>B side</th><th></th></tr></thead><tbody>
       ${shown.map((r, k) => {
         const w = walk(r.latest, 'forward') || walk(r.latest, 'return');
         const ph = w ? photo(w, r.i * BIN + BIN / 2, w.key === 'forward' ? 'var(--nb)' : 'var(--sb)', 'thumb').html : '';
-        const cell = p => `<span class="chip ${p.cls}">${CLS_WORD[p.cls]}</span> <span class="mono" style="color:var(--muted)">${p.n ? `${p.c}/${p.n}` : ''}</span>`;
+        const cell = p => `<span class="mono">${p.n ? `${p.c}/${p.n} days` : '–'}</span>`;
         return `<tr data-bin="${r.i}"><td class="rank">${k + 1}</td><td><b class="mono">${binRange(r.i)}</b>${r.near ? `<br><span class="note" style="font-size:12px">${r.near}</span>` : ''}</td>
-          <td>${ph}</td><td>${cell(r.A)}</td><td>${cell(r.B)}</td><td class="resp">${r.resp}</td>
+          <td>${ph}</td><td><span class="chip ${r.resp.cls}">${r.resp.word}</span></td><td>${cell(r.A)}</td><td>${cell(r.B)}</td>
           <td><button class="btn ghost sm" data-card="${r.i}">Evidence card</button></td></tr>`;
       }).join('')}</tbody></table>`;
     $('moreSpots').textContent = showAll ? 'Show top 8' : `Show all ${rows.length} spots`;
@@ -1050,7 +1011,7 @@ details.calib[open] summary { margin-bottom: 6px; }
       y += th + 78;
     }
     ctx.fillStyle = C.ink; ctx.font = font(600, 18);
-    ctx.fillText(`Likely response: ${r ? r.resp : '—'}`, pad, y);
+    ctx.fillText(r ? `Needs: ${r.resp.word} (${r.resp.why})` : '', pad, y);
     ctx.fillStyle = C.mute; ctx.font = font(400, 14);
     const foot = [
       `Red frame = that day's worst frame in this 10 m spot scored as obstructed (clutter index ≥ ${OBS}). An image measure, not a width.`,
@@ -1061,7 +1022,7 @@ details.calib[open] summary { margin-bottom: 6px; }
     cardName = `evidence-${i * BIN}-${Math.min(L, (i + 1) * BIN)}m.png`;
     cardText = [`Footpath evidence · spot ${binRange(i)} · ${D.corridor.name}, ${D.corridor.city} (ward ${D.corridor.ward || ''})`,
       ...rowsDef.map(row => `${row.dir.side}: ${CLS_WORD[row.p.cls]}${row.p.n ? ` (obstructed on ${row.p.c} of ${row.p.n} survey days: ${row.items.map(({ d, w }) => { const n = binWorst(w, i); return `Day ${d.day} ${light(w)} ${n ? (n.obstruction >= OBS ? 'obstructed' : 'clear') : 'no frame'}`; }).join('; ')})` : ''}`),
-      `Likely response: ${r ? r.resp : '—'}`,
+      r ? `Needs: ${r.resp.word} (${r.resp.why})` : '',
       `Method: phone video walked twice daily; obstruction is an image-based indicator, positions ±10 m.`].join('\n');
   }
   $('closeCard').addEventListener('click', () => $('cardDlg').close());
