@@ -30,7 +30,8 @@
       "obstruction_raw": 0.0455,
       "obstruction": 1.38,
       "near_field_raw": 0.0143,
-      "near_field": 0.71
+      "near_field": 0.71,
+      "people": 0
      },
      {
       "i": 1,
@@ -40,7 +41,8 @@
       "obstruction_raw": 0.041,
       "obstruction": 1.24,
       "near_field_raw": 0.014,
-      "near_field": 0.7
+      "near_field": 0.7,
+      "people": 0
      },
      {
       "i": 2,
@@ -50,7 +52,8 @@
       "obstruction_raw": 0.0289,
       "obstruction": 0.88,
       "near_field_raw": 0.0016,
-      "near_field": 0.08
+      "near_field": 0.08,
+      "people": 0
      },
      {
       "i": 3,
@@ -60,7 +63,8 @@
       "obstruction_raw": 0.0047,
       "obstruction": 0.14,
       "near_field_raw": 0.0067,
-      "near_field": 0.34
+      "near_field": 0.34,
+      "people": 0
      },
      {
       "i": 4,
@@ -70,7 +74,8 @@
       "obstruction_raw": 0.0333,
       "obstruction": 1.01,
       "near_field_raw": 0.0288,
-      "near_field": 1.44
+      "near_field": 1.44,
+      "people": 0
      },
      {
       "i": 5,
@@ -80,7 +85,8 @@
       "obstruction_raw": 0.0329,
       "obstruction": 1.0,
       "near_field_raw": 0.01,
-      "near_field": 0.5
+      "near_field": 0.5,
+      "people": 1
      },
      {
       "i": 6,
@@ -90,7 +96,8 @@
       "obstruction_raw": 0.034,
       "obstruction": 1.03,
       "near_field_raw": 0.0065,
-      "near_field": 0.32
+      "near_field": 0.32,
+      "people": 1
      },
      {
       "i": 7,
@@ -100,7 +107,8 @@
       "obstruction_raw": 0.0267,
       "obstruction": 0.81,
       "near_field_raw": 0.003,
-      "near_field": 0.15
+      "near_field": 0.15,
+      "people": 1
      },
      {
       "i": 8,
@@ -110,7 +118,8 @@
       "obstruction_raw": 0.012,
       "obstruction": 0.36,
       "near_field_raw": 0.0071,
-      "near_field": 0.36
+      "near_field": 0.36,
+      "people": 1
      },
      {
       "i": 9,
@@ -120,7 +129,8 @@
       "obstruction_raw": 0.0218,
       "obstruction": 0.66,
       "near_field_raw": 0.0055,
-      "near_field": 0.27
+      "near_field": 0.27,
+      "people": 1
      },
      {
       "i": 10,
@@ -130,7 +140,8 @@
       "obstruction_raw": 0.0275,
       "obstruction": 0.83,
       "near_field_raw": 0.0235,
-      "near_field": 1.18
+      "near_field": 1.18,
+      "people": 0
      },
      {
       "i": 11,
@@ -140,7 +151,8 @@
       "obstruction_raw": 0.0124,
       "obstruction": 0.38,
       "near_field_raw": 0.0062,
-      "near_field": 0.31
+      "near_field": 0.31,
+      "people": 2
      },
      {
       "i": 12,
@@ -150,7 +162,8 @@
       "obstruction_raw": 0.0084,
       "obstruction": 0.25,
       "near_field_raw": 0.0027,
-      "near_field": 0.14
+      "near_field": 0.14,
+      "people": 2
      },
      {
       "i": 13,
@@ -160,7 +173,8 @@
       "obstruction_raw": 0.0748,
       "obstruction": 2.27,
       "near_field_raw": 0.056,
-      "near_field": 2.8
+      "near_field": 2.8,
+      "people": 2
      },
      {
       "i": 14,
@@ -170,7 +184,8 @@
       "obstruction_raw": 0.0373,
       "obstruction": 1.13,
       "near_field_raw": 0.0084,
-      "near_field": 0.42
+      "near_field": 0.42,
+      "people": 2
      },
      {
       "i": 15,
@@ -180,7 +195,8 @@
       "obstruction_raw": 0.0065,
       "obstruction": 0.2,
       "near_field_raw": 0.0001,
-      "near_field": 0.01
+      "near_field": 0.01,
+      "people": 0
      },
      {
       "i": 16,
@@ -190,7 +206,8 @@
       "obstruction_raw": 0.0489,
       "obstruction": 1.48,
       "near_field_raw": 0.0191,
-      "near_field": 0.95
+      "near_field": 0.95,
+      "people": 1
      },
      {
       "i": 17,
@@ -200,7 +217,8 @@
       "obstruction_raw": 0.0273,
       "obstruction": 0.83,
       "near_field_raw": 0.004,
-      "near_field": 0.2
+      "near_field": 0.2,
+      "people": 1
      },
      {
       "i": 18,
@@ -210,7 +228,8 @@
       "obstruction_raw": 0.0348,
       "obstruction": 1.05,
       "near_field_raw": 0.0105,
-      "near_field": 0.53
+      "near_field": 0.53,
+      "people": 1
      },
      {
       "i": 19,
@@ -220,7 +239,8 @@
       "obstruction_raw": 0.0345,
       "obstruction": 1.05,
       "near_field_raw": 0.0093,
-      "near_field": 0.46
+      "near_field": 0.46,
+      "people": 0
      },
      {
       "i": 20,
@@ -230,7 +250,8 @@
       "obstruction_raw": 0.0521,
       "obstruction": 1.58,
       "near_field_raw": 0.0589,
-      "near_field": 2.94
+      "near_field": 2.94,
+      "people": 2
      },
      {
       "i": 21,
@@ -240,7 +261,8 @@
       "obstruction_raw": 0.0343,
       "obstruction": 1.04,
       "near_field_raw": 0.0194,
-      "near_field": 0.97
+      "near_field": 0.97,
+      "people": 2
      },
      {
       "i": 22,
@@ -250,7 +272,8 @@
       "obstruction_raw": 0.0508,
       "obstruction": 1.54,
       "near_field_raw": 0.0025,
-      "near_field": 0.12
+      "near_field": 0.12,
+      "people": 0
      },
      {
       "i": 23,
@@ -260,7 +283,8 @@
       "obstruction_raw": 0.0761,
       "obstruction": 2.31,
       "near_field_raw": 0.0733,
-      "near_field": 3.67
+      "near_field": 3.67,
+      "people": 1
      },
      {
       "i": 24,
@@ -270,7 +294,8 @@
       "obstruction_raw": 0.0519,
       "obstruction": 1.57,
       "near_field_raw": 0.0435,
-      "near_field": 2.17
+      "near_field": 2.17,
+      "people": 0
      },
      {
       "i": 25,
@@ -280,7 +305,8 @@
       "obstruction_raw": 0.084,
       "obstruction": 2.55,
       "near_field_raw": 0.0987,
-      "near_field": 4.93
+      "near_field": 4.93,
+      "people": 1
      },
      {
       "i": 26,
@@ -290,7 +316,8 @@
       "obstruction_raw": 0.044,
       "obstruction": 1.33,
       "near_field_raw": 0.0277,
-      "near_field": 1.39
+      "near_field": 1.39,
+      "people": 1
      },
      {
       "i": 27,
@@ -300,7 +327,8 @@
       "obstruction_raw": 0.0278,
       "obstruction": 0.84,
       "near_field_raw": 0.0159,
-      "near_field": 0.8
+      "near_field": 0.8,
+      "people": 0
      },
      {
       "i": 28,
@@ -310,7 +338,8 @@
       "obstruction_raw": 0.0071,
       "obstruction": 0.22,
       "near_field_raw": 0.0125,
-      "near_field": 0.62
+      "near_field": 0.62,
+      "people": 1
      },
      {
       "i": 29,
@@ -320,7 +349,8 @@
       "obstruction_raw": 0.0642,
       "obstruction": 1.95,
       "near_field_raw": 0.036,
-      "near_field": 1.8
+      "near_field": 1.8,
+      "people": 0
      },
      {
       "i": 30,
@@ -330,7 +360,8 @@
       "obstruction_raw": 0.0401,
       "obstruction": 1.22,
       "near_field_raw": 0.016,
-      "near_field": 0.8
+      "near_field": 0.8,
+      "people": 1
      },
      {
       "i": 31,
@@ -340,7 +371,8 @@
       "obstruction_raw": 0.0321,
       "obstruction": 0.97,
       "near_field_raw": 0.0257,
-      "near_field": 1.28
+      "near_field": 1.28,
+      "people": 1
      },
      {
       "i": 32,
@@ -350,7 +382,8 @@
       "obstruction_raw": 0.0546,
       "obstruction": 1.65,
       "near_field_raw": 0.0102,
-      "near_field": 0.51
+      "near_field": 0.51,
+      "people": 1
      },
      {
       "i": 33,
@@ -360,7 +393,8 @@
       "obstruction_raw": 0.1211,
       "obstruction": 3.67,
       "near_field_raw": 0.0993,
-      "near_field": 4.96
+      "near_field": 4.96,
+      "people": 0
      },
      {
       "i": 34,
@@ -370,7 +404,8 @@
       "obstruction_raw": 0.1468,
       "obstruction": 4.45,
       "near_field_raw": 0.1605,
-      "near_field": 5.0
+      "near_field": 5.0,
+      "people": 1
      },
      {
       "i": 35,
@@ -380,7 +415,8 @@
       "obstruction_raw": 0.0697,
       "obstruction": 2.11,
       "near_field_raw": 0.0853,
-      "near_field": 4.26
+      "near_field": 4.26,
+      "people": 1
      },
      {
       "i": 36,
@@ -390,7 +426,8 @@
       "obstruction_raw": 0.0309,
       "obstruction": 0.94,
       "near_field_raw": 0.0235,
-      "near_field": 1.18
+      "near_field": 1.18,
+      "people": 0
      },
      {
       "i": 37,
@@ -400,7 +437,8 @@
       "obstruction_raw": 0.0165,
       "obstruction": 0.5,
       "near_field_raw": 0.0422,
-      "near_field": 2.11
+      "near_field": 2.11,
+      "people": 1
      },
      {
       "i": 38,
@@ -410,7 +448,8 @@
       "obstruction_raw": 0.0018,
       "obstruction": 0.05,
       "near_field_raw": 0.001,
-      "near_field": 0.05
+      "near_field": 0.05,
+      "people": 1
      },
      {
       "i": 39,
@@ -420,7 +459,8 @@
       "obstruction_raw": 0.0053,
       "obstruction": 0.16,
       "near_field_raw": 0.0,
-      "near_field": 0.0
+      "near_field": 0.0,
+      "people": 0
      },
      {
       "i": 40,
@@ -430,7 +470,8 @@
       "obstruction_raw": 0.0236,
       "obstruction": 0.72,
       "near_field_raw": 0.0,
-      "near_field": 0.0
+      "near_field": 0.0,
+      "people": 0
      },
      {
       "i": 41,
@@ -440,7 +481,8 @@
       "obstruction_raw": 0.0353,
       "obstruction": 1.07,
       "near_field_raw": 0.0015,
-      "near_field": 0.07
+      "near_field": 0.07,
+      "people": 0
      },
      {
       "i": 42,
@@ -450,7 +492,8 @@
       "obstruction_raw": 0.0138,
       "obstruction": 0.42,
       "near_field_raw": 0.0,
-      "near_field": 0.0
+      "near_field": 0.0,
+      "people": 0
      },
      {
       "i": 43,
@@ -460,7 +503,8 @@
       "obstruction_raw": 0.0089,
       "obstruction": 0.27,
       "near_field_raw": 0.0,
-      "near_field": 0.0
+      "near_field": 0.0,
+      "people": 0
      },
      {
       "i": 44,
@@ -470,7 +514,8 @@
       "obstruction_raw": 0.0219,
       "obstruction": 0.66,
       "near_field_raw": 0.0011,
-      "near_field": 0.06
+      "near_field": 0.06,
+      "people": 0
      },
      {
       "i": 45,
@@ -480,7 +525,8 @@
       "obstruction_raw": 0.0129,
       "obstruction": 0.39,
       "near_field_raw": 0.0012,
-      "near_field": 0.06
+      "near_field": 0.06,
+      "people": 2
      },
      {
       "i": 46,
@@ -490,7 +536,8 @@
       "obstruction_raw": 0.0025,
       "obstruction": 0.08,
       "near_field_raw": 0.0049,
-      "near_field": 0.24
+      "near_field": 0.24,
+      "people": 0
      },
      {
       "i": 47,
@@ -500,7 +547,8 @@
       "obstruction_raw": 0.0253,
       "obstruction": 0.77,
       "near_field_raw": 0.0016,
-      "near_field": 0.08
+      "near_field": 0.08,
+      "people": 1
      },
      {
       "i": 48,
@@ -510,7 +558,8 @@
       "obstruction_raw": 0.0219,
       "obstruction": 0.66,
       "near_field_raw": 0.0018,
-      "near_field": 0.09
+      "near_field": 0.09,
+      "people": 1
      },
      {
       "i": 49,
@@ -520,7 +569,8 @@
       "obstruction_raw": 0.0028,
       "obstruction": 0.08,
       "near_field_raw": 0.0,
-      "near_field": 0.0
+      "near_field": 0.0,
+      "people": 0
      }
     ],
     "stops": [],
@@ -890,7 +940,8 @@
       "obstruction_raw": 0.0491,
       "obstruction": 1.87,
       "near_field_raw": 0.0314,
-      "near_field": 1.57
+      "near_field": 1.57,
+      "people": 2
      },
      {
       "i": 1,
@@ -900,7 +951,8 @@
       "obstruction_raw": 0.0263,
       "obstruction": 1.0,
       "near_field_raw": 0.0159,
-      "near_field": 0.8
+      "near_field": 0.8,
+      "people": 0
      },
      {
       "i": 2,
@@ -910,7 +962,8 @@
       "obstruction_raw": 0.0244,
       "obstruction": 0.93,
       "near_field_raw": 0.0058,
-      "near_field": 0.29
+      "near_field": 0.29,
+      "people": 1
      },
      {
       "i": 3,
@@ -920,7 +973,8 @@
       "obstruction_raw": 0.0527,
       "obstruction": 2.0,
       "near_field_raw": 0.0261,
-      "near_field": 1.31
+      "near_field": 1.31,
+      "people": 1
      },
      {
       "i": 4,
@@ -930,7 +984,8 @@
       "obstruction_raw": 0.0128,
       "obstruction": 0.49,
       "near_field_raw": 0.0132,
-      "near_field": 0.66
+      "near_field": 0.66,
+      "people": 1
      },
      {
       "i": 5,
@@ -940,7 +995,8 @@
       "obstruction_raw": 0.0003,
       "obstruction": 0.01,
       "near_field_raw": 0.0,
-      "near_field": 0.0
+      "near_field": 0.0,
+      "people": 0
      },
      {
       "i": 6,
@@ -950,7 +1006,8 @@
       "obstruction_raw": 0.0008,
       "obstruction": 0.03,
       "near_field_raw": 0.0,
-      "near_field": 0.0
+      "near_field": 0.0,
+      "people": 0
      },
      {
       "i": 7,
@@ -960,7 +1017,8 @@
       "obstruction_raw": 0.0028,
       "obstruction": 0.11,
       "near_field_raw": 0.0,
-      "near_field": 0.0
+      "near_field": 0.0,
+      "people": 0
      },
      {
       "i": 8,
@@ -970,7 +1028,8 @@
       "obstruction_raw": 0.0725,
       "obstruction": 2.76,
       "near_field_raw": 0.0365,
-      "near_field": 1.82
+      "near_field": 1.82,
+      "people": 1
      },
      {
       "i": 9,
@@ -980,7 +1039,8 @@
       "obstruction_raw": 0.023,
       "obstruction": 0.87,
       "near_field_raw": 0.0069,
-      "near_field": 0.34
+      "near_field": 0.34,
+      "people": 1
      },
      {
       "i": 10,
@@ -990,7 +1050,8 @@
       "obstruction_raw": 0.0251,
       "obstruction": 0.95,
       "near_field_raw": 0.0032,
-      "near_field": 0.16
+      "near_field": 0.16,
+      "people": 0
      },
      {
       "i": 11,
@@ -1000,7 +1061,8 @@
       "obstruction_raw": 0.029,
       "obstruction": 1.1,
       "near_field_raw": 0.0102,
-      "near_field": 0.51
+      "near_field": 0.51,
+      "people": 0
      },
      {
       "i": 12,
@@ -1010,7 +1072,8 @@
       "obstruction_raw": 0.0123,
       "obstruction": 0.47,
       "near_field_raw": 0.0218,
-      "near_field": 1.09
+      "near_field": 1.09,
+      "people": 0
      },
      {
       "i": 13,
@@ -1020,7 +1083,8 @@
       "obstruction_raw": 0.0,
       "obstruction": 0.0,
       "near_field_raw": 0.0,
-      "near_field": 0.0
+      "near_field": 0.0,
+      "people": 0
      },
      {
       "i": 14,
@@ -1030,7 +1094,8 @@
       "obstruction_raw": 0.0269,
       "obstruction": 1.02,
       "near_field_raw": 0.0039,
-      "near_field": 0.19
+      "near_field": 0.19,
+      "people": 1
      },
      {
       "i": 15,
@@ -1040,7 +1105,8 @@
       "obstruction_raw": 0.0198,
       "obstruction": 0.75,
       "near_field_raw": 0.0,
-      "near_field": 0.0
+      "near_field": 0.0,
+      "people": 0
      },
      {
       "i": 16,
@@ -1050,7 +1116,8 @@
       "obstruction_raw": 0.008,
       "obstruction": 0.3,
       "near_field_raw": 0.0064,
-      "near_field": 0.32
+      "near_field": 0.32,
+      "people": 1
      },
      {
       "i": 17,
@@ -1060,7 +1127,8 @@
       "obstruction_raw": 0.0465,
       "obstruction": 1.77,
       "near_field_raw": 0.0261,
-      "near_field": 1.31
+      "near_field": 1.31,
+      "people": 1
      },
      {
       "i": 18,
@@ -1070,7 +1138,8 @@
       "obstruction_raw": 0.0178,
       "obstruction": 0.68,
       "near_field_raw": 0.0169,
-      "near_field": 0.84
+      "near_field": 0.84,
+      "people": 0
      },
      {
       "i": 19,
@@ -1080,7 +1149,8 @@
       "obstruction_raw": 0.033,
       "obstruction": 1.25,
       "near_field_raw": 0.0171,
-      "near_field": 0.85
+      "near_field": 0.85,
+      "people": 1
      },
      {
       "i": 20,
@@ -1090,7 +1160,8 @@
       "obstruction_raw": 0.0019,
       "obstruction": 0.07,
       "near_field_raw": 0.0,
-      "near_field": 0.0
+      "near_field": 0.0,
+      "people": 4
      },
      {
       "i": 21,
@@ -1100,7 +1171,8 @@
       "obstruction_raw": 0.0094,
       "obstruction": 0.36,
       "near_field_raw": 0.0,
-      "near_field": 0.0
+      "near_field": 0.0,
+      "people": 1
      },
      {
       "i": 22,
@@ -1110,7 +1182,8 @@
       "obstruction_raw": 0.0019,
       "obstruction": 0.07,
       "near_field_raw": 0.0,
-      "near_field": 0.0
+      "near_field": 0.0,
+      "people": 1
      },
      {
       "i": 23,
@@ -1120,7 +1193,8 @@
       "obstruction_raw": 0.0234,
       "obstruction": 0.89,
       "near_field_raw": 0.0165,
-      "near_field": 0.83
+      "near_field": 0.83,
+      "people": 2
      },
      {
       "i": 24,
@@ -1130,7 +1204,8 @@
       "obstruction_raw": 0.0189,
       "obstruction": 0.72,
       "near_field_raw": 0.0134,
-      "near_field": 0.67
+      "near_field": 0.67,
+      "people": 2
      },
      {
       "i": 25,
@@ -1140,7 +1215,8 @@
       "obstruction_raw": 0.0054,
       "obstruction": 0.21,
       "near_field_raw": 0.0033,
-      "near_field": 0.17
+      "near_field": 0.17,
+      "people": 2
      },
      {
       "i": 26,
@@ -1150,7 +1226,8 @@
       "obstruction_raw": 0.0579,
       "obstruction": 2.2,
       "near_field_raw": 0.0163,
-      "near_field": 0.81
+      "near_field": 0.81,
+      "people": 1
      },
      {
       "i": 27,
@@ -1160,7 +1237,8 @@
       "obstruction_raw": 0.0084,
       "obstruction": 0.32,
       "near_field_raw": 0.0049,
-      "near_field": 0.24
+      "near_field": 0.24,
+      "people": 0
      },
      {
       "i": 28,
@@ -1170,7 +1248,8 @@
       "obstruction_raw": 0.0415,
       "obstruction": 1.58,
       "near_field_raw": 0.0077,
-      "near_field": 0.39
+      "near_field": 0.39,
+      "people": 1
      },
      {
       "i": 29,
@@ -1180,7 +1259,8 @@
       "obstruction_raw": 0.0652,
       "obstruction": 2.48,
       "near_field_raw": 0.0219,
-      "near_field": 1.09
+      "near_field": 1.09,
+      "people": 1
      },
      {
       "i": 30,
@@ -1190,7 +1270,8 @@
       "obstruction_raw": 0.0685,
       "obstruction": 2.6,
       "near_field_raw": 0.018,
-      "near_field": 0.9
+      "near_field": 0.9,
+      "people": 1
      },
      {
       "i": 31,
@@ -1200,7 +1281,8 @@
       "obstruction_raw": 0.0738,
       "obstruction": 2.81,
       "near_field_raw": 0.0257,
-      "near_field": 1.28
+      "near_field": 1.28,
+      "people": 1
      },
      {
       "i": 32,
@@ -1210,7 +1292,8 @@
       "obstruction_raw": 0.0122,
       "obstruction": 0.46,
       "near_field_raw": 0.01,
-      "near_field": 0.5
+      "near_field": 0.5,
+      "people": 2
      },
      {
       "i": 33,
@@ -1220,7 +1303,8 @@
       "obstruction_raw": 0.0259,
       "obstruction": 0.98,
       "near_field_raw": 0.0017,
-      "near_field": 0.08
+      "near_field": 0.08,
+      "people": 1
      },
      {
       "i": 34,
@@ -1230,7 +1314,8 @@
       "obstruction_raw": 0.0118,
       "obstruction": 0.45,
       "near_field_raw": 0.0013,
-      "near_field": 0.07
+      "near_field": 0.07,
+      "people": 1
      },
      {
       "i": 35,
@@ -1240,7 +1325,8 @@
       "obstruction_raw": 0.008,
       "obstruction": 0.3,
       "near_field_raw": 0.0225,
-      "near_field": 1.12
+      "near_field": 1.12,
+      "people": 0
      },
      {
       "i": 36,
@@ -1250,7 +1336,8 @@
       "obstruction_raw": 0.0288,
       "obstruction": 1.1,
       "near_field_raw": 0.0,
-      "near_field": 0.0
+      "near_field": 0.0,
+      "people": 1
      },
      {
       "i": 37,
@@ -1260,7 +1347,8 @@
       "obstruction_raw": 0.0558,
       "obstruction": 2.12,
       "near_field_raw": 0.023,
-      "near_field": 1.15
+      "near_field": 1.15,
+      "people": 1
      },
      {
       "i": 38,
@@ -1270,7 +1358,8 @@
       "obstruction_raw": 0.0515,
       "obstruction": 1.96,
       "near_field_raw": 0.0586,
-      "near_field": 2.93
+      "near_field": 2.93,
+      "people": 0
      },
      {
       "i": 39,
@@ -1280,7 +1369,8 @@
       "obstruction_raw": 0.0584,
       "obstruction": 2.22,
       "near_field_raw": 0.0465,
-      "near_field": 2.32
+      "near_field": 2.32,
+      "people": 1
      },
      {
       "i": 40,
@@ -1290,7 +1380,8 @@
       "obstruction_raw": 0.0999,
       "obstruction": 3.8,
       "near_field_raw": 0.1094,
-      "near_field": 5.0
+      "near_field": 5.0,
+      "people": 0
      },
      {
       "i": 41,
@@ -1300,7 +1391,8 @@
       "obstruction_raw": 0.0833,
       "obstruction": 3.17,
       "near_field_raw": 0.0467,
-      "near_field": 2.33
+      "near_field": 2.33,
+      "people": 0
      },
      {
       "i": 42,
@@ -1310,7 +1402,8 @@
       "obstruction_raw": 0.0601,
       "obstruction": 2.29,
       "near_field_raw": 0.0321,
-      "near_field": 1.6
+      "near_field": 1.6,
+      "people": 0
      },
      {
       "i": 43,
@@ -1320,7 +1413,8 @@
       "obstruction_raw": 0.0805,
       "obstruction": 3.06,
       "near_field_raw": 0.0744,
-      "near_field": 3.72
+      "near_field": 3.72,
+      "people": 1
      },
      {
       "i": 44,
@@ -1330,7 +1424,8 @@
       "obstruction_raw": 0.0766,
       "obstruction": 2.91,
       "near_field_raw": 0.0307,
-      "near_field": 1.54
+      "near_field": 1.54,
+      "people": 0
      },
      {
       "i": 45,
@@ -1340,7 +1435,8 @@
       "obstruction_raw": 0.0417,
       "obstruction": 1.59,
       "near_field_raw": 0.0053,
-      "near_field": 0.27
+      "near_field": 0.27,
+      "people": 0
      },
      {
       "i": 46,
@@ -1350,7 +1446,8 @@
       "obstruction_raw": 0.024,
       "obstruction": 0.91,
       "near_field_raw": 0.0,
-      "near_field": 0.0
+      "near_field": 0.0,
+      "people": 1
      },
      {
       "i": 47,
@@ -1360,7 +1457,8 @@
       "obstruction_raw": 0.103,
       "obstruction": 3.92,
       "near_field_raw": 0.1073,
-      "near_field": 5.0
+      "near_field": 5.0,
+      "people": 0
      },
      {
       "i": 48,
@@ -1370,7 +1468,8 @@
       "obstruction_raw": 0.0294,
       "obstruction": 1.12,
       "near_field_raw": 0.0,
-      "near_field": 0.0
+      "near_field": 0.0,
+      "people": 0
      },
      {
       "i": 49,
@@ -1380,7 +1479,8 @@
       "obstruction_raw": 0.0328,
       "obstruction": 1.25,
       "near_field_raw": 0.0036,
-      "near_field": 0.18
+      "near_field": 0.18,
+      "people": 1
      },
      {
       "i": 50,
@@ -1390,7 +1490,8 @@
       "obstruction_raw": 0.0058,
       "obstruction": 0.22,
       "near_field_raw": 0.0012,
-      "near_field": 0.06
+      "near_field": 0.06,
+      "people": 0
      }
     ],
     "stops": [],
@@ -1777,7 +1878,8 @@
       "obstruction": 0.55,
       "near_field_raw": 0.0189,
       "near_field": 0.94,
-      "meter_time": 0.0
+      "meter_time": 0.0,
+      "people": 0
      },
      {
       "i": 1,
@@ -1788,7 +1890,8 @@
       "obstruction": 1.67,
       "near_field_raw": 0.0523,
       "near_field": 2.61,
-      "meter_time": 5.4
+      "meter_time": 5.4,
+      "people": 1
      },
      {
       "i": 2,
@@ -1799,7 +1902,8 @@
       "obstruction": 2.78,
       "near_field_raw": 0.0808,
       "near_field": 4.04,
-      "meter_time": 10.8
+      "meter_time": 10.8,
+      "people": 0
      },
      {
       "i": 3,
@@ -1810,7 +1914,8 @@
       "obstruction": 1.07,
       "near_field_raw": 0.0105,
       "near_field": 0.53,
-      "meter_time": 16.2
+      "meter_time": 16.2,
+      "people": 0
      },
      {
       "i": 4,
@@ -1821,7 +1926,8 @@
       "obstruction": 1.98,
       "near_field_raw": 0.054,
       "near_field": 2.7,
-      "meter_time": 21.6
+      "meter_time": 21.6,
+      "people": 0
      },
      {
       "i": 5,
@@ -1832,7 +1938,8 @@
       "obstruction": 1.97,
       "near_field_raw": 0.0489,
       "near_field": 2.44,
-      "meter_time": 26.9
+      "meter_time": 26.9,
+      "people": 1
      },
      {
       "i": 6,
@@ -1843,7 +1950,8 @@
       "obstruction": 1.6,
       "near_field_raw": 0.0399,
       "near_field": 1.99,
-      "meter_time": 32.3
+      "meter_time": 32.3,
+      "people": 0
      },
      {
       "i": 7,
@@ -1854,7 +1962,8 @@
       "obstruction": 1.96,
       "near_field_raw": 0.0138,
       "near_field": 0.69,
-      "meter_time": 37.7
+      "meter_time": 37.7,
+      "people": 1
      },
      {
       "i": 8,
@@ -1865,7 +1974,8 @@
       "obstruction": 1.36,
       "near_field_raw": 0.0254,
       "near_field": 1.27,
-      "meter_time": 43.1
+      "meter_time": 43.1,
+      "people": 0
      },
      {
       "i": 9,
@@ -1876,7 +1986,8 @@
       "obstruction": 1.89,
       "near_field_raw": 0.0408,
       "near_field": 2.04,
-      "meter_time": 48.5
+      "meter_time": 48.5,
+      "people": 0
      },
      {
       "i": 10,
@@ -1887,7 +1998,8 @@
       "obstruction": 2.44,
       "near_field_raw": 0.0844,
       "near_field": 4.22,
-      "meter_time": 53.9
+      "meter_time": 53.9,
+      "people": 0
      },
      {
       "i": 11,
@@ -1898,7 +2010,8 @@
       "obstruction": 3.32,
       "near_field_raw": 0.1635,
       "near_field": 5.0,
-      "meter_time": 59.3
+      "meter_time": 59.3,
+      "people": 1
      },
      {
       "i": 12,
@@ -1909,7 +2022,8 @@
       "obstruction": 3.95,
       "near_field_raw": 0.0919,
       "near_field": 4.59,
-      "meter_time": 64.7
+      "meter_time": 64.7,
+      "people": 0
      },
      {
       "i": 13,
@@ -1920,7 +2034,8 @@
       "obstruction": 2.45,
       "near_field_raw": 0.0781,
       "near_field": 3.91,
-      "meter_time": 70.0
+      "meter_time": 70.0,
+      "people": 0
      },
      {
       "i": 14,
@@ -1931,7 +2046,8 @@
       "obstruction": 2.8,
       "near_field_raw": 0.0882,
       "near_field": 4.41,
-      "meter_time": 75.4
+      "meter_time": 75.4,
+      "people": 0
      },
      {
       "i": 15,
@@ -1942,7 +2058,8 @@
       "obstruction": 3.42,
       "near_field_raw": 0.0626,
       "near_field": 3.13,
-      "meter_time": 80.8
+      "meter_time": 80.8,
+      "people": 0
      },
      {
       "i": 16,
@@ -1953,7 +2070,8 @@
       "obstruction": 4.54,
       "near_field_raw": 0.1644,
       "near_field": 5.0,
-      "meter_time": 86.2
+      "meter_time": 86.2,
+      "people": 0
      },
      {
       "i": 17,
@@ -1964,7 +2082,8 @@
       "obstruction": 5.0,
       "near_field_raw": 0.2577,
       "near_field": 5.0,
-      "meter_time": 91.6
+      "meter_time": 91.6,
+      "people": 0
      },
      {
       "i": 18,
@@ -1975,7 +2094,8 @@
       "obstruction": 3.77,
       "near_field_raw": 0.1513,
       "near_field": 5.0,
-      "meter_time": 97.0
+      "meter_time": 97.0,
+      "people": 0
      },
      {
       "i": 19,
@@ -1986,7 +2106,8 @@
       "obstruction": 3.72,
       "near_field_raw": 0.1365,
       "near_field": 5.0,
-      "meter_time": 102.4
+      "meter_time": 102.4,
+      "people": 0
      },
      {
       "i": 20,
@@ -1997,7 +2118,8 @@
       "obstruction": 0.36,
       "near_field_raw": 0.0062,
       "near_field": 0.31,
-      "meter_time": 107.8
+      "meter_time": 107.8,
+      "people": 0
      },
      {
       "i": 21,
@@ -2008,7 +2130,8 @@
       "obstruction": 0.82,
       "near_field_raw": 0.0092,
       "near_field": 0.46,
-      "meter_time": 113.1
+      "meter_time": 113.1,
+      "people": 0
      },
      {
       "i": 22,
@@ -2019,7 +2142,8 @@
       "obstruction": 1.0,
       "near_field_raw": 0.0102,
       "near_field": 0.51,
-      "meter_time": 118.5
+      "meter_time": 118.5,
+      "people": 1
      },
      {
       "i": 23,
@@ -2030,7 +2154,8 @@
       "obstruction": 0.38,
       "near_field_raw": 0.0036,
       "near_field": 0.18,
-      "meter_time": 123.9
+      "meter_time": 123.9,
+      "people": 1
      },
      {
       "i": 24,
@@ -2041,7 +2166,8 @@
       "obstruction": 2.15,
       "near_field_raw": 0.0309,
       "near_field": 1.54,
-      "meter_time": 129.3
+      "meter_time": 129.3,
+      "people": 0
      },
      {
       "i": 25,
@@ -2052,7 +2178,8 @@
       "obstruction": 0.68,
       "near_field_raw": 0.0164,
       "near_field": 0.82,
-      "meter_time": 134.7
+      "meter_time": 134.7,
+      "people": 1
      },
      {
       "i": 26,
@@ -2063,7 +2190,8 @@
       "obstruction": 1.16,
       "near_field_raw": 0.0268,
       "near_field": 1.34,
-      "meter_time": 140.1
+      "meter_time": 140.1,
+      "people": 0
      },
      {
       "i": 27,
@@ -2074,7 +2202,8 @@
       "obstruction": 1.34,
       "near_field_raw": 0.017,
       "near_field": 0.85,
-      "meter_time": 145.5
+      "meter_time": 145.5,
+      "people": 1
      },
      {
       "i": 28,
@@ -2085,7 +2214,8 @@
       "obstruction": 0.09,
       "near_field_raw": 0.0023,
       "near_field": 0.11,
-      "meter_time": 150.9
+      "meter_time": 150.9,
+      "people": 1
      },
      {
       "i": 29,
@@ -2096,7 +2226,8 @@
       "obstruction": 0.4,
       "near_field_raw": 0.0025,
       "near_field": 0.12,
-      "meter_time": 156.2
+      "meter_time": 156.2,
+      "people": 1
      },
      {
       "i": 30,
@@ -2107,7 +2238,8 @@
       "obstruction": 0.11,
       "near_field_raw": 0.0019,
       "near_field": 0.1,
-      "meter_time": 161.6
+      "meter_time": 161.6,
+      "people": 0
      },
      {
       "i": 31,
@@ -2118,7 +2250,8 @@
       "obstruction": 1.0,
       "near_field_raw": 0.0018,
       "near_field": 0.09,
-      "meter_time": 167.0
+      "meter_time": 167.0,
+      "people": 1
      },
      {
       "i": 32,
@@ -2129,7 +2262,8 @@
       "obstruction": 1.01,
       "near_field_raw": 0.002,
       "near_field": 0.1,
-      "meter_time": 172.4
+      "meter_time": 172.4,
+      "people": 0
      },
      {
       "i": 33,
@@ -2140,7 +2274,8 @@
       "obstruction": 0.56,
       "near_field_raw": 0.0021,
       "near_field": 0.1,
-      "meter_time": 177.8
+      "meter_time": 177.8,
+      "people": 0
      },
      {
       "i": 34,
@@ -2151,7 +2286,8 @@
       "obstruction": 0.17,
       "near_field_raw": 0.0021,
       "near_field": 0.1,
-      "meter_time": 183.2
+      "meter_time": 183.2,
+      "people": 0
      },
      {
       "i": 35,
@@ -2162,7 +2298,8 @@
       "obstruction": 0.26,
       "near_field_raw": 0.0021,
       "near_field": 0.1,
-      "meter_time": 188.6
+      "meter_time": 188.6,
+      "people": 0
      },
      {
       "i": 36,
@@ -2173,7 +2310,8 @@
       "obstruction": 1.42,
       "near_field_raw": 0.0051,
       "near_field": 0.26,
-      "meter_time": 194.0
+      "meter_time": 194.0,
+      "people": 0
      },
      {
       "i": 37,
@@ -2184,7 +2322,8 @@
       "obstruction": 0.91,
       "near_field_raw": 0.0277,
       "near_field": 1.39,
-      "meter_time": 199.3
+      "meter_time": 199.3,
+      "people": 0
      },
      {
       "i": 38,
@@ -2195,7 +2334,8 @@
       "obstruction": 0.61,
       "near_field_raw": 0.0052,
       "near_field": 0.26,
-      "meter_time": 204.7
+      "meter_time": 204.7,
+      "people": 0
      },
      {
       "i": 39,
@@ -2206,7 +2346,8 @@
       "obstruction": 0.19,
       "near_field_raw": 0.0031,
       "near_field": 0.15,
-      "meter_time": 210.1
+      "meter_time": 210.1,
+      "people": 0
      },
      {
       "i": 40,
@@ -2217,7 +2358,8 @@
       "obstruction": 0.64,
       "near_field_raw": 0.0028,
       "near_field": 0.14,
-      "meter_time": 215.5
+      "meter_time": 215.5,
+      "people": 0
      },
      {
       "i": 41,
@@ -2228,7 +2370,8 @@
       "obstruction": 3.02,
       "near_field_raw": 0.1191,
       "near_field": 5.0,
-      "meter_time": 220.0
+      "meter_time": 220.0,
+      "people": 0
      }
     ],
     "stops": [],
@@ -2542,7 +2685,8 @@
       "obstruction": 0.77,
       "near_field_raw": 0.0076,
       "near_field": 0.38,
-      "meter_time": 220.0
+      "meter_time": 220.0,
+      "people": 0
      },
      {
       "i": 1,
@@ -2553,7 +2697,8 @@
       "obstruction": 0.38,
       "near_field_raw": 0.0016,
       "near_field": 0.08,
-      "meter_time": 215.5
+      "meter_time": 215.5,
+      "people": 0
      },
      {
       "i": 2,
@@ -2564,7 +2709,8 @@
       "obstruction": 0.98,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 211.1
+      "meter_time": 211.1,
+      "people": 1
      },
      {
       "i": 3,
@@ -2575,7 +2721,8 @@
       "obstruction": 0.0,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 206.6
+      "meter_time": 206.6,
+      "people": 2
      },
      {
       "i": 4,
@@ -2586,7 +2733,8 @@
       "obstruction": 0.14,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 202.2
+      "meter_time": 202.2,
+      "people": 0
      },
      {
       "i": 5,
@@ -2597,7 +2745,8 @@
       "obstruction": 0.86,
       "near_field_raw": 0.0151,
       "near_field": 0.76,
-      "meter_time": 197.7
+      "meter_time": 197.7,
+      "people": 0
      },
      {
       "i": 6,
@@ -2608,7 +2757,8 @@
       "obstruction": 1.19,
       "near_field_raw": 0.0047,
       "near_field": 0.24,
-      "meter_time": 193.2
+      "meter_time": 193.2,
+      "people": 0
      },
      {
       "i": 7,
@@ -2619,7 +2769,8 @@
       "obstruction": 0.95,
       "near_field_raw": 0.0073,
       "near_field": 0.36,
-      "meter_time": 188.8
+      "meter_time": 188.8,
+      "people": 0
      },
      {
       "i": 8,
@@ -2630,7 +2781,8 @@
       "obstruction": 1.43,
       "near_field_raw": 0.0026,
       "near_field": 0.13,
-      "meter_time": 184.3
+      "meter_time": 184.3,
+      "people": 0
      },
      {
       "i": 9,
@@ -2641,7 +2793,8 @@
       "obstruction": 2.06,
       "near_field_raw": 0.0195,
       "near_field": 0.97,
-      "meter_time": 179.9
+      "meter_time": 179.9,
+      "people": 0
      },
      {
       "i": 10,
@@ -2652,7 +2805,8 @@
       "obstruction": 1.09,
       "near_field_raw": 0.0126,
       "near_field": 0.63,
-      "meter_time": 175.4
+      "meter_time": 175.4,
+      "people": 0
      },
      {
       "i": 11,
@@ -2663,7 +2817,8 @@
       "obstruction": 0.48,
       "near_field_raw": 0.002,
       "near_field": 0.1,
-      "meter_time": 170.9
+      "meter_time": 170.9,
+      "people": 0
      },
      {
       "i": 12,
@@ -2674,7 +2829,8 @@
       "obstruction": 0.88,
       "near_field_raw": 0.0166,
       "near_field": 0.83,
-      "meter_time": 166.5
+      "meter_time": 166.5,
+      "people": 0
      },
      {
       "i": 13,
@@ -2685,7 +2841,8 @@
       "obstruction": 0.24,
       "near_field_raw": 0.001,
       "near_field": 0.05,
-      "meter_time": 162.0
+      "meter_time": 162.0,
+      "people": 0
      },
      {
       "i": 14,
@@ -2696,7 +2853,8 @@
       "obstruction": 0.27,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 157.6
+      "meter_time": 157.6,
+      "people": 0
      },
      {
       "i": 15,
@@ -2707,7 +2865,8 @@
       "obstruction": 1.35,
       "near_field_raw": 0.0037,
       "near_field": 0.18,
-      "meter_time": 153.1
+      "meter_time": 153.1,
+      "people": 0
      },
      {
       "i": 16,
@@ -2718,7 +2877,8 @@
       "obstruction": 0.48,
       "near_field_raw": 0.0013,
       "near_field": 0.07,
-      "meter_time": 148.6
+      "meter_time": 148.6,
+      "people": 0
      },
      {
       "i": 17,
@@ -2729,7 +2889,8 @@
       "obstruction": 0.75,
       "near_field_raw": 0.0088,
       "near_field": 0.44,
-      "meter_time": 144.2
+      "meter_time": 144.2,
+      "people": 1
      },
      {
       "i": 18,
@@ -2740,7 +2901,8 @@
       "obstruction": 1.2,
       "near_field_raw": 0.0095,
       "near_field": 0.47,
-      "meter_time": 139.7
+      "meter_time": 139.7,
+      "people": 1
      },
      {
       "i": 19,
@@ -2751,7 +2913,8 @@
       "obstruction": 1.79,
       "near_field_raw": 0.0354,
       "near_field": 1.77,
-      "meter_time": 135.3
+      "meter_time": 135.3,
+      "people": 0
      },
      {
       "i": 20,
@@ -2762,7 +2925,8 @@
       "obstruction": 3.51,
       "near_field_raw": 0.052,
       "near_field": 2.6,
-      "meter_time": 130.8
+      "meter_time": 130.8,
+      "people": 0
      },
      {
       "i": 21,
@@ -2773,7 +2937,8 @@
       "obstruction": 0.4,
       "near_field_raw": 0.0006,
       "near_field": 0.03,
-      "meter_time": 126.4
+      "meter_time": 126.4,
+      "people": 3
      },
      {
       "i": 22,
@@ -2784,7 +2949,8 @@
       "obstruction": 0.61,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 121.9
+      "meter_time": 121.9,
+      "people": 0
      },
      {
       "i": 23,
@@ -2795,7 +2961,8 @@
       "obstruction": 1.04,
       "near_field_raw": 0.0088,
       "near_field": 0.44,
-      "meter_time": 117.4
+      "meter_time": 117.4,
+      "people": 2
      },
      {
       "i": 24,
@@ -2806,7 +2973,8 @@
       "obstruction": 0.16,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 113.0
+      "meter_time": 113.0,
+      "people": 0
      },
      {
       "i": 25,
@@ -2817,7 +2985,8 @@
       "obstruction": 2.7,
       "near_field_raw": 0.0197,
       "near_field": 0.98,
-      "meter_time": 108.5
+      "meter_time": 108.5,
+      "people": 1
      },
      {
       "i": 26,
@@ -2828,7 +2997,8 @@
       "obstruction": 1.03,
       "near_field_raw": 0.0064,
       "near_field": 0.32,
-      "meter_time": 104.1
+      "meter_time": 104.1,
+      "people": 0
      },
      {
       "i": 27,
@@ -2839,7 +3009,8 @@
       "obstruction": 2.51,
       "near_field_raw": 0.0291,
       "near_field": 1.46,
-      "meter_time": 99.6
+      "meter_time": 99.6,
+      "people": 1
      },
      {
       "i": 28,
@@ -2850,7 +3021,8 @@
       "obstruction": 1.79,
       "near_field_raw": 0.0283,
       "near_field": 1.41,
-      "meter_time": 95.1
+      "meter_time": 95.1,
+      "people": 1
      },
      {
       "i": 29,
@@ -2861,7 +3033,8 @@
       "obstruction": 2.88,
       "near_field_raw": 0.0371,
       "near_field": 1.85,
-      "meter_time": 90.7
+      "meter_time": 90.7,
+      "people": 2
      },
      {
       "i": 30,
@@ -2872,7 +3045,8 @@
       "obstruction": 1.25,
       "near_field_raw": 0.0093,
       "near_field": 0.46,
-      "meter_time": 86.2
+      "meter_time": 86.2,
+      "people": 2
      },
      {
       "i": 31,
@@ -2883,7 +3057,8 @@
       "obstruction": 0.79,
       "near_field_raw": 0.0144,
       "near_field": 0.72,
-      "meter_time": 81.8
+      "meter_time": 81.8,
+      "people": 0
      },
      {
       "i": 32,
@@ -2894,7 +3069,8 @@
       "obstruction": 0.41,
       "near_field_raw": 0.0106,
       "near_field": 0.53,
-      "meter_time": 77.3
+      "meter_time": 77.3,
+      "people": 1
      },
      {
       "i": 33,
@@ -2905,7 +3081,8 @@
       "obstruction": 0.71,
       "near_field_raw": 0.0094,
       "near_field": 0.47,
-      "meter_time": 72.8
+      "meter_time": 72.8,
+      "people": 0
      },
      {
       "i": 34,
@@ -2916,7 +3093,8 @@
       "obstruction": 1.3,
       "near_field_raw": 0.014,
       "near_field": 0.7,
-      "meter_time": 68.4
+      "meter_time": 68.4,
+      "people": 0
      },
      {
       "i": 35,
@@ -2927,7 +3105,8 @@
       "obstruction": 3.33,
       "near_field_raw": 0.035,
       "near_field": 1.75,
-      "meter_time": 63.9
+      "meter_time": 63.9,
+      "people": 0
      },
      {
       "i": 36,
@@ -2938,7 +3117,8 @@
       "obstruction": 2.0,
       "near_field_raw": 0.0724,
       "near_field": 3.62,
-      "meter_time": 59.5
+      "meter_time": 59.5,
+      "people": 0
      },
      {
       "i": 37,
@@ -2949,7 +3129,8 @@
       "obstruction": 0.52,
       "near_field_raw": 0.001,
       "near_field": 0.05,
-      "meter_time": 55.0
+      "meter_time": 55.0,
+      "people": 1
      },
      {
       "i": 38,
@@ -2960,7 +3141,8 @@
       "obstruction": 1.35,
       "near_field_raw": 0.0111,
       "near_field": 0.56,
-      "meter_time": 50.5
+      "meter_time": 50.5,
+      "people": 1
      },
      {
       "i": 39,
@@ -2971,7 +3153,8 @@
       "obstruction": 1.15,
       "near_field_raw": 0.0093,
       "near_field": 0.46,
-      "meter_time": 46.1
+      "meter_time": 46.1,
+      "people": 1
      },
      {
       "i": 40,
@@ -2982,7 +3165,8 @@
       "obstruction": 1.47,
       "near_field_raw": 0.0016,
       "near_field": 0.08,
-      "meter_time": 41.6
+      "meter_time": 41.6,
+      "people": 0
      },
      {
       "i": 41,
@@ -2993,7 +3177,8 @@
       "obstruction": 0.52,
       "near_field_raw": 0.004,
       "near_field": 0.2,
-      "meter_time": 37.2
+      "meter_time": 37.2,
+      "people": 1
      },
      {
       "i": 42,
@@ -3004,7 +3189,8 @@
       "obstruction": 0.97,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 32.7
+      "meter_time": 32.7,
+      "people": 0
      },
      {
       "i": 43,
@@ -3015,7 +3201,8 @@
       "obstruction": 1.05,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 28.2
+      "meter_time": 28.2,
+      "people": 0
      },
      {
       "i": 44,
@@ -3026,7 +3213,8 @@
       "obstruction": 4.77,
       "near_field_raw": 0.0572,
       "near_field": 2.86,
-      "meter_time": 23.8
+      "meter_time": 23.8,
+      "people": 0
      },
      {
       "i": 45,
@@ -3037,7 +3225,8 @@
       "obstruction": 0.34,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 19.3
+      "meter_time": 19.3,
+      "people": 0
      },
      {
       "i": 46,
@@ -3048,7 +3237,8 @@
       "obstruction": 0.31,
       "near_field_raw": 0.0038,
       "near_field": 0.19,
-      "meter_time": 14.9
+      "meter_time": 14.9,
+      "people": 0
      },
      {
       "i": 47,
@@ -3059,7 +3249,8 @@
       "obstruction": 1.55,
       "near_field_raw": 0.0013,
       "near_field": 0.07,
-      "meter_time": 10.4
+      "meter_time": 10.4,
+      "people": 0
      },
      {
       "i": 48,
@@ -3070,7 +3261,8 @@
       "obstruction": 0.1,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 5.9
+      "meter_time": 5.9,
+      "people": 0
      },
      {
       "i": 49,
@@ -3081,7 +3273,8 @@
       "obstruction": 0.52,
       "near_field_raw": 0.0016,
       "near_field": 0.08,
-      "meter_time": 1.5
+      "meter_time": 1.5,
+      "people": 0
      }
     ],
     "stops": [],
@@ -3452,7 +3645,8 @@
       "obstruction": 1.24,
       "near_field_raw": 0.0395,
       "near_field": 1.98,
-      "meter_time": 0.0
+      "meter_time": 0.0,
+      "people": 0
      },
      {
       "i": 1,
@@ -3463,7 +3657,8 @@
       "obstruction": 1.25,
       "near_field_raw": 0.0141,
       "near_field": 0.7,
-      "meter_time": 4.9
+      "meter_time": 4.9,
+      "people": 0
      },
      {
       "i": 2,
@@ -3474,7 +3669,8 @@
       "obstruction": 1.34,
       "near_field_raw": 0.0006,
       "near_field": 0.03,
-      "meter_time": 9.7
+      "meter_time": 9.7,
+      "people": 0
      },
      {
       "i": 3,
@@ -3485,7 +3681,8 @@
       "obstruction": 0.29,
       "near_field_raw": 0.0005,
       "near_field": 0.03,
-      "meter_time": 14.6
+      "meter_time": 14.6,
+      "people": 2
      },
      {
       "i": 4,
@@ -3496,7 +3693,8 @@
       "obstruction": 1.35,
       "near_field_raw": 0.0008,
       "near_field": 0.04,
-      "meter_time": 19.4
+      "meter_time": 19.4,
+      "people": 1
      },
      {
       "i": 5,
@@ -3507,7 +3705,8 @@
       "obstruction": 0.66,
       "near_field_raw": 0.0066,
       "near_field": 0.33,
-      "meter_time": 24.3
+      "meter_time": 24.3,
+      "people": 1
      },
      {
       "i": 6,
@@ -3518,7 +3717,8 @@
       "obstruction": 1.38,
       "near_field_raw": 0.0077,
       "near_field": 0.39,
-      "meter_time": 29.1
+      "meter_time": 29.1,
+      "people": 1
      },
      {
       "i": 7,
@@ -3529,7 +3729,8 @@
       "obstruction": 1.05,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 34.0
+      "meter_time": 34.0,
+      "people": 1
      },
      {
       "i": 8,
@@ -3540,7 +3741,8 @@
       "obstruction": 0.51,
       "near_field_raw": 0.0045,
       "near_field": 0.22,
-      "meter_time": 38.8
+      "meter_time": 38.8,
+      "people": 1
      },
      {
       "i": 9,
@@ -3551,7 +3753,8 @@
       "obstruction": 0.48,
       "near_field_raw": 0.0025,
       "near_field": 0.12,
-      "meter_time": 43.7
+      "meter_time": 43.7,
+      "people": 2
      },
      {
       "i": 10,
@@ -3562,7 +3765,8 @@
       "obstruction": 1.41,
       "near_field_raw": 0.0124,
       "near_field": 0.62,
-      "meter_time": 48.5
+      "meter_time": 48.5,
+      "people": 0
      },
      {
       "i": 11,
@@ -3573,7 +3777,8 @@
       "obstruction": 0.55,
       "near_field_raw": 0.0042,
       "near_field": 0.21,
-      "meter_time": 53.4
+      "meter_time": 53.4,
+      "people": 2
      },
      {
       "i": 12,
@@ -3584,7 +3789,8 @@
       "obstruction": 1.33,
       "near_field_raw": 0.0007,
       "near_field": 0.03,
-      "meter_time": 58.2
+      "meter_time": 58.2,
+      "people": 0
      },
      {
       "i": 13,
@@ -3595,7 +3801,8 @@
       "obstruction": 1.98,
       "near_field_raw": 0.0723,
       "near_field": 3.62,
-      "meter_time": 63.1
+      "meter_time": 63.1,
+      "people": 0
      },
      {
       "i": 14,
@@ -3606,7 +3813,8 @@
       "obstruction": 1.56,
       "near_field_raw": 0.053,
       "near_field": 2.65,
-      "meter_time": 67.9
+      "meter_time": 67.9,
+      "people": 0
      },
      {
       "i": 15,
@@ -3617,7 +3825,8 @@
       "obstruction": 1.35,
       "near_field_raw": 0.0093,
       "near_field": 0.46,
-      "meter_time": 72.8
+      "meter_time": 72.8,
+      "people": 0
      },
      {
       "i": 16,
@@ -3628,7 +3837,8 @@
       "obstruction": 1.45,
       "near_field_raw": 0.0136,
       "near_field": 0.68,
-      "meter_time": 77.6
+      "meter_time": 77.6,
+      "people": 0
      },
      {
       "i": 17,
@@ -3639,7 +3849,8 @@
       "obstruction": 0.52,
       "near_field_raw": 0.0016,
       "near_field": 0.08,
-      "meter_time": 82.5
+      "meter_time": 82.5,
+      "people": 1
      },
      {
       "i": 18,
@@ -3650,7 +3861,8 @@
       "obstruction": 1.86,
       "near_field_raw": 0.0404,
       "near_field": 2.02,
-      "meter_time": 87.4
+      "meter_time": 87.4,
+      "people": 0
      },
      {
       "i": 19,
@@ -3661,7 +3873,8 @@
       "obstruction": 1.32,
       "near_field_raw": 0.0219,
       "near_field": 1.09,
-      "meter_time": 92.2
+      "meter_time": 92.2,
+      "people": 0
      },
      {
       "i": 20,
@@ -3672,7 +3885,8 @@
       "obstruction": 2.59,
       "near_field_raw": 0.097,
       "near_field": 4.85,
-      "meter_time": 97.1
+      "meter_time": 97.1,
+      "people": 1
      },
      {
       "i": 21,
@@ -3683,7 +3897,8 @@
       "obstruction": 2.24,
       "near_field_raw": 0.0242,
       "near_field": 1.21,
-      "meter_time": 101.9
+      "meter_time": 101.9,
+      "people": 1
      },
      {
       "i": 22,
@@ -3694,7 +3909,8 @@
       "obstruction": 1.2,
       "near_field_raw": 0.0384,
       "near_field": 1.92,
-      "meter_time": 106.8
+      "meter_time": 106.8,
+      "people": 0
      },
      {
       "i": 23,
@@ -3705,7 +3921,8 @@
       "obstruction": 1.12,
       "near_field_raw": 0.0098,
       "near_field": 0.49,
-      "meter_time": 111.6
+      "meter_time": 111.6,
+      "people": 0
      },
      {
       "i": 24,
@@ -3716,7 +3933,8 @@
       "obstruction": 1.02,
       "near_field_raw": 0.0118,
       "near_field": 0.59,
-      "meter_time": 116.5
+      "meter_time": 116.5,
+      "people": 0
      },
      {
       "i": 25,
@@ -3727,7 +3945,8 @@
       "obstruction": 1.21,
       "near_field_raw": 0.0311,
       "near_field": 1.55,
-      "meter_time": 121.3
+      "meter_time": 121.3,
+      "people": 0
      },
      {
       "i": 26,
@@ -3738,7 +3957,8 @@
       "obstruction": 1.42,
       "near_field_raw": 0.0048,
       "near_field": 0.24,
-      "meter_time": 126.2
+      "meter_time": 126.2,
+      "people": 1
      },
      {
       "i": 27,
@@ -3749,7 +3969,8 @@
       "obstruction": 1.15,
       "near_field_raw": 0.0283,
       "near_field": 1.41,
-      "meter_time": 131.0
+      "meter_time": 131.0,
+      "people": 1
      },
      {
       "i": 28,
@@ -3760,7 +3981,8 @@
       "obstruction": 0.76,
       "near_field_raw": 0.0071,
       "near_field": 0.36,
-      "meter_time": 135.9
+      "meter_time": 135.9,
+      "people": 3
      },
      {
       "i": 29,
@@ -3771,7 +3993,8 @@
       "obstruction": 1.86,
       "near_field_raw": 0.0172,
       "near_field": 0.86,
-      "meter_time": 140.7
+      "meter_time": 140.7,
+      "people": 0
      },
      {
       "i": 30,
@@ -3782,7 +4005,8 @@
       "obstruction": 0.59,
       "near_field_raw": 0.0539,
       "near_field": 2.7,
-      "meter_time": 145.6
+      "meter_time": 145.6,
+      "people": 0
      },
      {
       "i": 31,
@@ -3793,7 +4017,8 @@
       "obstruction": 0.15,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 150.4
+      "meter_time": 150.4,
+      "people": 0
      },
      {
       "i": 32,
@@ -3804,7 +4029,8 @@
       "obstruction": 0.41,
       "near_field_raw": 0.0263,
       "near_field": 1.31,
-      "meter_time": 155.3
+      "meter_time": 155.3,
+      "people": 2
      },
      {
       "i": 33,
@@ -3815,7 +4041,8 @@
       "obstruction": 0.22,
       "near_field_raw": 0.0007,
       "near_field": 0.03,
-      "meter_time": 160.1
+      "meter_time": 160.1,
+      "people": 0
      },
      {
       "i": 34,
@@ -3826,7 +4053,8 @@
       "obstruction": 1.03,
       "near_field_raw": 0.0012,
       "near_field": 0.06,
-      "meter_time": 165.0
+      "meter_time": 165.0,
+      "people": 0
      },
      {
       "i": 35,
@@ -3837,7 +4065,8 @@
       "obstruction": 0.72,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 169.9
+      "meter_time": 169.9,
+      "people": 0
      },
      {
       "i": 36,
@@ -3848,7 +4077,8 @@
       "obstruction": 0.55,
       "near_field_raw": 0.0005,
       "near_field": 0.03,
-      "meter_time": 174.7
+      "meter_time": 174.7,
+      "people": 0
      },
      {
       "i": 37,
@@ -3859,7 +4089,8 @@
       "obstruction": 0.26,
       "near_field_raw": 0.0022,
       "near_field": 0.11,
-      "meter_time": 179.6
+      "meter_time": 179.6,
+      "people": 0
      },
      {
       "i": 38,
@@ -3870,7 +4101,8 @@
       "obstruction": 0.66,
       "near_field_raw": 0.0012,
       "near_field": 0.06,
-      "meter_time": 184.4
+      "meter_time": 184.4,
+      "people": 1
      },
      {
       "i": 39,
@@ -3881,7 +4113,8 @@
       "obstruction": 2.37,
       "near_field_raw": 0.0353,
       "near_field": 1.76,
-      "meter_time": 189.3
+      "meter_time": 189.3,
+      "people": 0
      },
      {
       "i": 40,
@@ -3892,7 +4125,8 @@
       "obstruction": 1.26,
       "near_field_raw": 0.0271,
       "near_field": 1.35,
-      "meter_time": 194.1
+      "meter_time": 194.1,
+      "people": 2
      },
      {
       "i": 41,
@@ -3903,7 +4137,8 @@
       "obstruction": 0.36,
       "near_field_raw": 0.0018,
       "near_field": 0.09,
-      "meter_time": 199.0
+      "meter_time": 199.0,
+      "people": 0
      },
      {
       "i": 42,
@@ -3914,7 +4149,8 @@
       "obstruction": 0.08,
       "near_field_raw": 0.0033,
       "near_field": 0.17,
-      "meter_time": 203.8
+      "meter_time": 203.8,
+      "people": 0
      },
      {
       "i": 43,
@@ -3925,7 +4161,8 @@
       "obstruction": 1.39,
       "near_field_raw": 0.0522,
       "near_field": 2.61,
-      "meter_time": 208.7
+      "meter_time": 208.7,
+      "people": 2
      },
      {
       "i": 44,
@@ -3936,7 +4173,8 @@
       "obstruction": 0.44,
       "near_field_raw": 0.0017,
       "near_field": 0.08,
-      "meter_time": 213.5
+      "meter_time": 213.5,
+      "people": 2
      },
      {
       "i": 45,
@@ -3947,7 +4185,8 @@
       "obstruction": 1.8,
       "near_field_raw": 0.0176,
       "near_field": 0.88,
-      "meter_time": 218.4
+      "meter_time": 218.4,
+      "people": 0
      }
     ],
     "stops": [],
@@ -4289,7 +4528,8 @@
       "obstruction": 1.29,
       "near_field_raw": 0.0087,
       "near_field": 0.43,
-      "meter_time": 220.0
+      "meter_time": 220.0,
+      "people": 0
      },
      {
       "i": 1,
@@ -4300,7 +4540,8 @@
       "obstruction": 0.05,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 215.4
+      "meter_time": 215.4,
+      "people": 0
      },
      {
       "i": 2,
@@ -4311,7 +4552,8 @@
       "obstruction": 0.04,
       "near_field_raw": 0.0014,
       "near_field": 0.07,
-      "meter_time": 210.8
+      "meter_time": 210.8,
+      "people": 0
      },
      {
       "i": 3,
@@ -4322,7 +4564,8 @@
       "obstruction": 0.0,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 206.2
+      "meter_time": 206.2,
+      "people": 2
      },
      {
       "i": 4,
@@ -4333,7 +4576,8 @@
       "obstruction": 1.58,
       "near_field_raw": 0.0042,
       "near_field": 0.21,
-      "meter_time": 201.6
+      "meter_time": 201.6,
+      "people": 0
      },
      {
       "i": 5,
@@ -4344,7 +4588,8 @@
       "obstruction": 3.7,
       "near_field_raw": 0.0977,
       "near_field": 4.88,
-      "meter_time": 197.0
+      "meter_time": 197.0,
+      "people": 0
      },
      {
       "i": 6,
@@ -4355,7 +4600,8 @@
       "obstruction": 2.19,
       "near_field_raw": 0.0343,
       "near_field": 1.71,
-      "meter_time": 192.4
+      "meter_time": 192.4,
+      "people": 0
      },
      {
       "i": 7,
@@ -4366,7 +4612,8 @@
       "obstruction": 2.21,
       "near_field_raw": 0.0071,
       "near_field": 0.36,
-      "meter_time": 187.8
+      "meter_time": 187.8,
+      "people": 0
      },
      {
       "i": 8,
@@ -4377,7 +4624,8 @@
       "obstruction": 0.57,
       "near_field_raw": 0.0087,
       "near_field": 0.43,
-      "meter_time": 183.2
+      "meter_time": 183.2,
+      "people": 0
      },
      {
       "i": 9,
@@ -4388,7 +4636,8 @@
       "obstruction": 1.71,
       "near_field_raw": 0.0047,
       "near_field": 0.24,
-      "meter_time": 178.6
+      "meter_time": 178.6,
+      "people": 0
      },
      {
       "i": 10,
@@ -4399,7 +4648,8 @@
       "obstruction": 1.36,
       "near_field_raw": 0.0049,
       "near_field": 0.24,
-      "meter_time": 174.0
+      "meter_time": 174.0,
+      "people": 0
      },
      {
       "i": 11,
@@ -4410,7 +4660,8 @@
       "obstruction": 0.64,
       "near_field_raw": 0.0047,
       "near_field": 0.24,
-      "meter_time": 169.4
+      "meter_time": 169.4,
+      "people": 0
      },
      {
       "i": 12,
@@ -4421,7 +4672,8 @@
       "obstruction": 0.95,
       "near_field_raw": 0.0071,
       "near_field": 0.36,
-      "meter_time": 164.8
+      "meter_time": 164.8,
+      "people": 1
      },
      {
       "i": 13,
@@ -4432,7 +4684,8 @@
       "obstruction": 1.65,
       "near_field_raw": 0.0503,
       "near_field": 2.51,
-      "meter_time": 160.2
+      "meter_time": 160.2,
+      "people": 0
      },
      {
       "i": 14,
@@ -4443,7 +4696,8 @@
       "obstruction": 0.2,
       "near_field_raw": 0.005,
       "near_field": 0.25,
-      "meter_time": 155.6
+      "meter_time": 155.6,
+      "people": 0
      },
      {
       "i": 15,
@@ -4454,7 +4708,8 @@
       "obstruction": 1.3,
       "near_field_raw": 0.0034,
       "near_field": 0.17,
-      "meter_time": 151.0
+      "meter_time": 151.0,
+      "people": 1
      },
      {
       "i": 16,
@@ -4465,7 +4720,8 @@
       "obstruction": 0.0,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 146.4
+      "meter_time": 146.4,
+      "people": 0
      },
      {
       "i": 17,
@@ -4476,7 +4732,8 @@
       "obstruction": 0.9,
       "near_field_raw": 0.0074,
       "near_field": 0.37,
-      "meter_time": 141.8
+      "meter_time": 141.8,
+      "people": 0
      },
      {
       "i": 18,
@@ -4487,7 +4744,8 @@
       "obstruction": 2.38,
       "near_field_raw": 0.0225,
       "near_field": 1.12,
-      "meter_time": 137.2
+      "meter_time": 137.2,
+      "people": 0
      },
      {
       "i": 19,
@@ -4498,7 +4756,8 @@
       "obstruction": 3.69,
       "near_field_raw": 0.0142,
       "near_field": 0.71,
-      "meter_time": 132.6
+      "meter_time": 132.6,
+      "people": 0
      },
      {
       "i": 20,
@@ -4509,7 +4768,8 @@
       "obstruction": 2.99,
       "near_field_raw": 0.0493,
       "near_field": 2.46,
-      "meter_time": 128.0
+      "meter_time": 128.0,
+      "people": 0
      },
      {
       "i": 21,
@@ -4520,7 +4780,8 @@
       "obstruction": 2.59,
       "near_field_raw": 0.0306,
       "near_field": 1.53,
-      "meter_time": 123.4
+      "meter_time": 123.4,
+      "people": 0
      },
      {
       "i": 22,
@@ -4531,7 +4792,8 @@
       "obstruction": 2.15,
       "near_field_raw": 0.0303,
       "near_field": 1.51,
-      "meter_time": 118.8
+      "meter_time": 118.8,
+      "people": 0
      },
      {
       "i": 23,
@@ -4542,7 +4804,8 @@
       "obstruction": 2.13,
       "near_field_raw": 0.0444,
       "near_field": 2.22,
-      "meter_time": 114.2
+      "meter_time": 114.2,
+      "people": 1
      },
      {
       "i": 24,
@@ -4553,7 +4816,8 @@
       "obstruction": 1.23,
       "near_field_raw": 0.0297,
       "near_field": 1.49,
-      "meter_time": 109.6
+      "meter_time": 109.6,
+      "people": 0
      },
      {
       "i": 25,
@@ -4564,7 +4828,8 @@
       "obstruction": 1.15,
       "near_field_raw": 0.0076,
       "near_field": 0.38,
-      "meter_time": 105.0
+      "meter_time": 105.0,
+      "people": 1
      },
      {
       "i": 26,
@@ -4575,7 +4840,8 @@
       "obstruction": 2.06,
       "near_field_raw": 0.0125,
       "near_field": 0.62,
-      "meter_time": 100.4
+      "meter_time": 100.4,
+      "people": 1
      },
      {
       "i": 27,
@@ -4586,7 +4852,8 @@
       "obstruction": 4.64,
       "near_field_raw": 0.1131,
       "near_field": 5.0,
-      "meter_time": 95.8
+      "meter_time": 95.8,
+      "people": 0
      },
      {
       "i": 28,
@@ -4597,7 +4864,8 @@
       "obstruction": 3.15,
       "near_field_raw": 0.0454,
       "near_field": 2.27,
-      "meter_time": 91.2
+      "meter_time": 91.2,
+      "people": 0
      },
      {
       "i": 29,
@@ -4608,7 +4876,8 @@
       "obstruction": 2.09,
       "near_field_raw": 0.0148,
       "near_field": 0.74,
-      "meter_time": 86.6
+      "meter_time": 86.6,
+      "people": 2
      },
      {
       "i": 30,
@@ -4619,7 +4888,8 @@
       "obstruction": 2.09,
       "near_field_raw": 0.0227,
       "near_field": 1.14,
-      "meter_time": 82.0
+      "meter_time": 82.0,
+      "people": 1
      },
      {
       "i": 31,
@@ -4630,7 +4900,8 @@
       "obstruction": 4.55,
       "near_field_raw": 0.0743,
       "near_field": 3.72,
-      "meter_time": 77.4
+      "meter_time": 77.4,
+      "people": 0
      },
      {
       "i": 32,
@@ -4641,7 +4912,8 @@
       "obstruction": 4.64,
       "near_field_raw": 0.0653,
       "near_field": 3.26,
-      "meter_time": 72.8
+      "meter_time": 72.8,
+      "people": 0
      },
      {
       "i": 33,
@@ -4652,7 +4924,8 @@
       "obstruction": 3.12,
       "near_field_raw": 0.0564,
       "near_field": 2.82,
-      "meter_time": 68.2
+      "meter_time": 68.2,
+      "people": 0
      },
      {
       "i": 34,
@@ -4663,7 +4936,8 @@
       "obstruction": 1.1,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 63.6
+      "meter_time": 63.6,
+      "people": 0
      },
      {
       "i": 35,
@@ -4674,7 +4948,8 @@
       "obstruction": 0.48,
       "near_field_raw": 0.0031,
       "near_field": 0.15,
-      "meter_time": 59.0
+      "meter_time": 59.0,
+      "people": 0
      },
      {
       "i": 36,
@@ -4685,7 +4960,8 @@
       "obstruction": 0.85,
       "near_field_raw": 0.0116,
       "near_field": 0.58,
-      "meter_time": 54.4
+      "meter_time": 54.4,
+      "people": 1
      },
      {
       "i": 37,
@@ -4696,7 +4972,8 @@
       "obstruction": 2.31,
       "near_field_raw": 0.0308,
       "near_field": 1.54,
-      "meter_time": 49.8
+      "meter_time": 49.8,
+      "people": 0
      },
      {
       "i": 38,
@@ -4707,7 +4984,8 @@
       "obstruction": 0.74,
       "near_field_raw": 0.0048,
       "near_field": 0.24,
-      "meter_time": 45.2
+      "meter_time": 45.2,
+      "people": 0
      },
      {
       "i": 39,
@@ -4718,7 +4996,8 @@
       "obstruction": 1.64,
       "near_field_raw": 0.0005,
       "near_field": 0.03,
-      "meter_time": 40.6
+      "meter_time": 40.6,
+      "people": 1
      },
      {
       "i": 40,
@@ -4729,7 +5008,8 @@
       "obstruction": 0.76,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 36.0
+      "meter_time": 36.0,
+      "people": 0
      },
      {
       "i": 41,
@@ -4740,7 +5020,8 @@
       "obstruction": 0.26,
       "near_field_raw": 0.0073,
       "near_field": 0.36,
-      "meter_time": 31.4
+      "meter_time": 31.4,
+      "people": 0
      },
      {
       "i": 42,
@@ -4751,7 +5032,8 @@
       "obstruction": 0.73,
       "near_field_raw": 0.014,
       "near_field": 0.7,
-      "meter_time": 26.8
+      "meter_time": 26.8,
+      "people": 0
      },
      {
       "i": 43,
@@ -4762,7 +5044,8 @@
       "obstruction": 0.14,
       "near_field_raw": 0.0026,
       "near_field": 0.13,
-      "meter_time": 22.2
+      "meter_time": 22.2,
+      "people": 0
      },
      {
       "i": 44,
@@ -4773,7 +5056,8 @@
       "obstruction": 0.8,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 17.6
+      "meter_time": 17.6,
+      "people": 1
      },
      {
       "i": 45,
@@ -4784,7 +5068,8 @@
       "obstruction": 0.23,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 13.0
+      "meter_time": 13.0,
+      "people": 0
      },
      {
       "i": 46,
@@ -4795,7 +5080,8 @@
       "obstruction": 0.46,
       "near_field_raw": 0.0142,
       "near_field": 0.71,
-      "meter_time": 8.4
+      "meter_time": 8.4,
+      "people": 0
      },
      {
       "i": 47,
@@ -4806,7 +5092,8 @@
       "obstruction": 0.52,
       "near_field_raw": 0.0015,
       "near_field": 0.07,
-      "meter_time": 3.8
+      "meter_time": 3.8,
+      "people": 0
      },
      {
       "i": 48,
@@ -4817,7 +5104,8 @@
       "obstruction": 1.76,
       "near_field_raw": 0.0113,
       "near_field": 0.56,
-      "meter_time": 0.0
+      "meter_time": 0.0,
+      "people": 1
      }
     ],
     "stops": [],
@@ -5184,7 +5472,8 @@
       "obstruction": 0.25,
       "near_field_raw": 0.0173,
       "near_field": 0.86,
-      "meter_time": 0.0
+      "meter_time": 0.0,
+      "people": 0
      },
      {
       "i": 1,
@@ -5195,7 +5484,8 @@
       "obstruction": 0.96,
       "near_field_raw": 0.0077,
       "near_field": 0.39,
-      "meter_time": 4.8
+      "meter_time": 4.8,
+      "people": 1
      },
      {
       "i": 2,
@@ -5206,7 +5496,8 @@
       "obstruction": 0.91,
       "near_field_raw": 0.0176,
       "near_field": 0.88,
-      "meter_time": 9.7
+      "meter_time": 9.7,
+      "people": 0
      },
      {
       "i": 3,
@@ -5217,7 +5508,8 @@
       "obstruction": 1.54,
       "near_field_raw": 0.005,
       "near_field": 0.25,
-      "meter_time": 14.5
+      "meter_time": 14.5,
+      "people": 1
      },
      {
       "i": 4,
@@ -5228,7 +5520,8 @@
       "obstruction": 0.74,
       "near_field_raw": 0.0119,
       "near_field": 0.6,
-      "meter_time": 19.3
+      "meter_time": 19.3,
+      "people": 0
      },
      {
       "i": 5,
@@ -5239,7 +5532,8 @@
       "obstruction": 1.86,
       "near_field_raw": 0.024,
       "near_field": 1.2,
-      "meter_time": 24.2
+      "meter_time": 24.2,
+      "people": 0
      },
      {
       "i": 6,
@@ -5250,7 +5544,8 @@
       "obstruction": 0.33,
       "near_field_raw": 0.0021,
       "near_field": 0.1,
-      "meter_time": 29.0
+      "meter_time": 29.0,
+      "people": 1
      },
      {
       "i": 7,
@@ -5261,7 +5556,8 @@
       "obstruction": 0.59,
       "near_field_raw": 0.0071,
       "near_field": 0.36,
-      "meter_time": 33.8
+      "meter_time": 33.8,
+      "people": 0
      },
      {
       "i": 8,
@@ -5272,7 +5568,8 @@
       "obstruction": 0.53,
       "near_field_raw": 0.0116,
       "near_field": 0.58,
-      "meter_time": 38.7
+      "meter_time": 38.7,
+      "people": 1
      },
      {
       "i": 9,
@@ -5283,7 +5580,8 @@
       "obstruction": 0.26,
       "near_field_raw": 0.0007,
       "near_field": 0.03,
-      "meter_time": 43.5
+      "meter_time": 43.5,
+      "people": 0
      },
      {
       "i": 10,
@@ -5294,7 +5592,8 @@
       "obstruction": 0.35,
       "near_field_raw": 0.0007,
       "near_field": 0.03,
-      "meter_time": 48.4
+      "meter_time": 48.4,
+      "people": 0
      },
      {
       "i": 11,
@@ -5305,7 +5604,8 @@
       "obstruction": 1.48,
       "near_field_raw": 0.0277,
       "near_field": 1.39,
-      "meter_time": 53.2
+      "meter_time": 53.2,
+      "people": 0
      },
      {
       "i": 12,
@@ -5316,7 +5616,8 @@
       "obstruction": 0.51,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 58.0
+      "meter_time": 58.0,
+      "people": 1
      },
      {
       "i": 13,
@@ -5327,7 +5628,8 @@
       "obstruction": 0.12,
       "near_field_raw": 0.0008,
       "near_field": 0.04,
-      "meter_time": 62.9
+      "meter_time": 62.9,
+      "people": 1
      },
      {
       "i": 14,
@@ -5338,7 +5640,8 @@
       "obstruction": 1.88,
       "near_field_raw": 0.0248,
       "near_field": 1.24,
-      "meter_time": 67.7
+      "meter_time": 67.7,
+      "people": 1
      },
      {
       "i": 15,
@@ -5349,7 +5652,8 @@
       "obstruction": 1.88,
       "near_field_raw": 0.018,
       "near_field": 0.9,
-      "meter_time": 72.5
+      "meter_time": 72.5,
+      "people": 2
      },
      {
       "i": 16,
@@ -5360,7 +5664,8 @@
       "obstruction": 0.39,
       "near_field_raw": 0.0043,
       "near_field": 0.21,
-      "meter_time": 77.4
+      "meter_time": 77.4,
+      "people": 2
      },
      {
       "i": 17,
@@ -5371,7 +5676,8 @@
       "obstruction": 0.72,
       "near_field_raw": 0.0048,
       "near_field": 0.24,
-      "meter_time": 82.2
+      "meter_time": 82.2,
+      "people": 1
      },
      {
       "i": 18,
@@ -5382,7 +5688,8 @@
       "obstruction": 1.16,
       "near_field_raw": 0.0046,
       "near_field": 0.23,
-      "meter_time": 87.0
+      "meter_time": 87.0,
+      "people": 3
      },
      {
       "i": 19,
@@ -5393,7 +5700,8 @@
       "obstruction": 0.98,
       "near_field_raw": 0.0097,
       "near_field": 0.48,
-      "meter_time": 91.9
+      "meter_time": 91.9,
+      "people": 2
      },
      {
       "i": 20,
@@ -5404,7 +5712,8 @@
       "obstruction": 1.82,
       "near_field_raw": 0.0721,
       "near_field": 3.6,
-      "meter_time": 96.7
+      "meter_time": 96.7,
+      "people": 1
      },
      {
       "i": 21,
@@ -5415,7 +5724,8 @@
       "obstruction": 1.17,
       "near_field_raw": 0.0267,
       "near_field": 1.33,
-      "meter_time": 101.5
+      "meter_time": 101.5,
+      "people": 0
      },
      {
       "i": 22,
@@ -5426,7 +5736,8 @@
       "obstruction": 0.79,
       "near_field_raw": 0.0045,
       "near_field": 0.22,
-      "meter_time": 106.4
+      "meter_time": 106.4,
+      "people": 2
      },
      {
       "i": 23,
@@ -5437,7 +5748,8 @@
       "obstruction": 0.18,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 111.2
+      "meter_time": 111.2,
+      "people": 2
      },
      {
       "i": 24,
@@ -5448,7 +5760,8 @@
       "obstruction": 1.05,
       "near_field_raw": 0.0014,
       "near_field": 0.07,
-      "meter_time": 116.0
+      "meter_time": 116.0,
+      "people": 0
      },
      {
       "i": 25,
@@ -5459,7 +5772,8 @@
       "obstruction": 1.68,
       "near_field_raw": 0.024,
       "near_field": 1.2,
-      "meter_time": 120.9
+      "meter_time": 120.9,
+      "people": 1
      },
      {
       "i": 26,
@@ -5470,7 +5784,8 @@
       "obstruction": 1.03,
       "near_field_raw": 0.0069,
       "near_field": 0.34,
-      "meter_time": 125.7
+      "meter_time": 125.7,
+      "people": 3
      },
      {
       "i": 27,
@@ -5481,7 +5796,8 @@
       "obstruction": 1.89,
       "near_field_raw": 0.0292,
       "near_field": 1.46,
-      "meter_time": 130.5
+      "meter_time": 130.5,
+      "people": 2
      },
      {
       "i": 28,
@@ -5492,7 +5808,8 @@
       "obstruction": 1.37,
       "near_field_raw": 0.0004,
       "near_field": 0.02,
-      "meter_time": 135.4
+      "meter_time": 135.4,
+      "people": 2
      },
      {
       "i": 29,
@@ -5503,7 +5820,8 @@
       "obstruction": 0.98,
       "near_field_raw": 0.0068,
       "near_field": 0.34,
-      "meter_time": 140.2
+      "meter_time": 140.2,
+      "people": 1
      },
      {
       "i": 30,
@@ -5514,7 +5832,8 @@
       "obstruction": 0.94,
       "near_field_raw": 0.0259,
       "near_field": 1.29,
-      "meter_time": 145.1
+      "meter_time": 145.1,
+      "people": 0
      },
      {
       "i": 31,
@@ -5525,7 +5844,8 @@
       "obstruction": 0.24,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 149.9
+      "meter_time": 149.9,
+      "people": 3
      },
      {
       "i": 32,
@@ -5536,7 +5856,8 @@
       "obstruction": 0.75,
       "near_field_raw": 0.0055,
       "near_field": 0.27,
-      "meter_time": 154.7
+      "meter_time": 154.7,
+      "people": 4
      },
      {
       "i": 33,
@@ -5547,7 +5868,8 @@
       "obstruction": 0.27,
       "near_field_raw": 0.0044,
       "near_field": 0.22,
-      "meter_time": 159.6
+      "meter_time": 159.6,
+      "people": 3
      },
      {
       "i": 34,
@@ -5558,7 +5880,8 @@
       "obstruction": 0.11,
       "near_field_raw": 0.0004,
       "near_field": 0.02,
-      "meter_time": 164.4
+      "meter_time": 164.4,
+      "people": 1
      },
      {
       "i": 35,
@@ -5569,7 +5892,8 @@
       "obstruction": 0.26,
       "near_field_raw": 0.0005,
       "near_field": 0.03,
-      "meter_time": 169.2
+      "meter_time": 169.2,
+      "people": 1
      },
      {
       "i": 36,
@@ -5580,7 +5904,8 @@
       "obstruction": 0.58,
       "near_field_raw": 0.0023,
       "near_field": 0.11,
-      "meter_time": 174.1
+      "meter_time": 174.1,
+      "people": 0
      },
      {
       "i": 37,
@@ -5591,7 +5916,8 @@
       "obstruction": 0.27,
       "near_field_raw": 0.0011,
       "near_field": 0.06,
-      "meter_time": 178.9
+      "meter_time": 178.9,
+      "people": 0
      },
      {
       "i": 38,
@@ -5602,7 +5928,8 @@
       "obstruction": 0.54,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 183.7
+      "meter_time": 183.7,
+      "people": 0
      },
      {
       "i": 39,
@@ -5613,7 +5940,8 @@
       "obstruction": 0.82,
       "near_field_raw": 0.0004,
       "near_field": 0.02,
-      "meter_time": 188.6
+      "meter_time": 188.6,
+      "people": 0
      },
      {
       "i": 40,
@@ -5624,7 +5952,8 @@
       "obstruction": 1.17,
       "near_field_raw": 0.0074,
       "near_field": 0.37,
-      "meter_time": 193.4
+      "meter_time": 193.4,
+      "people": 0
      },
      {
       "i": 41,
@@ -5635,7 +5964,8 @@
       "obstruction": 2.1,
       "near_field_raw": 0.0428,
       "near_field": 2.14,
-      "meter_time": 198.2
+      "meter_time": 198.2,
+      "people": 0
      },
      {
       "i": 42,
@@ -5646,7 +5976,8 @@
       "obstruction": 1.0,
       "near_field_raw": 0.0096,
       "near_field": 0.48,
-      "meter_time": 203.1
+      "meter_time": 203.1,
+      "people": 1
      },
      {
       "i": 43,
@@ -5657,7 +5988,8 @@
       "obstruction": 0.39,
       "near_field_raw": 0.0098,
       "near_field": 0.49,
-      "meter_time": 207.9
+      "meter_time": 207.9,
+      "people": 2
      },
      {
       "i": 44,
@@ -5668,7 +6000,8 @@
       "obstruction": 0.69,
       "near_field_raw": 0.006,
       "near_field": 0.3,
-      "meter_time": 212.7
+      "meter_time": 212.7,
+      "people": 0
      },
      {
       "i": 45,
@@ -5679,7 +6012,8 @@
       "obstruction": 0.9,
       "near_field_raw": 0.0566,
       "near_field": 2.83,
-      "meter_time": 217.6
+      "meter_time": 217.6,
+      "people": 0
      },
      {
       "i": 46,
@@ -5690,7 +6024,8 @@
       "obstruction": 1.09,
       "near_field_raw": 0.0191,
       "near_field": 0.95,
-      "meter_time": 220.0
+      "meter_time": 220.0,
+      "people": 0
      }
     ],
     "stops": [],
@@ -6032,7 +6367,8 @@
       "obstruction": 0.82,
       "near_field_raw": 0.0033,
       "near_field": 0.17,
-      "meter_time": 220.0
+      "meter_time": 220.0,
+      "people": 0
      },
      {
       "i": 1,
@@ -6043,7 +6379,8 @@
       "obstruction": 0.12,
       "near_field_raw": 0.0009,
       "near_field": 0.04,
-      "meter_time": 215.5
+      "meter_time": 215.5,
+      "people": 0
      },
      {
       "i": 2,
@@ -6054,7 +6391,8 @@
       "obstruction": 1.0,
       "near_field_raw": 0.0006,
       "near_field": 0.03,
-      "meter_time": 211.0
+      "meter_time": 211.0,
+      "people": 0
      },
      {
       "i": 3,
@@ -6065,7 +6403,8 @@
       "obstruction": 1.24,
       "near_field_raw": 0.0215,
       "near_field": 1.07,
-      "meter_time": 206.5
+      "meter_time": 206.5,
+      "people": 0
      },
      {
       "i": 4,
@@ -6076,7 +6415,8 @@
       "obstruction": 0.4,
       "near_field_raw": 0.0007,
       "near_field": 0.03,
-      "meter_time": 202.0
+      "meter_time": 202.0,
+      "people": 0
      },
      {
       "i": 5,
@@ -6087,7 +6427,8 @@
       "obstruction": 3.46,
       "near_field_raw": 0.045,
       "near_field": 2.25,
-      "meter_time": 197.5
+      "meter_time": 197.5,
+      "people": 0
      },
      {
       "i": 6,
@@ -6098,7 +6439,8 @@
       "obstruction": 1.62,
       "near_field_raw": 0.0122,
       "near_field": 0.61,
-      "meter_time": 193.0
+      "meter_time": 193.0,
+      "people": 0
      },
      {
       "i": 7,
@@ -6109,7 +6451,8 @@
       "obstruction": 0.76,
       "near_field_raw": 0.008,
       "near_field": 0.4,
-      "meter_time": 188.5
+      "meter_time": 188.5,
+      "people": 0
      },
      {
       "i": 8,
@@ -6120,7 +6463,8 @@
       "obstruction": 1.15,
       "near_field_raw": 0.0067,
       "near_field": 0.34,
-      "meter_time": 184.0
+      "meter_time": 184.0,
+      "people": 0
      },
      {
       "i": 9,
@@ -6131,7 +6475,8 @@
       "obstruction": 1.77,
       "near_field_raw": 0.0115,
       "near_field": 0.57,
-      "meter_time": 179.5
+      "meter_time": 179.5,
+      "people": 0
      },
      {
       "i": 10,
@@ -6142,7 +6487,8 @@
       "obstruction": 0.89,
       "near_field_raw": 0.0122,
       "near_field": 0.61,
-      "meter_time": 174.9
+      "meter_time": 174.9,
+      "people": 0
      },
      {
       "i": 11,
@@ -6153,7 +6499,8 @@
       "obstruction": 1.39,
       "near_field_raw": 0.0044,
       "near_field": 0.22,
-      "meter_time": 170.4
+      "meter_time": 170.4,
+      "people": 0
      },
      {
       "i": 12,
@@ -6164,7 +6511,8 @@
       "obstruction": 0.48,
       "near_field_raw": 0.0008,
       "near_field": 0.04,
-      "meter_time": 165.9
+      "meter_time": 165.9,
+      "people": 0
      },
      {
       "i": 13,
@@ -6175,7 +6523,8 @@
       "obstruction": 0.03,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 161.4
+      "meter_time": 161.4,
+      "people": 0
      },
      {
       "i": 14,
@@ -6186,7 +6535,8 @@
       "obstruction": 0.02,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 156.9
+      "meter_time": 156.9,
+      "people": 0
      },
      {
       "i": 15,
@@ -6197,7 +6547,8 @@
       "obstruction": 0.05,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 152.4
+      "meter_time": 152.4,
+      "people": 1
      },
      {
       "i": 16,
@@ -6208,7 +6559,8 @@
       "obstruction": 2.3,
       "near_field_raw": 0.0036,
       "near_field": 0.18,
-      "meter_time": 147.9
+      "meter_time": 147.9,
+      "people": 3
      },
      {
       "i": 17,
@@ -6219,7 +6571,8 @@
       "obstruction": 0.86,
       "near_field_raw": 0.0059,
       "near_field": 0.29,
-      "meter_time": 143.4
+      "meter_time": 143.4,
+      "people": 0
      },
      {
       "i": 18,
@@ -6230,7 +6583,8 @@
       "obstruction": 0.59,
       "near_field_raw": 0.0009,
       "near_field": 0.04,
-      "meter_time": 138.9
+      "meter_time": 138.9,
+      "people": 2
      },
      {
       "i": 19,
@@ -6241,7 +6595,8 @@
       "obstruction": 1.98,
       "near_field_raw": 0.0148,
       "near_field": 0.74,
-      "meter_time": 134.4
+      "meter_time": 134.4,
+      "people": 0
      },
      {
       "i": 20,
@@ -6252,7 +6607,8 @@
       "obstruction": 3.29,
       "near_field_raw": 0.0349,
       "near_field": 1.74,
-      "meter_time": 129.9
+      "meter_time": 129.9,
+      "people": 0
      },
      {
       "i": 21,
@@ -6263,7 +6619,8 @@
       "obstruction": 2.46,
       "near_field_raw": 0.0452,
       "near_field": 2.26,
-      "meter_time": 125.4
+      "meter_time": 125.4,
+      "people": 1
      },
      {
       "i": 22,
@@ -6274,7 +6631,8 @@
       "obstruction": 1.12,
       "near_field_raw": 0.0086,
       "near_field": 0.43,
-      "meter_time": 120.9
+      "meter_time": 120.9,
+      "people": 0
      },
      {
       "i": 23,
@@ -6285,7 +6643,8 @@
       "obstruction": 0.48,
       "near_field_raw": 0.0004,
       "near_field": 0.02,
-      "meter_time": 116.4
+      "meter_time": 116.4,
+      "people": 0
      },
      {
       "i": 24,
@@ -6296,7 +6655,8 @@
       "obstruction": 0.52,
       "near_field_raw": 0.009,
       "near_field": 0.45,
-      "meter_time": 111.9
+      "meter_time": 111.9,
+      "people": 0
      },
      {
       "i": 25,
@@ -6307,7 +6667,8 @@
       "obstruction": 1.7,
       "near_field_raw": 0.0182,
       "near_field": 0.91,
-      "meter_time": 107.4
+      "meter_time": 107.4,
+      "people": 0
      },
      {
       "i": 26,
@@ -6318,7 +6679,8 @@
       "obstruction": 0.79,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 102.9
+      "meter_time": 102.9,
+      "people": 0
      },
      {
       "i": 27,
@@ -6329,7 +6691,8 @@
       "obstruction": 0.51,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 98.4
+      "meter_time": 98.4,
+      "people": 0
      },
      {
       "i": 28,
@@ -6340,7 +6703,8 @@
       "obstruction": 2.21,
       "near_field_raw": 0.0355,
       "near_field": 1.77,
-      "meter_time": 93.9
+      "meter_time": 93.9,
+      "people": 1
      },
      {
       "i": 29,
@@ -6351,7 +6715,8 @@
       "obstruction": 2.55,
       "near_field_raw": 0.049,
       "near_field": 2.45,
-      "meter_time": 89.4
+      "meter_time": 89.4,
+      "people": 0
      },
      {
       "i": 30,
@@ -6362,7 +6727,8 @@
       "obstruction": 2.42,
       "near_field_raw": 0.0406,
       "near_field": 2.03,
-      "meter_time": 84.8
+      "meter_time": 84.8,
+      "people": 0
      },
      {
       "i": 31,
@@ -6373,7 +6739,8 @@
       "obstruction": 0.3,
       "near_field_raw": 0.0008,
       "near_field": 0.04,
-      "meter_time": 80.3
+      "meter_time": 80.3,
+      "people": 0
      },
      {
       "i": 32,
@@ -6384,7 +6751,8 @@
       "obstruction": 0.64,
       "near_field_raw": 0.0011,
       "near_field": 0.06,
-      "meter_time": 75.8
+      "meter_time": 75.8,
+      "people": 0
      },
      {
       "i": 33,
@@ -6395,7 +6763,8 @@
       "obstruction": 1.93,
       "near_field_raw": 0.0287,
       "near_field": 1.44,
-      "meter_time": 71.3
+      "meter_time": 71.3,
+      "people": 0
      },
      {
       "i": 34,
@@ -6406,7 +6775,8 @@
       "obstruction": 1.84,
       "near_field_raw": 0.0153,
       "near_field": 0.76,
-      "meter_time": 66.8
+      "meter_time": 66.8,
+      "people": 0
      },
      {
       "i": 35,
@@ -6417,7 +6787,8 @@
       "obstruction": 1.13,
       "near_field_raw": 0.0102,
       "near_field": 0.51,
-      "meter_time": 62.3
+      "meter_time": 62.3,
+      "people": 0
      },
      {
       "i": 36,
@@ -6428,7 +6799,8 @@
       "obstruction": 0.91,
       "near_field_raw": 0.0011,
       "near_field": 0.06,
-      "meter_time": 57.8
+      "meter_time": 57.8,
+      "people": 0
      },
      {
       "i": 37,
@@ -6439,7 +6811,8 @@
       "obstruction": 1.28,
       "near_field_raw": 0.0113,
       "near_field": 0.56,
-      "meter_time": 53.3
+      "meter_time": 53.3,
+      "people": 1
      },
      {
       "i": 38,
@@ -6450,7 +6823,8 @@
       "obstruction": 0.64,
       "near_field_raw": 0.0008,
       "near_field": 0.04,
-      "meter_time": 48.8
+      "meter_time": 48.8,
+      "people": 1
      },
      {
       "i": 39,
@@ -6461,7 +6835,8 @@
       "obstruction": 0.91,
       "near_field_raw": 0.0035,
       "near_field": 0.17,
-      "meter_time": 44.3
+      "meter_time": 44.3,
+      "people": 2
      },
      {
       "i": 40,
@@ -6472,7 +6847,8 @@
       "obstruction": 0.2,
       "near_field_raw": 0.0075,
       "near_field": 0.38,
-      "meter_time": 39.8
+      "meter_time": 39.8,
+      "people": 0
      },
      {
       "i": 41,
@@ -6483,7 +6859,8 @@
       "obstruction": 0.26,
       "near_field_raw": 0.0041,
       "near_field": 0.21,
-      "meter_time": 35.3
+      "meter_time": 35.3,
+      "people": 0
      },
      {
       "i": 42,
@@ -6494,7 +6871,8 @@
       "obstruction": 0.23,
       "near_field_raw": 0.0014,
       "near_field": 0.07,
-      "meter_time": 30.8
+      "meter_time": 30.8,
+      "people": 0
      },
      {
       "i": 43,
@@ -6505,7 +6883,8 @@
       "obstruction": 0.08,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 26.3
+      "meter_time": 26.3,
+      "people": 0
      },
      {
       "i": 44,
@@ -6516,7 +6895,8 @@
       "obstruction": 0.24,
       "near_field_raw": 0.0038,
       "near_field": 0.19,
-      "meter_time": 21.8
+      "meter_time": 21.8,
+      "people": 0
      },
      {
       "i": 45,
@@ -6527,7 +6907,8 @@
       "obstruction": 0.09,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 17.3
+      "meter_time": 17.3,
+      "people": 0
      },
      {
       "i": 46,
@@ -6538,7 +6919,8 @@
       "obstruction": 0.65,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 12.8
+      "meter_time": 12.8,
+      "people": 0
      },
      {
       "i": 47,
@@ -6549,7 +6931,8 @@
       "obstruction": 0.33,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 8.3
+      "meter_time": 8.3,
+      "people": 0
      },
      {
       "i": 48,
@@ -6560,7 +6943,8 @@
       "obstruction": 1.43,
       "near_field_raw": 0.002,
       "near_field": 0.1,
-      "meter_time": 3.8
+      "meter_time": 3.8,
+      "people": 1
      },
      {
       "i": 49,
@@ -6571,7 +6955,8 @@
       "obstruction": 2.53,
       "near_field_raw": 0.0594,
       "near_field": 2.97,
-      "meter_time": 0.0
+      "meter_time": 0.0,
+      "people": 0
      }
     ],
     "stops": [],
@@ -6943,7 +7328,8 @@
       "obstruction": 0.25,
       "near_field_raw": 0.0173,
       "near_field": 0.86,
-      "meter_time": 0.0
+      "meter_time": 0.0,
+      "people": 0
      },
      {
       "i": 1,
@@ -6954,7 +7340,8 @@
       "obstruction": 0.96,
       "near_field_raw": 0.0077,
       "near_field": 0.39,
-      "meter_time": 4.8
+      "meter_time": 4.8,
+      "people": 1
      },
      {
       "i": 2,
@@ -6965,7 +7352,8 @@
       "obstruction": 0.91,
       "near_field_raw": 0.0176,
       "near_field": 0.88,
-      "meter_time": 9.7
+      "meter_time": 9.7,
+      "people": 0
      },
      {
       "i": 3,
@@ -6976,7 +7364,8 @@
       "obstruction": 1.54,
       "near_field_raw": 0.005,
       "near_field": 0.25,
-      "meter_time": 14.5
+      "meter_time": 14.5,
+      "people": 1
      },
      {
       "i": 4,
@@ -6987,7 +7376,8 @@
       "obstruction": 0.74,
       "near_field_raw": 0.0119,
       "near_field": 0.6,
-      "meter_time": 19.3
+      "meter_time": 19.3,
+      "people": 0
      },
      {
       "i": 5,
@@ -6998,7 +7388,8 @@
       "obstruction": 1.86,
       "near_field_raw": 0.024,
       "near_field": 1.2,
-      "meter_time": 24.2
+      "meter_time": 24.2,
+      "people": 0
      },
      {
       "i": 6,
@@ -7009,7 +7400,8 @@
       "obstruction": 0.33,
       "near_field_raw": 0.0021,
       "near_field": 0.1,
-      "meter_time": 29.0
+      "meter_time": 29.0,
+      "people": 1
      },
      {
       "i": 7,
@@ -7020,7 +7412,8 @@
       "obstruction": 0.59,
       "near_field_raw": 0.0071,
       "near_field": 0.36,
-      "meter_time": 33.8
+      "meter_time": 33.8,
+      "people": 0
      },
      {
       "i": 8,
@@ -7031,7 +7424,8 @@
       "obstruction": 0.53,
       "near_field_raw": 0.0116,
       "near_field": 0.58,
-      "meter_time": 38.7
+      "meter_time": 38.7,
+      "people": 1
      },
      {
       "i": 9,
@@ -7042,7 +7436,8 @@
       "obstruction": 0.26,
       "near_field_raw": 0.0007,
       "near_field": 0.03,
-      "meter_time": 43.5
+      "meter_time": 43.5,
+      "people": 0
      },
      {
       "i": 10,
@@ -7053,7 +7448,8 @@
       "obstruction": 0.35,
       "near_field_raw": 0.0007,
       "near_field": 0.03,
-      "meter_time": 48.4
+      "meter_time": 48.4,
+      "people": 0
      },
      {
       "i": 11,
@@ -7064,7 +7460,8 @@
       "obstruction": 1.48,
       "near_field_raw": 0.0277,
       "near_field": 1.39,
-      "meter_time": 53.2
+      "meter_time": 53.2,
+      "people": 0
      },
      {
       "i": 12,
@@ -7075,7 +7472,8 @@
       "obstruction": 0.51,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 58.0
+      "meter_time": 58.0,
+      "people": 1
      },
      {
       "i": 13,
@@ -7086,7 +7484,8 @@
       "obstruction": 0.12,
       "near_field_raw": 0.0008,
       "near_field": 0.04,
-      "meter_time": 62.9
+      "meter_time": 62.9,
+      "people": 1
      },
      {
       "i": 14,
@@ -7097,7 +7496,8 @@
       "obstruction": 1.88,
       "near_field_raw": 0.0248,
       "near_field": 1.24,
-      "meter_time": 67.7
+      "meter_time": 67.7,
+      "people": 1
      },
      {
       "i": 15,
@@ -7108,7 +7508,8 @@
       "obstruction": 1.88,
       "near_field_raw": 0.018,
       "near_field": 0.9,
-      "meter_time": 72.5
+      "meter_time": 72.5,
+      "people": 2
      },
      {
       "i": 16,
@@ -7119,7 +7520,8 @@
       "obstruction": 0.39,
       "near_field_raw": 0.0043,
       "near_field": 0.21,
-      "meter_time": 77.4
+      "meter_time": 77.4,
+      "people": 2
      },
      {
       "i": 17,
@@ -7130,7 +7532,8 @@
       "obstruction": 0.72,
       "near_field_raw": 0.0048,
       "near_field": 0.24,
-      "meter_time": 82.2
+      "meter_time": 82.2,
+      "people": 1
      },
      {
       "i": 18,
@@ -7141,7 +7544,8 @@
       "obstruction": 1.16,
       "near_field_raw": 0.0046,
       "near_field": 0.23,
-      "meter_time": 87.0
+      "meter_time": 87.0,
+      "people": 3
      },
      {
       "i": 19,
@@ -7152,7 +7556,8 @@
       "obstruction": 0.98,
       "near_field_raw": 0.0097,
       "near_field": 0.48,
-      "meter_time": 91.9
+      "meter_time": 91.9,
+      "people": 2
      },
      {
       "i": 20,
@@ -7163,7 +7568,8 @@
       "obstruction": 1.82,
       "near_field_raw": 0.0721,
       "near_field": 3.6,
-      "meter_time": 96.7
+      "meter_time": 96.7,
+      "people": 1
      },
      {
       "i": 21,
@@ -7174,7 +7580,8 @@
       "obstruction": 1.17,
       "near_field_raw": 0.0267,
       "near_field": 1.33,
-      "meter_time": 101.5
+      "meter_time": 101.5,
+      "people": 0
      },
      {
       "i": 22,
@@ -7185,7 +7592,8 @@
       "obstruction": 0.79,
       "near_field_raw": 0.0045,
       "near_field": 0.22,
-      "meter_time": 106.4
+      "meter_time": 106.4,
+      "people": 2
      },
      {
       "i": 23,
@@ -7196,7 +7604,8 @@
       "obstruction": 0.18,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 111.2
+      "meter_time": 111.2,
+      "people": 2
      },
      {
       "i": 24,
@@ -7207,7 +7616,8 @@
       "obstruction": 1.05,
       "near_field_raw": 0.0014,
       "near_field": 0.07,
-      "meter_time": 116.0
+      "meter_time": 116.0,
+      "people": 0
      },
      {
       "i": 25,
@@ -7218,7 +7628,8 @@
       "obstruction": 1.68,
       "near_field_raw": 0.024,
       "near_field": 1.2,
-      "meter_time": 120.9
+      "meter_time": 120.9,
+      "people": 1
      },
      {
       "i": 26,
@@ -7229,7 +7640,8 @@
       "obstruction": 1.03,
       "near_field_raw": 0.0069,
       "near_field": 0.34,
-      "meter_time": 125.7
+      "meter_time": 125.7,
+      "people": 3
      },
      {
       "i": 27,
@@ -7240,7 +7652,8 @@
       "obstruction": 1.89,
       "near_field_raw": 0.0292,
       "near_field": 1.46,
-      "meter_time": 130.5
+      "meter_time": 130.5,
+      "people": 2
      },
      {
       "i": 28,
@@ -7251,7 +7664,8 @@
       "obstruction": 1.37,
       "near_field_raw": 0.0004,
       "near_field": 0.02,
-      "meter_time": 135.4
+      "meter_time": 135.4,
+      "people": 2
      },
      {
       "i": 29,
@@ -7262,7 +7676,8 @@
       "obstruction": 0.98,
       "near_field_raw": 0.0068,
       "near_field": 0.34,
-      "meter_time": 140.2
+      "meter_time": 140.2,
+      "people": 1
      },
      {
       "i": 30,
@@ -7273,7 +7688,8 @@
       "obstruction": 0.94,
       "near_field_raw": 0.0259,
       "near_field": 1.29,
-      "meter_time": 145.1
+      "meter_time": 145.1,
+      "people": 0
      },
      {
       "i": 31,
@@ -7284,7 +7700,8 @@
       "obstruction": 0.24,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 149.9
+      "meter_time": 149.9,
+      "people": 3
      },
      {
       "i": 32,
@@ -7295,7 +7712,8 @@
       "obstruction": 0.75,
       "near_field_raw": 0.0055,
       "near_field": 0.27,
-      "meter_time": 154.7
+      "meter_time": 154.7,
+      "people": 4
      },
      {
       "i": 33,
@@ -7306,7 +7724,8 @@
       "obstruction": 0.27,
       "near_field_raw": 0.0044,
       "near_field": 0.22,
-      "meter_time": 159.6
+      "meter_time": 159.6,
+      "people": 3
      },
      {
       "i": 34,
@@ -7317,7 +7736,8 @@
       "obstruction": 0.11,
       "near_field_raw": 0.0004,
       "near_field": 0.02,
-      "meter_time": 164.4
+      "meter_time": 164.4,
+      "people": 1
      },
      {
       "i": 35,
@@ -7328,7 +7748,8 @@
       "obstruction": 0.26,
       "near_field_raw": 0.0005,
       "near_field": 0.03,
-      "meter_time": 169.2
+      "meter_time": 169.2,
+      "people": 1
      },
      {
       "i": 36,
@@ -7339,7 +7760,8 @@
       "obstruction": 0.58,
       "near_field_raw": 0.0023,
       "near_field": 0.11,
-      "meter_time": 174.1
+      "meter_time": 174.1,
+      "people": 0
      },
      {
       "i": 37,
@@ -7350,7 +7772,8 @@
       "obstruction": 0.27,
       "near_field_raw": 0.0011,
       "near_field": 0.06,
-      "meter_time": 178.9
+      "meter_time": 178.9,
+      "people": 0
      },
      {
       "i": 38,
@@ -7361,7 +7784,8 @@
       "obstruction": 0.54,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 183.7
+      "meter_time": 183.7,
+      "people": 0
      },
      {
       "i": 39,
@@ -7372,7 +7796,8 @@
       "obstruction": 0.82,
       "near_field_raw": 0.0004,
       "near_field": 0.02,
-      "meter_time": 188.6
+      "meter_time": 188.6,
+      "people": 0
      },
      {
       "i": 40,
@@ -7383,7 +7808,8 @@
       "obstruction": 1.17,
       "near_field_raw": 0.0074,
       "near_field": 0.37,
-      "meter_time": 193.4
+      "meter_time": 193.4,
+      "people": 0
      },
      {
       "i": 41,
@@ -7394,7 +7820,8 @@
       "obstruction": 2.1,
       "near_field_raw": 0.0428,
       "near_field": 2.14,
-      "meter_time": 198.2
+      "meter_time": 198.2,
+      "people": 0
      },
      {
       "i": 42,
@@ -7405,7 +7832,8 @@
       "obstruction": 1.0,
       "near_field_raw": 0.0096,
       "near_field": 0.48,
-      "meter_time": 203.1
+      "meter_time": 203.1,
+      "people": 1
      },
      {
       "i": 43,
@@ -7416,7 +7844,8 @@
       "obstruction": 0.39,
       "near_field_raw": 0.0098,
       "near_field": 0.49,
-      "meter_time": 207.9
+      "meter_time": 207.9,
+      "people": 2
      },
      {
       "i": 44,
@@ -7427,7 +7856,8 @@
       "obstruction": 0.69,
       "near_field_raw": 0.006,
       "near_field": 0.3,
-      "meter_time": 212.7
+      "meter_time": 212.7,
+      "people": 0
      },
      {
       "i": 45,
@@ -7438,7 +7868,8 @@
       "obstruction": 0.9,
       "near_field_raw": 0.0566,
       "near_field": 2.83,
-      "meter_time": 217.6
+      "meter_time": 217.6,
+      "people": 0
      },
      {
       "i": 46,
@@ -7449,7 +7880,8 @@
       "obstruction": 1.09,
       "near_field_raw": 0.0191,
       "near_field": 0.95,
-      "meter_time": 220.0
+      "meter_time": 220.0,
+      "people": 0
      }
     ],
     "stops": [],
@@ -7792,7 +8224,8 @@
       "obstruction": 0.82,
       "near_field_raw": 0.0033,
       "near_field": 0.17,
-      "meter_time": 220.0
+      "meter_time": 220.0,
+      "people": 0
      },
      {
       "i": 1,
@@ -7803,7 +8236,8 @@
       "obstruction": 0.12,
       "near_field_raw": 0.0009,
       "near_field": 0.04,
-      "meter_time": 215.5
+      "meter_time": 215.5,
+      "people": 0
      },
      {
       "i": 2,
@@ -7814,7 +8248,8 @@
       "obstruction": 1.0,
       "near_field_raw": 0.0006,
       "near_field": 0.03,
-      "meter_time": 211.0
+      "meter_time": 211.0,
+      "people": 0
      },
      {
       "i": 3,
@@ -7825,7 +8260,8 @@
       "obstruction": 1.24,
       "near_field_raw": 0.0215,
       "near_field": 1.07,
-      "meter_time": 206.5
+      "meter_time": 206.5,
+      "people": 0
      },
      {
       "i": 4,
@@ -7836,7 +8272,8 @@
       "obstruction": 0.4,
       "near_field_raw": 0.0007,
       "near_field": 0.03,
-      "meter_time": 202.0
+      "meter_time": 202.0,
+      "people": 0
      },
      {
       "i": 5,
@@ -7847,7 +8284,8 @@
       "obstruction": 3.46,
       "near_field_raw": 0.045,
       "near_field": 2.25,
-      "meter_time": 197.5
+      "meter_time": 197.5,
+      "people": 0
      },
      {
       "i": 6,
@@ -7858,7 +8296,8 @@
       "obstruction": 1.62,
       "near_field_raw": 0.0122,
       "near_field": 0.61,
-      "meter_time": 193.0
+      "meter_time": 193.0,
+      "people": 0
      },
      {
       "i": 7,
@@ -7869,7 +8308,8 @@
       "obstruction": 0.76,
       "near_field_raw": 0.008,
       "near_field": 0.4,
-      "meter_time": 188.5
+      "meter_time": 188.5,
+      "people": 0
      },
      {
       "i": 8,
@@ -7880,7 +8320,8 @@
       "obstruction": 1.15,
       "near_field_raw": 0.0067,
       "near_field": 0.34,
-      "meter_time": 184.0
+      "meter_time": 184.0,
+      "people": 0
      },
      {
       "i": 9,
@@ -7891,7 +8332,8 @@
       "obstruction": 1.77,
       "near_field_raw": 0.0115,
       "near_field": 0.57,
-      "meter_time": 179.5
+      "meter_time": 179.5,
+      "people": 0
      },
      {
       "i": 10,
@@ -7902,7 +8344,8 @@
       "obstruction": 0.89,
       "near_field_raw": 0.0122,
       "near_field": 0.61,
-      "meter_time": 174.9
+      "meter_time": 174.9,
+      "people": 0
      },
      {
       "i": 11,
@@ -7913,7 +8356,8 @@
       "obstruction": 1.39,
       "near_field_raw": 0.0044,
       "near_field": 0.22,
-      "meter_time": 170.4
+      "meter_time": 170.4,
+      "people": 0
      },
      {
       "i": 12,
@@ -7924,7 +8368,8 @@
       "obstruction": 0.48,
       "near_field_raw": 0.0008,
       "near_field": 0.04,
-      "meter_time": 165.9
+      "meter_time": 165.9,
+      "people": 0
      },
      {
       "i": 13,
@@ -7935,7 +8380,8 @@
       "obstruction": 0.03,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 161.4
+      "meter_time": 161.4,
+      "people": 0
      },
      {
       "i": 14,
@@ -7946,7 +8392,8 @@
       "obstruction": 0.02,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 156.9
+      "meter_time": 156.9,
+      "people": 0
      },
      {
       "i": 15,
@@ -7957,7 +8404,8 @@
       "obstruction": 0.05,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 152.4
+      "meter_time": 152.4,
+      "people": 1
      },
      {
       "i": 16,
@@ -7968,7 +8416,8 @@
       "obstruction": 2.3,
       "near_field_raw": 0.0036,
       "near_field": 0.18,
-      "meter_time": 147.9
+      "meter_time": 147.9,
+      "people": 3
      },
      {
       "i": 17,
@@ -7979,7 +8428,8 @@
       "obstruction": 0.86,
       "near_field_raw": 0.0059,
       "near_field": 0.29,
-      "meter_time": 143.4
+      "meter_time": 143.4,
+      "people": 0
      },
      {
       "i": 18,
@@ -7990,7 +8440,8 @@
       "obstruction": 0.59,
       "near_field_raw": 0.0009,
       "near_field": 0.04,
-      "meter_time": 138.9
+      "meter_time": 138.9,
+      "people": 2
      },
      {
       "i": 19,
@@ -8001,7 +8452,8 @@
       "obstruction": 1.98,
       "near_field_raw": 0.0148,
       "near_field": 0.74,
-      "meter_time": 134.4
+      "meter_time": 134.4,
+      "people": 0
      },
      {
       "i": 20,
@@ -8012,7 +8464,8 @@
       "obstruction": 3.29,
       "near_field_raw": 0.0349,
       "near_field": 1.74,
-      "meter_time": 129.9
+      "meter_time": 129.9,
+      "people": 0
      },
      {
       "i": 21,
@@ -8023,7 +8476,8 @@
       "obstruction": 2.46,
       "near_field_raw": 0.0452,
       "near_field": 2.26,
-      "meter_time": 125.4
+      "meter_time": 125.4,
+      "people": 1
      },
      {
       "i": 22,
@@ -8034,7 +8488,8 @@
       "obstruction": 1.12,
       "near_field_raw": 0.0086,
       "near_field": 0.43,
-      "meter_time": 120.9
+      "meter_time": 120.9,
+      "people": 0
      },
      {
       "i": 23,
@@ -8045,7 +8500,8 @@
       "obstruction": 0.48,
       "near_field_raw": 0.0004,
       "near_field": 0.02,
-      "meter_time": 116.4
+      "meter_time": 116.4,
+      "people": 0
      },
      {
       "i": 24,
@@ -8056,7 +8512,8 @@
       "obstruction": 0.52,
       "near_field_raw": 0.009,
       "near_field": 0.45,
-      "meter_time": 111.9
+      "meter_time": 111.9,
+      "people": 0
      },
      {
       "i": 25,
@@ -8067,7 +8524,8 @@
       "obstruction": 1.7,
       "near_field_raw": 0.0182,
       "near_field": 0.91,
-      "meter_time": 107.4
+      "meter_time": 107.4,
+      "people": 0
      },
      {
       "i": 26,
@@ -8078,7 +8536,8 @@
       "obstruction": 0.79,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 102.9
+      "meter_time": 102.9,
+      "people": 0
      },
      {
       "i": 27,
@@ -8089,7 +8548,8 @@
       "obstruction": 0.51,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 98.4
+      "meter_time": 98.4,
+      "people": 0
      },
      {
       "i": 28,
@@ -8100,7 +8560,8 @@
       "obstruction": 2.21,
       "near_field_raw": 0.0355,
       "near_field": 1.77,
-      "meter_time": 93.9
+      "meter_time": 93.9,
+      "people": 1
      },
      {
       "i": 29,
@@ -8111,7 +8572,8 @@
       "obstruction": 2.55,
       "near_field_raw": 0.049,
       "near_field": 2.45,
-      "meter_time": 89.4
+      "meter_time": 89.4,
+      "people": 0
      },
      {
       "i": 30,
@@ -8122,7 +8584,8 @@
       "obstruction": 2.42,
       "near_field_raw": 0.0406,
       "near_field": 2.03,
-      "meter_time": 84.8
+      "meter_time": 84.8,
+      "people": 0
      },
      {
       "i": 31,
@@ -8133,7 +8596,8 @@
       "obstruction": 0.3,
       "near_field_raw": 0.0008,
       "near_field": 0.04,
-      "meter_time": 80.3
+      "meter_time": 80.3,
+      "people": 0
      },
      {
       "i": 32,
@@ -8144,7 +8608,8 @@
       "obstruction": 0.64,
       "near_field_raw": 0.0011,
       "near_field": 0.06,
-      "meter_time": 75.8
+      "meter_time": 75.8,
+      "people": 0
      },
      {
       "i": 33,
@@ -8155,7 +8620,8 @@
       "obstruction": 1.93,
       "near_field_raw": 0.0287,
       "near_field": 1.44,
-      "meter_time": 71.3
+      "meter_time": 71.3,
+      "people": 0
      },
      {
       "i": 34,
@@ -8166,7 +8632,8 @@
       "obstruction": 1.84,
       "near_field_raw": 0.0153,
       "near_field": 0.76,
-      "meter_time": 66.8
+      "meter_time": 66.8,
+      "people": 0
      },
      {
       "i": 35,
@@ -8177,7 +8644,8 @@
       "obstruction": 1.13,
       "near_field_raw": 0.0102,
       "near_field": 0.51,
-      "meter_time": 62.3
+      "meter_time": 62.3,
+      "people": 0
      },
      {
       "i": 36,
@@ -8188,7 +8656,8 @@
       "obstruction": 0.91,
       "near_field_raw": 0.0011,
       "near_field": 0.06,
-      "meter_time": 57.8
+      "meter_time": 57.8,
+      "people": 0
      },
      {
       "i": 37,
@@ -8199,7 +8668,8 @@
       "obstruction": 1.28,
       "near_field_raw": 0.0113,
       "near_field": 0.56,
-      "meter_time": 53.3
+      "meter_time": 53.3,
+      "people": 1
      },
      {
       "i": 38,
@@ -8210,7 +8680,8 @@
       "obstruction": 0.64,
       "near_field_raw": 0.0008,
       "near_field": 0.04,
-      "meter_time": 48.8
+      "meter_time": 48.8,
+      "people": 1
      },
      {
       "i": 39,
@@ -8221,7 +8692,8 @@
       "obstruction": 0.91,
       "near_field_raw": 0.0035,
       "near_field": 0.17,
-      "meter_time": 44.3
+      "meter_time": 44.3,
+      "people": 2
      },
      {
       "i": 40,
@@ -8232,7 +8704,8 @@
       "obstruction": 0.2,
       "near_field_raw": 0.0075,
       "near_field": 0.38,
-      "meter_time": 39.8
+      "meter_time": 39.8,
+      "people": 0
      },
      {
       "i": 41,
@@ -8243,7 +8716,8 @@
       "obstruction": 0.26,
       "near_field_raw": 0.0041,
       "near_field": 0.21,
-      "meter_time": 35.3
+      "meter_time": 35.3,
+      "people": 0
      },
      {
       "i": 42,
@@ -8254,7 +8728,8 @@
       "obstruction": 0.23,
       "near_field_raw": 0.0014,
       "near_field": 0.07,
-      "meter_time": 30.8
+      "meter_time": 30.8,
+      "people": 0
      },
      {
       "i": 43,
@@ -8265,7 +8740,8 @@
       "obstruction": 0.08,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 26.3
+      "meter_time": 26.3,
+      "people": 0
      },
      {
       "i": 44,
@@ -8276,7 +8752,8 @@
       "obstruction": 0.24,
       "near_field_raw": 0.0038,
       "near_field": 0.19,
-      "meter_time": 21.8
+      "meter_time": 21.8,
+      "people": 0
      },
      {
       "i": 45,
@@ -8287,7 +8764,8 @@
       "obstruction": 0.09,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 17.3
+      "meter_time": 17.3,
+      "people": 0
      },
      {
       "i": 46,
@@ -8298,7 +8776,8 @@
       "obstruction": 0.65,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 12.8
+      "meter_time": 12.8,
+      "people": 0
      },
      {
       "i": 47,
@@ -8309,7 +8788,8 @@
       "obstruction": 0.33,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 8.3
+      "meter_time": 8.3,
+      "people": 0
      },
      {
       "i": 48,
@@ -8320,7 +8800,8 @@
       "obstruction": 1.43,
       "near_field_raw": 0.002,
       "near_field": 0.1,
-      "meter_time": 3.8
+      "meter_time": 3.8,
+      "people": 1
      },
      {
       "i": 49,
@@ -8331,7 +8812,8 @@
       "obstruction": 2.53,
       "near_field_raw": 0.0594,
       "near_field": 2.97,
-      "meter_time": 0.0
+      "meter_time": 0.0,
+      "people": 0
      }
     ],
     "stops": [],
@@ -8703,7 +9185,8 @@
       "obstruction": 0.25,
       "near_field_raw": 0.0173,
       "near_field": 0.86,
-      "meter_time": 0.0
+      "meter_time": 0.0,
+      "people": 0
      },
      {
       "i": 1,
@@ -8714,7 +9197,8 @@
       "obstruction": 0.96,
       "near_field_raw": 0.0077,
       "near_field": 0.39,
-      "meter_time": 4.8
+      "meter_time": 4.8,
+      "people": 1
      },
      {
       "i": 2,
@@ -8725,7 +9209,8 @@
       "obstruction": 0.91,
       "near_field_raw": 0.0176,
       "near_field": 0.88,
-      "meter_time": 9.7
+      "meter_time": 9.7,
+      "people": 0
      },
      {
       "i": 3,
@@ -8736,7 +9221,8 @@
       "obstruction": 1.54,
       "near_field_raw": 0.005,
       "near_field": 0.25,
-      "meter_time": 14.5
+      "meter_time": 14.5,
+      "people": 1
      },
      {
       "i": 4,
@@ -8747,7 +9233,8 @@
       "obstruction": 0.74,
       "near_field_raw": 0.0119,
       "near_field": 0.6,
-      "meter_time": 19.3
+      "meter_time": 19.3,
+      "people": 0
      },
      {
       "i": 5,
@@ -8758,7 +9245,8 @@
       "obstruction": 1.86,
       "near_field_raw": 0.024,
       "near_field": 1.2,
-      "meter_time": 24.2
+      "meter_time": 24.2,
+      "people": 0
      },
      {
       "i": 6,
@@ -8769,7 +9257,8 @@
       "obstruction": 0.33,
       "near_field_raw": 0.0021,
       "near_field": 0.1,
-      "meter_time": 29.0
+      "meter_time": 29.0,
+      "people": 1
      },
      {
       "i": 7,
@@ -8780,7 +9269,8 @@
       "obstruction": 0.59,
       "near_field_raw": 0.0071,
       "near_field": 0.36,
-      "meter_time": 33.8
+      "meter_time": 33.8,
+      "people": 0
      },
      {
       "i": 8,
@@ -8791,7 +9281,8 @@
       "obstruction": 0.53,
       "near_field_raw": 0.0116,
       "near_field": 0.58,
-      "meter_time": 38.7
+      "meter_time": 38.7,
+      "people": 1
      },
      {
       "i": 9,
@@ -8802,7 +9293,8 @@
       "obstruction": 0.26,
       "near_field_raw": 0.0007,
       "near_field": 0.03,
-      "meter_time": 43.5
+      "meter_time": 43.5,
+      "people": 0
      },
      {
       "i": 10,
@@ -8813,7 +9305,8 @@
       "obstruction": 0.35,
       "near_field_raw": 0.0007,
       "near_field": 0.03,
-      "meter_time": 48.4
+      "meter_time": 48.4,
+      "people": 0
      },
      {
       "i": 11,
@@ -8824,7 +9317,8 @@
       "obstruction": 1.48,
       "near_field_raw": 0.0277,
       "near_field": 1.39,
-      "meter_time": 53.2
+      "meter_time": 53.2,
+      "people": 0
      },
      {
       "i": 12,
@@ -8835,7 +9329,8 @@
       "obstruction": 0.51,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 58.0
+      "meter_time": 58.0,
+      "people": 1
      },
      {
       "i": 13,
@@ -8846,7 +9341,8 @@
       "obstruction": 0.12,
       "near_field_raw": 0.0008,
       "near_field": 0.04,
-      "meter_time": 62.9
+      "meter_time": 62.9,
+      "people": 1
      },
      {
       "i": 14,
@@ -8857,7 +9353,8 @@
       "obstruction": 1.88,
       "near_field_raw": 0.0248,
       "near_field": 1.24,
-      "meter_time": 67.7
+      "meter_time": 67.7,
+      "people": 1
      },
      {
       "i": 15,
@@ -8868,7 +9365,8 @@
       "obstruction": 1.88,
       "near_field_raw": 0.018,
       "near_field": 0.9,
-      "meter_time": 72.5
+      "meter_time": 72.5,
+      "people": 2
      },
      {
       "i": 16,
@@ -8879,7 +9377,8 @@
       "obstruction": 0.39,
       "near_field_raw": 0.0043,
       "near_field": 0.21,
-      "meter_time": 77.4
+      "meter_time": 77.4,
+      "people": 2
      },
      {
       "i": 17,
@@ -8890,7 +9389,8 @@
       "obstruction": 0.72,
       "near_field_raw": 0.0048,
       "near_field": 0.24,
-      "meter_time": 82.2
+      "meter_time": 82.2,
+      "people": 1
      },
      {
       "i": 18,
@@ -8901,7 +9401,8 @@
       "obstruction": 1.16,
       "near_field_raw": 0.0046,
       "near_field": 0.23,
-      "meter_time": 87.0
+      "meter_time": 87.0,
+      "people": 3
      },
      {
       "i": 19,
@@ -8912,7 +9413,8 @@
       "obstruction": 0.98,
       "near_field_raw": 0.0097,
       "near_field": 0.48,
-      "meter_time": 91.9
+      "meter_time": 91.9,
+      "people": 2
      },
      {
       "i": 20,
@@ -8923,7 +9425,8 @@
       "obstruction": 1.82,
       "near_field_raw": 0.0721,
       "near_field": 3.6,
-      "meter_time": 96.7
+      "meter_time": 96.7,
+      "people": 1
      },
      {
       "i": 21,
@@ -8934,7 +9437,8 @@
       "obstruction": 1.17,
       "near_field_raw": 0.0267,
       "near_field": 1.33,
-      "meter_time": 101.5
+      "meter_time": 101.5,
+      "people": 0
      },
      {
       "i": 22,
@@ -8945,7 +9449,8 @@
       "obstruction": 0.79,
       "near_field_raw": 0.0045,
       "near_field": 0.22,
-      "meter_time": 106.4
+      "meter_time": 106.4,
+      "people": 2
      },
      {
       "i": 23,
@@ -8956,7 +9461,8 @@
       "obstruction": 0.18,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 111.2
+      "meter_time": 111.2,
+      "people": 2
      },
      {
       "i": 24,
@@ -8967,7 +9473,8 @@
       "obstruction": 1.05,
       "near_field_raw": 0.0014,
       "near_field": 0.07,
-      "meter_time": 116.0
+      "meter_time": 116.0,
+      "people": 0
      },
      {
       "i": 25,
@@ -8978,7 +9485,8 @@
       "obstruction": 1.68,
       "near_field_raw": 0.024,
       "near_field": 1.2,
-      "meter_time": 120.9
+      "meter_time": 120.9,
+      "people": 1
      },
      {
       "i": 26,
@@ -8989,7 +9497,8 @@
       "obstruction": 1.03,
       "near_field_raw": 0.0069,
       "near_field": 0.34,
-      "meter_time": 125.7
+      "meter_time": 125.7,
+      "people": 3
      },
      {
       "i": 27,
@@ -9000,7 +9509,8 @@
       "obstruction": 1.89,
       "near_field_raw": 0.0292,
       "near_field": 1.46,
-      "meter_time": 130.5
+      "meter_time": 130.5,
+      "people": 2
      },
      {
       "i": 28,
@@ -9011,7 +9521,8 @@
       "obstruction": 1.37,
       "near_field_raw": 0.0004,
       "near_field": 0.02,
-      "meter_time": 135.4
+      "meter_time": 135.4,
+      "people": 2
      },
      {
       "i": 29,
@@ -9022,7 +9533,8 @@
       "obstruction": 0.98,
       "near_field_raw": 0.0068,
       "near_field": 0.34,
-      "meter_time": 140.2
+      "meter_time": 140.2,
+      "people": 1
      },
      {
       "i": 30,
@@ -9033,7 +9545,8 @@
       "obstruction": 0.94,
       "near_field_raw": 0.0259,
       "near_field": 1.29,
-      "meter_time": 145.1
+      "meter_time": 145.1,
+      "people": 0
      },
      {
       "i": 31,
@@ -9044,7 +9557,8 @@
       "obstruction": 0.24,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 149.9
+      "meter_time": 149.9,
+      "people": 3
      },
      {
       "i": 32,
@@ -9055,7 +9569,8 @@
       "obstruction": 0.75,
       "near_field_raw": 0.0055,
       "near_field": 0.27,
-      "meter_time": 154.7
+      "meter_time": 154.7,
+      "people": 4
      },
      {
       "i": 33,
@@ -9066,7 +9581,8 @@
       "obstruction": 0.27,
       "near_field_raw": 0.0044,
       "near_field": 0.22,
-      "meter_time": 159.6
+      "meter_time": 159.6,
+      "people": 3
      },
      {
       "i": 34,
@@ -9077,7 +9593,8 @@
       "obstruction": 0.11,
       "near_field_raw": 0.0004,
       "near_field": 0.02,
-      "meter_time": 164.4
+      "meter_time": 164.4,
+      "people": 1
      },
      {
       "i": 35,
@@ -9088,7 +9605,8 @@
       "obstruction": 0.26,
       "near_field_raw": 0.0005,
       "near_field": 0.03,
-      "meter_time": 169.2
+      "meter_time": 169.2,
+      "people": 1
      },
      {
       "i": 36,
@@ -9099,7 +9617,8 @@
       "obstruction": 0.58,
       "near_field_raw": 0.0023,
       "near_field": 0.11,
-      "meter_time": 174.1
+      "meter_time": 174.1,
+      "people": 0
      },
      {
       "i": 37,
@@ -9110,7 +9629,8 @@
       "obstruction": 0.27,
       "near_field_raw": 0.0011,
       "near_field": 0.06,
-      "meter_time": 178.9
+      "meter_time": 178.9,
+      "people": 0
      },
      {
       "i": 38,
@@ -9121,7 +9641,8 @@
       "obstruction": 0.54,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 183.7
+      "meter_time": 183.7,
+      "people": 0
      },
      {
       "i": 39,
@@ -9132,7 +9653,8 @@
       "obstruction": 0.82,
       "near_field_raw": 0.0004,
       "near_field": 0.02,
-      "meter_time": 188.6
+      "meter_time": 188.6,
+      "people": 0
      },
      {
       "i": 40,
@@ -9143,7 +9665,8 @@
       "obstruction": 1.17,
       "near_field_raw": 0.0074,
       "near_field": 0.37,
-      "meter_time": 193.4
+      "meter_time": 193.4,
+      "people": 0
      },
      {
       "i": 41,
@@ -9154,7 +9677,8 @@
       "obstruction": 2.1,
       "near_field_raw": 0.0428,
       "near_field": 2.14,
-      "meter_time": 198.2
+      "meter_time": 198.2,
+      "people": 0
      },
      {
       "i": 42,
@@ -9165,7 +9689,8 @@
       "obstruction": 1.0,
       "near_field_raw": 0.0096,
       "near_field": 0.48,
-      "meter_time": 203.1
+      "meter_time": 203.1,
+      "people": 1
      },
      {
       "i": 43,
@@ -9176,7 +9701,8 @@
       "obstruction": 0.39,
       "near_field_raw": 0.0098,
       "near_field": 0.49,
-      "meter_time": 207.9
+      "meter_time": 207.9,
+      "people": 2
      },
      {
       "i": 44,
@@ -9187,7 +9713,8 @@
       "obstruction": 0.69,
       "near_field_raw": 0.006,
       "near_field": 0.3,
-      "meter_time": 212.7
+      "meter_time": 212.7,
+      "people": 0
      },
      {
       "i": 45,
@@ -9198,7 +9725,8 @@
       "obstruction": 0.9,
       "near_field_raw": 0.0566,
       "near_field": 2.83,
-      "meter_time": 217.6
+      "meter_time": 217.6,
+      "people": 0
      },
      {
       "i": 46,
@@ -9209,7 +9737,8 @@
       "obstruction": 1.09,
       "near_field_raw": 0.0191,
       "near_field": 0.95,
-      "meter_time": 220.0
+      "meter_time": 220.0,
+      "people": 0
      }
     ],
     "stops": [],
@@ -9552,7 +10081,8 @@
       "obstruction": 0.82,
       "near_field_raw": 0.0033,
       "near_field": 0.17,
-      "meter_time": 220.0
+      "meter_time": 220.0,
+      "people": 0
      },
      {
       "i": 1,
@@ -9563,7 +10093,8 @@
       "obstruction": 0.12,
       "near_field_raw": 0.0009,
       "near_field": 0.04,
-      "meter_time": 215.5
+      "meter_time": 215.5,
+      "people": 0
      },
      {
       "i": 2,
@@ -9574,7 +10105,8 @@
       "obstruction": 1.0,
       "near_field_raw": 0.0006,
       "near_field": 0.03,
-      "meter_time": 211.0
+      "meter_time": 211.0,
+      "people": 0
      },
      {
       "i": 3,
@@ -9585,7 +10117,8 @@
       "obstruction": 1.24,
       "near_field_raw": 0.0215,
       "near_field": 1.07,
-      "meter_time": 206.5
+      "meter_time": 206.5,
+      "people": 0
      },
      {
       "i": 4,
@@ -9596,7 +10129,8 @@
       "obstruction": 0.4,
       "near_field_raw": 0.0007,
       "near_field": 0.03,
-      "meter_time": 202.0
+      "meter_time": 202.0,
+      "people": 0
      },
      {
       "i": 5,
@@ -9607,7 +10141,8 @@
       "obstruction": 3.46,
       "near_field_raw": 0.045,
       "near_field": 2.25,
-      "meter_time": 197.5
+      "meter_time": 197.5,
+      "people": 0
      },
      {
       "i": 6,
@@ -9618,7 +10153,8 @@
       "obstruction": 1.62,
       "near_field_raw": 0.0122,
       "near_field": 0.61,
-      "meter_time": 193.0
+      "meter_time": 193.0,
+      "people": 0
      },
      {
       "i": 7,
@@ -9629,7 +10165,8 @@
       "obstruction": 0.76,
       "near_field_raw": 0.008,
       "near_field": 0.4,
-      "meter_time": 188.5
+      "meter_time": 188.5,
+      "people": 0
      },
      {
       "i": 8,
@@ -9640,7 +10177,8 @@
       "obstruction": 1.15,
       "near_field_raw": 0.0067,
       "near_field": 0.34,
-      "meter_time": 184.0
+      "meter_time": 184.0,
+      "people": 0
      },
      {
       "i": 9,
@@ -9651,7 +10189,8 @@
       "obstruction": 1.77,
       "near_field_raw": 0.0115,
       "near_field": 0.57,
-      "meter_time": 179.5
+      "meter_time": 179.5,
+      "people": 0
      },
      {
       "i": 10,
@@ -9662,7 +10201,8 @@
       "obstruction": 0.89,
       "near_field_raw": 0.0122,
       "near_field": 0.61,
-      "meter_time": 174.9
+      "meter_time": 174.9,
+      "people": 0
      },
      {
       "i": 11,
@@ -9673,7 +10213,8 @@
       "obstruction": 1.39,
       "near_field_raw": 0.0044,
       "near_field": 0.22,
-      "meter_time": 170.4
+      "meter_time": 170.4,
+      "people": 0
      },
      {
       "i": 12,
@@ -9684,7 +10225,8 @@
       "obstruction": 0.48,
       "near_field_raw": 0.0008,
       "near_field": 0.04,
-      "meter_time": 165.9
+      "meter_time": 165.9,
+      "people": 0
      },
      {
       "i": 13,
@@ -9695,7 +10237,8 @@
       "obstruction": 0.03,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 161.4
+      "meter_time": 161.4,
+      "people": 0
      },
      {
       "i": 14,
@@ -9706,7 +10249,8 @@
       "obstruction": 0.02,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 156.9
+      "meter_time": 156.9,
+      "people": 0
      },
      {
       "i": 15,
@@ -9717,7 +10261,8 @@
       "obstruction": 0.05,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 152.4
+      "meter_time": 152.4,
+      "people": 1
      },
      {
       "i": 16,
@@ -9728,7 +10273,8 @@
       "obstruction": 2.3,
       "near_field_raw": 0.0036,
       "near_field": 0.18,
-      "meter_time": 147.9
+      "meter_time": 147.9,
+      "people": 3
      },
      {
       "i": 17,
@@ -9739,7 +10285,8 @@
       "obstruction": 0.86,
       "near_field_raw": 0.0059,
       "near_field": 0.29,
-      "meter_time": 143.4
+      "meter_time": 143.4,
+      "people": 0
      },
      {
       "i": 18,
@@ -9750,7 +10297,8 @@
       "obstruction": 0.59,
       "near_field_raw": 0.0009,
       "near_field": 0.04,
-      "meter_time": 138.9
+      "meter_time": 138.9,
+      "people": 2
      },
      {
       "i": 19,
@@ -9761,7 +10309,8 @@
       "obstruction": 1.98,
       "near_field_raw": 0.0148,
       "near_field": 0.74,
-      "meter_time": 134.4
+      "meter_time": 134.4,
+      "people": 0
      },
      {
       "i": 20,
@@ -9772,7 +10321,8 @@
       "obstruction": 3.29,
       "near_field_raw": 0.0349,
       "near_field": 1.74,
-      "meter_time": 129.9
+      "meter_time": 129.9,
+      "people": 0
      },
      {
       "i": 21,
@@ -9783,7 +10333,8 @@
       "obstruction": 2.46,
       "near_field_raw": 0.0452,
       "near_field": 2.26,
-      "meter_time": 125.4
+      "meter_time": 125.4,
+      "people": 1
      },
      {
       "i": 22,
@@ -9794,7 +10345,8 @@
       "obstruction": 1.12,
       "near_field_raw": 0.0086,
       "near_field": 0.43,
-      "meter_time": 120.9
+      "meter_time": 120.9,
+      "people": 0
      },
      {
       "i": 23,
@@ -9805,7 +10357,8 @@
       "obstruction": 0.48,
       "near_field_raw": 0.0004,
       "near_field": 0.02,
-      "meter_time": 116.4
+      "meter_time": 116.4,
+      "people": 0
      },
      {
       "i": 24,
@@ -9816,7 +10369,8 @@
       "obstruction": 0.52,
       "near_field_raw": 0.009,
       "near_field": 0.45,
-      "meter_time": 111.9
+      "meter_time": 111.9,
+      "people": 0
      },
      {
       "i": 25,
@@ -9827,7 +10381,8 @@
       "obstruction": 1.7,
       "near_field_raw": 0.0182,
       "near_field": 0.91,
-      "meter_time": 107.4
+      "meter_time": 107.4,
+      "people": 0
      },
      {
       "i": 26,
@@ -9838,7 +10393,8 @@
       "obstruction": 0.79,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 102.9
+      "meter_time": 102.9,
+      "people": 0
      },
      {
       "i": 27,
@@ -9849,7 +10405,8 @@
       "obstruction": 0.51,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 98.4
+      "meter_time": 98.4,
+      "people": 0
      },
      {
       "i": 28,
@@ -9860,7 +10417,8 @@
       "obstruction": 2.21,
       "near_field_raw": 0.0355,
       "near_field": 1.77,
-      "meter_time": 93.9
+      "meter_time": 93.9,
+      "people": 1
      },
      {
       "i": 29,
@@ -9871,7 +10429,8 @@
       "obstruction": 2.55,
       "near_field_raw": 0.049,
       "near_field": 2.45,
-      "meter_time": 89.4
+      "meter_time": 89.4,
+      "people": 0
      },
      {
       "i": 30,
@@ -9882,7 +10441,8 @@
       "obstruction": 2.42,
       "near_field_raw": 0.0406,
       "near_field": 2.03,
-      "meter_time": 84.8
+      "meter_time": 84.8,
+      "people": 0
      },
      {
       "i": 31,
@@ -9893,7 +10453,8 @@
       "obstruction": 0.3,
       "near_field_raw": 0.0008,
       "near_field": 0.04,
-      "meter_time": 80.3
+      "meter_time": 80.3,
+      "people": 0
      },
      {
       "i": 32,
@@ -9904,7 +10465,8 @@
       "obstruction": 0.64,
       "near_field_raw": 0.0011,
       "near_field": 0.06,
-      "meter_time": 75.8
+      "meter_time": 75.8,
+      "people": 0
      },
      {
       "i": 33,
@@ -9915,7 +10477,8 @@
       "obstruction": 1.93,
       "near_field_raw": 0.0287,
       "near_field": 1.44,
-      "meter_time": 71.3
+      "meter_time": 71.3,
+      "people": 0
      },
      {
       "i": 34,
@@ -9926,7 +10489,8 @@
       "obstruction": 1.84,
       "near_field_raw": 0.0153,
       "near_field": 0.76,
-      "meter_time": 66.8
+      "meter_time": 66.8,
+      "people": 0
      },
      {
       "i": 35,
@@ -9937,7 +10501,8 @@
       "obstruction": 1.13,
       "near_field_raw": 0.0102,
       "near_field": 0.51,
-      "meter_time": 62.3
+      "meter_time": 62.3,
+      "people": 0
      },
      {
       "i": 36,
@@ -9948,7 +10513,8 @@
       "obstruction": 0.91,
       "near_field_raw": 0.0011,
       "near_field": 0.06,
-      "meter_time": 57.8
+      "meter_time": 57.8,
+      "people": 0
      },
      {
       "i": 37,
@@ -9959,7 +10525,8 @@
       "obstruction": 1.28,
       "near_field_raw": 0.0113,
       "near_field": 0.56,
-      "meter_time": 53.3
+      "meter_time": 53.3,
+      "people": 1
      },
      {
       "i": 38,
@@ -9970,7 +10537,8 @@
       "obstruction": 0.64,
       "near_field_raw": 0.0008,
       "near_field": 0.04,
-      "meter_time": 48.8
+      "meter_time": 48.8,
+      "people": 1
      },
      {
       "i": 39,
@@ -9981,7 +10549,8 @@
       "obstruction": 0.91,
       "near_field_raw": 0.0035,
       "near_field": 0.17,
-      "meter_time": 44.3
+      "meter_time": 44.3,
+      "people": 2
      },
      {
       "i": 40,
@@ -9992,7 +10561,8 @@
       "obstruction": 0.2,
       "near_field_raw": 0.0075,
       "near_field": 0.38,
-      "meter_time": 39.8
+      "meter_time": 39.8,
+      "people": 0
      },
      {
       "i": 41,
@@ -10003,7 +10573,8 @@
       "obstruction": 0.26,
       "near_field_raw": 0.0041,
       "near_field": 0.21,
-      "meter_time": 35.3
+      "meter_time": 35.3,
+      "people": 0
      },
      {
       "i": 42,
@@ -10014,7 +10585,8 @@
       "obstruction": 0.23,
       "near_field_raw": 0.0014,
       "near_field": 0.07,
-      "meter_time": 30.8
+      "meter_time": 30.8,
+      "people": 0
      },
      {
       "i": 43,
@@ -10025,7 +10597,8 @@
       "obstruction": 0.08,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 26.3
+      "meter_time": 26.3,
+      "people": 0
      },
      {
       "i": 44,
@@ -10036,7 +10609,8 @@
       "obstruction": 0.24,
       "near_field_raw": 0.0038,
       "near_field": 0.19,
-      "meter_time": 21.8
+      "meter_time": 21.8,
+      "people": 0
      },
      {
       "i": 45,
@@ -10047,7 +10621,8 @@
       "obstruction": 0.09,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 17.3
+      "meter_time": 17.3,
+      "people": 0
      },
      {
       "i": 46,
@@ -10058,7 +10633,8 @@
       "obstruction": 0.65,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 12.8
+      "meter_time": 12.8,
+      "people": 0
      },
      {
       "i": 47,
@@ -10069,7 +10645,8 @@
       "obstruction": 0.33,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 8.3
+      "meter_time": 8.3,
+      "people": 0
      },
      {
       "i": 48,
@@ -10080,7 +10657,8 @@
       "obstruction": 1.43,
       "near_field_raw": 0.002,
       "near_field": 0.1,
-      "meter_time": 3.8
+      "meter_time": 3.8,
+      "people": 1
      },
      {
       "i": 49,
@@ -10091,7 +10669,8 @@
       "obstruction": 2.53,
       "near_field_raw": 0.0594,
       "near_field": 2.97,
-      "meter_time": 0.0
+      "meter_time": 0.0,
+      "people": 0
      }
     ],
     "stops": [],
@@ -10463,7 +11042,8 @@
       "obstruction": 0.25,
       "near_field_raw": 0.0173,
       "near_field": 0.86,
-      "meter_time": 0.0
+      "meter_time": 0.0,
+      "people": 0
      },
      {
       "i": 1,
@@ -10474,7 +11054,8 @@
       "obstruction": 0.96,
       "near_field_raw": 0.0077,
       "near_field": 0.39,
-      "meter_time": 4.8
+      "meter_time": 4.8,
+      "people": 1
      },
      {
       "i": 2,
@@ -10485,7 +11066,8 @@
       "obstruction": 0.91,
       "near_field_raw": 0.0176,
       "near_field": 0.88,
-      "meter_time": 9.7
+      "meter_time": 9.7,
+      "people": 0
      },
      {
       "i": 3,
@@ -10496,7 +11078,8 @@
       "obstruction": 1.54,
       "near_field_raw": 0.005,
       "near_field": 0.25,
-      "meter_time": 14.5
+      "meter_time": 14.5,
+      "people": 1
      },
      {
       "i": 4,
@@ -10507,7 +11090,8 @@
       "obstruction": 0.74,
       "near_field_raw": 0.0119,
       "near_field": 0.6,
-      "meter_time": 19.3
+      "meter_time": 19.3,
+      "people": 0
      },
      {
       "i": 5,
@@ -10518,7 +11102,8 @@
       "obstruction": 1.86,
       "near_field_raw": 0.024,
       "near_field": 1.2,
-      "meter_time": 24.2
+      "meter_time": 24.2,
+      "people": 0
      },
      {
       "i": 6,
@@ -10529,7 +11114,8 @@
       "obstruction": 0.33,
       "near_field_raw": 0.0021,
       "near_field": 0.1,
-      "meter_time": 29.0
+      "meter_time": 29.0,
+      "people": 1
      },
      {
       "i": 7,
@@ -10540,7 +11126,8 @@
       "obstruction": 0.59,
       "near_field_raw": 0.0071,
       "near_field": 0.36,
-      "meter_time": 33.8
+      "meter_time": 33.8,
+      "people": 0
      },
      {
       "i": 8,
@@ -10551,7 +11138,8 @@
       "obstruction": 0.53,
       "near_field_raw": 0.0116,
       "near_field": 0.58,
-      "meter_time": 38.7
+      "meter_time": 38.7,
+      "people": 1
      },
      {
       "i": 9,
@@ -10562,7 +11150,8 @@
       "obstruction": 0.26,
       "near_field_raw": 0.0007,
       "near_field": 0.03,
-      "meter_time": 43.5
+      "meter_time": 43.5,
+      "people": 0
      },
      {
       "i": 10,
@@ -10573,7 +11162,8 @@
       "obstruction": 0.35,
       "near_field_raw": 0.0007,
       "near_field": 0.03,
-      "meter_time": 48.4
+      "meter_time": 48.4,
+      "people": 0
      },
      {
       "i": 11,
@@ -10584,7 +11174,8 @@
       "obstruction": 1.48,
       "near_field_raw": 0.0277,
       "near_field": 1.39,
-      "meter_time": 53.2
+      "meter_time": 53.2,
+      "people": 0
      },
      {
       "i": 12,
@@ -10595,7 +11186,8 @@
       "obstruction": 0.51,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 58.0
+      "meter_time": 58.0,
+      "people": 1
      },
      {
       "i": 13,
@@ -10606,7 +11198,8 @@
       "obstruction": 0.12,
       "near_field_raw": 0.0008,
       "near_field": 0.04,
-      "meter_time": 62.9
+      "meter_time": 62.9,
+      "people": 1
      },
      {
       "i": 14,
@@ -10617,7 +11210,8 @@
       "obstruction": 1.88,
       "near_field_raw": 0.0248,
       "near_field": 1.24,
-      "meter_time": 67.7
+      "meter_time": 67.7,
+      "people": 1
      },
      {
       "i": 15,
@@ -10628,7 +11222,8 @@
       "obstruction": 1.88,
       "near_field_raw": 0.018,
       "near_field": 0.9,
-      "meter_time": 72.5
+      "meter_time": 72.5,
+      "people": 2
      },
      {
       "i": 16,
@@ -10639,7 +11234,8 @@
       "obstruction": 0.39,
       "near_field_raw": 0.0043,
       "near_field": 0.21,
-      "meter_time": 77.4
+      "meter_time": 77.4,
+      "people": 2
      },
      {
       "i": 17,
@@ -10650,7 +11246,8 @@
       "obstruction": 0.72,
       "near_field_raw": 0.0048,
       "near_field": 0.24,
-      "meter_time": 82.2
+      "meter_time": 82.2,
+      "people": 1
      },
      {
       "i": 18,
@@ -10661,7 +11258,8 @@
       "obstruction": 1.16,
       "near_field_raw": 0.0046,
       "near_field": 0.23,
-      "meter_time": 87.0
+      "meter_time": 87.0,
+      "people": 3
      },
      {
       "i": 19,
@@ -10672,7 +11270,8 @@
       "obstruction": 0.98,
       "near_field_raw": 0.0097,
       "near_field": 0.48,
-      "meter_time": 91.9
+      "meter_time": 91.9,
+      "people": 2
      },
      {
       "i": 20,
@@ -10683,7 +11282,8 @@
       "obstruction": 1.82,
       "near_field_raw": 0.0721,
       "near_field": 3.6,
-      "meter_time": 96.7
+      "meter_time": 96.7,
+      "people": 1
      },
      {
       "i": 21,
@@ -10694,7 +11294,8 @@
       "obstruction": 1.17,
       "near_field_raw": 0.0267,
       "near_field": 1.33,
-      "meter_time": 101.5
+      "meter_time": 101.5,
+      "people": 0
      },
      {
       "i": 22,
@@ -10705,7 +11306,8 @@
       "obstruction": 0.79,
       "near_field_raw": 0.0045,
       "near_field": 0.22,
-      "meter_time": 106.4
+      "meter_time": 106.4,
+      "people": 2
      },
      {
       "i": 23,
@@ -10716,7 +11318,8 @@
       "obstruction": 0.18,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 111.2
+      "meter_time": 111.2,
+      "people": 2
      },
      {
       "i": 24,
@@ -10727,7 +11330,8 @@
       "obstruction": 1.05,
       "near_field_raw": 0.0014,
       "near_field": 0.07,
-      "meter_time": 116.0
+      "meter_time": 116.0,
+      "people": 0
      },
      {
       "i": 25,
@@ -10738,7 +11342,8 @@
       "obstruction": 1.68,
       "near_field_raw": 0.024,
       "near_field": 1.2,
-      "meter_time": 120.9
+      "meter_time": 120.9,
+      "people": 1
      },
      {
       "i": 26,
@@ -10749,7 +11354,8 @@
       "obstruction": 1.03,
       "near_field_raw": 0.0069,
       "near_field": 0.34,
-      "meter_time": 125.7
+      "meter_time": 125.7,
+      "people": 3
      },
      {
       "i": 27,
@@ -10760,7 +11366,8 @@
       "obstruction": 1.89,
       "near_field_raw": 0.0292,
       "near_field": 1.46,
-      "meter_time": 130.5
+      "meter_time": 130.5,
+      "people": 2
      },
      {
       "i": 28,
@@ -10771,7 +11378,8 @@
       "obstruction": 1.37,
       "near_field_raw": 0.0004,
       "near_field": 0.02,
-      "meter_time": 135.4
+      "meter_time": 135.4,
+      "people": 2
      },
      {
       "i": 29,
@@ -10782,7 +11390,8 @@
       "obstruction": 0.98,
       "near_field_raw": 0.0068,
       "near_field": 0.34,
-      "meter_time": 140.2
+      "meter_time": 140.2,
+      "people": 1
      },
      {
       "i": 30,
@@ -10793,7 +11402,8 @@
       "obstruction": 0.94,
       "near_field_raw": 0.0259,
       "near_field": 1.29,
-      "meter_time": 145.1
+      "meter_time": 145.1,
+      "people": 0
      },
      {
       "i": 31,
@@ -10804,7 +11414,8 @@
       "obstruction": 0.24,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 149.9
+      "meter_time": 149.9,
+      "people": 3
      },
      {
       "i": 32,
@@ -10815,7 +11426,8 @@
       "obstruction": 0.75,
       "near_field_raw": 0.0055,
       "near_field": 0.27,
-      "meter_time": 154.7
+      "meter_time": 154.7,
+      "people": 4
      },
      {
       "i": 33,
@@ -10826,7 +11438,8 @@
       "obstruction": 0.27,
       "near_field_raw": 0.0044,
       "near_field": 0.22,
-      "meter_time": 159.6
+      "meter_time": 159.6,
+      "people": 3
      },
      {
       "i": 34,
@@ -10837,7 +11450,8 @@
       "obstruction": 0.11,
       "near_field_raw": 0.0004,
       "near_field": 0.02,
-      "meter_time": 164.4
+      "meter_time": 164.4,
+      "people": 1
      },
      {
       "i": 35,
@@ -10848,7 +11462,8 @@
       "obstruction": 0.26,
       "near_field_raw": 0.0005,
       "near_field": 0.03,
-      "meter_time": 169.2
+      "meter_time": 169.2,
+      "people": 1
      },
      {
       "i": 36,
@@ -10859,7 +11474,8 @@
       "obstruction": 0.58,
       "near_field_raw": 0.0023,
       "near_field": 0.11,
-      "meter_time": 174.1
+      "meter_time": 174.1,
+      "people": 0
      },
      {
       "i": 37,
@@ -10870,7 +11486,8 @@
       "obstruction": 0.27,
       "near_field_raw": 0.0011,
       "near_field": 0.06,
-      "meter_time": 178.9
+      "meter_time": 178.9,
+      "people": 0
      },
      {
       "i": 38,
@@ -10881,7 +11498,8 @@
       "obstruction": 0.54,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 183.7
+      "meter_time": 183.7,
+      "people": 0
      },
      {
       "i": 39,
@@ -10892,7 +11510,8 @@
       "obstruction": 0.82,
       "near_field_raw": 0.0004,
       "near_field": 0.02,
-      "meter_time": 188.6
+      "meter_time": 188.6,
+      "people": 0
      },
      {
       "i": 40,
@@ -10903,7 +11522,8 @@
       "obstruction": 1.17,
       "near_field_raw": 0.0074,
       "near_field": 0.37,
-      "meter_time": 193.4
+      "meter_time": 193.4,
+      "people": 0
      },
      {
       "i": 41,
@@ -10914,7 +11534,8 @@
       "obstruction": 2.1,
       "near_field_raw": 0.0428,
       "near_field": 2.14,
-      "meter_time": 198.2
+      "meter_time": 198.2,
+      "people": 0
      },
      {
       "i": 42,
@@ -10925,7 +11546,8 @@
       "obstruction": 1.0,
       "near_field_raw": 0.0096,
       "near_field": 0.48,
-      "meter_time": 203.1
+      "meter_time": 203.1,
+      "people": 1
      },
      {
       "i": 43,
@@ -10936,7 +11558,8 @@
       "obstruction": 0.39,
       "near_field_raw": 0.0098,
       "near_field": 0.49,
-      "meter_time": 207.9
+      "meter_time": 207.9,
+      "people": 2
      },
      {
       "i": 44,
@@ -10947,7 +11570,8 @@
       "obstruction": 0.69,
       "near_field_raw": 0.006,
       "near_field": 0.3,
-      "meter_time": 212.7
+      "meter_time": 212.7,
+      "people": 0
      },
      {
       "i": 45,
@@ -10958,7 +11582,8 @@
       "obstruction": 0.9,
       "near_field_raw": 0.0566,
       "near_field": 2.83,
-      "meter_time": 217.6
+      "meter_time": 217.6,
+      "people": 0
      },
      {
       "i": 46,
@@ -10969,7 +11594,8 @@
       "obstruction": 1.09,
       "near_field_raw": 0.0191,
       "near_field": 0.95,
-      "meter_time": 220.0
+      "meter_time": 220.0,
+      "people": 0
      }
     ],
     "stops": [],
@@ -11312,7 +11938,8 @@
       "obstruction": 0.82,
       "near_field_raw": 0.0033,
       "near_field": 0.17,
-      "meter_time": 220.0
+      "meter_time": 220.0,
+      "people": 0
      },
      {
       "i": 1,
@@ -11323,7 +11950,8 @@
       "obstruction": 0.12,
       "near_field_raw": 0.0009,
       "near_field": 0.04,
-      "meter_time": 215.5
+      "meter_time": 215.5,
+      "people": 0
      },
      {
       "i": 2,
@@ -11334,7 +11962,8 @@
       "obstruction": 1.0,
       "near_field_raw": 0.0006,
       "near_field": 0.03,
-      "meter_time": 211.0
+      "meter_time": 211.0,
+      "people": 0
      },
      {
       "i": 3,
@@ -11345,7 +11974,8 @@
       "obstruction": 1.24,
       "near_field_raw": 0.0215,
       "near_field": 1.07,
-      "meter_time": 206.5
+      "meter_time": 206.5,
+      "people": 0
      },
      {
       "i": 4,
@@ -11356,7 +11986,8 @@
       "obstruction": 0.4,
       "near_field_raw": 0.0007,
       "near_field": 0.03,
-      "meter_time": 202.0
+      "meter_time": 202.0,
+      "people": 0
      },
      {
       "i": 5,
@@ -11367,7 +11998,8 @@
       "obstruction": 3.46,
       "near_field_raw": 0.045,
       "near_field": 2.25,
-      "meter_time": 197.5
+      "meter_time": 197.5,
+      "people": 0
      },
      {
       "i": 6,
@@ -11378,7 +12010,8 @@
       "obstruction": 1.62,
       "near_field_raw": 0.0122,
       "near_field": 0.61,
-      "meter_time": 193.0
+      "meter_time": 193.0,
+      "people": 0
      },
      {
       "i": 7,
@@ -11389,7 +12022,8 @@
       "obstruction": 0.76,
       "near_field_raw": 0.008,
       "near_field": 0.4,
-      "meter_time": 188.5
+      "meter_time": 188.5,
+      "people": 0
      },
      {
       "i": 8,
@@ -11400,7 +12034,8 @@
       "obstruction": 1.15,
       "near_field_raw": 0.0067,
       "near_field": 0.34,
-      "meter_time": 184.0
+      "meter_time": 184.0,
+      "people": 0
      },
      {
       "i": 9,
@@ -11411,7 +12046,8 @@
       "obstruction": 1.77,
       "near_field_raw": 0.0115,
       "near_field": 0.57,
-      "meter_time": 179.5
+      "meter_time": 179.5,
+      "people": 0
      },
      {
       "i": 10,
@@ -11422,7 +12058,8 @@
       "obstruction": 0.89,
       "near_field_raw": 0.0122,
       "near_field": 0.61,
-      "meter_time": 174.9
+      "meter_time": 174.9,
+      "people": 0
      },
      {
       "i": 11,
@@ -11433,7 +12070,8 @@
       "obstruction": 1.39,
       "near_field_raw": 0.0044,
       "near_field": 0.22,
-      "meter_time": 170.4
+      "meter_time": 170.4,
+      "people": 0
      },
      {
       "i": 12,
@@ -11444,7 +12082,8 @@
       "obstruction": 0.48,
       "near_field_raw": 0.0008,
       "near_field": 0.04,
-      "meter_time": 165.9
+      "meter_time": 165.9,
+      "people": 0
      },
      {
       "i": 13,
@@ -11455,7 +12094,8 @@
       "obstruction": 0.03,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 161.4
+      "meter_time": 161.4,
+      "people": 0
      },
      {
       "i": 14,
@@ -11466,7 +12106,8 @@
       "obstruction": 0.02,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 156.9
+      "meter_time": 156.9,
+      "people": 0
      },
      {
       "i": 15,
@@ -11477,7 +12118,8 @@
       "obstruction": 0.05,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 152.4
+      "meter_time": 152.4,
+      "people": 1
      },
      {
       "i": 16,
@@ -11488,7 +12130,8 @@
       "obstruction": 2.3,
       "near_field_raw": 0.0036,
       "near_field": 0.18,
-      "meter_time": 147.9
+      "meter_time": 147.9,
+      "people": 3
      },
      {
       "i": 17,
@@ -11499,7 +12142,8 @@
       "obstruction": 0.86,
       "near_field_raw": 0.0059,
       "near_field": 0.29,
-      "meter_time": 143.4
+      "meter_time": 143.4,
+      "people": 0
      },
      {
       "i": 18,
@@ -11510,7 +12154,8 @@
       "obstruction": 0.59,
       "near_field_raw": 0.0009,
       "near_field": 0.04,
-      "meter_time": 138.9
+      "meter_time": 138.9,
+      "people": 2
      },
      {
       "i": 19,
@@ -11521,7 +12166,8 @@
       "obstruction": 1.98,
       "near_field_raw": 0.0148,
       "near_field": 0.74,
-      "meter_time": 134.4
+      "meter_time": 134.4,
+      "people": 0
      },
      {
       "i": 20,
@@ -11532,7 +12178,8 @@
       "obstruction": 3.29,
       "near_field_raw": 0.0349,
       "near_field": 1.74,
-      "meter_time": 129.9
+      "meter_time": 129.9,
+      "people": 0
      },
      {
       "i": 21,
@@ -11543,7 +12190,8 @@
       "obstruction": 2.46,
       "near_field_raw": 0.0452,
       "near_field": 2.26,
-      "meter_time": 125.4
+      "meter_time": 125.4,
+      "people": 1
      },
      {
       "i": 22,
@@ -11554,7 +12202,8 @@
       "obstruction": 1.12,
       "near_field_raw": 0.0086,
       "near_field": 0.43,
-      "meter_time": 120.9
+      "meter_time": 120.9,
+      "people": 0
      },
      {
       "i": 23,
@@ -11565,7 +12214,8 @@
       "obstruction": 0.48,
       "near_field_raw": 0.0004,
       "near_field": 0.02,
-      "meter_time": 116.4
+      "meter_time": 116.4,
+      "people": 0
      },
      {
       "i": 24,
@@ -11576,7 +12226,8 @@
       "obstruction": 0.52,
       "near_field_raw": 0.009,
       "near_field": 0.45,
-      "meter_time": 111.9
+      "meter_time": 111.9,
+      "people": 0
      },
      {
       "i": 25,
@@ -11587,7 +12238,8 @@
       "obstruction": 1.7,
       "near_field_raw": 0.0182,
       "near_field": 0.91,
-      "meter_time": 107.4
+      "meter_time": 107.4,
+      "people": 0
      },
      {
       "i": 26,
@@ -11598,7 +12250,8 @@
       "obstruction": 0.79,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 102.9
+      "meter_time": 102.9,
+      "people": 0
      },
      {
       "i": 27,
@@ -11609,7 +12262,8 @@
       "obstruction": 0.51,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 98.4
+      "meter_time": 98.4,
+      "people": 0
      },
      {
       "i": 28,
@@ -11620,7 +12274,8 @@
       "obstruction": 2.21,
       "near_field_raw": 0.0355,
       "near_field": 1.77,
-      "meter_time": 93.9
+      "meter_time": 93.9,
+      "people": 1
      },
      {
       "i": 29,
@@ -11631,7 +12286,8 @@
       "obstruction": 2.55,
       "near_field_raw": 0.049,
       "near_field": 2.45,
-      "meter_time": 89.4
+      "meter_time": 89.4,
+      "people": 0
      },
      {
       "i": 30,
@@ -11642,7 +12298,8 @@
       "obstruction": 2.42,
       "near_field_raw": 0.0406,
       "near_field": 2.03,
-      "meter_time": 84.8
+      "meter_time": 84.8,
+      "people": 0
      },
      {
       "i": 31,
@@ -11653,7 +12310,8 @@
       "obstruction": 0.3,
       "near_field_raw": 0.0008,
       "near_field": 0.04,
-      "meter_time": 80.3
+      "meter_time": 80.3,
+      "people": 0
      },
      {
       "i": 32,
@@ -11664,7 +12322,8 @@
       "obstruction": 0.64,
       "near_field_raw": 0.0011,
       "near_field": 0.06,
-      "meter_time": 75.8
+      "meter_time": 75.8,
+      "people": 0
      },
      {
       "i": 33,
@@ -11675,7 +12334,8 @@
       "obstruction": 1.93,
       "near_field_raw": 0.0287,
       "near_field": 1.44,
-      "meter_time": 71.3
+      "meter_time": 71.3,
+      "people": 0
      },
      {
       "i": 34,
@@ -11686,7 +12346,8 @@
       "obstruction": 1.84,
       "near_field_raw": 0.0153,
       "near_field": 0.76,
-      "meter_time": 66.8
+      "meter_time": 66.8,
+      "people": 0
      },
      {
       "i": 35,
@@ -11697,7 +12358,8 @@
       "obstruction": 1.13,
       "near_field_raw": 0.0102,
       "near_field": 0.51,
-      "meter_time": 62.3
+      "meter_time": 62.3,
+      "people": 0
      },
      {
       "i": 36,
@@ -11708,7 +12370,8 @@
       "obstruction": 0.91,
       "near_field_raw": 0.0011,
       "near_field": 0.06,
-      "meter_time": 57.8
+      "meter_time": 57.8,
+      "people": 0
      },
      {
       "i": 37,
@@ -11719,7 +12382,8 @@
       "obstruction": 1.28,
       "near_field_raw": 0.0113,
       "near_field": 0.56,
-      "meter_time": 53.3
+      "meter_time": 53.3,
+      "people": 1
      },
      {
       "i": 38,
@@ -11730,7 +12394,8 @@
       "obstruction": 0.64,
       "near_field_raw": 0.0008,
       "near_field": 0.04,
-      "meter_time": 48.8
+      "meter_time": 48.8,
+      "people": 1
      },
      {
       "i": 39,
@@ -11741,7 +12406,8 @@
       "obstruction": 0.91,
       "near_field_raw": 0.0035,
       "near_field": 0.17,
-      "meter_time": 44.3
+      "meter_time": 44.3,
+      "people": 2
      },
      {
       "i": 40,
@@ -11752,7 +12418,8 @@
       "obstruction": 0.2,
       "near_field_raw": 0.0075,
       "near_field": 0.38,
-      "meter_time": 39.8
+      "meter_time": 39.8,
+      "people": 0
      },
      {
       "i": 41,
@@ -11763,7 +12430,8 @@
       "obstruction": 0.26,
       "near_field_raw": 0.0041,
       "near_field": 0.21,
-      "meter_time": 35.3
+      "meter_time": 35.3,
+      "people": 0
      },
      {
       "i": 42,
@@ -11774,7 +12442,8 @@
       "obstruction": 0.23,
       "near_field_raw": 0.0014,
       "near_field": 0.07,
-      "meter_time": 30.8
+      "meter_time": 30.8,
+      "people": 0
      },
      {
       "i": 43,
@@ -11785,7 +12454,8 @@
       "obstruction": 0.08,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 26.3
+      "meter_time": 26.3,
+      "people": 0
      },
      {
       "i": 44,
@@ -11796,7 +12466,8 @@
       "obstruction": 0.24,
       "near_field_raw": 0.0038,
       "near_field": 0.19,
-      "meter_time": 21.8
+      "meter_time": 21.8,
+      "people": 0
      },
      {
       "i": 45,
@@ -11807,7 +12478,8 @@
       "obstruction": 0.09,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 17.3
+      "meter_time": 17.3,
+      "people": 0
      },
      {
       "i": 46,
@@ -11818,7 +12490,8 @@
       "obstruction": 0.65,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 12.8
+      "meter_time": 12.8,
+      "people": 0
      },
      {
       "i": 47,
@@ -11829,7 +12502,8 @@
       "obstruction": 0.33,
       "near_field_raw": 0.0,
       "near_field": 0.0,
-      "meter_time": 8.3
+      "meter_time": 8.3,
+      "people": 0
      },
      {
       "i": 48,
@@ -11840,7 +12514,8 @@
       "obstruction": 1.43,
       "near_field_raw": 0.002,
       "near_field": 0.1,
-      "meter_time": 3.8
+      "meter_time": 3.8,
+      "people": 1
      },
      {
       "i": 49,
@@ -11851,7 +12526,8 @@
       "obstruction": 2.53,
       "near_field_raw": 0.0594,
       "near_field": 2.97,
-      "meter_time": 0.0
+      "meter_time": 0.0,
+      "people": 0
      }
     ],
     "stops": [],

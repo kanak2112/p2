@@ -12,6 +12,13 @@ pip install opencv-python pillow numpy
 python process_day1.py            # reads point_a_to_b.mp4 and point_b_to_a.mp4
 ```
 
+Optional rough people count per frame (needs OpenCV 4.x):
+
+```bash
+pip install "opencv-python-headless<5"
+python count_people.py
+```
+
 Then open `index.html` in a browser (double-click works; no server needed).
 
 For later survey days:
@@ -41,3 +48,11 @@ Placeholders are labelled in the page and are never counted as evidence.
   (reported: 5.5% of Mumbai roads meet it).
 - **12-second uninterrupted walk**: set by the study team. No published WRI India source
   was found; add the citation in `index.html` (`BENCH`) before sending.
+
+## On-site notes (in the page)
+
+Select a spot and record what blocks it (cause tags), its tape-measured clear width (compared with
+the 1.8 m minimum in IRC:103), and whether the photos confirm the automatic verdict. On the live
+link these are shared with everyone who opens it; in a local copy they stay in that browser.
+"Set coordinates" takes Point A and Point B as latitude, longitude and places every spot on real
+coordinates. Spots export as CSV, and as GeoJSON once coordinates are set.

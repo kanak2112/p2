@@ -227,6 +227,24 @@ dialog::backdrop { background: rgba(0, 0, 0, .55); }
 .days-seg button { padding: 4px 10px; font-size: 13px; }
 .badge { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 13px; padding: 3px 8px; border-radius: 4px; background: var(--sunken); }
 .row-label i { display: none !important; }
+.onsite { display: flex; flex-direction: column; gap: 10px; padding-top: 12px; border-top: 1px solid var(--line); }
+.onsite .lbl { font-size: 11px; }
+.tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.tag { font: 500 12.5px var(--font-body); padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; }
+.tag[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.field { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg-2); flex-wrap: wrap; }
+.field input { width: 72px; font: 500 14px var(--font-mono); padding: 4px 6px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--fg); }
+.short { color: var(--critical); font-weight: 600; }
+.yn { display: inline-flex; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.yn button { border: 0; background: var(--surface); padding: 3px 10px; font-size: 13px; cursor: pointer; }
+.yn button + button { border-left: 1px solid var(--line); }
+.yn button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.savemsg { font-size: 12px; color: var(--muted); min-height: 1em; }
+.card-actions { display: flex; gap: 6px; align-items: center; }
+#geoDlg { width: min(460px, calc(100vw - 32px)); }
+.geo { display: flex; flex-direction: column; gap: 10px; padding: 18px; }
+.geo label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--fg-2); }
+.geo input { font: 14px var(--font-mono); padding: 6px 8px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--fg); }
 .spot-table-wrap { overflow-x: auto; }
 table.spots { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 640px; }
 .spots th { text-align: left; font: 600 11px var(--font-display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); }
@@ -264,6 +282,7 @@ details.calib[open] summary { margin-bottom: 6px; }
     <div style="display:flex;flex-direction:column;gap:18px;min-width:0">
       <section class="card route-card">
         <div class="card-head"><h2>Footpath</h2>
+          <button class="btn ghost sm" id="geoBtn">Set coordinates</button>
           <div class="legend-status" style="margin:0">
             <span class="chip static">Fix · blocked every day</span>
             <span class="chip transient">Manage · some days</span>
@@ -275,7 +294,8 @@ details.calib[open] summary { margin-bottom: 6px; }
       </section>
 
       <section class="card">
-        <div class="card-head"><h2>Spots ranked</h2></div>
+        <div class="card-head"><h2>Spots ranked</h2>
+          <div class="card-actions"><button class="btn ghost sm" id="csvBtn">CSV</button><button class="btn ghost sm" id="geojsonBtn">GeoJSON</button><span class="savemsg" id="exportMsg"></span></div></div>
         <div class="spot-table-wrap" id="spotList"></div>
         <button class="btn ghost sm" id="moreSpots" style="margin-top:10px">Show all spots</button>
       </section>
@@ -355,6 +375,17 @@ details.calib[open] summary { margin-bottom: 6px; }
     <div class="lb-bar"><span id="lbCap"></span><span class="spacer"></span>
       <button class="btn ghost sm" id="lbPrev">Previous</button><button class="btn ghost sm" id="lbNext">Next</button><button class="btn sm" id="lbClose">Close</button></div>
   </div>
+</dialog>
+
+<dialog id="geoDlg" aria-label="Coordinates">
+  <form class="geo" method="dialog" id="geoForm">
+    <h2>Coordinates</h2>
+    <p class="note">Right-click each end in Google Maps and copy the numbers.</p>
+    <label for="geoA">A · R.K. Chouhan Communications<input id="geoA" placeholder="19.1180, 72.8560"></label>
+    <label for="geoB">B · Amratlal G. Vasani<input id="geoB" placeholder="19.1170, 72.8540"></label>
+    <span class="savemsg" id="geoMsg"></span>
+    <div class="card-actions"><button class="btn sm" id="geoSave" type="button">Save</button><button class="btn ghost sm" id="geoClose" type="button">Close</button></div>
+  </form>
 </dialog>
 
 <dialog id="cardDlg">
@@ -725,7 +756,9 @@ details.calib[open] summary { margin-bottom: 6px; }
         ${sd.tiles.length ? `<div class="side-grid">${sd.tiles.join('')}</div>` : '<span class="note">No surveyed walks from this side yet.</span>'}
       </div>`).join('')}
       ${compare ? `<div class="verdict">${compare}</div>` : ''}
+      ${onsiteHtml(bin)}
       <button class="btn" id="inspCard">Evidence card</button>`;
+    wireOnsite(bin);
     $('inspCard').addEventListener('click', () => openCard(bin));
     $('inspector').querySelectorAll('figure.zoom').forEach(f => f.addEventListener('click', () => {
       const w = walk(realDays.find(x => x.day === +f.dataset.day), f.dataset.key), n = nearest(w, m);
@@ -914,6 +947,11 @@ details.calib[open] summary { margin-bottom: 6px; }
     $('headline').innerHTML = `
       <div><b>${ok100}/${walks.length}</b><span>walks with 100 m clear · longest ${fmt(best)} m</span></div>
       <div><b>${fmt(Math.min(...shares))}–${fmt(Math.max(...shares))}%</b><span>of each walk obstructed</span></div>`;
+    const ns = Object.values(NOTES || {});
+    const measured = ns.filter(n => n.width != null && n.width !== ''), shortN = measured.filter(n => n.width < MIN_W).length;
+    const checked = ns.filter(n => n.check), agree = checked.filter(n => n.check === 'agree').length;
+    if (measured.length) $('headline').innerHTML += `<div><b>${shortN}/${measured.length}</b><span>measured spots below ${MIN_W} m</span></div>`;
+    if (checked.length) $('headline').innerHTML += `<div><b>${Math.round(100 * agree / checked.length)}%</b><span>agreement with photos (${checked.length} checked)</span></div>`;
   }
   // What a 10 m spot needs: the same rule colours the map, ranks the list and heads the inspector.
   function needOf(a, b) {
@@ -936,13 +974,16 @@ details.calib[open] summary { margin-bottom: 6px; }
   }
   function renderSpotList() {
     const rows = spotRows(), shown = showAll ? rows : rows.slice(0, 8);
-    $('spotList').innerHTML = `<table class="spots"><thead><tr><th>#</th><th>Spot</th><th></th><th>Needs</th><th>A side</th><th>B side</th><th></th></tr></thead><tbody>
+    $('spotList').innerHTML = `<table class="spots"><thead><tr><th>#</th><th>Spot</th><th></th><th>Needs</th><th>A side</th><th>B side</th><th>Cause</th><th>Width</th><th>People <span style="text-transform:none;letter-spacing:0">(rough)</span></th><th></th></tr></thead><tbody>
       ${shown.map((r, k) => {
         const w = walk(r.latest, 'forward') || walk(r.latest, 'return');
         const ph = w ? photo(w, r.i * BIN + BIN / 2, w.key === 'forward' ? 'var(--nb)' : 'var(--sb)', 'thumb').html : '';
         const cell = p => `<span class="mono">${p.n ? `${p.c}/${p.n} days` : '–'}</span>`;
         return `<tr data-bin="${r.i}"><td class="rank">${k + 1}</td><td><b class="mono">${binRange(r.i)}</b>${r.near ? `<br><span class="note" style="font-size:12px">${r.near}</span>` : ''}</td>
           <td>${ph}</td><td><span class="chip ${r.resp.cls}">${r.resp.word}</span></td><td>${cell(r.A)}</td><td>${cell(r.B)}</td>
+          <td style="font-size:13px">${(note(r.i).causes || []).join(', ') || '<span class="note">–</span>'}</td>
+          <td class="mono">${note(r.i).width != null && note(r.i).width !== '' ? `<span class="${note(r.i).width < MIN_W ? 'short' : ''}">${fmt(note(r.i).width, 1)} m</span>` : '<span class="note">–</span>'}</td>
+          <td class="mono">${peopleIn(r.i) == null ? '–' : fmt(peopleIn(r.i), 1)}</td>
           <td><button class="btn ghost sm" data-card="${r.i}">Evidence card</button></td></tr>`;
       }).join('')}</tbody></table>`;
     $('moreSpots').textContent = showAll ? 'Show top 8' : `Show all ${rows.length} spots`;
@@ -1011,7 +1052,8 @@ details.calib[open] summary { margin-bottom: 6px; }
       y += th + 78;
     }
     ctx.fillStyle = C.ink; ctx.font = font(600, 18);
-    ctx.fillText(r ? `Needs: ${r.resp.word} (${r.resp.why})` : '', pad, y);
+    const nt = note(i);
+    ctx.fillText(r ? `Needs: ${r.resp.word} (${r.resp.why})${nt.causes && nt.causes.length ? ` · cause: ${nt.causes.join(', ')}` : ''}${nt.width != null && nt.width !== '' ? ` · clear width ${fmt(nt.width, 1)} m (min ${MIN_W} m)` : ''}` : '', pad, y);
     ctx.fillStyle = C.mute; ctx.font = font(400, 14);
     const foot = [
       `Red frame = that day's worst frame in this 10 m spot scored as obstructed (clutter index ≥ ${OBS}). An image measure, not a width.`,
@@ -1023,6 +1065,8 @@ details.calib[open] summary { margin-bottom: 6px; }
     cardText = [`Footpath evidence · spot ${binRange(i)} · ${D.corridor.name}, ${D.corridor.city} (ward ${D.corridor.ward || ''})`,
       ...rowsDef.map(row => `${row.dir.side}: ${CLS_WORD[row.p.cls]}${row.p.n ? ` (obstructed on ${row.p.c} of ${row.p.n} survey days: ${row.items.map(({ d, w }) => { const n = binWorst(w, i); return `Day ${d.day} ${light(w)} ${n ? (n.obstruction >= OBS ? 'obstructed' : 'clear') : 'no frame'}`; }).join('; ')})` : ''}`),
       r ? `Needs: ${r.resp.word} (${r.resp.why})` : '',
+      note(i).causes && note(i).causes.length ? `Cause: ${note(i).causes.join(', ')}` : '',
+      note(i).width != null && note(i).width !== '' ? `Clear width: ${fmt(note(i).width, 1)} m (minimum ${MIN_W} m, IRC:103)` : '',
       `Method: phone video walked twice daily; obstruction is an image-based indicator, positions ±10 m.`].join('\n');
   }
   $('closeCard').addEventListener('click', () => $('cardDlg').close());
@@ -1038,6 +1082,132 @@ details.calib[open] summary { margin-bottom: 6px; }
     }
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = cardName;
     document.body.appendChild(a); a.click(); a.remove();
+  });
+
+  /* ---------- On-site notes (shared store; browser storage when opened as a local file) ---------- */
+  const binOf = m => Math.min(Math.ceil(L / BIN) - 1, Math.max(0, Math.floor(m / BIN)));
+  const CAUSES = ['Vendor', 'Parked vehicle', 'Bins', 'Pole / utility', 'Broken surface', 'No ramp / step', 'Construction', 'Crowd', 'Other'];
+  const MIN_W = 1.8;   // IRC:103 minimum clear footpath width, metres
+  let NOTES = {}, GEO = null;
+  const store = { db: null };
+  const note = i => NOTES['s' + i] || {};
+  const isBlocked = i => { const A = persistence('forward')[i], B = persistence('return')[i]; return needOf(A, B).cls !== 'clear'; };
+  function refreshNotes() {
+    const a = document.activeElement;
+    if (!(a && a.id === 'widthIn')) setMeter(state.meter ?? 0);
+    renderSpotList(); renderHeadline();
+  }
+  async function initStore() {
+    try { store.db = window.claude && window.claude.use ? await window.claude.use('db') : null; } catch (e) { store.db = null; }
+    if (store.db) {
+      store.db.collection('spots').onSnapshot(snap => { const n = {}; snap.docs.forEach(d => { n[d.id] = d.data(); }); NOTES = n; refreshNotes(); }, () => {});
+      store.db.doc('corridor/geo').onSnapshot(sn => { GEO = sn.exists ? sn.data() : null; renderRoute(); routeCursor(state.meter ?? 0); }, () => {});
+      return;
+    }
+    try { NOTES = JSON.parse(localStorage.getItem('si-notes') || '{}'); GEO = JSON.parse(localStorage.getItem('si-geo') || 'null'); } catch (e) {}
+    refreshNotes();
+  }
+  async function saveNote(i, patch) {
+    const id = 's' + i, next = { ...note(i), ...patch, updatedAt: new Date().toISOString() };
+    NOTES = { ...NOTES, [id]: next }; refreshNotes();
+    const msg = t => { const el = $('saveMsg'); if (el) el.textContent = t; };
+    if (store.db) {
+      try { await store.db.doc('spots/' + id).set(next); msg('Saved'); } catch (e) { msg('You can view these notes but not change them.'); }
+    } else { try { localStorage.setItem('si-notes', JSON.stringify(NOTES)); msg('Saved in this browser'); } catch (e) { msg('Not saved'); } }
+  }
+  function onsiteHtml(bin) {
+    const n = note(bin), causes = n.causes || [], w = n.width;
+    const blocked = isBlocked(bin);
+    return `<div class="onsite">
+      <span class="lbl">What blocks it</span>
+      <div class="tags">${CAUSES.map(c => `<button class="tag" data-cause="${c}" aria-pressed="${causes.includes(c)}">${c}</button>`).join('')}</div>
+      <div class="field"><label for="widthIn">Clear width</label><input id="widthIn" type="number" min="0" max="10" step="0.1" value="${w ?? ''}" placeholder="m"> m
+        ${w != null && w !== '' ? (w < MIN_W ? `<span class="short">${fmt(MIN_W - w, 1)} m below ${MIN_W} m minimum</span>` : `<span>meets ${MIN_W} m minimum</span>`) : `<span class="note">tape-measured, min ${MIN_W} m</span>`}</div>
+      <div class="field"><span>Photos show it ${blocked ? 'blocked' : 'clear'}?</span>
+        <span class="yn"><button data-check="agree" aria-pressed="${n.check === 'agree'}">Yes</button><button data-check="disagree" aria-pressed="${n.check === 'disagree'}">No</button></span></div>
+      <span class="savemsg" id="saveMsg"></span>
+    </div>`;
+  }
+  function wireOnsite(bin) {
+    const box = $('inspector');
+    box.querySelectorAll('[data-cause]').forEach(b => b.addEventListener('click', () => {
+      const cur = note(bin).causes || [], c = b.dataset.cause;
+      saveNote(bin, { causes: cur.includes(c) ? cur.filter(x => x !== c) : [...cur, c] });
+    }));
+    const wi = $('widthIn');
+    if (wi) wi.addEventListener('change', () => { const v = wi.value === '' ? null : Math.round(+wi.value * 10) / 10; wi.blur(); saveNote(bin, { width: v }); });
+    box.querySelectorAll('[data-check]').forEach(b => b.addEventListener('click', () => saveNote(bin, { check: note(bin).check === b.dataset.check ? null : b.dataset.check })));
+  }
+
+  /* ---------- Coordinates: fit the traced route to the two real end points ---------- */
+  const R_EARTH = 6371000;
+  function parseLL(t) { const m = String(t || '').match(/(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)/); return m ? [+m[1], +m[2]] : null; }
+  // Similarity transform (scale + rotation + shift) from screenshot pixels to local metres, anchored at A and B.
+  function geoFit() {
+    if (!GEO || !GEO.a || !GEO.b) return null;
+    const [la, loa] = GEO.a, [lb, lob] = GEO.b, k = Math.cos(la * Math.PI / 180);
+    const wA = [0, 0], wB = [(lob - loa) * Math.PI / 180 * R_EARTH * k, (lb - la) * Math.PI / 180 * R_EARTH];
+    const pA = ROUTE[0], pB = ROUTE[ROUTE.length - 1];
+    const zA = [pA[0], -pA[1]], zB = [pB[0], -pB[1]], dz = [zB[0] - zA[0], zB[1] - zA[1]], dw = [wB[0] - wA[0], wB[1] - wA[1]];
+    const den = dz[0] * dz[0] + dz[1] * dz[1];
+    const sc = [(dw[0] * dz[0] + dw[1] * dz[1]) / den, (dw[1] * dz[0] - dw[0] * dz[1]) / den];
+    const toLL = (x, y) => { const z = [x - zA[0], -y - zA[1]]; const e = sc[0] * z[0] - sc[1] * z[1], nn = sc[0] * z[1] + sc[1] * z[0];
+      return [la + nn / R_EARTH * 180 / Math.PI, loa + e / (R_EARTH * k) * 180 / Math.PI]; };
+    const lenM = routeLen * Math.hypot(sc[0], sc[1]);
+    return { toLL, lenM };
+  }
+  const llAt = (fit, m) => { const q = routeAt(m); return fit.toLL(q.x, q.y); };
+  $('geoBtn').addEventListener('click', () => {
+    $('geoA').value = GEO && GEO.a ? GEO.a.join(', ') : ''; $('geoB').value = GEO && GEO.b ? GEO.b.join(', ') : '';
+    const f = geoFit(); $('geoMsg').textContent = f ? `Route length from these points: ${fmt(f.lenM)} m (survey: ${fmt(L)} m).` : '';
+    $('geoDlg').showModal();
+  });
+  $('geoClose').addEventListener('click', () => $('geoDlg').close());
+  $('geoSave').addEventListener('click', async () => {
+    const a = parseLL($('geoA').value), b = parseLL($('geoB').value);
+    if (!a || !b) { $('geoMsg').textContent = 'Enter both as "latitude, longitude".'; return; }
+    GEO = { a, b, updatedAt: new Date().toISOString() };
+    const f = geoFit(); $('geoMsg').textContent = `Saved. Route length from these points: ${fmt(f.lenM)} m (survey: ${fmt(L)} m).`;
+    if (store.db) { try { await store.db.doc('corridor/geo').set(GEO); } catch (e) { $('geoMsg').textContent = 'You can view coordinates but not change them.'; } }
+    else { try { localStorage.setItem('si-geo', JSON.stringify(GEO)); } catch (e) {} }
+    renderRoute(); routeCursor(state.meter ?? 0);
+  });
+
+  /* ---------- Exports ---------- */
+  function peopleIn(i) {
+    const v = []; realDays.forEach(d => DIRS.forEach(dir => { const w = walk(d, dir.key); if (w) w.nodes.forEach(n => { if (binOf(n.meter) === i && n.people != null) v.push(n.people); }); }));
+    return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+  }
+  async function offerFile(name, text, type) {
+    const blob = new Blob([text], { type });
+    let dl = null; try { dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null; } catch (e) {}
+    if (dl) { try { await dl.save({ filename: name, data: blob }); $('exportMsg').textContent = 'Saved'; } catch (e) { $('exportMsg').textContent = e && e.code === 'declined' ? '' : 'Download unavailable here'; } return; }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  }
+  function exportRows() {
+    const fit = geoFit();
+    return [...Array(NB_BINS).keys()].map(i => {
+      const A = persistence('forward')[i], B = persistence('return')[i], nd = needOf(A, B), n = note(i), p = peopleIn(i);
+      const ll = fit ? llAt(fit, i * BIN + BIN / 2) : null;
+      return { from_m: i * BIN, to_m: Math.min(L, (i + 1) * BIN), needs: nd.word, a_days_blocked: A.c, a_days: A.n, b_days_blocked: B.c, b_days: B.n,
+        causes: (n.causes || []).join('; '), clear_width_m: n.width ?? '', below_min: n.width != null && n.width !== '' ? (n.width < MIN_W ? 'yes' : 'no') : '',
+        people_rough: p == null ? '' : fmt(p, 1), photos_confirm: n.check === 'agree' ? 'yes' : n.check === 'disagree' ? 'no' : '',
+        lat: ll ? ll[0].toFixed(6) : '', lon: ll ? ll[1].toFixed(6) : '' };
+    });
+  }
+  $('csvBtn').addEventListener('click', () => {
+    const rows = exportRows(), cols = Object.keys(rows[0]);
+    const esc = v => /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v);
+    offerFile('street-intelligence-spots.csv', [cols.join(','), ...rows.map(r => cols.map(c => esc(r[c])).join(','))].join('\n'), 'text/csv');
+  });
+  $('geojsonBtn').addEventListener('click', () => {
+    const fit = geoFit();
+    if (!fit) { $('exportMsg').textContent = 'Set coordinates first'; return; }
+    const features = exportRows().map(r => {
+      const coords = []; for (let m = r.from_m; m <= r.to_m + 0.01; m += 2) { const ll = llAt(fit, Math.min(m, L)); coords.push([+ll[1].toFixed(7), +ll[0].toFixed(7)]); }
+      return { type: 'Feature', geometry: { type: 'LineString', coordinates: coords }, properties: r };
+    });
+    offerFile('street-intelligence-spots.geojson', JSON.stringify({ type: 'FeatureCollection', features }, null, 1), 'application/geo+json');
   });
 
   /* ---------- Photo viewer ---------- */
@@ -1058,6 +1228,7 @@ details.calib[open] summary { margin-bottom: 6px; }
   });
   $('lb').addEventListener('click', e => { if (e.target === $('lb')) $('lb').close(); });
 
+  setTimeout(initStore, 0);
   function renderAll() {
     renderTicks(); renderProfile(); renderTracks(); renderPersistence();
     renderRoute(); renderHeadline(); renderSpotList();
