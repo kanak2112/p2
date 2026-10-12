@@ -213,7 +213,7 @@ def process_walk(path, out_dir, direction, length_m, step_s, height, motion_thre
     # Second pass: save picked frames and measure them.
     os.makedirs(out_dir, exist_ok=True)
     for name in os.listdir(out_dir):
-        if (name.startswith("frame_") or name.startswith("spots_")) and name.endswith(".jpg"):
+        if name.startswith(("frame_", "frames", "spots_")) and name.endswith(".jpg"):
             os.remove(os.path.join(out_dir, name))
     wanted = {i: k for k, i in enumerate(picks)}
     dense_every = max(1, round(DENSE_SEC / PROBE_SEC))
@@ -344,6 +344,26 @@ def lighting_of(walk):
     return walk["lighting"]
 
 
+FRAME_COLS = 10
+
+
+def pack_frames(walk, out_dir):
+    """Pack the kept frames into one sheet (frames.jpg) so a walk publishes as a couple of files, not ~50."""
+    nodes = walk["nodes"]
+    if not nodes:
+        return
+    ims = [Image.open(os.path.join(out_dir, n["file"])).convert("RGB") for n in nodes]
+    fw, fh = ims[0].size
+    nrows = -(-len(ims) // FRAME_COLS)
+    sheet = Image.new("RGB", (FRAME_COLS * fw, nrows * fh))
+    for j, im in enumerate(ims):
+        r, c = divmod(j, FRAME_COLS)
+        sheet.paste(im.resize((fw, fh)), (c * fw, r * fh))
+        nodes[j]["cell"] = j
+    sheet.save(os.path.join(out_dir, "frames.jpg"), "JPEG", quality=80, optimize=True, progressive=True)
+    walk["frame_sheet"] = {"file": "frames.jpg", "cols": FRAME_COLS, "rows": nrows, "size": [fw, fh]}
+
+
 def renormalise(days):
     """
     Score every frame against the typical frame of ALL surveyed walks in the same direction and light,
@@ -423,6 +443,7 @@ def main():
             os.remove(out)
         pins = [(sec, landmarks["landmarks"][name]) for name, sec in landmarks.get("walks", {}).get(os.path.basename(path), {}).items()]
         day[key] = process_walk(path, out, direction, args.length, args.step, args.height, args.motion_thresh, pins)
+        pack_frames(day[key], out)
     if "forward" not in day and "return" not in day:
         sys.exit("No videos processed. Put point_a_to_b.mp4 and point_b_to_a.mp4 next to this script.")
 

@@ -110,7 +110,7 @@ h1 { font-size: clamp(28px, 4.2vw, 40px); font-weight: 700; line-height: 1; lett
 .row.sb .row-label { position: absolute; top: auto; bottom: 0; border-radius: 0 6px 0 0; }
 .node { position: absolute; top: 28px; height: 160px; padding: 0; border: 2px solid transparent; border-radius: 4px; overflow: hidden; background: #000; cursor: pointer; transform: translateX(-50%); }
 .row.sb .node { top: 6px; }
-.node img { display: block; height: 100%; width: auto; }
+.node img, .node .fimg { display: block; height: 100%; width: auto; }
 .node.hot { border-color: var(--fg); z-index: 3; }
 .node.linked { border-color: var(--fg); z-index: 3; box-shadow: 0 0 0 3px var(--surface); }
 
@@ -371,7 +371,7 @@ details.calib[open] summary { margin-bottom: 6px; }
 
 <dialog id="lb" aria-label="Photo">
   <div class="lb">
-    <img id="lbImg" alt="">
+    <div id="lbImg" role="img"></div>
     <div class="lb-bar"><span id="lbCap"></span><span class="spacer"></span>
       <button class="btn ghost sm" id="lbPrev">Previous</button><button class="btn ghost sm" id="lbNext">Next</button><button class="btn sm" id="lbClose">Close</button></div>
   </div>
@@ -463,11 +463,17 @@ details.calib[open] summary { margin-bottom: 6px; }
     return `background-image:url('${w.folder}/${sv.sheets[sh]}');background-size:${sv.cols * 100}% ${rows * 100}%;` +
       `background-position:${sv.cols > 1 ? col / (sv.cols - 1) * 100 : 0}% ${rows > 1 ? row / (rows - 1) * 100 : 0}%;aspect-ratio:${sv.size[0]} / ${sv.size[1]}`;
   }
+  // Each walk's kept frames live in one sheet (frames.jpg); a frame is a cell of it.
+  function frameStyle(w, n) {
+    const fs = w.frame_sheet, j = n.cell ?? n.i, col = j % fs.cols, row = Math.floor(j / fs.cols);
+    return `background-image:url('${w.folder}/${fs.file}');background-size:${fs.cols * 100}% ${fs.rows * 100}%;` +
+      `background-position:${fs.cols > 1 ? col / (fs.cols - 1) * 100 : 0}% ${fs.rows > 1 ? row / (fs.rows - 1) * 100 : 0}%;background-repeat:no-repeat`;
+  }
   function photo(w, S, color, cls = '') {
     const v = viewFor(w, S);
     if (v) return { v, html: `<div class="ph sprite ${cls}" style="border-top-color:${color};${spriteStyle(w, v.idx)}" role="img" aria-label="View of ${fmt(S)} m from camera at ${fmt(v.cam)} m"><span class="aim"></span></div>` };
     const n = nearest(w, S);
-    if (n) return { v: { cam: n.cam, t: n.t }, html: `<div class="ph ${cls}" style="border-top-color:${color}"><img src="${w.folder}/${n.file}" alt=""></div>` };
+    if (n) return { v: { cam: n.cam, t: n.t }, html: `<div class="ph sprite ${cls}" style="border-top-color:${color};${frameStyle(w, n)}" role="img" aria-label="Frame at ${fmt(n.meter)} m"></div>` };
     return { v: null, html: `<div class="ph empty ${cls}" style="border-top-color:${color}"></div>` };
   }
 
@@ -645,7 +651,7 @@ details.calib[open] summary { margin-bottom: 6px; }
         for (const n of w.nodes) {
           const a = Math.max(0, Math.min(1, (n.near_field - 0.8) / 2.2));
           row += `<button class="node" style="left:${x(n.meter)}px" data-row="${i}" data-m="${n.meter}" aria-label="${r.label}, ${fmt(n.meter)} m">
-            <img src="${w.folder}/${n.file}" alt="" loading="lazy" decoding="async" style="height:${h}px">
+            <span class="fimg" style="height:${h}px;aspect-ratio:${w.frame_sheet.size[0]} / ${w.frame_sheet.size[1]};${frameStyle(w, n)}"></span>
             <div class="prox-guides"></div>
             <div class="prox-band" style="background:rgba(208,59,59,${(0.15 + 0.6 * a).toFixed(2)})"><span>&lt;0.8 m${n.near_field >= NEAR ? ' · breach' : ''}</span></div></button>`;
         }
@@ -1039,8 +1045,8 @@ details.calib[open] summary { margin-bottom: 6px; }
             const [fw, fh] = sv.size;
             ctx.drawImage(im, (kk % sv.cols) * fw, Math.floor(kk / sv.cols) * fh, fw, fh, x, y, tw, th);
           } else if (n) {
-            const im = await loadImg(`${w.folder}/${n.file}`);
-            ctx.drawImage(im, x, y, tw, th);
+            const im = await loadImg(`${w.folder}/${w.frame_sheet.file}`), fs = w.frame_sheet, [fw, fh] = fs.size, j = n.cell ?? n.i;
+            ctx.drawImage(im, (j % fs.cols) * fw, Math.floor(j / fs.cols) * fh, fw, fh, x, y, tw, th);
           }
         } catch (e) {}
         ctx.fillStyle = col; ctx.fillRect(x, y, tw, 4);
@@ -1215,7 +1221,9 @@ details.calib[open] summary { margin-bottom: 6px; }
   function openLB(w, i) { if (!w || i < 0) return; lb.w = w; lb.i = i; showLB(); if (!$('lb').open) $('lb').showModal(); }
   function showLB() {
     const n = lb.w.nodes[lb.i];
-    $('lbImg').src = `${lb.w.folder}/${n.file}`;
+    const fs = lb.w.frame_sheet;
+    $('lbImg').style.cssText = `height:min(72vh, calc((min(560px, 100vw - 32px) - 32px) * ${fs.size[1] / fs.size[0]}));aspect-ratio:${fs.size[0]} / ${fs.size[1]};margin:0 auto;border-radius:4px;background-color:#000;${frameStyle(lb.w, n)}`;
+    $('lbImg').setAttribute('aria-label', `Frame at ${fmt(n.meter)} m`);
     $('lbCap').textContent = `Day ${lb.w.day} · ${lb.w.key === 'forward' ? 'seen from A' : 'seen from B'} · ${fmt(n.meter)} m · ${lb.w.lighting || ''} · ${clsText[cls(n)].toLowerCase()}`;
     $('lbPrev').disabled = lb.i === 0; $('lbNext').disabled = lb.i === lb.w.nodes.length - 1;
   }
