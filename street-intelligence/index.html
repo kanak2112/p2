@@ -87,7 +87,7 @@ details.look[open] summary { color: var(--fg); }
 .mrow-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
 .mrow-head .sub { color: var(--fg-2); font-size: 12px; }
 .tiles { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
-.tile { flex: 0 0 auto; width: 132px; border: 0; padding: 0; background: none; cursor: pointer; text-align: left; display: grid; gap: 5px; }
+.tile { flex: 0 0 auto; width: 148px; border: 0; padding: 0; background: none; cursor: pointer; text-align: left; display: grid; gap: 5px; }
 .ph { width: 100%; aspect-ratio: 240 / 427; max-width: 100%; border-radius: 4px; background-color: var(--sunken); background-repeat: no-repeat; position: relative; overflow: hidden; border: 2px solid var(--line); }
 .tile[data-s="blocked"] .ph { border-color: var(--red); }
 .tile[data-s="clear"] .ph { border-color: var(--green); }
@@ -100,31 +100,44 @@ details.look[open] summary { color: var(--fg); }
 .cap span { color: var(--fg-2); }
 .tile:hover .ph { filter: brightness(1.1); }
 
-/* Diagnostics */
-.diag { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
-.diag .card { display: grid; gap: 10px; align-content: start; }
-.dirline { display: grid; grid-template-columns: 52px 1fr auto; gap: 8px; align-items: center; font-size: 13px; }
-.dirline .d { color: var(--fg-2); font-weight: 600; font-size: 12px; }
-.chip { font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; white-space: nowrap; }
+/* Overlays on photos */
+.ov { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.pbadge { position: absolute; left: 5px; bottom: 5px; display: inline-flex; align-items: center; gap: 5px; max-width: calc(100% - 10px);
+  padding: 3px 7px 3px 6px; border-radius: 999px; font-size: 10.5px; font-weight: 600; line-height: 1.2; white-space: nowrap; color: #F8FAFC;
+  background: rgba(15, 23, 42, .58); border: 1px solid rgba(248, 250, 252, .16); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.pbadge i { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; }
+.pbadge em { font-style: normal; font-weight: 400; opacity: .7; }
+.tile { transition: transform .15s ease; }
+.tile:hover { transform: translateY(-2px); }
+.chip { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; white-space: nowrap; }
 .chip.red { background: color-mix(in srgb, var(--red) 18%, transparent); color: var(--red); }
 .chip.yellow { background: color-mix(in srgb, var(--yellow) 18%, transparent); color: var(--yellow); }
 .chip.green { background: color-mix(in srgb, var(--green) 18%, transparent); color: var(--green); }
 .chip.grey { background: color-mix(in srgb, var(--fg-3) 22%, transparent); color: var(--fg-2); }
-.big { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
 .note { color: var(--fg-3); font-size: 12px; }
-.widths { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
+
+/* Asymmetry split bar between the two rows */
+.split { display: grid; gap: 6px; padding: 10px 0; border-block: 1px solid var(--line); }
+.split-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font-size: 13px; }
+.split-top .gap { font-weight: 700; }
+.split-top .sp { flex: 1; }
+.sbar { display: grid; grid-template-columns: 44px 1fr 2px 1fr 44px; align-items: center; gap: 6px; font-size: 11px; color: var(--fg-2); font-weight: 600; }
+.sbar .half { height: 10px; background: var(--sunken); border-radius: 2px; position: relative; overflow: hidden; }
+.sbar .half i { position: absolute; top: 0; bottom: 0; border-radius: 2px; transition: width .2s ease; }
+.sbar .half.l i { right: 0; } .sbar .half.r i { left: 0; }
+.sbar .mid { height: 18px; background: var(--fg-3); }
+.sbar span:last-child { text-align: right; }
+details.mw summary { cursor: pointer; color: var(--fg-2); font-size: 12px; list-style: none; }
+details.mw summary::-webkit-details-marker { display: none; }
+details.mw summary::before { content: "+ "; }
+details.mw[open] summary::before { content: "− "; }
+.widths { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; padding-top: 6px; }
 .widths label { display: grid; gap: 3px; font-size: 12px; color: var(--fg-2); }
 .widths input { width: 92px; background: var(--sunken); border: 1px solid var(--line); border-radius: 4px; padding: 5px 7px; }
-.scale { position: relative; height: 22px; margin-top: 2px; }
-.scale .seg { position: absolute; top: 8px; height: 6px; }
-.scale .mk { position: absolute; top: 2px; width: 2px; height: 18px; background: var(--fg); }
-.scale .mk span { position: absolute; top: -14px; left: 4px; font-size: 10px; color: var(--fg); white-space: nowrap; }
-.scale-l { position: relative; height: 14px; font-size: 10px; color: var(--fg-3); }
-.scale-l span { position: absolute; top: 0; white-space: nowrap; transform: translateX(-50%); }
-.scale-l span:first-child { transform: none; }
-.scale-l span:last-child { transform: translateX(-100%); }
-.dots { display: flex; gap: 4px; }
-.dots i { width: 18px; height: 18px; border-radius: 3px; display: grid; place-items: center; font-style: normal; font-size: 10px; font-weight: 600; color: var(--bg); }
+.okey { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 11.5px; color: var(--fg-2); padding-top: 4px; }
+.okey span { display: inline-flex; align-items: center; gap: 5px; }
+.okey .sw { width: 14px; height: 9px; border-radius: 2px; }
+.okey .bx { width: 14px; height: 10px; border-radius: 1px; }
 
 /* Dialogs */
 dialog { background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: var(--r); padding: 0; max-width: calc(100vw - 32px); }
@@ -149,7 +162,8 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
 
 @media (max-width: 640px) {
   .readout { font-size: 26px; }
-  .tile { width: 108px; }
+  .tile { width: 124px; }
+  .pbadge { font-size: 10px; } .pbadge em { display: none; }
   .report { padding: 18px; }
   .lane-label { display: none; }
   .bar { margin: 0 8px; }
@@ -208,19 +222,22 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
 
   <section class="card matrix" aria-label="Photos of spot S by direction and day">
     <div>
-      <div class="mrow-head"><h2>A → B</h2><span class="sub">South-west bound, towards Amratlal G. Vasani. Same background every day, so changes are the obstacles.</span></div>
+      <div class="mrow-head"><h2>A → B</h2><span class="sub">South-west bound · same background every day</span><span id="headA"></span></div>
       <div class="tiles" id="rowA"></div>
     </div>
+    <div class="split" id="split" aria-label="Directional asymmetry at spot S"></div>
     <div>
-      <div class="mrow-head"><h2>B → A</h2><span class="sub">North-east bound, towards R.K. Chouhan Communications.</span></div>
+      <div class="mrow-head"><h2>B → A</h2><span class="sub">North-east bound</span><span id="headB"></span></div>
       <div class="tiles" id="rowB"></div>
     </div>
-  </section>
-
-  <section class="diag" aria-label="Diagnostics for spot S">
-    <div class="card" id="asym"></div>
-    <div class="card" id="prox"></div>
-    <div class="card" id="pers"></div>
+    <div class="okey" aria-label="Overlay key">
+      <span><i class="sw" style="background:color-mix(in srgb,var(--red) 45%,transparent)"></i>&lt; 0.8 m intimate</span>
+      <span><i class="sw" style="background:color-mix(in srgb,var(--yellow) 45%,transparent)"></i>0.8–1.2 m social pinch</span>
+      <span><i class="sw" style="background:color-mix(in srgb,var(--green) 45%,transparent)"></i>≥ 1.2 m clear</span>
+      <span><i class="bx" style="border:2px solid var(--red)"></i>Clutter on every day</span>
+      <span><i class="bx" style="border:2px dashed var(--yellow)"></i>Clutter some days</span>
+      <span class="note">Bands and boxes are estimated from photo clutter; tape-measured widths replace the band.</span>
+    </div>
   </section>
 </div>
 
@@ -254,7 +271,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
         const cam = dir === 'forward' ? k * 220 / 47 : 220 - k * 220 / 47;
         const p = hot.reduce((a, [lo, hi, w]) => cam >= lo - 4 && cam <= hi + 4 ? Math.max(a, w) : a, .15);
         const obs = rnd() < p ? 1.5 + rnd() * 2.5 : .4 + rnd() * .9;
-        nodes.push({ i: k, meter: +cam.toFixed(1), t: k * 3, obstruction: +obs.toFixed(2), near_field: +(obs > 1.4 && rnd() < .6 ? 1.5 + rnd() : .5 + rnd() * .7).toFixed(2) });
+        nodes.push({ i: k, meter: +cam.toFixed(1), t: k * 3, c: obs > 1.4 ? [0x660, 0x330, 0x6C0, 0x0F0][Math.floor(cam / 55) % 4] | (rnd() < .5 ? 0x100 : 0x8) : 0, obstruction: +obs.toFixed(2), near_field: +(obs > 1.4 && rnd() < .6 ? 1.5 + rnd() : .5 + rnd() * .7).toFixed(2) });
       }
       return { folder: '', nodes, stops: [], lighting: light, summary: {} };
     };
@@ -401,11 +418,11 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   async function initStore() {
     try { store.db = window.claude && window.claude.use ? await window.claude.use('db') : null; } catch (e) { store.db = null; }
     if (store.db) {
-      store.db.collection('spots').onSnapshot(snap => { const n = {}; snap.docs.forEach(d => { n[d.id] = d.data(); }); NOTES = n; if (!document.activeElement || !/^w[AB]$/.test(document.activeElement.id)) renderDiag(); }, () => {});
+      store.db.collection('spots').onSnapshot(snap => { const n = {}; snap.docs.forEach(d => { n[d.id] = d.data(); }); NOTES = n; if (!document.activeElement || !/^w[AB]$/.test(document.activeElement.id)) renderSplit(); }, () => {});
       return;
     }
     try { NOTES = JSON.parse(localStorage.getItem('si-notes') || '{}'); } catch (e) {}
-    renderDiag();
+    renderSplit();
   }
   async function saveWidth(i, side, val) {
     const id = 's' + i, next = { ...note(i), ['width' + side]: val === '' ? null : +val, updatedAt: new Date().toISOString() };
@@ -413,7 +430,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     const msg = t => { const el = $('wMsg'); if (el) el.textContent = t; };
     if (store.db) { try { await store.db.doc('spots/' + id).set(next); msg('Saved for everyone with the link'); } catch (e) { msg('You can view widths here but not change them.'); } }
     else { try { localStorage.setItem('si-notes', JSON.stringify(NOTES)); msg('Saved in this browser'); } catch (e) { msg('Not saved'); } }
-    renderDiag(true);
+    renderSplit(true);
   }
 
   /* ---------- Header and scrubber ---------- */
@@ -521,24 +538,86 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     setS(metreAt(p.x, p.y));
   });
 
-  /* ---------- Matrix ---------- */
-  function tileHtml(d, key) {
-    const w = walk(d, key), S = state.S;
-    if (!w) return `<div class="tile" aria-disabled="true"><div class="ph none">Not walked</div><div class="cap"><b>Day ${d.day}</b><span></span></div></div>`;
-    const v = viewFor(w, S), n = nearestNode(w, S, 6);
-    const st = n ? (n.obstruction >= OBS ? 'blocked' : 'clear') : 'none';
-    const light = w.lighting === 'night' ? 'night' : 'day';
-    let ph;
-    if (v && v.kind === 'spot') ph = `<div class="ph" style="${spotStyle(w, v.idx)}"><span class="aim"></span></div>`;
-    else if (v && w.frame_sheet) ph = `<div class="ph" style="${frameStyle(w, v.node)}"><span class="aim"></span></div>`;
-    else ph = `<div class="ph none">${SAMPLE ? 'Sample<br>no photo' : 'No frame within 6 m'}</div>`;
-    const label = st === 'blocked' ? 'Blocked' : st === 'clear' ? 'Clear' : '–';
-    return `<button class="tile" type="button" data-s="${st}" data-day="${d.day}" data-key="${key}" aria-label="Day ${d.day}, ${key === 'forward' ? 'A to B' : 'B to A'}, ${label}">
-      ${ph}<div class="cap"><b>Day ${d.day}</b><span>${light} · <span style="color:${st === 'blocked' ? 'var(--red)' : st === 'clear' ? 'var(--green)' : 'var(--fg-3)'}">${label}</span></span></div></button>`;
+  /* ---------- Matrix: one row per direction, one tile per day, overlays from the frame shown ---------- */
+  const GRID = { cols: 4, rows: 3, zone: [0.55, 1.0, 0.2, 0.8] };
+  // Scores for the exact frame on screen: per-second spot view when available, else the nearest kept frame.
+  function tileInfo(d, key) {
+    const w = walk(d, key); if (!w) return { d, key, w: null };
+    const S = state.S, v = viewFor(w, S), n = nearestNode(w, S, 6);
+    if (!v && !n) return { d, key, w, v: null };
+    const sv = w.spot_views;
+    const fromSpot = v && v.kind === 'spot' && sv.o;
+    const o = fromSpot ? sv.o[v.idx] : n ? n.obstruction : null;
+    const nf = fromSpot ? sv.nf[v.idx] : n ? n.near_field : null;
+    const c = fromSpot ? sv.c[v.idx] : n && n.c != null ? n.c : 0;
+    const band = nf >= NEAR ? 'intimate' : o >= OBS ? 'pinch' : 'clear';
+    return { d, key, w, v, o, nf, c, band, blocked: band !== 'clear', grid: (sv && sv.grid) || GRID };
   }
+  // A cell is "persistent" when it is cluttered in every frame of this direction (needs 3+ days with frames).
+  function rowInfo(key) {
+    const tiles = days.map(d => tileInfo(d, key)), seen = tiles.filter(t => t.v || t.o != null);
+    let persist = 0;
+    if (seen.length >= 3) { persist = 0xFFF; seen.forEach(t => persist &= t.c); }
+    const blocked = seen.filter(t => t.blocked).length;
+    const cls = seen.length < 3 ? 'few' : blocked === seen.length ? 'persistent' : blocked ? 'transient' : 'clear';
+    const counts = { intimate: 0, pinch: 0, clear: 0 }; seen.forEach(t => counts[t.band]++);
+    const typical = seen.length ? Object.keys(counts).sort((a, b) => counts[b] - counts[a] || RANK[b] - RANK[a])[0] : null;
+    return { tiles, seen: seen.length, blocked, persist, cls, typical, clearDays: counts.clear };
+  }
+  // Connected groups of set cells -> rectangles in % of the frame.
+  function boxes(mask, grid) {
+    const { cols, rows, zone: [t, b, l, r] } = grid, seen = new Set(), out = [];
+    for (let j = 0; j < cols * rows; j++) {
+      if (!(mask >> j & 1) || seen.has(j)) continue;
+      const stack = [j]; let c0 = 9, c1 = -1, r0 = 9, r1 = -1; seen.add(j);
+      while (stack.length) {
+        const k = stack.pop(), rr = Math.floor(k / cols), cc = k % cols;
+        c0 = Math.min(c0, cc); c1 = Math.max(c1, cc); r0 = Math.min(r0, rr); r1 = Math.max(r1, rr);
+        [[0, 1], [0, -1], [1, 0], [-1, 0]].forEach(([dr, dc]) => {
+          const nr = rr + dr, nc = cc + dc, nk = nr * cols + nc;
+          if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && (mask >> nk & 1) && !seen.has(nk)) { seen.add(nk); stack.push(nk); }
+        });
+      }
+      out.push({ x: (l + (r - l) * c0 / cols) * 100, y: (t + (b - t) * r0 / rows) * 100, w: (r - l) * (c1 - c0 + 1) / cols * 100, h: (b - t) * (r1 - r0 + 1) / rows * 100 });
+    }
+    return out;
+  }
+  const BANDCOL = { intimate: 'var(--red)', pinch: 'var(--yellow)', clear: 'var(--green)' };
+  const BADGE = { intimate: ['< 0.8 m', 'Intimate'], pinch: ['0.8–1.2 m', 'Social'], clear: ['≥ 1.2 m', 'Clear'] };
+  function overlay(t, persist) {
+    const col = BANDCOL[t.band];
+    // Walking channel on the ground plane: wide at the lens, narrowing towards the spot the camera aims at.
+    let svg = `<svg class="ov" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <polygon points="22,100 78,100 57,60 43,60" fill="${col}" fill-opacity=".26" stroke="${col}" stroke-opacity=".75" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`;
+    if (t.blocked && t.c) {
+      boxes(t.c & persist, t.grid).forEach(b => svg += `<rect x="${b.x + .8}" y="${b.y + .5}" width="${b.w - 1.6}" height="${b.h - 1}" fill="none" stroke="var(--red)" stroke-width="2.2" vector-effect="non-scaling-stroke"/>`);
+      boxes(t.c & ~persist, t.grid).forEach(b => svg += `<rect x="${b.x + .8}" y="${b.y + .5}" width="${b.w - 1.6}" height="${b.h - 1}" fill="none" stroke="var(--yellow)" stroke-width="2" stroke-dasharray="5 3" vector-effect="non-scaling-stroke"/>`);
+    }
+    return svg + `</svg><span class="pbadge"><i style="background:${col}"></i>${BADGE[t.band][0]} ${BADGE[t.band][1]} <em>est.</em></span>`;
+  }
+  function tileHtml(t, persist) {
+    const { d, key, w } = t;
+    if (!w) return `<div class="tile" aria-disabled="true"><div class="ph none">Not walked</div><div class="cap"><b>Day ${d.day}</b><span></span></div></div>`;
+    if (!t.v && t.o == null) return `<div class="tile" aria-disabled="true"><div class="ph none">No frame within 6 m</div><div class="cap"><b>Day ${d.day}</b><span></span></div></div>`;
+    const st = t.blocked ? 'blocked' : 'clear', light = w.lighting === 'night' ? 'night' : 'day';
+    const bg = t.v && t.v.kind === 'spot' ? spotStyle(w, t.v.idx) : t.v && w.frame_sheet ? frameStyle(w, t.v.node) : '';
+    const ph = `<div class="ph${bg ? '' : ' none'}" style="${bg}">${bg ? '' : '<span style="position:absolute;top:8px;left:0;right:0">Sample · no photo</span>'}${overlay(t, persist)}</div>`;
+    return `<button class="tile" type="button" data-s="${st}" data-day="${d.day}" data-key="${key}" aria-label="Day ${d.day}, ${key === 'forward' ? 'A to B' : 'B to A'}, ${st}, ${BAND[t.band].name}">
+      ${ph}<div class="cap"><b>Day ${d.day}</b><span>${light} · <span style="color:${t.blocked ? 'var(--red)' : 'var(--green)'}">${t.blocked ? 'Blocked' : 'Clear'}</span></span></div></button>`;
+  }
+  const chip = (cls, txt) => `<span class="chip ${cls}">${txt}</span>`;
+  function headChip(r) {
+    const p = PERS[r.cls];
+    return `${chip(p.chip, p.short)} <span class="note num">blocked ${r.blocked}/${r.seen} days</span>`;
+  }
+  let ROWS = {};
   function renderMatrix() {
-    $('rowA').innerHTML = days.map(d => tileHtml(d, 'forward')).join('');
-    $('rowB').innerHTML = days.map(d => tileHtml(d, 'return')).join('');
+    ROWS = { forward: rowInfo('forward'), return: rowInfo('return') };
+    $('rowA').innerHTML = ROWS.forward.tiles.map(t => tileHtml(t, ROWS.forward.persist)).join('');
+    $('rowB').innerHTML = ROWS.return.tiles.map(t => tileHtml(t, ROWS.return.persist)).join('');
+    $('headA').innerHTML = headChip(ROWS.forward);
+    $('headB').innerHTML = headChip(ROWS.return);
+    renderSplit();
   }
   document.addEventListener('click', e => {
     const t = e.target.closest('button.tile'); if (!t) return;
@@ -555,83 +634,46 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   });
   $('lbClose').addEventListener('click', () => $('lb').close());
 
-  /* ---------- Diagnostics ---------- */
+  /* ---------- Directional asymmetry: split bar between the rows ---------- */
+  function renderSplit(keepInputs) {
+    const i = binOf(state.S), wa = widthOf(i, 'A'), wb = widthOf(i, 'B'), A = ROWS.forward, B = ROWS.return;
+    const side = (wm, r) => wm != null ? { band: bandOfWidth(wm), val: wm, txt: `${fmt(wm, 2)} m`, frac: Math.min(wm, 2) / 2, src: 'measured' }
+      : r.typical ? { band: r.typical, txt: `${BAND[r.typical].range} est.`, frac: r.seen ? r.clearDays / r.seen : 0, src: 'est' } : null;
+    const a = side(wa, A), b = side(wb, B);
+    let gap = '–', gapNote = '';
+    if (a && b && a.src === 'measured' && b.src === 'measured') { gap = `${fmt(Math.abs(a.val - b.val), 2)} m`; gapNote = Math.abs(a.val - b.val) < 0.2 ? 'about equal' : `${a.val < b.val ? 'A→B' : 'B→A'} narrower`; }
+    else if (a && b) { const dl = Math.abs(RANK[a.band] - RANK[b.band]); gap = dl ? `${dl} band${dl > 1 ? 's' : ''}` : 'none'; gapNote = dl ? `${RANK[a.band] > RANK[b.band] ? 'A→B' : 'B→A'} worse · bar = share of clear days` : 'bar = share of clear days'; }
+    const dot = x => x ? `<i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${BANDCOL[x.band]}"></i>` : '';
+    const top = `<div class="split-top">
+        <span>A→B <b class="num">${a ? a.txt : '–'}</b> ${dot(a)}</span><span class="note">vs</span>
+        <span>B→A <b class="num">${b ? b.txt : '–'}</b> ${dot(b)}</span>
+        <span>Asymmetry gap <span class="gap num">${gap}</span> <span class="note">${gapNote}</span></span><span class="sp"></span>
+        <details class="mw" id="mwBox"${state.mwOpen ? ' open' : ''}><summary>Measured widths · ${binName(i)}</summary>
+          <div class="widths">
+            <label for="wA">A→B side (m)<input id="wA" type="number" min="0" max="6" step="0.05" inputmode="decimal" value="${wa ?? ''}"></label>
+            <label for="wB">B→A side (m)<input id="wB" type="number" min="0" max="6" step="0.05" inputmode="decimal" value="${wb ?? ''}"></label>
+            <span class="note" id="wMsg">Tape-measured clear width</span>
+          </div></details></div>`;
+    const bar = `<div class="sbar num" aria-hidden="true"><span>A→B</span>
+        <div class="half l"><i style="width:${a ? a.frac * 100 : 0}%;background:${a ? BANDCOL[a.band] : 'transparent'}"></i></div><div class="mid"></div>
+        <div class="half r"><i style="width:${b ? b.frac * 100 : 0}%;background:${b ? BANDCOL[b.band] : 'transparent'}"></i></div><span>B→A</span></div>`;
+    if (keepInputs && $('mwBox')) {
+      const tmp = document.createElement('div'); tmp.innerHTML = top;
+      $('split').querySelector('.split-top').querySelectorAll(':scope > span').forEach((el, k) => el.outerHTML = tmp.firstElementChild.querySelectorAll(':scope > span')[k].outerHTML);
+      $('split').querySelector('.sbar').outerHTML = bar;
+      return;
+    }
+    $('split').innerHTML = top + bar;
+    $('mwBox').addEventListener('toggle', e => state.mwOpen = e.target.open);
+    ['A', 'B'].forEach(sd => $('w' + sd).addEventListener('change', e => saveWidth(i, sd, e.target.value.trim())));
+  }
+
+  /* ---------- Per-spot band for the report (measured width wins over the photo estimate) ---------- */
   function dirBand(i, side, sd) {
     const wm = widthOf(i, side);
     if (wm != null) return { band: bandOfWidth(wm), src: 'measured', width: wm };
     if (!sd.typical) return { band: null, src: 'none' };
     return { band: sd.typical, src: 'photos', days: sd.counts[sd.typical], of: sd.seen };
-  }
-  const chip = (cls, txt) => `<span class="chip ${cls}">${txt}</span>`;
-  function renderDiag(keepInputs) {
-    if (!SPOTS.length) return;
-    const i = binOf(state.S), s = SPOTS[i], a = dirBand(i, 'A', s.A), b = dirBand(i, 'B', s.B);
-    const bandChip = x => x.band ? chip(BAND[x.band].chip, x.band === 'intimate' ? 'Blocked' : x.band === 'pinch' ? 'Pinch' : 'Clear') : chip('grey', 'No data');
-    const sideText = x => x.src === 'measured' ? `<b class="num">${fmt(x.width, 2)} m</b> <span class="note">measured</span>` : x.src === 'photos' ? `${BAND[x.band].range} <span class="note">from photos, ${x.days}/${x.of} days</span>` : '<span class="note">No frames</span>';
-
-    // 1. Directional asymmetry
-    let asymBig, asymSub;
-    if (a.src === 'measured' && b.src === 'measured') {
-      const dlt = Math.abs(a.width - b.width);
-      asymBig = `${fmt(dlt, 2)} m`; asymSub = dlt < 0.2 ? 'Both sides offer about the same clearway.' : `The ${a.width < b.width ? 'A→B' : 'B→A'} side is narrower.`;
-    } else if (a.band && b.band) {
-      const dlt = Math.abs(RANK[a.band] - RANK[b.band]);
-      asymBig = dlt === 0 ? 'None' : dlt === 1 ? '1 band' : '2 bands';
-      asymSub = dlt === 0 ? 'Both directions fall in the same clearance band.' : `Walking ${RANK[a.band] > RANK[b.band] ? 'A→B' : 'B→A'} is worse here. Measure both widths on site to state it in metres.`;
-    } else { asymBig = '–'; asymSub = 'Needs frames from both directions.'; }
-    const blockedLine = `Blocked A→B on ${s.A.blocked}/${s.A.seen} days, B→A on ${s.B.blocked}/${s.B.seen} days.`;
-    if (!keepInputs) {
-      $('asym').innerHTML = `
-        <div class="eyebrow">Directional asymmetry · ${binName(i)}</div>
-        <div class="dirline"><span class="d">A→B</span><span>${sideText(a)}</span>${bandChip(a)}</div>
-        <div class="dirline"><span class="d">B→A</span><span>${sideText(b)}</span>${bandChip(b)}</div>
-        <div><span class="big num" id="asymBig">${asymBig}</span> <span class="note" id="asymSub">${asymSub}</span></div>
-        <div class="note">${blockedLine}</div>
-        <div class="widths">
-          <label for="wA">A→B clear width (m)<input id="wA" type="number" min="0" max="6" step="0.05" inputmode="decimal" value="${widthOf(i, 'A') ?? ''}"></label>
-          <label for="wB">B→A clear width (m)<input id="wB" type="number" min="0" max="6" step="0.05" inputmode="decimal" value="${widthOf(i, 'B') ?? ''}"></label>
-          <span class="note" id="wMsg">Tape-measured on site</span>
-        </div>`;
-      ['A', 'B'].forEach(side => $('w' + side).addEventListener('change', e => saveWidth(i, side, e.target.value.trim())));
-    } else {
-      $('asym').querySelectorAll('.dirline')[0].innerHTML = `<span class="d">A→B</span><span>${sideText(a)}</span>${bandChip(a)}`;
-      $('asym').querySelectorAll('.dirline')[1].innerHTML = `<span class="d">B→A</span><span>${sideText(b)}</span>${bandChip(b)}`;
-      $('asymBig').textContent = asymBig; $('asymSub').textContent = asymSub;
-    }
-
-    // 2. Proxemic clearance (Hall)
-    const worst = [a, b].filter(x => x.band).sort((x, y) => RANK[y.band] - RANK[x.band])[0];
-    const SC = 2; // scale runs 0–2 m
-    const mk = x => x.src === 'measured' ? `<div class="mk" style="left:${Math.min(x.width, SC) / SC * 100}%"><span>${x === a ? 'A→B' : 'B→A'}</span></div>` : '';
-    $('prox').innerHTML = `
-      <div class="eyebrow">Proxemic clearance (Hall)</div>
-      ${worst ? `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${chip(BAND[worst.band].chip, BAND[worst.band].name)}<span class="num note">${BAND[worst.band].range}</span></div>
-        <div>${BAND[worst.band].why}</div>` : '<div class="note">No frames at this spot.</div>'}
-      <div>
-        <div class="scale" aria-hidden="true">
-          <div class="seg" style="left:0;width:${0.8 / SC * 100}%;background:var(--red)"></div>
-          <div class="seg" style="left:${0.8 / SC * 100}%;width:${0.4 / SC * 100}%;background:var(--yellow)"></div>
-          <div class="seg" style="left:${1.2 / SC * 100}%;right:0;background:var(--green)"></div>
-          ${mk(a)}${mk(b)}
-        </div>
-        <div class="scale-l num"><span style="left:0">0</span><span style="left:${0.8 / SC * 100}%">0.8</span><span style="left:${1.2 / SC * 100}%">1.2</span><span style="left:100%">2 m</span></div>
-      </div>
-      <div class="dirline"><span class="d">A→B</span><span>${a.band ? BAND[a.band].name : '–'}</span>${a.src === 'measured' ? chip('grey', 'measured') : a.band ? chip('grey', 'estimated') : ''}</div>
-      <div class="dirline"><span class="d">B→A</span><span>${b.band ? BAND[b.band].name : '–'}</span>${b.src === 'measured' ? chip('grey', 'measured') : b.band ? chip('grey', 'estimated') : ''}</div>
-      <div class="note">Estimated bands come from clutter in the bottom of each photo (the body zone ahead). A tape-measured width replaces the estimate.</div>`;
-
-    // 3. Temporal persistence
-    const dots = sd => `<div class="dots">${sd.per.map(p => {
-      const col = !p.n ? 'var(--line)' : p.n.obstruction >= OBS ? 'var(--red)' : 'var(--green)';
-      return `<i style="background:${col}" title="Day ${p.day}: ${!p.has ? 'not walked' : !p.n ? 'no frame' : p.n.obstruction >= OBS ? 'blocked' : 'clear'}">${p.day}</i>`;
-    }).join('')}</div>`;
-    const persLine = (lbl, sd) => `<div class="dirline"><span class="d">${lbl}</span>${dots(sd)}${chip(PERS[sd.cls].chip, PERS[sd.cls].short)}</div>`;
-    const top = [s.A, s.B].sort((x, y) => ({ persistent: 3, transient: 2, clear: 1, few: 0 })[y.cls] - ({ persistent: 3, transient: 2, clear: 1, few: 0 })[x.cls])[0];
-    $('pers').innerHTML = `
-      <div class="eyebrow">Temporal obstacle persistence · Days ${days[0].day}–${days[days.length - 1].day}</div>
-      <div style="font-weight:600">${PERS[top.cls].name}</div>
-      <div class="note">${PERS[top.cls].why}</div>
-      ${persLine('A→B', s.A)}${persLine('B→A', s.B)}`;
   }
 
   function render() {
@@ -642,7 +684,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     moveInsetMark();
     $('bar').setAttribute('aria-valuenow', String(S));
     $('bar').setAttribute('aria-valuetext', `${fmt(S)} metres${l ? ', near ' + l.name : ''}`);
-    renderMatrix(); renderDiag();
+    renderMatrix();
   }
 
   /* ---------- Ward report ---------- */

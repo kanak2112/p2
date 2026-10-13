@@ -10,6 +10,7 @@ Always republish to this URL; do not create a new artifact.
 ```bash
 pip install opencv-python pillow numpy
 python process_day1.py            # reads point_a_to_b.mp4 and point_b_to_a.mp4
+python clutter_cells.py           # clutter grid per frame: photo overlays, bands and boxes
 ```
 
 Optional rough people count per frame (needs OpenCV 4.x):
