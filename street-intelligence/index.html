@@ -72,6 +72,11 @@ details.look[open] summary { color: var(--fg); }
 .lm { position: absolute; top: 0; width: 1px; height: 36px; background: var(--fg-3); opacity: .45; }
 .thumb { position: absolute; top: 0; width: 2px; height: 40px; margin-left: -1px; background: var(--blue); pointer-events: none; }
 .thumb::after { content: ""; position: absolute; left: -6px; top: 26px; width: 14px; height: 14px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 0 3px var(--bg); }
+.scrub { display: grid; grid-template-columns: minmax(0, 1fr) 236px; gap: 16px; align-items: start; }
+.ruler { min-width: 0; }
+.inset { margin: 0; display: grid; gap: 4px; border-left: 1px solid var(--line); padding-left: 16px; }
+.inset svg { width: 100%; height: auto; display: block; overflow: visible; }
+.inset .hit { cursor: pointer; }
 .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--fg-2); margin-top: 4px; }
 .legend i { display: inline-block; width: 10px; height: 8px; border-radius: 1px; margin-right: 5px; }
 .keys { color: var(--fg-3); }
@@ -148,6 +153,8 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   .report { padding: 18px; }
   .lane-label { display: none; }
   .bar { margin: 0 8px; }
+  .scrub { grid-template-columns: 1fr; }
+  .inset { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 12px; max-width: 280px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -162,7 +169,8 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     <button class="btn primary" id="exportBtn" type="button">Export Ward Diagnostic Report</button>
   </header>
 
-  <section class="card" aria-labelledby="scrubTitle">
+  <section class="card scrub" aria-labelledby="scrubTitle">
+   <div class="ruler">
     <div class="scrub-head">
       <span class="eyebrow" id="scrubTitle">Spot S</span>
       <span class="readout num" id="readout">0<small>m</small></span>
@@ -191,15 +199,20 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
       <span><i style="background:var(--line)"></i>Under 3 days of frames</span>
       <span class="keys">← → 1 m · ↑ ↓ 25 m</span>
     </div>
+   </div>
+    <figure class="inset">
+      <svg id="inset" viewBox="0 0 100 100" role="img" aria-label="Street plan of the corridor with the current spot marked"></svg>
+      <figcaption class="note">Traced from the map, north up. South line A→B, north line B→A. Click the street to jump.</figcaption>
+    </figure>
   </section>
 
   <section class="card matrix" aria-label="Photos of spot S by direction and day">
     <div>
-      <div class="mrow-head"><h2>A → B</h2><span class="sub">Walking towards B. Same background every day, so changes are the obstacles.</span></div>
+      <div class="mrow-head"><h2>A → B</h2><span class="sub">South-west bound, towards Amratlal G. Vasani. Same background every day, so changes are the obstacles.</span></div>
       <div class="tiles" id="rowA"></div>
     </div>
     <div>
-      <div class="mrow-head"><h2>B → A</h2><span class="sub">Walking towards A.</span></div>
+      <div class="mrow-head"><h2>B → A</h2><span class="sub">North-east bound, towards R.K. Chouhan Communications.</span></div>
       <div class="tiles" id="rowB"></div>
     </div>
   </section>
@@ -443,7 +456,69 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   $('lookIn').addEventListener('input', e => {
     LOOK = +e.target.value; $('lookVal').textContent = `${fmt(LOOK, 1)} m`;
     try { localStorage.setItem('si-look-v2', String(LOOK)); } catch (x) {}
-    cache = new WeakMap(); computeSpots(); renderScrubber(); render();
+    cache = new WeakMap(); computeSpots(); renderScrubber(); renderInset(); render();
+  });
+
+
+  /* ---------- Street plan inset: route traced from the Google Maps screenshot (pixels, north up).
+     First point is A (R.K. Chouhan end), last is B (Amratlal end). Metres map to length along the line. ---------- */
+  const ROUTE = [[1333, 143], [1083, 298], [1070, 340], [1102, 406], [912, 494]];
+  const SEG = ROUTE.slice(1).map((p, i) => Math.hypot(p[0] - ROUTE[i][0], p[1] - ROUTE[i][1]));
+  const RLEN = SEG.reduce((a, b) => a + b, 0);
+  function routeAt(m) {
+    let d = Math.max(0, Math.min(L, m)) / L * RLEN;
+    for (let i = 0; i < SEG.length; i++) {
+      if (d <= SEG[i] || i === SEG.length - 1) {
+        const [x0, y0] = ROUTE[i], [x1, y1] = ROUTE[i + 1], t = Math.min(1, d / SEG[i]);
+        return { x: x0 + (x1 - x0) * t, y: y0 + (y1 - y0) * t, dx: (x1 - x0) / SEG[i], dy: (y1 - y0) / SEG[i] };
+      }
+      d -= SEG[i];
+    }
+  }
+  function metreAt(px, py) {   // nearest point on the route to an SVG point, as corridor metres
+    let best = 0, bd = Infinity, acc = 0;
+    for (let i = 0; i < SEG.length; i++) {
+      const [x0, y0] = ROUTE[i], [x1, y1] = ROUTE[i + 1];
+      const t = Math.max(0, Math.min(1, ((px - x0) * (x1 - x0) + (py - y0) * (y1 - y0)) / (SEG[i] * SEG[i])));
+      const d = Math.hypot(x0 + (x1 - x0) * t - px, y0 + (y1 - y0) * t - py);
+      if (d < bd) { bd = d; best = (acc + t * SEG[i]) / RLEN * L; }
+      acc += SEG[i];
+    }
+    return best;
+  }
+  function renderInset() {
+    const svg = $('inset');
+    svg.setAttribute('viewBox', '850 95 520 470');
+    const lanePts = (i, off) => {
+      const pts = [];
+      for (let m = i * BIN; m <= Math.min(L, (i + 1) * BIN) + 0.01; m += 2) { const q = routeAt(Math.min(m, L)); pts.push(`${(q.x - q.dy * off).toFixed(1)},${(q.y + q.dx * off).toFixed(1)}`); }
+      return pts.join(' ');
+    };
+    let s = `<polyline points="${ROUTE.map(p => p.join(',')).join(' ')}" fill="none" stroke="var(--sunken)" stroke-width="34" stroke-linejoin="round" stroke-linecap="round"/>`;
+    SPOTS.forEach(sp => {
+      s += `<polyline points="${lanePts(sp.i, -7)}" fill="none" stroke="${laneColor(sp.A.cls)}" stroke-width="9"/>`;
+      s += `<polyline points="${lanePts(sp.i, 7)}" fill="none" stroke="${laneColor(sp.B.cls)}" stroke-width="9"/>`;
+    });
+    LM.forEach(l => { const q = routeAt(l.m); s += `<circle cx="${q.x}" cy="${q.y}" r="3.5" fill="var(--fg-2)"><title>${l.name} · ${l.m} m</title></circle>`; });
+    const a = routeAt(0), b = routeAt(L);
+    s += `<circle cx="${a.x}" cy="${a.y}" r="17" fill="var(--fg)"/><text x="${a.x}" y="${a.y + 8}" text-anchor="middle" font-size="22" font-weight="700" fill="var(--bg)">A</text>`;
+    s += `<circle cx="${b.x}" cy="${b.y}" r="17" fill="var(--fg)"/><text x="${b.x}" y="${b.y + 8}" text-anchor="middle" font-size="22" font-weight="700" fill="var(--bg)">B</text>`;
+    s += `<text x="${a.x - 26}" y="${a.y - 14}" text-anchor="end" font-size="24" fill="var(--fg-2)">R.K. Chouhan</text>`;
+    s += `<text x="${b.x - 4}" y="${b.y + 46}" text-anchor="start" font-size="24" fill="var(--fg-2)">Amratlal G. Vasani</text>`;
+    s += `<g transform="translate(1330 470)"><path d="M0 -40 L11 -12 L0 -18 L-11 -12 Z" fill="var(--fg-2)"/><text y="14" text-anchor="middle" font-size="24" fill="var(--fg-2)">N</text></g>`;
+    s += `<polyline class="hit" points="${ROUTE.map(p => p.join(',')).join(' ')}" fill="none" stroke="transparent" stroke-width="44" stroke-linejoin="round"/>`;
+    s += `<g id="insetMark"><circle r="15" fill="none" stroke="var(--blue)" stroke-width="4"/><circle r="5" fill="var(--blue)"/></g>`;
+    svg.innerHTML = s;
+  }
+  function moveInsetMark() {
+    const q = routeAt(state.S), g = $('insetMark');
+    if (g) g.setAttribute('transform', `translate(${q.x.toFixed(1)} ${q.y.toFixed(1)})`);
+  }
+  $('inset').addEventListener('click', e => {
+    if (!e.target.classList.contains('hit')) return;
+    const svg = $('inset'), pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+    const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+    setS(metreAt(p.x, p.y));
   });
 
   /* ---------- Matrix ---------- */
@@ -564,6 +639,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     $('readout').innerHTML = `${fmt(S, S % 1 ? 1 : 0)}<small>m</small>`;
     $('where').textContent = `${binName(binOf(S))}${l ? ` · near ${l.name}` : ''}`;
     $('thumb').style.left = `${S / L * 100}%`;
+    moveInsetMark();
     $('bar').setAttribute('aria-valuenow', String(S));
     $('bar').setAttribute('aria-valuetext', `${fmt(S)} metres${l ? ', near ' + l.name : ''}`);
     renderMatrix(); renderDiag();
@@ -624,7 +700,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     catch (e) { $('repMsg').textContent = e && e.code === 'declined' ? 'Not saved' : 'Saving is not available here. Use Copy text.'; }
   });
 
-  computeSpots(); renderScrubber(); render();
+  computeSpots(); renderScrubber(); renderInset(); render();
   setTimeout(initStore, 0);
 })();
 </script>
