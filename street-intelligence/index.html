@@ -478,7 +478,7 @@ details.calib[open] summary { margin-bottom: 6px; }
   }
 
   /* ---------- Header & slider ---------- */
-  $('subtitle').textContent = `Jijamata Rd / Old Nagardas Rd, Andheri East · ${fmt(L)} m · ${realDays.length} days, both directions`;
+  $('subtitle').textContent = `Jijamata Rd / Old Nagardas Rd, Andheri East · ${fmt(L)} m · ${realDays.length} days · ${realDays.reduce((a, d) => a + !!d.forward + !!d.return, 0)} walks`;
   const light = w => (w && w.lighting) || 'unknown';
   const lightCount = key => { const c = {}; realDays.forEach(d => { if (d[key]) c[light(d[key])] = (c[light(d[key])] || 0) + 1; }); return Object.entries(c).map(([k, v]) => `${v} ${k}`).join(', '); };
   $('status').innerHTML = `<span class="pill">${realDays.length} surveyed day${realDays.length === 1 ? '' : 's'}</span>` +
