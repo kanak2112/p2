@@ -2169,7 +2169,16 @@
       "near_field_raw": 0.0314,
       "near_field": 1.57,
       "people": 2,
-      "cell": 0
+      "cell": 0,
+      "seg": {
+       "people": 0.099,
+       "vehicles": 0.047,
+       "fixed": 0.002,
+       "sky": 0.0,
+       "vegetation": 0.044,
+       "gap_m": 1.8,
+       "gap_edge": true
+      }
      },
      {
       "i": 1,
@@ -2181,7 +2190,16 @@
       "near_field_raw": 0.0159,
       "near_field": 0.8,
       "people": 0,
-      "cell": 1
+      "cell": 1,
+      "seg": {
+       "people": 0.009,
+       "vehicles": 0.0,
+       "fixed": 0.036,
+       "sky": 0.0,
+       "vegetation": 0.004,
+       "gap_m": 2.24,
+       "gap_edge": false
+      }
      },
      {
       "i": 2,
@@ -2193,7 +2211,16 @@
       "near_field_raw": 0.0058,
       "near_field": 0.29,
       "people": 1,
-      "cell": 2
+      "cell": 2,
+      "seg": {
+       "people": 0.165,
+       "vehicles": 0.008,
+       "fixed": 0.0,
+       "sky": 0.0,
+       "vegetation": 0.002,
+       "gap_m": 1.54,
+       "gap_edge": false
+      }
      },
      {
       "i": 3,
@@ -2205,7 +2232,16 @@
       "near_field_raw": 0.0261,
       "near_field": 1.31,
       "people": 1,
-      "cell": 3
+      "cell": 3,
+      "seg": {
+       "people": 0.346,
+       "vehicles": 0.122,
+       "fixed": 0.0,
+       "sky": 0.0,
+       "vegetation": 0.0,
+       "gap_m": 0.14,
+       "gap_edge": false
+      }
      },
      {
       "i": 4,
@@ -2217,7 +2253,16 @@
       "near_field_raw": 0.0132,
       "near_field": 0.66,
       "people": 1,
-      "cell": 4
+      "cell": 4,
+      "seg": {
+       "people": 0.821,
+       "vehicles": 0.012,
+       "fixed": 0.0,
+       "sky": 0.0,
+       "vegetation": 0.004,
+       "gap_m": 0.0,
+       "gap_edge": false
+      }
      },
      {
       "i": 5,
@@ -2229,7 +2274,16 @@
       "near_field_raw": 0.0,
       "near_field": 0.0,
       "people": 0,
-      "cell": 5
+      "cell": 5,
+      "seg": {
+       "people": 0.0,
+       "vehicles": 0.188,
+       "fixed": 0.003,
+       "sky": 0.0,
+       "vegetation": 0.081,
+       "gap_m": 0.04,
+       "gap_edge": false
+      }
      },
      {
       "i": 6,
@@ -2241,7 +2295,16 @@
       "near_field_raw": 0.0,
       "near_field": 0.0,
       "people": 0,
-      "cell": 6
+      "cell": 6,
+      "seg": {
+       "people": 0.377,
+       "vehicles": 0.351,
+       "fixed": 0.101,
+       "sky": 0.001,
+       "vegetation": 0.297,
+       "gap_m": 0.0,
+       "gap_edge": false
+      }
      },
      {
       "i": 7,
@@ -2253,7 +2316,16 @@
       "near_field_raw": 0.0,
       "near_field": 0.0,
       "people": 0,
-      "cell": 7
+      "cell": 7,
+      "seg": {
+       "people": 0.0,
+       "vehicles": 0.635,
+       "fixed": 0.121,
+       "sky": 0.015,
+       "vegetation": 0.213,
+       "gap_m": 0.11,
+       "gap_edge": false
+      }
      },
      {
       "i": 8,
@@ -2265,7 +2337,16 @@
       "near_field_raw": 0.0365,
       "near_field": 1.82,
       "people": 1,
-      "cell": 8
+      "cell": 8,
+      "seg": {
+       "people": 0.03,
+       "vehicles": 0.011,
+       "fixed": 0.221,
+       "sky": 0.015,
+       "vegetation": 0.262,
+       "gap_m": 0.82,
+       "gap_edge": false
+      }
      },
      {
       "i": 9,
@@ -2277,7 +2358,16 @@
       "near_field_raw": 0.0069,
       "near_field": 0.34,
       "people": 1,
-      "cell": 9
+      "cell": 9,
+      "seg": {
+       "people": 0.002,
+       "vehicles": 0.13,
+       "fixed": 0.062,
+       "sky": 0.0,
+       "vegetation": 0.169,
+       "gap_m": 0.0,
+       "gap_edge": false
+      }
      },
      {
       "i": 10,
@@ -2289,7 +2379,16 @@
       "near_field_raw": 0.0032,
       "near_field": 0.16,
       "people": 0,
-      "cell": 10
+      "cell": 10,
+      "seg": {
+       "people": 0.006,
+       "vehicles": 0.003,
+       "fixed": 0.012,
+       "sky": 0.029,
+       "vegetation": 0.092,
+       "gap_m": 1.61,
+       "gap_edge": false
+      }
      },
      {
       "i": 11,
@@ -2301,7 +2400,16 @@
       "near_field_raw": 0.0102,
       "near_field": 0.51,
       "people": 0,
-      "cell": 11
+      "cell": 11,
+      "seg": {
+       "people": 0.0,
+       "vehicles": 0.0,
+       "fixed": 0.005,
+       "sky": 0.001,
+       "vegetation": 0.0,
+       "gap_m": 1.25,
+       "gap_edge": false
+      }
      },
      {
       "i": 12,
@@ -2313,7 +2421,16 @@
       "near_field_raw": 0.0218,
       "near_field": 1.09,
       "people": 0,
-      "cell": 12
+      "cell": 12,
+      "seg": {
+       "people": 0.004,
+       "vehicles": 0.001,
+       "fixed": 0.0,
+       "sky": 0.114,
+       "vegetation": 0.016,
+       "gap_m": 2.62,
+       "gap_edge": true
+      }
      },
      {
       "i": 13,
@@ -2325,7 +2442,16 @@
       "near_field_raw": 0.0,
       "near_field": 0.0,
       "people": 0,
-      "cell": 13
+      "cell": 13,
+      "seg": {
+       "people": 0.0,
+       "vehicles": 0.0,
+       "fixed": 0.0,
+       "sky": 0.156,
+       "vegetation": 0.03,
+       "gap_m": 2.99,
+       "gap_edge": true
+      }
      },
      {
       "i": 14,
@@ -2337,7 +2463,16 @@
       "near_field_raw": 0.0039,
       "near_field": 0.19,
       "people": 1,
-      "cell": 14
+      "cell": 14,
+      "seg": {
+       "people": 0.424,
+       "vehicles": 0.332,
+       "fixed": 0.0,
+       "sky": 0.076,
+       "vegetation": 0.002,
+       "gap_m": 0.0,
+       "gap_edge": false
+      }
      },
      {
       "i": 15,
@@ -2349,7 +2484,16 @@
       "near_field_raw": 0.0,
       "near_field": 0.0,
       "people": 0,
-      "cell": 15
+      "cell": 15,
+      "seg": {
+       "people": 0.0,
+       "vehicles": 0.0,
+       "fixed": 0.0,
+       "sky": 0.0,
+       "vegetation": 0.0,
+       "gap_m": 2.64,
+       "gap_edge": false
+      }
      },
      {
       "i": 16,
@@ -2361,7 +2505,16 @@
       "near_field_raw": 0.0064,
       "near_field": 0.32,
       "people": 1,
-      "cell": 16
+      "cell": 16,
+      "seg": {
+       "people": 0.698,
+       "vehicles": 0.001,
+       "fixed": 0.002,
+       "sky": 0.0,
+       "vegetation": 0.001,
+       "gap_m": 0.07,
+       "gap_edge": false
+      }
      },
      {
       "i": 17,
@@ -2373,7 +2526,16 @@
       "near_field_raw": 0.0261,
       "near_field": 1.31,
       "people": 1,
-      "cell": 17
+      "cell": 17,
+      "seg": {
+       "people": 0.556,
+       "vehicles": 0.0,
+       "fixed": 0.0,
+       "sky": 0.018,
+       "vegetation": 0.002,
+       "gap_m": 0.0,
+       "gap_edge": false
+      }
      },
      {
       "i": 18,
@@ -2385,7 +2547,16 @@
       "near_field_raw": 0.0169,
       "near_field": 0.84,
       "people": 0,
-      "cell": 18
+      "cell": 18,
+      "seg": {
+       "people": 0.017,
+       "vehicles": 0.054,
+       "fixed": 0.018,
+       "sky": 0.077,
+       "vegetation": 0.043,
+       "gap_m": 2.64,
+       "gap_edge": true
+      }
      },
      {
       "i": 19,
@@ -2397,7 +2568,16 @@
       "near_field_raw": 0.0171,
       "near_field": 0.85,
       "people": 1,
-      "cell": 19
+      "cell": 19,
+      "seg": {
+       "people": 0.417,
+       "vehicles": 0.234,
+       "fixed": 0.0,
+       "sky": 0.031,
+       "vegetation": 0.007,
+       "gap_m": 0.0,
+       "gap_edge": false
+      }
      },
      {
       "i": 20,
@@ -2409,7 +2589,16 @@
       "near_field_raw": 0.0,
       "near_field": 0.0,
       "people": 4,
-      "cell": 20
+      "cell": 20,
+      "seg": {
+       "people": 0.0,
+       "vehicles": 0.002,
+       "fixed": 0.0,
+       "sky": 0.057,
+       "vegetation": 0.045,
+       "gap_m": 2.99,
+       "gap_edge": true
+      }
      },
      {
       "i": 21,
@@ -2421,7 +2610,16 @@
       "near_field_raw": 0.0,
       "near_field": 0.0,
       "people": 1,
-      "cell": 21
+      "cell": 21,
+      "seg": {
+       "people": 0.015,
+       "vehicles": 0.053,
+       "fixed": 0.0,
+       "sky": 0.191,
+       "vegetation": 0.071,
+       "gap_m": 1.72,
+       "gap_edge": false
+      }
      },
      {
       "i": 22,
@@ -2433,7 +2631,16 @@
       "near_field_raw": 0.0,
       "near_field": 0.0,
       "people": 1,
-      "cell": 22
+      "cell": 22,
+      "seg": {
+       "people": 0.0,
+       "vehicles": 0.004,
+       "fixed": 0.0,
+       "sky": 0.0,
+       "vegetation": 0.0,
+       "gap_m": 2.9,
+       "gap_edge": true
+      }
      },
      {
       "i": 23,
@@ -2445,7 +2652,16 @@
       "near_field_raw": 0.0165,
       "near_field": 0.83,
       "people": 2,
-      "cell": 23
+      "cell": 23,
+      "seg": {
+       "people": 0.638,
+       "vehicles": 0.002,
+       "fixed": 0.009,
+       "sky": 0.049,
+       "vegetation": 0.008,
+       "gap_m": 0.16,
+       "gap_edge": false
+      }
      },
      {
       "i": 24,
@@ -2457,7 +2673,16 @@
       "near_field_raw": 0.0134,
       "near_field": 0.67,
       "people": 2,
-      "cell": 24
+      "cell": 24,
+      "seg": {
+       "people": 0.314,
+       "vehicles": 0.039,
+       "fixed": 0.117,
+       "sky": 0.051,
+       "vegetation": 0.014,
+       "gap_m": 0.46,
+       "gap_edge": false
+      }
      },
      {
       "i": 25,
@@ -2469,7 +2694,16 @@
       "near_field_raw": 0.0033,
       "near_field": 0.17,
       "people": 2,
-      "cell": 25
+      "cell": 25,
+      "seg": {
+       "people": 0.0,
+       "vehicles": 0.002,
+       "fixed": 0.0,
+       "sky": 0.059,
+       "vegetation": 0.042,
+       "gap_m": 2.95,
+       "gap_edge": true
+      }
      },
      {
       "i": 26,
@@ -2481,7 +2715,16 @@
       "near_field_raw": 0.0163,
       "near_field": 0.81,
       "people": 1,
-      "cell": 26
+      "cell": 26,
+      "seg": {
+       "people": 0.115,
+       "vehicles": 0.094,
+       "fixed": 0.001,
+       "sky": 0.007,
+       "vegetation": 0.031,
+       "gap_m": 0.33,
+       "gap_edge": false
+      }
      },
      {
       "i": 27,
@@ -2493,7 +2736,16 @@
       "near_field_raw": 0.0049,
       "near_field": 0.24,
       "people": 0,
-      "cell": 27
+      "cell": 27,
+      "seg": {
+       "people": 0.04,
+       "vehicles": 0.0,
+       "fixed": 0.0,
+       "sky": 0.0,
+       "vegetation": 0.004,
+       "gap_m": 1.92,
+       "gap_edge": false
+      }
      },
      {
       "i": 28,
@@ -2505,7 +2757,16 @@
       "near_field_raw": 0.0077,
       "near_field": 0.39,
       "people": 1,
-      "cell": 28
+      "cell": 28,
+      "seg": {
+       "people": 0.076,
+       "vehicles": 0.028,
+       "fixed": 0.0,
+       "sky": 0.028,
+       "vegetation": 0.002,
+       "gap_m": 1.24,
+       "gap_edge": false
+      }
      },
      {
       "i": 29,
@@ -2517,7 +2778,16 @@
       "near_field_raw": 0.0219,
       "near_field": 1.09,
       "people": 1,
-      "cell": 29
+      "cell": 29,
+      "seg": {
+       "people": 0.321,
+       "vehicles": 0.0,
+       "fixed": 0.0,
+       "sky": 0.029,
+       "vegetation": 0.0,
+       "gap_m": 0.0,
+       "gap_edge": false
+      }
      },
      {
       "i": 30,
@@ -2529,7 +2799,16 @@
       "near_field_raw": 0.018,
       "near_field": 0.9,
       "people": 1,
-      "cell": 30
+      "cell": 30,
+      "seg": {
+       "people": 0.386,
+       "vehicles": 0.003,
+       "fixed": 0.016,
+       "sky": 0.062,
+       "vegetation": 0.009,
+       "gap_m": 0.0,
+       "gap_edge": false
+      }
      },
      {
       "i": 31,
@@ -2541,7 +2820,16 @@
       "near_field_raw": 0.0257,
       "near_field": 1.28,
       "people": 1,
-      "cell": 31
+      "cell": 31,
+      "seg": {
+       "people": 0.362,
+       "vehicles": 0.019,
+       "fixed": 0.238,
+       "sky": 0.12,
+       "vegetation": 0.136,
+       "gap_m": 0.0,
+       "gap_edge": false
+      }
      },
      {
       "i": 32,
@@ -2553,7 +2841,16 @@
       "near_field_raw": 0.01,
       "near_field": 0.5,
       "people": 2,
-      "cell": 32
+      "cell": 32,
+      "seg": {
+       "people": 0.074,
+       "vehicles": 0.0,
+       "fixed": 0.0,
+       "sky": 0.0,
+       "vegetation": 0.003,
+       "gap_m": 1.27,
+       "gap_edge": true
+      }
      },
      {
       "i": 33,
@@ -2565,7 +2862,16 @@
       "near_field_raw": 0.0017,
       "near_field": 0.08,
       "people": 1,
-      "cell": 33
+      "cell": 33,
+      "seg": {
+       "people": 0.072,
+       "vehicles": 0.0,
+       "fixed": 0.001,
+       "sky": 0.072,
+       "vegetation": 0.011,
+       "gap_m": 1.19,
+       "gap_edge": false
+      }
      },
      {
       "i": 34,
@@ -2577,7 +2883,16 @@
       "near_field_raw": 0.0013,
       "near_field": 0.07,
       "people": 1,
-      "cell": 34
+      "cell": 34,
+      "seg": {
+       "people": 0.166,
+       "vehicles": 0.006,
+       "fixed": 0.0,
+       "sky": 0.0,
+       "vegetation": 0.002,
+       "gap_m": 1.79,
+       "gap_edge": false
+      }
      },
      {
       "i": 35,
@@ -2589,7 +2904,16 @@
       "near_field_raw": 0.0225,
       "near_field": 1.12,
       "people": 0,
-      "cell": 35
+      "cell": 35,
+      "seg": {
+       "people": 0.0,
+       "vehicles": 0.0,
+       "fixed": 0.0,
+       "sky": 0.0,
+       "vegetation": 0.002,
+       "gap_m": 2.99,
+       "gap_edge": true
+      }
      },
      {
       "i": 36,
@@ -2601,7 +2925,16 @@
       "near_field_raw": 0.0,
       "near_field": 0.0,
       "people": 1,
-      "cell": 36
+      "cell": 36,
+      "seg": {
+       "people": 0.039,
+       "vehicles": 0.169,
+       "fixed": 0.007,
+       "sky": 0.026,
+       "vegetation": 0.01,
+       "gap_m": 0.69,
+       "gap_edge": false
+      }
      },
      {
       "i": 37,
@@ -2613,7 +2946,16 @@
       "near_field_raw": 0.023,
       "near_field": 1.15,
       "people": 1,
-      "cell": 37
+      "cell": 37,
+      "seg": {
+       "people": 0.643,
+       "vehicles": 0.0,
+       "fixed": 0.001,
+       "sky": 0.094,
+       "vegetation": 0.049,
+       "gap_m": 0.8,
+       "gap_edge": false
+      }
      },
      {
       "i": 38,
@@ -2625,7 +2967,16 @@
       "near_field_raw": 0.0586,
       "near_field": 2.93,
       "people": 0,
-      "cell": 38
+      "cell": 38,
+      "seg": {
+       "people": 0.934,
+       "vehicles": 0.035,
+       "fixed": 0.003,
+       "sky": 0.107,
+       "vegetation": 0.047,
+       "gap_m": 0.03,
+       "gap_edge": false
+      }
      },
      {
       "i": 39,
@@ -2637,7 +2988,16 @@
       "near_field_raw": 0.0465,
       "near_field": 2.32,
       "people": 1,
-      "cell": 39
+      "cell": 39,
+      "seg": {
+       "people": 0.678,
+       "vehicles": 0.281,
+       "fixed": 0.001,
+       "sky": 0.056,
+       "vegetation": 0.049,
+       "gap_m": 0.0,
+       "gap_edge": false
+      }
      },
      {
       "i": 40,
@@ -2649,7 +3009,16 @@
       "near_field_raw": 0.1094,
       "near_field": 5.0,
       "people": 0,
-      "cell": 40
+      "cell": 40,
+      "seg": {
+       "people": 0.988,
+       "vehicles": 0.003,
+       "fixed": 0.005,
+       "sky": 0.08,
+       "vegetation": 0.042,
+       "gap_m": 0.0,
+       "gap_edge": false
+      }
      },
      {
       "i": 41,
@@ -2661,7 +3030,16 @@
       "near_field_raw": 0.0467,
       "near_field": 2.33,
       "people": 0,
-      "cell": 41
+      "cell": 41,
+      "seg": {
+       "people": 0.984,
+       "vehicles": 0.0,
+       "fixed": 0.0,
+       "sky": 0.004,
+       "vegetation": 0.036,
+       "gap_m": 0.0,
+       "gap_edge": false
+      }
      },
      {
       "i": 42,
@@ -2673,7 +3051,16 @@
       "near_field_raw": 0.0321,
       "near_field": 1.6,
       "people": 0,
-      "cell": 42
+      "cell": 42,
+      "seg": {
+       "people": 0.798,
+       "vehicles": 0.116,
+       "fixed": 0.0,
+       "sky": 0.059,
+       "vegetation": 0.043,
+       "gap_m": 0.0,
+       "gap_edge": false
+      }
      },
      {
       "i": 43,
@@ -2685,7 +3072,16 @@
       "near_field_raw": 0.0744,
       "near_field": 3.72,
       "people": 1,
-      "cell": 43
+      "cell": 43,
+      "seg": {
+       "people": 0.924,
+       "vehicles": 0.0,
+       "fixed": 0.0,
+       "sky": 0.052,
+       "vegetation": 0.178,
+       "gap_m": 0.0,
+       "gap_edge": false
+      }
      },
      {
       "i": 44,
@@ -2697,7 +3093,16 @@
       "near_field_raw": 0.0307,
       "near_field": 1.54,
       "people": 0,
-      "cell": 44
+      "cell": 44,
+      "seg": {
+       "people": 0.915,
+       "vehicles": 0.028,
+       "fixed": 0.001,
+       "sky": 0.157,
+       "vegetation": 0.05,
+       "gap_m": 0.0,
+       "gap_edge": false
+      }
      },
      {
       "i": 45,
@@ -2709,7 +3114,16 @@
       "near_field_raw": 0.0053,
       "near_field": 0.27,
       "people": 0,
-      "cell": 45
+      "cell": 45,
+      "seg": {
+       "people": 0.035,
+       "vehicles": 0.258,
+       "fixed": 0.032,
+       "sky": 0.165,
+       "vegetation": 0.062,
+       "gap_m": 0.93,
+       "gap_edge": false
+      }
      },
      {
       "i": 46,
@@ -2721,7 +3135,16 @@
       "near_field_raw": 0.0,
       "near_field": 0.0,
       "people": 1,
-      "cell": 46
+      "cell": 46,
+      "seg": {
+       "people": 0.007,
+       "vehicles": 0.079,
+       "fixed": 0.009,
+       "sky": 0.11,
+       "vegetation": 0.054,
+       "gap_m": 0.8,
+       "gap_edge": false
+      }
      },
      {
       "i": 47,
@@ -2733,7 +3156,16 @@
       "near_field_raw": 0.1073,
       "near_field": 5.0,
       "people": 0,
-      "cell": 47
+      "cell": 47,
+      "seg": {
+       "people": 0.645,
+       "vehicles": 0.0,
+       "fixed": 0.0,
+       "sky": 0.0,
+       "vegetation": 0.0,
+       "gap_m": 0.0,
+       "gap_edge": false
+      }
      },
      {
       "i": 48,
@@ -2745,7 +3177,16 @@
       "near_field_raw": 0.0,
       "near_field": 0.0,
       "people": 0,
-      "cell": 48
+      "cell": 48,
+      "seg": {
+       "people": 0.079,
+       "vehicles": 0.005,
+       "fixed": 0.01,
+       "sky": 0.085,
+       "vegetation": 0.012,
+       "gap_m": 0.95,
+       "gap_edge": false
+      }
      },
      {
       "i": 49,
@@ -2757,7 +3198,16 @@
       "near_field_raw": 0.0036,
       "near_field": 0.18,
       "people": 1,
-      "cell": 49
+      "cell": 49,
+      "seg": {
+       "people": 0.0,
+       "vehicles": 0.214,
+       "fixed": 0.0,
+       "sky": 0.082,
+       "vegetation": 0.145,
+       "gap_m": 1.49,
+       "gap_edge": true
+      }
      },
      {
       "i": 50,
@@ -2769,7 +3219,16 @@
       "near_field_raw": 0.0012,
       "near_field": 0.06,
       "people": 0,
-      "cell": 50
+      "cell": 50,
+      "seg": {
+       "people": 0.0,
+       "vehicles": 0.023,
+       "fixed": 0.0,
+       "sky": 0.058,
+       "vegetation": 0.103,
+       "gap_m": 2.78,
+       "gap_edge": true
+      }
      }
     ],
     "stops": [],
