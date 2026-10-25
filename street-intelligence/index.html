@@ -97,6 +97,17 @@ details.look[open] summary { color: var(--fg); }
 .btn[aria-pressed="true"] { border-color: var(--blue); color: var(--blue); }
 #rowB.mirrored .ph { transform: scaleX(-1); }
 #rowB.mirrored .ph .pbadge, #rowB.mirrored .ph > span { transform: scaleX(-1); }
+.bands { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.bands .lbl { font-size: 12px; color: var(--fg-2); margin-right: 2px; }
+.bandchip { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: var(--fg-2); cursor: pointer; }
+.bandchip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.bandchip:disabled { opacity: .45; cursor: default; }
+.bands .sp { flex: 1; }
+.swtag { color: var(--yellow); font-weight: 600; }
+#timesDlg { width: min(520px, calc(100vw - 32px)); }
+#timesDlg .body { padding: 16px; display: grid; gap: 12px; }
+.trow { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; font-size: 13px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.trow input { background: var(--sunken); border: 1px solid var(--line); border-radius: 4px; padding: 4px 6px; }
 .cause { display: flex; height: 5px; border-radius: 2px; overflow: hidden; background: var(--sunken); }
 .cause i { display: block; height: 100%; }
 .cause.na { background: repeating-linear-gradient(90deg, var(--line) 0 3px, transparent 3px 6px); }
@@ -215,6 +226,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
       <span class="readout num" id="readout">0<small>m</small></span>
       <span class="where" id="where"></span>
       <span class="sound num" id="sound"></span>
+      <span class="sound num" id="walker"></span>
       <span class="sp"></span>
       <span class="layers" role="group" aria-label="Ruler layer">
         <button type="button" data-layer="blocked" aria-pressed="true">Blocked</button>
@@ -222,6 +234,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
         <button type="button" data-layer="horns" aria-pressed="false">Horns</button>
         <button type="button" data-layer="vehicles" aria-pressed="false">Vehicles</button>
         <button type="button" data-layer="people" aria-pressed="false">People</button>
+        <button type="button" data-layer="swerves" aria-pressed="false">Swerves</button>
       </span>
       <details class="look" id="lookBox">
         <summary>Look-ahead <b class="num" id="lookVal">4.0 m</b></summary>
@@ -248,6 +261,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   </section>
 
   <section class="card matrix" aria-label="Photos of spot S by direction and day">
+    <div class="bands" id="bands" role="group" aria-label="Time of walk"></div>
     <div>
       <div class="mrow-head"><h2><i class="dirsw" style="background:var(--dirA)"></i>A → B</h2><span class="sub">South-west bound</span>
         <span class="orient" title="What is on each side of the photo">◀ <b>Shopfronts</b> │ <b>Road</b> ▶</span><span id="headA"></span></div>
@@ -271,6 +285,15 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     </div>
   </section>
 </div>
+
+<dialog id="timesDlg" aria-labelledby="timesTitle">
+  <div class="body">
+    <h2 id="timesTitle" style="font-size:16px">Recording times</h2>
+    <p class="note" style="margin:0">The pilot videos lost their recording times when they passed through an editor. Enter when each walk was filmed (from the phone gallery or the walker's notes) and the photos can be compared by time of day.</p>
+    <div id="timesList"></div>
+    <div class="dlg-foot"><span class="note" id="timesMsg" style="margin-right:auto"></span><button class="btn primary" id="timesClose" type="button">Done</button></div>
+  </div>
+</dialog>
 
 <dialog id="lb" aria-label="Photo">
   <div class="body">
@@ -333,7 +356,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
 
   let LOOK = 4;
   try { const v = parseFloat(localStorage.getItem('si-look-v2')); if (v >= 2 && v <= 8) LOOK = v; } catch (e) {}
-  const state = { S: 80, layer: 'blocked', mirror: false };
+  const state = { S: 80, layer: 'blocked', mirror: false, band: 'all' };
   try { const v = parseFloat(localStorage.getItem('si-s')); if (v >= 0 && v <= L) state.S = v; } catch (e) {}
 
   /* The manifest stores camera positions. A forward-facing camera photographs the ground ahead,
@@ -449,10 +472,12 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   async function initStore() {
     try { store.db = window.claude && window.claude.use ? await window.claude.use('db') : null; } catch (e) { store.db = null; }
     if (store.db) {
+      store.db.collection('walks').onSnapshot(snap => { const n = {}; snap.docs.forEach(d => { n[d.id] = d.data(); }); TIMES = n; renderBands(); if (!$('timesDlg').open) renderMatrix(); }, () => {});
       store.db.collection('spots').onSnapshot(snap => { const n = {}; snap.docs.forEach(d => { n[d.id] = d.data(); }); NOTES = n; if (!document.activeElement || !/^w[AB]$/.test(document.activeElement.id)) renderSplit(); }, () => {});
       return;
     }
-    try { NOTES = JSON.parse(localStorage.getItem('si-notes') || '{}'); } catch (e) {}
+    try { NOTES = JSON.parse(localStorage.getItem('si-notes') || '{}'); TIMES = JSON.parse(localStorage.getItem('si-times') || '{}'); } catch (e) {}
+    renderBands(); renderMatrix();
     renderSplit();
   }
   async function saveWidth(i, side, val) {
@@ -518,7 +543,9 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     vehicles: { color: (s, side) => { const v = CAUSE[side === 'A' ? 'forward' : 'return'][s.i].vehicles; return v == null ? 'var(--line)' : ramp(v / 0.3); },
                 tip: (s, side) => { const v = CAUSE[side === 'A' ? 'forward' : 'return'][s.i].vehicles; return v == null ? 'no daylight frames' : `vehicles cover ${fmt(v * 100)}% of the walking zone`; } },
     people: { color: (s, side) => { const v = CAUSE[side === 'A' ? 'forward' : 'return'][s.i].people; return v == null ? 'var(--line)' : ramp(v / 0.3); },
-              tip: (s, side) => { const v = CAUSE[side === 'A' ? 'forward' : 'return'][s.i].people; return v == null ? 'no daylight frames' : `people cover ${fmt(v * 100)}% of the walking zone`; } }
+              tip: (s, side) => { const v = CAUSE[side === 'A' ? 'forward' : 'return'][s.i].people; return v == null ? 'no daylight frames' : `people cover ${fmt(v * 100)}% of the walking zone`; } },
+    swerves: { color: (s, side) => { const v = SWV[side === 'A' ? 'forward' : 'return'][s.i]; return !v || v.perWalk == null || v.junction ? 'var(--line)' : ramp(v.perWalk / 0.6); },
+               tip: (s, side) => { const v = SWV[side === 'A' ? 'forward' : 'return'][s.i]; return !v || v.perWalk == null ? 'no data' : v.junction ? 'junction: turning expected, not counted' : `walkers swerved here on ${v.walksWith} of ${v.walks} walks`; } }
   };
   function renderLegend() {
     const keys = '<span class="keys">← → 1 m · ↑ ↓ 25 m</span>';
@@ -530,12 +557,81 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
       : state.layer === 'loud' ? `<span class="num">−2 dB<i class="ramp"></i>+2 dB vs the corridor's median second</span>
       <span class="note">Relative: phone mic, not calibrated dB(A)</span>${keys}`
       : state.layer === 'horns' ? `<span class="num">0<i class="ramp"></i>2+ horn-seconds per walk</span><span class="note">Estimated from the audio track; faint horns are missed</span>${keys}`
+      : state.layer === 'swerves' ? `<span class="num">0<i class="ramp"></i>0.6+ swerves per walk</span><span><i style="background:var(--line)"></i>Junction, not counted</span><span class="note">Walker turned aside and back, from the camera's rotation</span>${keys}`
       : `<span class="num">0<i class="ramp"></i>30%+ of the walking zone covered by ${state.layer}</span><span class="note">Daylight frames, street-scene segmentation</span>${keys}`;
   }
 
   /* Chainage (road-engineering style, CH km+metres) and, when valid anchors exist, coordinates. */
   const chain = m => `CH ${Math.floor(m / 1000)}+${String(Math.round(m % 1000)).padStart(3, '0')}`;
   let GEO = null;   // set by geoFit() once ROUTE is defined
+
+  /* ---------- Walker behaviour (swerves.py): turning aside and back, from the chest camera's rotation.
+     Junctions are excluded: turning there is expected, not evasive. ---------- */
+  const JUNCTIONS = [[95, 115]];
+  const inJunction = i => JUNCTIONS.some(([a, b]) => i * BIN < b && (i + 1) * BIN > a);
+  const HAS_SWERVE = days.some(d => ['forward', 'return'].some(k => d[k] && d[k].swerves));
+  const SWV = { forward: [], return: [] };
+  function computeSwerves() {
+    for (const { key } of DIRS) {
+      const per = Array.from({ length: NB }, () => ({ sw: 0, walks: new Set() }));
+      let walks = 0;
+      for (const d of days) {
+        const w = d[key]; if (!w || !w.swerves) continue;
+        walks++;
+        w.swerves.forEach(e => { const b = per[binOf(e.m)]; b.sw++; b.walks.add(d.day); });
+      }
+      SWV[key] = per.map((b, i) => ({ perWalk: walks ? b.sw / walks : null, walksWith: b.walks.size, walks, junction: inJunction(i) }));
+    }
+  }
+  const swervedNear = (w, cam) => (w.swerves || []).some(e => Math.abs(e.m - cam) <= 5);
+
+  /* ---------- Time of day: AM peak / midday / PM peak / night, from recording times entered per walk ---------- */
+  const BANDS = [
+    { id: 'all', name: 'All walks' }, { id: 'am', name: 'AM peak 7:30–9:30' }, { id: 'mid', name: 'Midday' },
+    { id: 'pm', name: 'PM peak 17:30–20:00' }, { id: 'night', name: 'Night' }, { id: 'unknown', name: 'Daytime, time not recorded' }
+  ];
+  let TIMES = {};
+  const walkId = (d, key) => `d${d.day}_${key}`;
+  const timeOf = (d, key) => { const t = (TIMES[walkId(d, key)] || {}).time; return /^\d{1,2}:\d{2}$/.test(t || '') ? t : null; };
+  function bandOfWalk(d, key) {
+    const t = timeOf(d, key), w = d[key];
+    if (t) {
+      const [h, m] = t.split(':').map(Number), x = h * 60 + m;
+      if (x >= 450 && x < 570) return 'am';
+      if (x >= 570 && x < 1050) return 'mid';
+      if (x >= 1050 && x < 1200) return 'pm';
+      if (x >= 1200 || x < 360) return 'night';
+      return 'mid';
+    }
+    return w && w.lighting === 'night' ? 'night' : 'unknown';
+  }
+  const inBand = (d, key) => state.band === 'all' || bandOfWalk(d, key) === state.band;
+  function renderBands() {
+    const count = id => days.reduce((a, d) => a + DIRS.filter(({ key }) => d[key] && (id === 'all' || bandOfWalk(d, key) === id)).length, 0);
+    $('bands').innerHTML = '<span class="lbl">Time of walk</span>' + BANDS.map(b => {
+      const n = count(b.id);
+      return `<button type="button" class="bandchip" data-band="${b.id}" aria-pressed="${state.band === b.id}" ${n ? '' : 'disabled'}>${b.name} <span class="num">${n}</span></button>`;
+    }).join('') + '<span class="sp"></span><button class="btn sm" id="timesBtn" type="button">Recording times</button>';
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest('.bandchip');
+    if (b && !b.disabled) { state.band = b.dataset.band; renderBands(); renderMatrix(); return; }
+    if (e.target.closest('#timesBtn')) { renderTimes(); $('timesMsg').textContent = ''; $('timesDlg').showModal(); }
+  });
+  function renderTimes() {
+    $('timesList').innerHTML = days.flatMap(d => DIRS.filter(({ key }) => d[key]).map(({ key, label }) =>
+      `<div class="trow"><label for="t_${walkId(d, key)}">Day ${d.day} · ${label} · ${d[key].lighting || ''}</label>
+        <input type="time" id="t_${walkId(d, key)}" data-walk="${walkId(d, key)}" value="${timeOf(d, key) || ''}"></div>`)).join('');
+  }
+  $('timesList').addEventListener('change', async e => {
+    const id = e.target.dataset.walk; if (!id) return;
+    const next = { ...(TIMES[id] || {}), time: e.target.value || null, updatedAt: new Date().toISOString() };
+    TIMES = { ...TIMES, [id]: next };
+    if (store.db) { try { await store.db.doc('walks/' + id).set(next); $('timesMsg').textContent = 'Saved for everyone with the link'; } catch (x) { $('timesMsg').textContent = 'You can view times here but not change them.'; } }
+    else { try { localStorage.setItem('si-times', JSON.stringify(TIMES)); $('timesMsg').textContent = 'Saved in this browser'; } catch (x) { $('timesMsg').textContent = 'Not saved'; } }
+    renderBands(); renderMatrix();
+  });
+  $('timesClose').addEventListener('click', () => $('timesDlg').close());
 
   /* ---------- Header and scrubber ---------- */
   const walksN = days.reduce((a, d) => a + (d.forward ? 1 : 0) + (d.return ? 1 : 0), 0);
@@ -688,7 +784,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   }
   // A cell is "persistent" when it is cluttered in every frame of this direction (needs 3+ days with frames).
   function rowInfo(key) {
-    const tiles = days.map(d => tileInfo(d, key)), seen = tiles.filter(t => t.v || t.o != null);
+    const tiles = days.filter(d => inBand(d, key)).map(d => tileInfo(d, key)), seen = tiles.filter(t => t.v || t.o != null);
     let persist = 0;
     if (seen.length >= 3) { persist = 0xFFF; seen.forEach(t => persist &= t.c); }
     const blocked = seen.filter(t => t.blocked).length;
@@ -740,11 +836,12 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     const { d, key, w } = t;
     if (!w) return `<div class="tile" aria-disabled="true"><div class="ph none">Not walked</div><div class="cap"><b>Day ${d.day}</b><span></span></div></div>`;
     if (!t.v && t.o == null) return `<div class="tile" aria-disabled="true"><div class="ph none">No frame within 6 m</div><div class="cap"><b>Day ${d.day}</b><span></span></div></div>`;
-    const st = t.blocked ? 'blocked' : 'clear', light = w.lighting === 'night' ? 'night' : 'day';
+    const st = t.blocked ? 'blocked' : 'clear', light = timeOf(d, key) || (w.lighting === 'night' ? 'night' : 'day');
+    const sw = t.v && swervedNear(w, t.v.cam) ? ' · <span class="swtag" title="The walker turned aside and back within 5 m of this spot">swerved</span>' : '';
     const bg = t.v && t.v.kind === 'spot' ? spotStyle(w, t.v.idx) : t.v && w.frame_sheet ? frameStyle(w, t.v.node) : '';
     const ph = `<div class="ph${bg ? '' : ' none'}" style="${bg}">${bg ? '' : '<span style="position:absolute;top:8px;left:0;right:0">Sample · no photo</span>'}${overlay(t, persist)}</div>`;
     return `<button class="tile" type="button" data-s="${st}" data-day="${d.day}" data-key="${key}" aria-label="Day ${d.day}, ${key === 'forward' ? 'A to B' : 'B to A'}, ${st}, ${BAND[t.band].name}">
-      ${ph}${causeBar(t)}<div class="cap"><b>Day ${d.day}</b><span>${light} · <span style="color:${t.blocked ? 'var(--red)' : 'var(--green)'}">${t.blocked ? 'Blocked' : 'Clear'}</span></span></div></button>`;
+      ${ph}${causeBar(t)}<div class="cap"><b>Day ${d.day}</b><span>${light} · <span style="color:${t.blocked ? 'var(--red)' : 'var(--green)'}">${t.blocked ? 'Blocked' : 'Clear'}</span>${sw}</span></div></button>`;
   }
   const chip = (cls, txt) => `<span class="chip ${cls}">${txt}</span>`;
   function headChip(r, key) {
@@ -760,8 +857,9 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   let ROWS = {};
   function renderMatrix() {
     ROWS = { forward: rowInfo('forward'), return: rowInfo('return') };
-    $('rowA').innerHTML = ROWS.forward.tiles.map(t => tileHtml(t, ROWS.forward.persist)).join('');
-    $('rowB').innerHTML = ROWS.return.tiles.map(t => tileHtml(t, ROWS.return.persist)).join('');
+    const none = '<p class="note" style="margin:8px 0">No walks in this time band. Add recording times to sort walks by time of day.</p>';
+    $('rowA').innerHTML = ROWS.forward.tiles.map(t => tileHtml(t, ROWS.forward.persist)).join('') || none;
+    $('rowB').innerHTML = ROWS.return.tiles.map(t => tileHtml(t, ROWS.return.persist)).join('') || none;
     $('headA').innerHTML = headChip(ROWS.forward, 'forward');
     $('headB').innerHTML = headChip(ROWS.return, 'return');
     renderSplit();
@@ -828,6 +926,10 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     $('readout').innerHTML = `${fmt(S, S % 1 ? 1 : 0)}<small>m</small>`;
     const ll = GEO && GEO.ok ? GEO.at(S) : null;
     $('where').innerHTML = `<span class="chain num">${chain(S)}</span>${ll ? ` <span class="num">· ${ll[0].toFixed(5)}, ${ll[1].toFixed(5)}</span>` : ''} · ${binName(binOf(S))}${l ? ` · near ${l.name}` : ''}`;
+    if (HAS_SWERVE) {
+      const i = binOf(S), a = SWV.forward[i], b = SWV.return[i];
+      $('walker').textContent = a && a.junction ? 'Junction · turning expected' : a && b ? `Swerved here on ${a.walksWith + b.walksWith} of ${a.walks + b.walks} walks` : '';
+    }
     if (HAS_AUDIO) {
       const i = binOf(S), vals = [AUD.forward[i], AUD.return[i]].filter(Boolean);
       const dbs = vals.map(v => v.db).filter(v => v != null), hs = vals.map(v => v.horn).filter(v => v != null);
@@ -873,6 +975,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
       <div class="kpi">
         <div><b class="num">${f.pct}%</b><span>of the corridor fails the ${FLOW_S}-second uninterrupted walk test</span><br><span class="src">${f.failing} of ${f.total} spots fail on at least half of the walks</span></div>
         <div><b class="num">${persistentN}</b><span>spots blocked every day</span><br><span class="src">from at least one direction</span></div>
+        ${HAS_SWERVE ? (() => { const tot = DIRS.reduce((a, { key }) => a + SWV[key].reduce((x, v) => x + (v.junction || v.perWalk == null ? 0 : v.perWalk), 0), 0) / 2; return `<div><b class="num">${fmt(tot / (L - 20) * 100, 1)}</b><span>swerves per 100 m walked</span><br><span class="src">walker turned aside and back; junction excluded</span></div>`; })() : ''}
       </div>
       <div><h4>Top 3 critical bottleneck stations</h4>
         <table><thead><tr><th>#</th><th>Location</th><th>Proxemic severity</th><th>Obstacle persistence</th>${HAS_SEG ? '<th>Main blocker</th>' : ''}</tr></thead>
@@ -898,6 +1001,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   document.querySelectorAll('.layers button').forEach(b => {
     if ((b.dataset.layer === 'loud' || b.dataset.layer === 'horns') && !HAS_AUDIO) { b.disabled = true; b.title = 'Run soundscape.py to add the sound layers'; }
     if ((b.dataset.layer === 'vehicles' || b.dataset.layer === 'people') && !HAS_SEG) { b.disabled = true; b.title = 'Run segment_frames.py to add these layers'; }
+    if (b.dataset.layer === 'swerves' && !HAS_SWERVE) { b.disabled = true; b.title = 'Run swerves.py to add this layer'; }
     b.addEventListener('click', () => {
       state.layer = b.dataset.layer;
       document.querySelectorAll('.layers button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
@@ -914,7 +1018,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   GEO = geoFit();
   if (GEO.why) { const fc = document.querySelector('.inset figcaption'); if (fc) fc.textContent += ' ' + GEO.why + ' Coordinates hidden.'; }
   if (!HAS_SEG && $('causeKey')) $('causeKey').hidden = true;
-  computeAudio(); computeCause(); computeSpots(); renderScrubber(); renderInset(); render();
+  computeAudio(); computeCause(); computeSwerves(); renderBands(); computeSpots(); renderScrubber(); renderInset(); render();
   setTimeout(initStore, 0);
 })();
 </script>
