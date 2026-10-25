@@ -149,7 +149,8 @@ details.look[open] summary { color: var(--fg); }
 .tile:hover .ph { filter: brightness(1.1); }
 
 /* Overlays on photos */
-.ov { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.ov { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity .15s ease; }
+.tile:hover .ov, .tile:focus-visible .ov, .matrix.ovl .ov { opacity: 1; }
 .pbadge { position: absolute; left: 5px; bottom: 5px; display: inline-flex; align-items: center; gap: 5px; max-width: calc(100% - 10px);
   padding: 3px 7px 3px 6px; border-radius: 999px; font-size: 10.5px; font-weight: 600; line-height: 1.2; white-space: nowrap; color: #F8FAFC;
   background: rgba(15, 23, 42, .58); border: 1px solid rgba(248, 250, 252, .16); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
@@ -194,19 +195,6 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
 #lb .body { padding: 14px; display: grid; gap: 10px; }
 #lbPh { width: 100%; max-height: 72vh; aspect-ratio: 240 / 427; margin: 0 auto; border-radius: 4px; background-repeat: no-repeat; background-color: #000; }
 .dlg-foot { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: flex-end; }
-#rep { width: min(820px, calc(100vw - 32px)); }
-.report { background: #fff; color: #0F172A; padding: 28px; display: grid; gap: 18px; font-size: 13px; }
-.report h3 { margin: 0; font-size: 20px; }
-.report h4 { margin: 0 0 6px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #475569; }
-.report p { margin: 0; max-width: 68ch; }
-.report table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-.report th, .report td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #CBD5E1; vertical-align: top; }
-.report th { font-size: 11px; color: #475569; font-weight: 600; }
-.report .kpi { display: flex; gap: 28px; flex-wrap: wrap; }
-.report .kpi b { display: block; font-size: 28px; line-height: 1.1; }
-.report .src { font-size: 11px; color: #475569; }
-.rep-bar { padding: 10px 14px; border-top: 1px solid var(--line); }
-#repMsg { color: var(--fg-2); font-size: 12px; margin-right: auto; }
 
 @media (max-width: 640px) {
   .readout { font-size: 26px; }
@@ -214,7 +202,6 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .inset figcaption { display: none; }
   .pbadge { font-size: 10px; } .pbadge em { display: none; }
-  .report { padding: 18px; }
   .lane-label { display: none; }
   .bar { margin: 0 8px; }
   .scrub { grid-template-columns: 1fr; }
@@ -229,14 +216,11 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     <h1>Street Intelligence</h1>
     <span class="meta num" id="meta"></span>
     <span class="badge" id="sampleBadge" hidden>Sample data</span>
-    <span class="sp"></span>
-    <button class="btn primary" id="exportBtn" type="button">Export Ward Diagnostic Report</button>
   </header>
 
-  <section class="card scrub" aria-labelledby="scrubTitle">
+  <section class="card scrub" aria-label="Position along the footpath">
    <div class="ruler">
     <div class="scrub-head">
-      <span class="eyebrow" id="scrubTitle">Spot</span>
       <span class="readout num" id="readout">0<small>m</small></span>
       <span class="where" id="where"></span>
       <span class="sp"></span>
@@ -244,7 +228,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     </div>
     <div class="ctl-row">
       <span class="layers" role="group" aria-label="What the ruler shows">
-        <button type="button" data-layer="blocked" aria-pressed="true">Blocked days</button>
+        <button type="button" data-layer="blocked" aria-pressed="true">Blocked</button>
         <button type="button" data-layer="vehicles" aria-pressed="false" class="g">Vehicles</button>
         <button type="button" data-layer="people" aria-pressed="false">People</button>
         <button type="button" data-layer="swerves" aria-pressed="false" class="g">Swerves</button>
@@ -253,10 +237,9 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
       </span>
       <span class="sp"></span>
       <details class="look" id="lookBox">
-        <summary>Look-ahead <b class="num" id="lookVal">4.0 m</b></summary>
+        <summary title="Shift until a fixed landmark lines up across days">Look-ahead <b class="num" id="lookVal">4.0 m</b></summary>
         <div class="look-body">
           <input type="range" id="lookIn" min="2" max="8" step="0.5" value="4" aria-label="Look-ahead distance in metres">
-          <span class="note">Shift until a fixed landmark (bins, underpass) lines up across days.</span>
         </div>
       </details>
     </div>
@@ -272,33 +255,32 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     <div class="stats" id="stats" aria-label="This spot at a glance"></div>
    </div>
     <figure class="inset">
-      <svg id="inset" viewBox="0 0 100 100" role="img" aria-label="Street plan of the corridor with the current spot marked"></svg>
-      <figcaption class="note">Traced from the map, north up. Cones (not to scale) show both cameras aiming at S. Click the street to jump.</figcaption>
+      <svg id="inset" viewBox="0 0 100 100" role="img" aria-label="Street plan with the current spot. Click the street to jump."></svg>
     </figure>
   </section>
 
   <section class="card matrix" aria-label="Photos of spot S by direction and day">
     <div class="bands" id="bands" role="group" aria-label="Time of walk"></div>
     <div>
-      <div class="mrow-head"><h2><i class="dirsw" style="background:var(--dirA)"></i>A → B</h2><span class="sub">South-west bound</span>
+      <div class="mrow-head"><h2 title="South-west bound"><i class="dirsw" style="background:var(--dirA)"></i>A → B</h2>
         <span class="orient" title="What is on each side of the photo">◀ <b>Shopfronts</b> │ <b>Road</b> ▶</span><span class="sp"></span><span id="headA"></span></div>
       <div class="tiles" id="rowA"></div>
     </div>
     <div class="split" id="split" aria-label="Directional asymmetry at spot S"></div>
     <div>
-      <div class="mrow-head"><h2><i class="dirsw" style="background:var(--dirB)"></i>B → A</h2><span class="sub">North-east bound · same footpath, seen from the other end</span>
+      <div class="mrow-head"><h2 title="North-east bound. Same footpath, seen from the other end."><i class="dirsw" style="background:var(--dirB)"></i>B → A</h2>
         <span class="orient" id="orientB" title="What is on each side of the photo">◀ <b>Road</b> │ <b>Shopfronts</b> ▶</span>
-        <button class="btn sm" id="mirrorBtn" type="button" aria-pressed="false" title="Flip B→A photos so the road is on the same side as A→B. Signboard text reads backwards.">Mirror to match A→B</button><span class="sp"></span><span id="headB"></span></div>
+        <button class="btn sm" id="mirrorBtn" type="button" aria-pressed="false" title="Flip B→A photos so the road is on the same side as A→B. Signboard text reads backwards.">Mirror</button><span class="sp"></span><span id="headB"></span></div>
       <div class="tiles" id="rowB"></div>
     </div>
-    <div class="okey" aria-label="Overlay key">
-      <span><i class="sw" style="background:color-mix(in srgb,var(--red) 45%,transparent)"></i>&lt; 0.8 m intimate</span>
-      <span><i class="sw" style="background:color-mix(in srgb,var(--yellow) 45%,transparent)"></i>0.8–1.2 m social pinch</span>
-      <span><i class="sw" style="background:color-mix(in srgb,var(--green) 45%,transparent)"></i>≥ 1.2 m clear</span>
-      <span><i class="bx" style="border:2px solid var(--red)"></i>Clutter on every day</span>
-      <span><i class="bx" style="border:2px dashed var(--yellow)"></i>Clutter some days</span>
-      <span id="causeKey"><i class="sw" style="background:var(--vehicles)"></i>vehicles <i class="sw" style="background:var(--people)"></i>people <i class="sw" style="background:var(--fixed)"></i>fixtures <span class="note">main blocker under a blocked daylight photo</span></span>
-      <span class="note">Bands and boxes are estimated from photo clutter; tape-measured widths replace the band.</span>
+    <div class="okey" aria-label="Key">
+      <span><i class="sw" style="background:color-mix(in srgb,var(--red) 45%,transparent)"></i>&lt; 0.8 m</span>
+      <span><i class="sw" style="background:color-mix(in srgb,var(--yellow) 45%,transparent)"></i>0.8–1.2 m</span>
+      <span><i class="sw" style="background:color-mix(in srgb,var(--green) 45%,transparent)"></i>≥ 1.2 m</span>
+      <span><i class="bx" style="border:2px solid var(--red)"></i>Every day</span>
+      <span><i class="bx" style="border:2px dashed var(--yellow)"></i>Some days</span>
+      <span id="causeKey"><i class="sw" style="background:var(--vehicles)"></i>vehicles <i class="sw" style="background:var(--people)"></i>people <i class="sw" style="background:var(--fixed)"></i>fixtures</span>
+      <span class="note">Estimated from photos</span>
     </div>
   </section>
 </div>
@@ -306,7 +288,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
 <dialog id="timesDlg" aria-labelledby="timesTitle">
   <div class="body">
     <h2 id="timesTitle" style="font-size:16px">Recording times</h2>
-    <p class="note" style="margin:0">The pilot videos lost their recording times when they passed through an editor. Enter when each walk was filmed (from the phone gallery or the walker's notes) and the photos can be compared by time of day.</p>
+    <p class="note" style="margin:0">When each walk was filmed.</p>
     <div id="timesList"></div>
     <div class="dlg-foot"><span class="note" id="timesMsg" style="margin-right:auto"></span><button class="btn primary" id="timesClose" type="button">Done</button></div>
   </div>
@@ -319,15 +301,6 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   </div>
 </dialog>
 
-<dialog id="rep" aria-label="Ward diagnostic report">
-  <div class="report" id="report"></div>
-  <div class="rep-bar dlg-foot">
-    <span id="repMsg"></span>
-    <button class="btn" id="repCopy" type="button">Copy text</button>
-    <button class="btn" id="repSave" type="button">Save as file</button>
-    <button class="btn primary" id="repClose" type="button">Close</button>
-  </div>
-</dialog>
 
 <script src="data/manifest.js"></script>
 <script>
@@ -359,7 +332,6 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   const OBS = 1.4;      // obstruction index at or above which a frame counts as blocked
   const NEAR = 1.4;     // near-field index at or above which the body zone counts as breached
   const BIN = 10;       // spot size for persistence, metres
-  const FLOW_S = 12;    // uninterrupted walking threshold, seconds
   const L = RAW.corridor.length_m;
   const NB = Math.ceil(L / BIN);
   const STEP = RAW.corridor.step_s || 3;
@@ -373,7 +345,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
 
   let LOOK = 4;
   try { const v = parseFloat(localStorage.getItem('si-look-v2')); if (v >= 2 && v <= 8) LOOK = v; } catch (e) {}
-  const state = { S: 80, layer: 'blocked', mirror: false, band: 'all' };
+  const state = { S: 80, layer: 'blocked', mirror: false, band: 'all', ov: false };
   let savedS = false;
   try { const v = localStorage.getItem('si-s'); if (v !== null && +v >= 0 && +v <= L) { state.S = +v; savedS = true; } } catch (e) {}
 
@@ -455,33 +427,6 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     few: { chip: 'grey', name: 'Not enough days', short: 'Too few days', why: 'Fewer than 3 days have a frame here.' }
   };
   const laneColor = c => ({ persistent: 'var(--red)', transient: 'var(--yellow)', clear: 'var(--green)', few: 'var(--line)' })[c];
-
-  /* 12-second test: along each walk, runs of consecutive unblocked frames with no stop between them.
-     A frame fails if it is blocked or sits in a run shorter than FLOW_S seconds of walking.
-     A spot fails when it fails on at least half of the walks that pass it. */
-  function flowIndex() {
-    const fail = Array.from({ length: NB }, () => ({ f: 0, n: 0 }));
-    let walks = 0;
-    for (const d of days) for (const { key } of DIRS) {
-      const w = walk(d, key); if (!w || !w.nodes.length) continue;
-      walks++;
-      const ns = [...w.nodes].sort((a, b) => a.t - b.t), stops = (w.stops || []).map(s => s.t);
-      const bad = new Array(ns.length).fill(false);
-      let run = [];
-      const close = () => { if (run.length * STEP < FLOW_S) run.forEach(j => bad[j] = true); run = []; };
-      ns.forEach((n, j) => {
-        if (j > 0 && stops.some(t => t > ns[j - 1].t && t <= n.t)) close();
-        if (n.obstruction >= OBS) { close(); bad[j] = true; } else run.push(j);
-      });
-      close();
-      const binBad = new Map();
-      ns.forEach((n, j) => { const b = binOf(n.meter); binBad.set(b, (binBad.get(b) || false) || bad[j]); });
-      binBad.forEach((v, b) => { fail[b].n++; if (v) fail[b].f++; });
-    }
-    const covered = fail.filter(x => x.n);
-    const failing = covered.filter(x => x.f / x.n >= 0.5).length;
-    return { pct: covered.length ? Math.round(failing / covered.length * 100) : 0, failing, total: covered.length, walks };
-  }
 
   /* ---------- On-site widths (shared store; this browser only when opened as a local file) ---------- */
   let NOTES = {}; const store = { db: null };
@@ -567,16 +512,14 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
                tip: (s, side) => { const v = SWV[side === 'A' ? 'forward' : 'return'][s.i]; return !v || v.perWalk == null ? 'no data' : v.junction ? 'junction: turning expected, not counted' : `walkers swerved here on ${v.walksWith} of ${v.walks} walks`; } }
   };
   function renderLegend() {
-    const keys = '<span class="keys">← → 1 m · ↑ ↓ 25 m</span>';
+    const keys = '';
     const nd = days.length;
     $('legend').innerHTML = state.layer === 'blocked' ? `
-      <span class="num">0<i class="ramp" style="background:linear-gradient(90deg, color-mix(in srgb, var(--red) 6%, var(--sunken)), var(--red))"></i>${nd} of ${nd} days blocked</span>
-      <span class="note">Each cell: worst frame in a 10 m stretch · top A→B, bottom B→A</span>${keys}`
-      : state.layer === 'loud' ? `<span class="num">−2 dB<i class="ramp"></i>+2 dB vs the corridor's median second</span>
-      <span class="note">Relative: phone mic, not calibrated dB(A)</span>${keys}`
-      : state.layer === 'horns' ? `<span class="num">0<i class="ramp"></i>2+ horn-seconds per walk</span><span class="note">Estimated from the audio track; faint horns are missed</span>${keys}`
-      : state.layer === 'swerves' ? `<span class="num">0<i class="ramp"></i>0.6+ swerves per walk</span><span><i style="background:var(--line)"></i>Junction, not counted</span><span class="note">Walker turned aside and back, from the camera's rotation</span>${keys}`
-      : `<span class="num">0<i class="ramp"></i>30%+ of the walking zone covered by ${state.layer}</span><span class="note">Daylight frames, street-scene segmentation</span>${keys}`;
+      <span class="num" title="Each cell: worst frame in 10 m. Top lane A→B, bottom B→A.">0<i class="ramp" style="background:linear-gradient(90deg, color-mix(in srgb, var(--red) 6%, var(--sunken)), var(--red))"></i>${nd}/${nd} days blocked</span>`
+      : state.layer === 'loud' ? `<span class="num" title="Relative to the corridor's median second; phone mic, not calibrated dB(A)">−2<i class="ramp"></i>+2 dB</span>`
+      : state.layer === 'horns' ? `<span class="num" title="Estimated from the audio track; faint horns are missed">0<i class="ramp"></i>2+ horn-s per walk</span>`
+      : state.layer === 'swerves' ? `<span class="num" title="Walker turned aside and back, from the camera's rotation">0<i class="ramp"></i>0.6+ swerves per walk</span><span><i style="background:var(--line)"></i>Junction</span>`
+      : `<span class="num" title="Share of the walking zone, daylight frames">0<i class="ramp"></i>30%+ ${state.layer}</span>`;
   }
 
   /* Chainage (road-engineering style, CH km+metres) and, when valid anchors exist, coordinates. */
@@ -605,8 +548,8 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
 
   /* ---------- Time of day: AM peak / midday / PM peak / night, from recording times entered per walk ---------- */
   const BANDS = [
-    { id: 'all', name: 'All walks' }, { id: 'am', name: 'AM peak 7:30–9:30' }, { id: 'mid', name: 'Midday' },
-    { id: 'pm', name: 'PM peak 17:30–20:00' }, { id: 'night', name: 'Night' }, { id: 'unknown', name: 'Daytime, time not recorded' }
+    { id: 'all', name: 'All' }, { id: 'am', name: 'AM peak' }, { id: 'mid', name: 'Midday' },
+    { id: 'pm', name: 'PM peak' }, { id: 'night', name: 'Night' }, { id: 'unknown', name: 'Day, time unknown' }
   ];
   let TIMES = {};
   const walkId = (d, key) => `d${d.day}_${key}`;
@@ -627,13 +570,14 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   function renderBands() {
     const count = id => days.reduce((a, d) => a + DIRS.filter(({ key }) => d[key] && (id === 'all' || bandOfWalk(d, key) === id)).length, 0);
     const anyTime = days.some(d => DIRS.some(({ key }) => d[key] && timeOf(d, key)));
-    $('bands').innerHTML = '<span class="lbl">Time of walk</span>' + BANDS.filter(b => b.id === 'all' || count(b.id)).map(b =>
+    $('bands').innerHTML = BANDS.filter(b => b.id === 'all' || count(b.id)).map(b =>
       `<button type="button" class="bandchip" data-band="${b.id}" aria-pressed="${state.band === b.id}">${b.name} <span class="num">${count(b.id)}</span></button>`).join('')
-      + `<span class="sp"></span>${anyTime ? '' : '<span class="note">Add recording times to compare AM peak, midday and PM peak</span>'}<button class="btn sm" id="timesBtn" type="button">Recording times</button>`;
+      + `<span class="sp"></span><button class="btn sm" id="ovBtn" type="button" aria-pressed="${state.ov}" title="Walking channel and clutter boxes on every photo">Overlays</button><button class="btn sm" id="timesBtn" type="button" title="${anyTime ? 'Edit recording times' : 'Add recording times to compare AM peak, midday and PM peak'}">Times</button>`;
   }
   document.addEventListener('click', e => {
     const b = e.target.closest('.bandchip');
     if (b && !b.disabled) { state.band = b.dataset.band; renderBands(); renderMatrix(); renderStats(); return; }
+    if (e.target.closest('#ovBtn')) { state.ov = !state.ov; document.querySelector('.matrix').classList.toggle('ovl', state.ov); renderBands(); return; }
     if (e.target.closest('#timesBtn')) { renderTimes(); $('timesMsg').textContent = ''; $('timesDlg').showModal(); }
   });
   function renderTimes() {
@@ -654,7 +598,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   /* ---------- Header and scrubber ---------- */
   const walksN = days.reduce((a, d) => a + (d.forward ? 1 : 0) + (d.return ? 1 : 0), 0);
   const ward = RAW.corridor.ward || 'K/East';
-  $('meta').textContent = `Jijamata Rd / Old Nagardas Rd · Andheri East · Ward ${ward} · ${fmt(L)} m · ${days.length} days · ${walksN} walks`;
+  $('meta').textContent = `Jijamata Rd, Andheri East · ${fmt(L)} m · ${days.length} days`;
   $('sampleBadge').hidden = !SAMPLE;
   $('bar').setAttribute('aria-valuemax', String(L));
 
@@ -680,7 +624,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   bar.addEventListener('pointermove', e => { if (bar.hasPointerCapture(e.pointerId)) setS(fromEvent(e)); });
   document.addEventListener('keydown', e => {
     if (e.target.closest && e.target.closest('input, textarea, select, summary')) return;
-    if ($('lb').open || $('rep').open) return;
+    if ($('lb').open || $('timesDlg').open) return;
     const k = e.key;
     if (k === 'ArrowLeft' || k === 'ArrowRight') { e.preventDefault(); setS(state.S + (k === 'ArrowRight' ? 1 : -1) * (e.shiftKey ? 5 : 1)); }
     else if (k === 'ArrowUp') { e.preventDefault(); setS(Math.min(L, Math.floor(state.S / 25 + 1e-9) * 25 + 25)); }
@@ -840,7 +784,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
       boxes(t.c & persist, t.grid).forEach(b => svg += `<rect x="${b.x + .8}" y="${b.y + .5}" width="${b.w - 1.6}" height="${b.h - 1}" fill="none" stroke="var(--red)" stroke-width="2.2" vector-effect="non-scaling-stroke"/>`);
       boxes(t.c & ~persist, t.grid).forEach(b => svg += `<rect x="${b.x + .8}" y="${b.y + .5}" width="${b.w - 1.6}" height="${b.h - 1}" fill="none" stroke="var(--yellow)" stroke-width="2" stroke-dasharray="5 3" vector-effect="non-scaling-stroke"/>`);
     }
-    return svg + `</svg><span class="pbadge"><i style="background:${col}"></i>${BADGE[t.band][0]} ${BADGE[t.band][1]} <em>est.</em></span>`;
+    return svg + `</svg><span class="pbadge" title="${BAND[t.band].name}, estimated from the photo"><i style="background:${col}"></i>${BADGE[t.band][0]}</span>`;
   }
   function causeWord(t) {
     if (!HAS_SEG || !t.blocked) return '';
@@ -862,17 +806,17 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     if (!w) return `<div class="tile" aria-disabled="true"><div class="ph none">Not walked</div><div class="cap"><b>Day ${d.day}</b><span></span></div></div>`;
     if (!t.v && t.o == null) return `<div class="tile" aria-disabled="true"><div class="ph none">No frame within 6 m</div><div class="cap"><b>Day ${d.day}</b><span></span></div></div>`;
     const st = t.blocked ? 'blocked' : 'clear', light = timeOf(d, key) || (w.lighting === 'night' ? 'night' : 'day');
-    const sw = t.v && swervedNear(w, t.v.cam) ? ' · <span class="swtag" title="The walker turned aside and back within 5 m of this spot">swerved</span>' : '';
+    const sw = t.v && swervedNear(w, t.v.cam) ? ' · <span class="swtag" title="Walker turned aside within 5 m">swerved</span>' : '';
     const bg = t.v && t.v.kind === 'spot' ? spotStyle(w, t.v.idx) : t.v && w.frame_sheet ? frameStyle(w, t.v.node) : '';
     const ph = `<div class="ph${bg ? '' : ' none'}" style="${bg}">${bg ? '' : '<span style="position:absolute;top:8px;left:0;right:0">Sample · no photo</span>'}${overlay(t, persist)}</div>`;
     return `<button class="tile" type="button" data-s="${st}" data-day="${d.day}" data-key="${key}" aria-label="Day ${d.day}, ${key === 'forward' ? 'A to B' : 'B to A'}, ${st}, ${BAND[t.band].name}">
-      ${ph}<div class="cap"><b>Day ${d.day}</b><span>${light}${causeWord(t)}${sw}</span></div></button>`;
+      ${ph}<div class="cap"><span><b>Day ${d.day}</b> · ${light}</span><span>${(causeWord(t) + sw).replace(/^ · /, '') || '&nbsp;'}</span></div></button>`;
   }
   const chip = (cls, txt) => `<span class="chip ${cls}">${txt}</span>`;
   function headChip(r) {
     if (!r.seen) return '';
     const p = PERS[r.cls];
-    return `<span class="note num">blocked ${r.blocked} of ${r.seen} day${r.seen === 1 ? '' : 's'}</span> ${chip(p.chip, p.short)}`;
+    return `<span class="note num" title="Days blocked in these photos">${r.blocked}/${r.seen}</span> ${chip(p.chip, p.short)}`;
   }
   let ROWS = {};
   function renderMatrix() {
@@ -909,23 +853,23 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
       left = { txt: `${fmt(wa, 2)} m`, frac: Math.min(wa, 2) / 2, col: BANDCOL[bandOfWidth(wa)] };
       right = { txt: `${fmt(wb, 2)} m`, frac: Math.min(wb, 2) / 2, col: BANDCOL[bandOfWidth(wb)] };
       const dl = Math.abs(wa - wb);
-      verdict = dl < 0.2 ? 'About the same width' : `${wa < wb ? 'A→B' : 'B→A'} side ${fmt(dl, 2)} m narrower`;
-      note = 'tape-measured clear width · bar to 2 m';
+      verdict = dl < 0.2 ? 'Same width' : `${wa < wb ? 'A→B' : 'B→A'} ${fmt(dl, 2)} m narrower`;
+      note = '';
     } else {
       const fa = A.seen ? A.blocked / A.seen : 0, fb = B.seen ? B.blocked / B.seen : 0;
       left = { txt: A.seen ? `${A.blocked}/${A.seen} days` : '–', frac: fa, col: 'var(--red)' };
       right = { txt: B.seen ? `${B.blocked}/${B.seen} days` : '–', frac: fb, col: 'var(--red)' };
       const dd = Math.abs(fa - fb);
-      verdict = !A.seen || !B.seen ? 'Needs walks from both directions' : dd < 0.15 ? 'Blocked about as often from both sides' : `More often blocked walking ${fa > fb ? 'A→B' : 'B→A'}`;
-      note = 'share of days blocked · measure both widths to compare in metres';
+      verdict = !A.seen || !B.seen ? '–' : dd < 0.15 ? 'Even' : `${fa > fb ? 'A→B' : 'B→A'} blocked more often`;
+      note = '';
     }
     const top = `<div class="split-top">
         <span class="gap">${verdict}</span><span class="note">${note}</span><span class="sp"></span>
-        <details class="mw" id="mwBox"${state.mwOpen ? ' open' : ''}><summary>Measured widths · ${binName(i)}</summary>
+        <details class="mw" id="mwBox"${state.mwOpen ? ' open' : ''}><summary title="Tape-measured clear width at ${binName(i)}">Widths</summary>
           <div class="widths">
             <label for="wA">A→B side (m)<input id="wA" type="number" min="0" max="6" step="0.05" inputmode="decimal" value="${wa ?? ''}"></label>
             <label for="wB">B→A side (m)<input id="wB" type="number" min="0" max="6" step="0.05" inputmode="decimal" value="${wb ?? ''}"></label>
-            <span class="note" id="wMsg">Tape-measured clear width</span>
+            <span class="note" id="wMsg"></span>
           </div></details></div>`;
     const bar = `<div class="sbar num"><span>A→B</span>
         <div class="half l" title="A→B ${left.txt}"><i style="width:${left.frac * 100}%;background:${left.col}"></i></div><div class="mid"></div>
@@ -957,7 +901,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     const S = state.S, l = near(S);
     $('readout').innerHTML = `${fmt(S, S % 1 ? 1 : 0)}<small>m</small>`;
     const ll = GEO && GEO.ok ? GEO.at(S) : null;
-    $('where').innerHTML = `<span class="chain num">${chain(S)}</span>${ll ? ` <span class="num">· ${ll[0].toFixed(5)}, ${ll[1].toFixed(5)}</span>` : ''} · ${binName(binOf(S))}${l ? ` · near ${l.name}` : ''}`;
+    $('where').innerHTML = `<span class="chain num">${chain(S)}</span>${ll ? ` <span class="num">· ${ll[0].toFixed(5)}, ${ll[1].toFixed(5)}</span>` : ''}${l ? ` · ${l.name}` : ''}`;
     renderWorst();
     $('thumb').style.left = `${S / L * 100}%`;
     moveInsetMark();
@@ -971,27 +915,27 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   function renderStats() {
     const i = binOf(state.S), sp = SPOTS[i], cells = [];
     const A = ROWS.forward || { blocked: 0, seen: 0 }, B = ROWS.return || { blocked: 0, seen: 0 };
-    cells.push({ layer: 'blocked', k: 'Blocked in these photos', v: `<span class="num">${A.blocked}/${A.seen}</span> <span class="s">A→B</span> · <span class="num">${B.blocked}/${B.seen}</span> <span class="s">B→A</span>`, s: `anywhere in ${binName(i)}: ${sp.A.blocked}/${sp.A.seen} · ${sp.B.blocked}/${sp.B.seen} days` });
+    cells.push({ layer: 'blocked', k: 'Blocked', v: `<span class="num">${A.blocked}/${A.seen}</span> <span class="s">A→B</span> · <span class="num">${B.blocked}/${B.seen}</span> <span class="s">B→A</span>`, t: `Days blocked in these photos. Anywhere in ${binName(i)}: ${sp.A.blocked}/${sp.A.seen} A→B, ${sp.B.blocked}/${sp.B.seen} B→A.` });
     if (HAS_SEG) {
       const m = mainCause([CAUSE.forward[i], CAUSE.return[i]]), nDay = CAUSE.forward[i].n + CAUSE.return[i].n;
-      cells.push({ layer: m && m.key === 'people' ? 'people' : 'vehicles', k: 'Main blocker', v: m ? (m.key === 'other' ? 'Other clutter' : `${m.key === 'fixed' ? 'Fixtures' : m.key[0].toUpperCase() + m.key.slice(1)} <span class="num">${fmt(m.share * 100)}%</span>`) : '–', s: m ? `of the walking zone · ${nDay} daylight frame${nDay === 1 ? '' : 's'}` : 'no daylight frames' });
+      cells.push({ layer: m && m.key === 'people' ? 'people' : 'vehicles', k: 'Blocker', v: m ? (m.key === 'other' ? 'Other' : `${m.key === 'fixed' ? 'Fixtures' : m.key[0].toUpperCase() + m.key.slice(1)} <span class="num">${fmt(m.share * 100)}%</span>`) : '–', t: m ? `Share of the walking zone, ${nDay} daylight frame${nDay === 1 ? '' : 's'}` : 'No daylight frames' });
     }
     if (HAS_SWERVE) {
       const a = SWV.forward[i], b = SWV.return[i];
-      cells.push({ layer: 'swerves', k: 'Walkers swerved', v: a.junction ? 'Junction' : `<span class="num">${a.walksWith + b.walksWith}</span> of <span class="num">${a.walks + b.walks}</span> walks`, s: a.junction ? 'turning expected, not counted' : 'turned aside and back here' });
+      cells.push({ layer: 'swerves', k: 'Swerved', v: a.junction ? 'Junction' : `<span class="num">${a.walksWith + b.walksWith}/${a.walks + b.walks}</span> <span class="s">walks</span>`, t: a.junction ? 'Turning is expected at a junction, so it is not counted' : 'Walks where the walker turned aside and back here' });
     }
     if (HAS_AUDIO) {
       const vals = [AUD.forward[i], AUD.return[i]], dbs = vals.map(v => v.db).filter(v => v != null), hs = vals.map(v => v.horn).filter(v => v != null);
-      cells.push({ layer: 'loud', k: 'Sound', v: dbs.length ? `<span class="num">${median(dbs) >= 0 ? '+' : ''}${fmt(median(dbs), 1)} dB</span>` : '–', s: hs.length ? `${fmt(hs.reduce((a, c) => a + c, 0) / hs.length, 1)} horn-seconds per walk` : '' });
+      cells.push({ layer: 'loud', k: 'Sound', v: dbs.length ? `<span class="num">${median(dbs) >= 0 ? '+' : ''}${fmt(median(dbs), 1)} dB</span>${hs.length ? ` <span class="s">· ${fmt(hs.reduce((a, c) => a + c, 0) / hs.length, 1)} horn-s</span>` : ''}` : '–', t: 'Loudness relative to the corridor median; horn-seconds per walk' });
     }
     $('stats').style.gridTemplateColumns = window.matchMedia('(max-width: 640px)').matches ? '' : `repeat(${cells.length}, minmax(0, 1fr))`;
-    $('stats').innerHTML = cells.map(c => `<button type="button" class="stat" data-layer="${c.layer}" aria-pressed="${state.layer === c.layer || (c.layer === 'loud' && state.layer === 'horns') || (c.k === 'Main blocker' && (state.layer === 'vehicles' || state.layer === 'people'))}" title="Show on the ruler">
-      <span class="k">${c.k}</span><span class="v">${c.v}</span><span class="s">${c.s}</span></button>`).join('');
+    $('stats').innerHTML = cells.map(c => `<button type="button" class="stat" data-layer="${c.layer}" aria-pressed="${state.layer === c.layer || (c.layer === 'loud' && state.layer === 'horns') || (c.k === 'Main blocker' && (state.layer === 'vehicles' || state.layer === 'people'))}" title="${c.t}">
+      <span class="k">${c.k}</span><span class="v">${c.v}</span></button>`).join('');
   }
   $('stats').addEventListener('click', e => { const b = e.target.closest('.stat'); if (b) setLayer(b.dataset.layer); });
   function renderWorst() {
     const top = bottlenecks(), cur = binOf(state.S);
-    $('worst').innerHTML = top.length ? 'Worst spots ' + top.map(x => `<button type="button" data-m="${x.s.i * BIN + BIN / 2}" aria-current="${x.s.i === cur}">${binName(x.s.i)}</button>`).join('') : '';
+    $('worst').innerHTML = top.length ? 'Worst ' + top.map(x => `<button type="button" data-m="${x.s.i * BIN + BIN / 2}" aria-current="${x.s.i === cur}">${binName(x.s.i)}</button>`).join('') : '';
   }
   $('worst').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setS(+b.dataset.m); });
 
@@ -1003,7 +947,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     renderScrubber(); renderInset(); moveInsetMark(); renderStats();
   }
 
-  /* ---------- Ward report ---------- */
+  /* ---------- Worst spots ---------- */
   function bottlenecks() {
     const sev = s => {
       const bands = [dirBand(s.i, 'A', s.A), dirBand(s.i, 'B', s.B)].filter(x => x.band);
@@ -1013,52 +957,6 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     };
     return SPOTS.map(sev).filter(x => x.score > 0).sort((x, y) => y.score - x.score).slice(0, 3);
   }
-  function reportData() {
-    const f = flowIndex(), top = bottlenecks();
-    const persistentN = SPOTS.filter(s => s.A.cls === 'persistent' || s.B.cls === 'persistent').length;
-    return { f, top, persistentN };
-  }
-  function renderReport() {
-    const { f, top, persistentN } = reportData();
-    const today = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
-    const row = (x, k) => {
-      const s = x.s, l = near(s.i * BIN + BIN / 2), worst = x.worst;
-      const pers = [s.A, s.B].sort((p, q) => ({ persistent: 3, transient: 2, clear: 1, few: 0 })[q.cls] - ({ persistent: 3, transient: 2, clear: 1, few: 0 })[p.cls])[0];
-      return `<tr><td>${k + 1}</td><td><b>${binName(s.i)}</b>${l ? `<br><span class="src">near ${l.name}</span>` : ''}</td>
-        <td>${worst ? `${BAND[worst.band].name}<br><span class="src">${BAND[worst.band].range}${worst.src === 'measured' ? ', measured' : ', estimated from photos'}</span>` : '–'}</td>
-        <td>${PERS[pers.cls].name}<br><span class="src">A→B ${s.A.blocked}/${s.A.seen} days · B→A ${s.B.blocked}/${s.B.seen} days</span></td>${HAS_SEG ? `<td>${(() => { const m = mainCause([CAUSE.forward[s.i], CAUSE.return[s.i]]); return m ? `${m.name}<br><span class="src">${fmt(m.share * 100)}% of the walking zone, daylight average</span>` : '–'; })()}</td>` : ''}</tr>`;
-    };
-    $('report').innerHTML = `
-      <div><h4>Street Intelligence · Ward diagnostic report</h4><h3>Jijamata Rd / Old Nagardas Rd, Andheri East</h3>
-        <p class="src">Ward ${ward} · ${fmt(L)} m footpath · ${days.length} survey days (${days.map(d => 'Day ' + d.day).join(', ')}) · ${f.walks} walks · ${today}${SAMPLE ? ' · SAMPLE DATA, not a survey' : ''}</p></div>
-      <div><h4>Executive audit summary</h4>
-        <p>For BMC Ward ${ward} engineers and The Walking Project. The footpath was filmed at chest height on every survey day, once in each direction. Each 10 m spot was checked in every frame that looks at it, and compared day by day from the same direction. ${persistentN} of ${NB} spots were blocked on every surveyed day from at least one direction. On ${f.pct}% of the corridor, most walks could not keep ${FLOW_S} seconds of unobstructed walking.</p></div>
-      <div class="kpi">
-        <div><b class="num">${f.pct}%</b><span>of the corridor fails the ${FLOW_S}-second uninterrupted walk test</span><br><span class="src">${f.failing} of ${f.total} spots fail on at least half of the walks</span></div>
-        <div><b class="num">${persistentN}</b><span>spots blocked every day</span><br><span class="src">from at least one direction</span></div>
-        ${HAS_SWERVE ? (() => { const tot = DIRS.reduce((a, { key }) => a + SWV[key].reduce((x, v) => x + (v.junction || v.perWalk == null ? 0 : v.perWalk), 0), 0) / 2; return `<div><b class="num">${fmt(tot / (L - 20) * 100, 1)}</b><span>swerves per 100 m walked</span><br><span class="src">walker turned aside and back; junction excluded</span></div>`; })() : ''}
-      </div>
-      <div><h4>Top 3 critical bottleneck stations</h4>
-        <table><thead><tr><th>#</th><th>Location</th><th>Proxemic severity</th><th>Obstacle persistence</th>${HAS_SEG ? '<th>Main blocker</th>' : ''}</tr></thead>
-        <tbody>${top.map(row).join('') || '<tr><td colspan="4">No blocked spots found.</td></tr>'}</tbody></table></div>
-      <div class="src">Method: a frame counts as blocked when edge density in the walking zone is at least ${OBS}× the typical frame for walks in the same direction and light. Proxemic bands follow Hall: intimate under 0.8 m, social pinch 0.8–1.2 m, uninterrupted at 1.2 m or more. Bands are estimated from photos unless a tape-measured width is recorded. A spot fails the ${FLOW_S}-second test on a walk when it is blocked, or lies in an unblocked run shorter than ${FLOW_S} s, or a stop interrupts that run. Positions are ±10 m.${HAS_SEG ? ' Main blocker: share of the walking zone covered by vehicles, people or fixed objects in daylight frames, from a street-scene segmentation model (DeepLab v3, Cityscapes).' : ''}</div>`;
-  }
-  $('exportBtn').addEventListener('click', () => { renderReport(); $('repMsg').textContent = ''; $('rep').showModal(); });
-  $('repClose').addEventListener('click', () => $('rep').close());
-  $('repCopy').addEventListener('click', async () => {
-    const txt = $('report').innerText;
-    try { await navigator.clipboard.writeText(txt); $('repMsg').textContent = 'Copied'; }
-    catch (e) { const r = document.createRange(); r.selectNodeContents($('report')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); $('repMsg').textContent = 'Selected. Press Ctrl+C to copy.'; }
-  });
-  $('repSave').addEventListener('click', async () => {
-    const css = [...document.styleSheets[document.styleSheets.length - 1].cssRules].filter(r => r.selectorText && r.selectorText.startsWith('.report')).map(r => r.cssText).join('\n');
-    const html = `<!doctype html><meta charset="utf-8"><title>Ward ${ward} footpath diagnostic</title><style>body{margin:0;font-family:-apple-system,Segoe UI,sans-serif}${css}</style><div class="report">${$('report').innerHTML}</div>`;
-    let dl = null; try { dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null; } catch (e) {}
-    if (!dl) { $('repMsg').textContent = 'Saving is not available here. Use Copy text.'; return; }
-    try { await dl.save({ filename: `street-intelligence-${ward.replace('/', '-')}-report.html`, data: html }); $('repMsg').textContent = 'Saved'; }
-    catch (e) { $('repMsg').textContent = e && e.code === 'declined' ? 'Not saved' : 'Saving is not available here. Use Copy text.'; }
-  });
-
   document.querySelectorAll('.layers button').forEach(b => {
     if ((b.dataset.layer === 'loud' || b.dataset.layer === 'horns') && !HAS_AUDIO) { b.disabled = true; b.title = 'Run soundscape.py to add the sound layers'; }
     if ((b.dataset.layer === 'vehicles' || b.dataset.layer === 'people') && !HAS_SEG) { b.disabled = true; b.title = 'Run segment_frames.py to add these layers'; }
@@ -1068,12 +966,12 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   $('mirrorBtn').addEventListener('click', () => {
     state.mirror = !state.mirror;
     $('mirrorBtn').setAttribute('aria-pressed', String(state.mirror));
-    $('mirrorBtn').textContent = state.mirror ? 'Mirrored · show original' : 'Mirror to match A→B';
+    $('mirrorBtn').textContent = state.mirror ? 'Mirrored' : 'Mirror';
     $('rowB').classList.toggle('mirrored', state.mirror);
-    $('orientB').innerHTML = state.mirror ? '◀ <b>Shopfronts</b> │ <b>Road</b> ▶ <span class="note">mirrored</span>' : '◀ <b>Road</b> │ <b>Shopfronts</b> ▶';
+    $('orientB').innerHTML = state.mirror ? '◀ <b>Shopfronts</b> │ <b>Road</b> ▶' : '◀ <b>Road</b> │ <b>Shopfronts</b> ▶';
   });
   GEO = geoFit();
-  if (GEO.why) { const fc = document.querySelector('.inset figcaption'); if (fc) fc.textContent += ' ' + GEO.why + ' Coordinates hidden.'; }
+  if (GEO.why) console.warn(GEO.why);
   if (!HAS_SEG && $('causeKey')) $('causeKey').hidden = true;
   computeAudio(); computeCause(); computeSwerves(); renderBands(); computeSpots();
   if (!savedS) { const t = bottlenecks()[0]; if (t) state.S = t.s.i * BIN + BIN / 2; } renderScrubber(); renderInset(); render();
