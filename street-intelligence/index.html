@@ -23,6 +23,9 @@
   --yellow: #F59E0B;
   --red: #EF4444;
   --font: 'Google Sans Flex', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --people: #F0ABFC;
+  --vehicles: #67E8F9;
+  --fixed: #CBD5E1;
   --dirA: #3B82F6;
   --dirB: #E2E8F0;
   --r: 6px;
@@ -94,6 +97,10 @@ details.look[open] summary { color: var(--fg); }
 .btn[aria-pressed="true"] { border-color: var(--blue); color: var(--blue); }
 #rowB.mirrored .ph { transform: scaleX(-1); }
 #rowB.mirrored .ph .pbadge, #rowB.mirrored .ph > span { transform: scaleX(-1); }
+.cause { display: flex; height: 5px; border-radius: 2px; overflow: hidden; background: var(--sunken); }
+.cause i { display: block; height: 100%; }
+.cause.na { background: repeating-linear-gradient(90deg, var(--line) 0 3px, transparent 3px 6px); }
+.legend i.sw { width: 10px; height: 8px; }
 .legend i.ramp { width: 64px; height: 8px; margin: 0 6px; }
 .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--fg-2); margin-top: 4px; }
 .legend i { display: inline-block; width: 10px; height: 8px; border-radius: 1px; margin-right: 5px; }
@@ -213,6 +220,8 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
         <button type="button" data-layer="blocked" aria-pressed="true">Blocked</button>
         <button type="button" data-layer="loud" aria-pressed="false">Loudness</button>
         <button type="button" data-layer="horns" aria-pressed="false">Horns</button>
+        <button type="button" data-layer="vehicles" aria-pressed="false">Vehicles</button>
+        <button type="button" data-layer="people" aria-pressed="false">People</button>
       </span>
       <details class="look" id="lookBox">
         <summary>Look-ahead <b class="num" id="lookVal">4.0 m</b></summary>
@@ -257,6 +266,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
       <span><i class="sw" style="background:color-mix(in srgb,var(--green) 45%,transparent)"></i>≥ 1.2 m clear</span>
       <span><i class="bx" style="border:2px solid var(--red)"></i>Clutter on every day</span>
       <span><i class="bx" style="border:2px dashed var(--yellow)"></i>Clutter some days</span>
+      <span id="causeKey"><i class="sw" style="background:var(--vehicles)"></i>Vehicles <i class="sw" style="background:var(--people)"></i>People <i class="sw" style="background:var(--fixed)"></i>Fixed objects <span class="note">bar under each photo: share of the walking zone, daylight only</span></span>
       <span class="note">Bands and boxes are estimated from photo clutter; tape-measured widths replace the band.</span>
     </div>
   </section>
@@ -475,12 +485,40 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   const median = a => { const b = [...a].sort((x, y) => x - y), k = b.length >> 1; return b.length % 2 ? b[k] : (b[k - 1] + b[k]) / 2; };
   const HAS_AUDIO = days.some(d => d.forward && d.forward.spot_views && d.forward.spot_views.db);
   const ramp = f => `color-mix(in srgb, var(--blue) ${Math.round(8 + 92 * Math.max(0, Math.min(1, f)))}%, var(--sunken))`;
+  /* What is in the way (from segment_frames.py): share of the walking zone covered by vehicles, people
+     and fixed objects. Daylight frames only: night masks were unreliable in the 50-frame test. */
+  const HAS_SEG = days.some(d => ['forward', 'return'].some(k => d[k] && d[k].nodes.some(n => n.seg)));
+  const segOK = (w, n) => n && n.seg && w.lighting !== 'night';
+  const CAUSE = { forward: [], return: [] };
+  function computeCause() {
+    for (const { key } of DIRS) {
+      const per = Array.from({ length: NB }, () => ({ v: [], p: [], f: [] }));
+      for (const d of days) {
+        const w = walk(d, key); if (!w) continue;
+        w.nodes.forEach(n => { if (segOK(w, n)) { const b = per[binOf(n.meter)]; b.v.push(n.seg.vehicles); b.p.push(n.seg.people); b.f.push(n.seg.fixed); } });
+      }
+      const mean = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
+      CAUSE[key] = per.map(b => ({ vehicles: mean(b.v), people: mean(b.p), fixed: mean(b.f), n: b.v.length }));
+    }
+  }
+  const CAUSE_NAME = { vehicles: 'Parked and moving vehicles', people: 'People', fixed: 'Poles, walls and fixtures' };
+  function mainCause(list) {        // list of {vehicles, people, fixed}
+    const tot = { vehicles: 0, people: 0, fixed: 0 }; let n = 0;
+    list.forEach(c => { if (c && c.vehicles != null) { n++; for (const k in tot) tot[k] += c[k]; } });
+    if (!n) return null;
+    const k = Object.keys(tot).sort((a, b) => tot[b] - tot[a])[0], share = tot[k] / n;
+    return share < 0.05 ? { key: 'other', name: 'Clutter other than people or vehicles', share } : { key: k, name: CAUSE_NAME[k], share };
+  }
   const LAYER = {
     blocked: { color: (s, side) => laneColor(s[side].cls), tip: (s, side) => PERS[s[side].cls].short },
     loud: { color: (s, side) => { const v = AUD[side === 'A' ? 'forward' : 'return'][s.i].db; return v == null ? 'var(--line)' : ramp((v + 2) / 4); },
             tip: (s, side) => { const v = AUD[side === 'A' ? 'forward' : 'return'][s.i].db; return v == null ? 'no audio' : `${v >= 0 ? '+' : ''}${fmt(v, 1)} dB vs corridor median`; } },
     horns: { color: (s, side) => { const v = AUD[side === 'A' ? 'forward' : 'return'][s.i].horn; return v == null ? 'var(--line)' : ramp(v / 2); },
-             tip: (s, side) => { const v = AUD[side === 'A' ? 'forward' : 'return'][s.i].horn; return v == null ? 'no audio' : `${fmt(v, 1)} horn-seconds per walk`; } }
+             tip: (s, side) => { const v = AUD[side === 'A' ? 'forward' : 'return'][s.i].horn; return v == null ? 'no audio' : `${fmt(v, 1)} horn-seconds per walk`; } },
+    vehicles: { color: (s, side) => { const v = CAUSE[side === 'A' ? 'forward' : 'return'][s.i].vehicles; return v == null ? 'var(--line)' : ramp(v / 0.3); },
+                tip: (s, side) => { const v = CAUSE[side === 'A' ? 'forward' : 'return'][s.i].vehicles; return v == null ? 'no daylight frames' : `vehicles cover ${fmt(v * 100)}% of the walking zone`; } },
+    people: { color: (s, side) => { const v = CAUSE[side === 'A' ? 'forward' : 'return'][s.i].people; return v == null ? 'var(--line)' : ramp(v / 0.3); },
+              tip: (s, side) => { const v = CAUSE[side === 'A' ? 'forward' : 'return'][s.i].people; return v == null ? 'no daylight frames' : `people cover ${fmt(v * 100)}% of the walking zone`; } }
   };
   function renderLegend() {
     const keys = '<span class="keys">← → 1 m · ↑ ↓ 25 m</span>';
@@ -491,7 +529,8 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
       <span><i style="background:var(--line)"></i>Under 3 days of frames</span>${keys}`
       : state.layer === 'loud' ? `<span class="num">−2 dB<i class="ramp"></i>+2 dB vs the corridor's median second</span>
       <span class="note">Relative: phone mic, not calibrated dB(A)</span>${keys}`
-      : `<span class="num">0<i class="ramp"></i>2+ horn-seconds per walk</span><span class="note">Estimated from the audio track; faint horns are missed</span>${keys}`;
+      : state.layer === 'horns' ? `<span class="num">0<i class="ramp"></i>2+ horn-seconds per walk</span><span class="note">Estimated from the audio track; faint horns are missed</span>${keys}`
+      : `<span class="num">0<i class="ramp"></i>30%+ of the walking zone covered by ${state.layer}</span><span class="note">Daylight frames, street-scene segmentation</span>${keys}`;
   }
 
   /* Chainage (road-engineering style, CH km+metres) and, when valid anchors exist, coordinates. */
@@ -540,7 +579,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   $('lookIn').addEventListener('input', e => {
     LOOK = +e.target.value; $('lookVal').textContent = `${fmt(LOOK, 1)} m`;
     try { localStorage.setItem('si-look-v2', String(LOOK)); } catch (x) {}
-    cache = new WeakMap(); computeSpots(); renderScrubber(); renderInset(); render();
+    cache = new WeakMap(); computeCause(); computeSpots(); renderScrubber(); renderInset(); render();
   });
 
 
@@ -689,6 +728,14 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     }
     return svg + `</svg><span class="pbadge"><i style="background:${col}"></i>${BADGE[t.band][0]} ${BADGE[t.band][1]} <em>est.</em></span>`;
   }
+  function causeBar(t) {
+    if (!HAS_SEG) return '';
+    const n = nearestNode(t.w, state.S, 5);
+    if (!segOK(t.w, n)) return `<div class="cause na" title="${t.w.lighting === 'night' ? 'Not measured at night' : 'No kept frame within 5 m'}"></div>`;
+    const c = n.seg, pc = x => fmt(Math.min(100, x * 100));
+    return `<div class="cause" title="Walking zone: vehicles ${pc(c.vehicles)}%, people ${pc(c.people)}%, fixed objects ${pc(c.fixed)}%">
+      <i style="width:${pc(c.vehicles)}%;background:var(--vehicles)"></i><i style="width:${pc(c.people)}%;background:var(--people)"></i><i style="width:${pc(c.fixed)}%;background:var(--fixed)"></i></div>`;
+  }
   function tileHtml(t, persist) {
     const { d, key, w } = t;
     if (!w) return `<div class="tile" aria-disabled="true"><div class="ph none">Not walked</div><div class="cap"><b>Day ${d.day}</b><span></span></div></div>`;
@@ -697,20 +744,26 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     const bg = t.v && t.v.kind === 'spot' ? spotStyle(w, t.v.idx) : t.v && w.frame_sheet ? frameStyle(w, t.v.node) : '';
     const ph = `<div class="ph${bg ? '' : ' none'}" style="${bg}">${bg ? '' : '<span style="position:absolute;top:8px;left:0;right:0">Sample · no photo</span>'}${overlay(t, persist)}</div>`;
     return `<button class="tile" type="button" data-s="${st}" data-day="${d.day}" data-key="${key}" aria-label="Day ${d.day}, ${key === 'forward' ? 'A to B' : 'B to A'}, ${st}, ${BAND[t.band].name}">
-      ${ph}<div class="cap"><b>Day ${d.day}</b><span>${light} · <span style="color:${t.blocked ? 'var(--red)' : 'var(--green)'}">${t.blocked ? 'Blocked' : 'Clear'}</span></span></div></button>`;
+      ${ph}${causeBar(t)}<div class="cap"><b>Day ${d.day}</b><span>${light} · <span style="color:${t.blocked ? 'var(--red)' : 'var(--green)'}">${t.blocked ? 'Blocked' : 'Clear'}</span></span></div></button>`;
   }
   const chip = (cls, txt) => `<span class="chip ${cls}">${txt}</span>`;
-  function headChip(r) {
+  function headChip(r, key) {
     const p = PERS[r.cls];
-    return `${chip(p.chip, p.short)} <span class="note num">blocked ${r.blocked}/${r.seen} days</span>`;
+    let cause = '';
+    if (HAS_SEG) {
+      const list = r.tiles.filter(t => t.w).map(t => { const n = nearestNode(t.w, state.S, 5); return segOK(t.w, n) ? n.seg : null; }).filter(Boolean);
+      const m = mainCause(list);
+      cause = m ? ` <span class="note">· mostly ${m.name.toLowerCase()} (${fmt(m.share * 100)}% of the walking zone, ${list.length} daylight days)</span>` : ' <span class="note">· no daylight frames here</span>';
+    }
+    return `${chip(p.chip, p.short)} <span class="note num">blocked ${r.blocked}/${r.seen} days</span>${cause}`;
   }
   let ROWS = {};
   function renderMatrix() {
     ROWS = { forward: rowInfo('forward'), return: rowInfo('return') };
     $('rowA').innerHTML = ROWS.forward.tiles.map(t => tileHtml(t, ROWS.forward.persist)).join('');
     $('rowB').innerHTML = ROWS.return.tiles.map(t => tileHtml(t, ROWS.return.persist)).join('');
-    $('headA').innerHTML = headChip(ROWS.forward);
-    $('headB').innerHTML = headChip(ROWS.return);
+    $('headA').innerHTML = headChip(ROWS.forward, 'forward');
+    $('headB').innerHTML = headChip(ROWS.return, 'return');
     renderSplit();
   }
   document.addEventListener('click', e => {
@@ -810,7 +863,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
       const pers = [s.A, s.B].sort((p, q) => ({ persistent: 3, transient: 2, clear: 1, few: 0 })[q.cls] - ({ persistent: 3, transient: 2, clear: 1, few: 0 })[p.cls])[0];
       return `<tr><td>${k + 1}</td><td><b>${binName(s.i)}</b>${l ? `<br><span class="src">near ${l.name}</span>` : ''}</td>
         <td>${worst ? `${BAND[worst.band].name}<br><span class="src">${BAND[worst.band].range}${worst.src === 'measured' ? ', measured' : ', estimated from photos'}</span>` : '–'}</td>
-        <td>${PERS[pers.cls].name}<br><span class="src">A→B ${s.A.blocked}/${s.A.seen} days · B→A ${s.B.blocked}/${s.B.seen} days</span></td></tr>`;
+        <td>${PERS[pers.cls].name}<br><span class="src">A→B ${s.A.blocked}/${s.A.seen} days · B→A ${s.B.blocked}/${s.B.seen} days</span></td>${HAS_SEG ? `<td>${(() => { const m = mainCause([CAUSE.forward[s.i], CAUSE.return[s.i]]); return m ? `${m.name}<br><span class="src">${fmt(m.share * 100)}% of the walking zone, daylight average</span>` : '–'; })()}</td>` : ''}</tr>`;
     };
     $('report').innerHTML = `
       <div><h4>Street Intelligence · Ward diagnostic report</h4><h3>Jijamata Rd / Old Nagardas Rd, Andheri East</h3>
@@ -822,9 +875,9 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
         <div><b class="num">${persistentN}</b><span>spots blocked every day</span><br><span class="src">from at least one direction</span></div>
       </div>
       <div><h4>Top 3 critical bottleneck stations</h4>
-        <table><thead><tr><th>#</th><th>Location</th><th>Proxemic severity</th><th>Obstacle persistence</th></tr></thead>
+        <table><thead><tr><th>#</th><th>Location</th><th>Proxemic severity</th><th>Obstacle persistence</th>${HAS_SEG ? '<th>Main blocker</th>' : ''}</tr></thead>
         <tbody>${top.map(row).join('') || '<tr><td colspan="4">No blocked spots found.</td></tr>'}</tbody></table></div>
-      <div class="src">Method: a frame counts as blocked when edge density in the walking zone is at least ${OBS}× the typical frame for walks in the same direction and light. Proxemic bands follow Hall: intimate under 0.8 m, social pinch 0.8–1.2 m, uninterrupted at 1.2 m or more. Bands are estimated from photos unless a tape-measured width is recorded. A spot fails the ${FLOW_S}-second test on a walk when it is blocked, or lies in an unblocked run shorter than ${FLOW_S} s, or a stop interrupts that run. Positions are ±10 m.</div>`;
+      <div class="src">Method: a frame counts as blocked when edge density in the walking zone is at least ${OBS}× the typical frame for walks in the same direction and light. Proxemic bands follow Hall: intimate under 0.8 m, social pinch 0.8–1.2 m, uninterrupted at 1.2 m or more. Bands are estimated from photos unless a tape-measured width is recorded. A spot fails the ${FLOW_S}-second test on a walk when it is blocked, or lies in an unblocked run shorter than ${FLOW_S} s, or a stop interrupts that run. Positions are ±10 m.${HAS_SEG ? ' Main blocker: share of the walking zone covered by vehicles, people or fixed objects in daylight frames, from a street-scene segmentation model (DeepLab v3, Cityscapes).' : ''}</div>`;
   }
   $('exportBtn').addEventListener('click', () => { renderReport(); $('repMsg').textContent = ''; $('rep').showModal(); });
   $('repClose').addEventListener('click', () => $('rep').close());
@@ -843,7 +896,8 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   });
 
   document.querySelectorAll('.layers button').forEach(b => {
-    if (b.dataset.layer !== 'blocked' && !HAS_AUDIO) { b.disabled = true; b.title = 'Run soundscape.py to add the audio layers'; }
+    if ((b.dataset.layer === 'loud' || b.dataset.layer === 'horns') && !HAS_AUDIO) { b.disabled = true; b.title = 'Run soundscape.py to add the sound layers'; }
+    if ((b.dataset.layer === 'vehicles' || b.dataset.layer === 'people') && !HAS_SEG) { b.disabled = true; b.title = 'Run segment_frames.py to add these layers'; }
     b.addEventListener('click', () => {
       state.layer = b.dataset.layer;
       document.querySelectorAll('.layers button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
@@ -859,7 +913,8 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   });
   GEO = geoFit();
   if (GEO.why) { const fc = document.querySelector('.inset figcaption'); if (fc) fc.textContent += ' ' + GEO.why + ' Coordinates hidden.'; }
-  computeAudio(); computeSpots(); renderScrubber(); renderInset(); render();
+  if (!HAS_SEG && $('causeKey')) $('causeKey').hidden = true;
+  computeAudio(); computeCause(); computeSpots(); renderScrubber(); renderInset(); render();
   setTimeout(initStore, 0);
 })();
 </script>

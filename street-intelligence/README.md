@@ -12,6 +12,7 @@ pip install opencv-python pillow numpy
 python process_day1.py            # reads point_a_to_b.mp4 and point_b_to_a.mp4
 python clutter_cells.py           # clutter grid per frame: photo overlays, bands and boxes
 python soundscape.py              # relative loudness and horn events from each walk's audio track
+python segment_frames.py --model frozen_inference_graph.pb   # optional, slow: what blocks the footpath (see script header)
 ```
 
 Optional rough people count per frame (needs OpenCV 4.x):
