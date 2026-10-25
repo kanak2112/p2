@@ -23,6 +23,8 @@
   --yellow: #F59E0B;
   --red: #EF4444;
   --font: 'Google Sans Flex', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --dirA: #3B82F6;
+  --dirB: #E2E8F0;
   --r: 6px;
 }
 * { box-sizing: border-box; }
@@ -77,6 +79,22 @@ details.look[open] summary { color: var(--fg); }
 .inset { margin: 0; display: grid; gap: 4px; border-left: 1px solid var(--line); padding-left: 16px; }
 .inset svg { width: 100%; height: auto; display: block; overflow: visible; }
 .inset .hit { cursor: pointer; }
+.layers { display: inline-flex; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.layers button { border: 0; background: transparent; padding: 4px 10px; font-size: 12px; font-weight: 600; color: var(--fg-2); cursor: pointer; }
+.layers button + button { border-left: 1px solid var(--line); }
+.layers button[aria-pressed="true"] { background: var(--blue); color: #fff; }
+.chain { font-weight: 600; color: var(--fg); letter-spacing: .02em; }
+.sound { font-size: 12px; color: var(--fg-2); }
+.ramp { display: inline-block; width: 64px; height: 8px; border-radius: 1px; vertical-align: middle; margin: 0 4px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--blue) 8%, var(--sunken)), var(--blue)); }
+.orient { font-size: 12px; color: var(--fg-2); border: 1px solid var(--line); border-radius: 4px; padding: 1px 7px; white-space: nowrap; }
+.orient b { color: var(--fg); font-weight: 600; }
+.dirsw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.btn.sm { padding: 3px 9px; font-size: 12px; }
+.btn[aria-pressed="true"] { border-color: var(--blue); color: var(--blue); }
+#rowB.mirrored .ph { transform: scaleX(-1); }
+#rowB.mirrored .ph .pbadge, #rowB.mirrored .ph > span { transform: scaleX(-1); }
+.legend i.ramp { width: 64px; height: 8px; margin: 0 6px; }
 .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--fg-2); margin-top: 4px; }
 .legend i { display: inline-block; width: 10px; height: 8px; border-radius: 1px; margin-right: 5px; }
 .keys { color: var(--fg-3); }
@@ -189,7 +207,13 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
       <span class="eyebrow" id="scrubTitle">Spot S</span>
       <span class="readout num" id="readout">0<small>m</small></span>
       <span class="where" id="where"></span>
+      <span class="sound num" id="sound"></span>
       <span class="sp"></span>
+      <span class="layers" role="group" aria-label="Ruler layer">
+        <button type="button" data-layer="blocked" aria-pressed="true">Blocked</button>
+        <button type="button" data-layer="loud" aria-pressed="false">Loudness</button>
+        <button type="button" data-layer="horns" aria-pressed="false">Horns</button>
+      </span>
       <details class="look" id="lookBox">
         <summary>Look-ahead <b class="num" id="lookVal">4.0 m</b></summary>
         <div class="look-body">
@@ -206,28 +230,25 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
       <div id="ticks"></div>
       <div class="thumb" id="thumb"></div>
     </div>
-    <div class="legend">
-      <span><i style="background:var(--red)"></i>Blocked every day</span>
-      <span><i style="background:var(--yellow)"></i>Blocked some days</span>
-      <span><i style="background:var(--green)"></i>Clear</span>
-      <span><i style="background:var(--line)"></i>Under 3 days of frames</span>
-      <span class="keys">← → 1 m · ↑ ↓ 25 m</span>
-    </div>
+    <div class="legend" id="legend"></div>
    </div>
     <figure class="inset">
       <svg id="inset" viewBox="0 0 100 100" role="img" aria-label="Street plan of the corridor with the current spot marked"></svg>
-      <figcaption class="note">Traced from the map, north up. South line A→B, north line B→A. Click the street to jump.</figcaption>
+      <figcaption class="note">Traced from the map, north up. Cones (not to scale) show both cameras aiming at S. Click the street to jump.</figcaption>
     </figure>
   </section>
 
   <section class="card matrix" aria-label="Photos of spot S by direction and day">
     <div>
-      <div class="mrow-head"><h2>A → B</h2><span class="sub">South-west bound · same background every day</span><span id="headA"></span></div>
+      <div class="mrow-head"><h2><i class="dirsw" style="background:var(--dirA)"></i>A → B</h2><span class="sub">South-west bound</span>
+        <span class="orient" title="What is on each side of the photo">◀ <b>Shopfronts</b> │ <b>Road</b> ▶</span><span id="headA"></span></div>
       <div class="tiles" id="rowA"></div>
     </div>
     <div class="split" id="split" aria-label="Directional asymmetry at spot S"></div>
     <div>
-      <div class="mrow-head"><h2>B → A</h2><span class="sub">North-east bound</span><span id="headB"></span></div>
+      <div class="mrow-head"><h2><i class="dirsw" style="background:var(--dirB)"></i>B → A</h2><span class="sub">North-east bound · same footpath, seen from the other end</span>
+        <span class="orient" id="orientB" title="What is on each side of the photo">◀ <b>Road</b> │ <b>Shopfronts</b> ▶</span>
+        <button class="btn sm" id="mirrorBtn" type="button" aria-pressed="false" title="Flip B→A photos so the road is on the same side as A→B. Signboard text reads backwards.">Mirror to match A→B</button><span id="headB"></span></div>
       <div class="tiles" id="rowB"></div>
     </div>
     <div class="okey" aria-label="Overlay key">
@@ -302,7 +323,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
 
   let LOOK = 4;
   try { const v = parseFloat(localStorage.getItem('si-look-v2')); if (v >= 2 && v <= 8) LOOK = v; } catch (e) {}
-  const state = { S: 80 };
+  const state = { S: 80, layer: 'blocked', mirror: false };
   try { const v = parseFloat(localStorage.getItem('si-s')); if (v >= 0 && v <= L) state.S = v; } catch (e) {}
 
   /* The manifest stores camera positions. A forward-facing camera photographs the ground ahead,
@@ -433,6 +454,50 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     renderSplit(true);
   }
 
+  /* ---------- Sound layers (from soundscape.py): relative loudness and horn-seconds per 10 m spot.
+     Sound is heard where the walker is, so it is binned by camera position, not the look-ahead spot. ---------- */
+  const AUD = { forward: [], return: [] };
+  function computeAudio() {
+    for (const { key } of DIRS) {
+      const per = Array.from({ length: NB }, () => ({ db: [], horn: 0 }));
+      let walks = 0;
+      for (const d of days) {
+        const w = d[key], sv = w && w.spot_views; if (!sv || !sv.db) continue;
+        walks++;
+        const bins = Array.from({ length: NB }, () => []);
+        sv.m.forEach((m, i) => { if (sv.db[i] != null) bins[binOf(m)].push(sv.db[i]); });
+        bins.forEach((b, i) => { if (b.length) per[i].db.push(median(b)); });
+        (w.honks || []).forEach(h => per[binOf(h.m)].horn += h.dur || 0);
+      }
+      AUD[key] = per.map(p => ({ db: p.db.length ? median(p.db) : null, horn: walks ? p.horn / walks : null }));
+    }
+  }
+  const median = a => { const b = [...a].sort((x, y) => x - y), k = b.length >> 1; return b.length % 2 ? b[k] : (b[k - 1] + b[k]) / 2; };
+  const HAS_AUDIO = days.some(d => d.forward && d.forward.spot_views && d.forward.spot_views.db);
+  const ramp = f => `color-mix(in srgb, var(--blue) ${Math.round(8 + 92 * Math.max(0, Math.min(1, f)))}%, var(--sunken))`;
+  const LAYER = {
+    blocked: { color: (s, side) => laneColor(s[side].cls), tip: (s, side) => PERS[s[side].cls].short },
+    loud: { color: (s, side) => { const v = AUD[side === 'A' ? 'forward' : 'return'][s.i].db; return v == null ? 'var(--line)' : ramp((v + 2) / 4); },
+            tip: (s, side) => { const v = AUD[side === 'A' ? 'forward' : 'return'][s.i].db; return v == null ? 'no audio' : `${v >= 0 ? '+' : ''}${fmt(v, 1)} dB vs corridor median`; } },
+    horns: { color: (s, side) => { const v = AUD[side === 'A' ? 'forward' : 'return'][s.i].horn; return v == null ? 'var(--line)' : ramp(v / 2); },
+             tip: (s, side) => { const v = AUD[side === 'A' ? 'forward' : 'return'][s.i].horn; return v == null ? 'no audio' : `${fmt(v, 1)} horn-seconds per walk`; } }
+  };
+  function renderLegend() {
+    const keys = '<span class="keys">← → 1 m · ↑ ↓ 25 m</span>';
+    $('legend').innerHTML = state.layer === 'blocked' ? `
+      <span><i style="background:var(--red)"></i>Blocked every day</span>
+      <span><i style="background:var(--yellow)"></i>Blocked some days</span>
+      <span><i style="background:var(--green)"></i>Clear</span>
+      <span><i style="background:var(--line)"></i>Under 3 days of frames</span>${keys}`
+      : state.layer === 'loud' ? `<span class="num">−2 dB<i class="ramp"></i>+2 dB vs the corridor's median second</span>
+      <span class="note">Relative: phone mic, not calibrated dB(A)</span>${keys}`
+      : `<span class="num">0<i class="ramp"></i>2+ horn-seconds per walk</span><span class="note">Estimated from the audio track; faint horns are missed</span>${keys}`;
+  }
+
+  /* Chainage (road-engineering style, CH km+metres) and, when valid anchors exist, coordinates. */
+  const chain = m => `CH ${Math.floor(m / 1000)}+${String(Math.round(m % 1000)).padStart(3, '0')}`;
+  let GEO = null;   // set by geoFit() once ROUTE is defined
+
   /* ---------- Header and scrubber ---------- */
   const walksN = days.reduce((a, d) => a + (d.forward ? 1 : 0) + (d.return ? 1 : 0), 0);
   const ward = RAW.corridor.ward || 'K/East';
@@ -441,8 +506,10 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   $('bar').setAttribute('aria-valuemax', String(L));
 
   function renderScrubber() {
-    $('laneA').innerHTML = SPOTS.map(s => `<i style="background:${laneColor(s.A.cls)}" title="A→B ${binName(s.i)} · ${PERS[s.A.cls].short}"></i>`).join('');
-    $('laneB').innerHTML = SPOTS.map(s => `<i style="background:${laneColor(s.B.cls)}" title="B→A ${binName(s.i)} · ${PERS[s.B.cls].short}"></i>`).join('');
+    const Ly = LAYER[state.layer];
+    $('laneA').innerHTML = SPOTS.map(s => `<i style="background:${Ly.color(s, 'A')}" title="A→B ${binName(s.i)} · ${Ly.tip(s, 'A')}"></i>`).join('');
+    $('laneB').innerHTML = SPOTS.map(s => `<i style="background:${Ly.color(s, 'B')}" title="B→A ${binName(s.i)} · ${Ly.tip(s, 'B')}"></i>`).join('');
+    renderLegend();
     let t = '';
     for (let m = 0; m <= L + 0.01; m += 25) t += `<div class="tick" style="left:${m / L * 100}%"><span class="num">${m}</span></div>`;
     if (L % 25) t += `<div class="tick" style="left:100%"><span class="num">${fmt(L)}</span></div>`;
@@ -513,8 +580,8 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     };
     let s = `<polyline points="${ROUTE.map(p => p.join(',')).join(' ')}" fill="none" stroke="var(--sunken)" stroke-width="34" stroke-linejoin="round" stroke-linecap="round"/>`;
     SPOTS.forEach(sp => {
-      s += `<polyline points="${lanePts(sp.i, -7)}" fill="none" stroke="${laneColor(sp.A.cls)}" stroke-width="9"/>`;
-      s += `<polyline points="${lanePts(sp.i, 7)}" fill="none" stroke="${laneColor(sp.B.cls)}" stroke-width="9"/>`;
+      s += `<polyline points="${lanePts(sp.i, -7)}" fill="none" stroke="${LAYER[state.layer].color(sp, 'A')}" stroke-width="9"/>`;
+      s += `<polyline points="${lanePts(sp.i, 7)}" fill="none" stroke="${LAYER[state.layer].color(sp, 'B')}" stroke-width="9"/>`;
     });
     LM.forEach(l => { const q = routeAt(l.m); s += `<circle cx="${q.x}" cy="${q.y}" r="3.5" fill="var(--fg-2)"><title>${l.name} · ${l.m} m</title></circle>`; });
     const a = routeAt(0), b = routeAt(L);
@@ -524,12 +591,39 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     s += `<text x="${b.x - 4}" y="${b.y + 46}" text-anchor="start" font-size="24" fill="var(--fg-2)">Amratlal G. Vasani</text>`;
     s += `<g transform="translate(1330 470)"><path d="M0 -40 L11 -12 L0 -18 L-11 -12 Z" fill="var(--fg-2)"/><text y="14" text-anchor="middle" font-size="24" fill="var(--fg-2)">N</text></g>`;
     s += `<polyline class="hit" points="${ROUTE.map(p => p.join(',')).join(' ')}" fill="none" stroke="transparent" stroke-width="44" stroke-linejoin="round"/>`;
-    s += `<g id="insetMark"><circle r="15" fill="none" stroke="var(--blue)" stroke-width="4"/><circle r="5" fill="var(--blue)"/></g>`;
+    s += `<g id="cones"></g><g id="insetMark"><circle r="15" fill="none" stroke="var(--fg)" stroke-width="4"/><circle r="5" fill="var(--fg)"/></g>`;
     svg.innerHTML = s;
   }
   function moveInsetMark() {
     const q = routeAt(state.S), g = $('insetMark');
     if (g) g.setAttribute('transform', `translate(${q.x.toFixed(1)} ${q.y.toFixed(1)})`);
+    // Two view cones converging on S: the A→B camera stands behind S (towards A), the B→A camera beyond it.
+    // Drawn longer than the real 4 m so they read at this scale.
+    const cone = (sign, col) => {
+      const back = routeAt(Math.max(0, Math.min(L, state.S - sign * 18)));
+      let dx = q.x - back.x, dy = q.y - back.y; const len = Math.hypot(dx, dy) || 1; dx /= len; dy /= len;
+      const R = 62, a = 0.42, ax = q.x - dx * R, ay = q.y - dy * R;
+      const tip = (ang) => { const c = Math.cos(ang), s2 = Math.sin(ang); return `${(ax + (dx * c - dy * s2) * R).toFixed(1)},${(ay + (dx * s2 + dy * c) * R).toFixed(1)}`; };
+      return `<path d="M${ax.toFixed(1)},${ay.toFixed(1)} L${tip(-a)} A${R} ${R} 0 0 1 ${tip(a)} Z" fill="${col}" fill-opacity=".28" stroke="${col}" stroke-width="3"/>
+        <circle cx="${ax.toFixed(1)}" cy="${ay.toFixed(1)}" r="7" fill="${col}"/>`;
+    };
+    const c = $('cones'); if (c) c.innerHTML = cone(1, 'var(--dirA)') + cone(-1, 'var(--dirB)');
+  }
+
+  /* Coordinates: fit the traced route (pixels, north up) to the A and B anchors, if the manifest has them.
+     The fit is rejected when it needs more than a 35° turn or implies a route length far from the survey's,
+     which means the anchors do not belong to this route. */
+  function geoFit() {
+    const an = RAW.corridor.anchors; if (!an || !an.A || !an.B) return { ok: false, why: null };
+    const [la, oa] = an.A, [lb, ob] = an.B, kx = 111320 * Math.cos(la * Math.PI / 180), ky = 110540;
+    const gx = (ob - oa) * kx, gy = (lb - la) * ky;                     // metres east, north from A to B
+    const p0 = ROUTE[0], p1 = ROUTE[ROUTE.length - 1], px = p1[0] - p0[0], py = -(p1[1] - p0[1]);
+    const rot = Math.atan2(gy, gx) - Math.atan2(py, px), scale = Math.hypot(gx, gy) / Math.hypot(px, py);
+    const turn = Math.abs(((rot * 180 / Math.PI) + 540) % 360 - 180), lenM = RLEN * scale;
+    if (turn > 35 || lenM < L * 0.75 || lenM > L * 1.3) return { ok: false, why: `Anchors don't fit the traced route (turn ${fmt(turn)}°, implied length ${fmt(lenM)} m vs ${fmt(L)} m).` };
+    return { ok: true, at: m => { const q = routeAt(m), x = q.x - p0[0], y = -(q.y - p0[1]);
+      const e = (x * Math.cos(rot) - y * Math.sin(rot)) * scale, n = (x * Math.sin(rot) + y * Math.cos(rot)) * scale;
+      return [la + n / ky, oa + e / kx]; } };
   }
   $('inset').addEventListener('click', e => {
     if (!e.target.classList.contains('hit')) return;
@@ -627,7 +721,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     const fn = w.frame_sheet ? w.nodes.reduce((b, n) => Math.abs(n.cam - v.cam) < Math.abs((b ? b.cam : 1e9) - v.cam) ? n : b, null) : null;
     const style = fn && Math.abs(fn.cam - v.cam) <= 3 ? frameStyle(w, fn) : v.kind === 'spot' ? spotStyle(w, v.idx) : frameStyle(w, v.node);
     if (!style) return;
-    $('lbPh').style.cssText = style;
+    $('lbPh').style.cssText = style + (state.mirror && t.dataset.key === 'return' ? ';transform:scaleX(-1)' : '');
     $('lbPh').setAttribute('aria-label', `Day ${d.day}, ${t.dataset.key === 'forward' ? 'A to B' : 'B to A'}, spot ${fmt(S)} m`);
     $('lbCap').textContent = `Day ${d.day} · ${t.dataset.key === 'forward' ? 'A→B' : 'B→A'} · spot ${fmt(S)} m · camera at ${fmt(v.cam)} m · ${w.lighting || ''}`;
     $('lb').showModal();
@@ -679,7 +773,13 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   function render() {
     const S = state.S, l = near(S);
     $('readout').innerHTML = `${fmt(S, S % 1 ? 1 : 0)}<small>m</small>`;
-    $('where').textContent = `${binName(binOf(S))}${l ? ` · near ${l.name}` : ''}`;
+    const ll = GEO && GEO.ok ? GEO.at(S) : null;
+    $('where').innerHTML = `<span class="chain num">${chain(S)}</span>${ll ? ` <span class="num">· ${ll[0].toFixed(5)}, ${ll[1].toFixed(5)}</span>` : ''} · ${binName(binOf(S))}${l ? ` · near ${l.name}` : ''}`;
+    if (HAS_AUDIO) {
+      const i = binOf(S), vals = [AUD.forward[i], AUD.return[i]].filter(Boolean);
+      const dbs = vals.map(v => v.db).filter(v => v != null), hs = vals.map(v => v.horn).filter(v => v != null);
+      $('sound').textContent = dbs.length ? `Sound ${median(dbs) >= 0 ? '+' : ''}${fmt(median(dbs), 1)} dB · ${fmt(hs.reduce((a, b) => a + b, 0) / hs.length, 1)} horn-s per walk` : '';
+    }
     $('thumb').style.left = `${S / L * 100}%`;
     moveInsetMark();
     $('bar').setAttribute('aria-valuenow', String(S));
@@ -742,7 +842,24 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     catch (e) { $('repMsg').textContent = e && e.code === 'declined' ? 'Not saved' : 'Saving is not available here. Use Copy text.'; }
   });
 
-  computeSpots(); renderScrubber(); renderInset(); render();
+  document.querySelectorAll('.layers button').forEach(b => {
+    if (b.dataset.layer !== 'blocked' && !HAS_AUDIO) { b.disabled = true; b.title = 'Run soundscape.py to add the audio layers'; }
+    b.addEventListener('click', () => {
+      state.layer = b.dataset.layer;
+      document.querySelectorAll('.layers button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+      renderScrubber(); renderInset(); moveInsetMark();
+    });
+  });
+  $('mirrorBtn').addEventListener('click', () => {
+    state.mirror = !state.mirror;
+    $('mirrorBtn').setAttribute('aria-pressed', String(state.mirror));
+    $('mirrorBtn').textContent = state.mirror ? 'Mirrored · show original' : 'Mirror to match A→B';
+    $('rowB').classList.toggle('mirrored', state.mirror);
+    $('orientB').innerHTML = state.mirror ? '◀ <b>Shopfronts</b> │ <b>Road</b> ▶ <span class="note">mirrored</span>' : '◀ <b>Road</b> │ <b>Shopfronts</b> ▶';
+  });
+  GEO = geoFit();
+  if (GEO.why) { const fc = document.querySelector('.inset figcaption'); if (fc) fc.textContent += ' ' + GEO.why + ' Coordinates hidden.'; }
+  computeAudio(); computeSpots(); renderScrubber(); renderInset(); render();
   setTimeout(initStore, 0);
 })();
 </script>

@@ -11,6 +11,7 @@ Always republish to this URL; do not create a new artifact.
 pip install opencv-python pillow numpy
 python process_day1.py            # reads point_a_to_b.mp4 and point_b_to_a.mp4
 python clutter_cells.py           # clutter grid per frame: photo overlays, bands and boxes
+python soundscape.py              # relative loudness and horn events from each walk's audio track
 ```
 
 Optional rough people count per frame (needs OpenCV 4.x):
@@ -57,3 +58,13 @@ the 1.8 m minimum in IRC:103), and whether the photos confirm the automatic verd
 link these are shared with everyone who opens it; in a local copy they stay in that browser.
 "Set coordinates" takes Point A and Point B as latitude, longitude and places every spot on real
 coordinates. Spots export as CSV, and as GeoJSON once coordinates are set.
+
+## Coordinates (optional)
+
+Add the two end points to `landmarks.json`, read by long-pressing each shop in Google Maps, then re-run `process_day1.py` for any day:
+
+```json
+"anchors": { "A": [lat, lon], "B": [lat, lon] }
+```
+
+A is R.K. Chouhan Communications (0 m), B is Amratlal G. Vasani (220 m). The page fits the traced route to these points and shows coordinates next to the chainage. It rejects anchors that would need the route turned more than 35°, or that imply a route length far from 220 m (B lies south-west of A, about 195 m away in a straight line).

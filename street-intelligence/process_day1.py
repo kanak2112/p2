@@ -485,7 +485,8 @@ def main():
     renormalise(days)
     manifest = {
         "corridor": {"name": args.corridor_name, "city": args.area, "ward": "K/East",
-                     "landmarks": landmarks.get("landmarks", {}), "length_m": args.length, "step_s": args.step},
+                     "landmarks": landmarks.get("landmarks", {}), "length_m": args.length, "step_s": args.step,
+                     **({"anchors": landmarks["anchors"]} if landmarks.get("anchors") else {})},
         "generated": dt.datetime.now().isoformat(timespec="seconds"),
         "days": days,
     }
