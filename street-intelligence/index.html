@@ -58,7 +58,18 @@ h2 { margin: 0; font-size: 14px; font-weight: 600; }
 .readout { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; line-height: 1; }
 .readout small { font-size: 14px; font-weight: 500; color: var(--fg-2); margin-left: 2px; }
 .where { color: var(--fg-2); font-size: 13px; }
-.scrub-head .sp { flex: 1; }
+.scrub-head .sp, .ctl-row .sp, .mrow-head .sp { flex: 1; }
+.ctl-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 10px; }
+.worst { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; color: var(--fg-2); }
+.worst button { border: 1px solid color-mix(in srgb, var(--red) 55%, var(--line)); background: color-mix(in srgb, var(--red) 12%, transparent); color: var(--fg); border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.worst button[aria-current="true"] { background: var(--red); border-color: var(--red); color: #fff; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 14px; }
+.stat { text-align: left; border: 1px solid var(--line); background: var(--sunken); border-radius: var(--r); padding: 9px 11px; cursor: pointer; display: grid; gap: 2px; min-width: 0; transition: border-color .15s ease; }
+.stat:hover { border-color: var(--fg-3); }
+.stat[aria-pressed="true"] { border-color: var(--blue); }
+.stat .k { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--fg-2); }
+.stat .v { font-size: 16px; font-weight: 700; line-height: 1.25; }
+.stat .s { font-size: 12px; color: var(--fg-2); }
 details.look { font-size: 13px; color: var(--fg-2); }
 details.look summary { cursor: pointer; list-style: none; padding: 4px 8px; border: 1px solid var(--line); border-radius: var(--r); }
 details.look summary::-webkit-details-marker { display: none; }
@@ -82,9 +93,10 @@ details.look[open] summary { color: var(--fg); }
 .inset { margin: 0; display: grid; gap: 4px; border-left: 1px solid var(--line); padding-left: 16px; }
 .inset svg { width: 100%; height: auto; display: block; overflow: visible; }
 .inset .hit { cursor: pointer; }
-.layers { display: inline-flex; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.layers { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
 .layers button { border: 0; background: transparent; padding: 4px 10px; font-size: 12px; font-weight: 600; color: var(--fg-2); cursor: pointer; }
 .layers button + button { border-left: 1px solid var(--line); }
+.layers button.g { border-left: 3px solid var(--line); }
 .layers button[aria-pressed="true"] { background: var(--blue); color: #fff; }
 .chain { font-weight: 600; color: var(--fg); letter-spacing: .02em; }
 .sound { font-size: 12px; color: var(--fg-2); }
@@ -122,16 +134,16 @@ details.look[open] summary { color: var(--fg); }
 .matrix > div, .wrap > * { min-width: 0; }
 .mrow-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
 .mrow-head .sub { color: var(--fg-2); font-size: 12px; }
-.tiles { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
-.tile { flex: 0 0 auto; width: 148px; border: 0; padding: 0; background: none; cursor: pointer; text-align: left; display: grid; gap: 5px; }
+.tiles { display: grid; grid-template-columns: repeat(var(--n, 7), minmax(112px, 1fr)); gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.tile { min-width: 0; width: 100%; border: 0; padding: 0; background: none; cursor: pointer; text-align: left; display: grid; gap: 5px; }
 .ph { width: 100%; aspect-ratio: 240 / 427; max-width: 100%; border-radius: 4px; background-color: var(--sunken); background-repeat: no-repeat; position: relative; overflow: hidden; border: 2px solid var(--line); }
 .tile[data-s="blocked"] .ph { border-color: var(--red); }
 .tile[data-s="clear"] .ph { border-color: var(--green); }
 .ph .aim { position: absolute; left: 50%; bottom: 20%; width: 22px; height: 22px; margin-left: -11px; border: 2px solid rgba(255,255,255,.85); border-radius: 50%; box-shadow: 0 0 0 1px rgba(0,0,0,.5); }
 .ph.none { display: grid; place-items: center; text-align: center; padding: 8px; font-size: 12px; color: var(--fg-3);
   background-image: repeating-linear-gradient(135deg, transparent 0 8px, rgba(148,163,184,.07) 8px 9px); }
-.cap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 6px; font-size: 12px; }
-.cap > * { white-space: nowrap; }
+.cap { display: grid; gap: 1px; font-size: 12px; min-height: 34px; }
+.cap > * { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cap b { font-weight: 600; }
 .cap span { color: var(--fg-2); }
 .tile:hover .ph { filter: brightness(1.1); }
@@ -157,7 +169,7 @@ details.look[open] summary { color: var(--fg); }
 .split-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font-size: 13px; }
 .split-top .gap { font-weight: 700; }
 .split-top .sp { flex: 1; }
-.sbar { display: grid; grid-template-columns: 44px 1fr 2px 1fr 44px; align-items: center; gap: 6px; font-size: 11px; color: var(--fg-2); font-weight: 600; }
+.sbar { display: grid; grid-template-columns: 34px 1fr 2px 1fr 34px; align-items: center; gap: 6px; font-size: 11px; color: var(--fg-2); font-weight: 600; }
 .sbar .half { height: 10px; background: var(--sunken); border-radius: 2px; position: relative; overflow: hidden; }
 .sbar .half i { position: absolute; top: 0; bottom: 0; border-radius: 2px; transition: width .2s ease; }
 .sbar .half.l i { right: 0; } .sbar .half.r i { left: 0; }
@@ -198,13 +210,15 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
 
 @media (max-width: 640px) {
   .readout { font-size: 26px; }
-  .tile { width: 124px; }
+  .tiles { grid-template-columns: repeat(var(--n, 7), 112px); }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .inset figcaption { display: none; }
   .pbadge { font-size: 10px; } .pbadge em { display: none; }
   .report { padding: 18px; }
   .lane-label { display: none; }
   .bar { margin: 0 8px; }
   .scrub { grid-template-columns: 1fr; }
-  .inset { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 12px; max-width: 280px; }
+  .inset { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 12px; max-width: 170px; justify-self: center; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -222,20 +236,22 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   <section class="card scrub" aria-labelledby="scrubTitle">
    <div class="ruler">
     <div class="scrub-head">
-      <span class="eyebrow" id="scrubTitle">Spot S</span>
+      <span class="eyebrow" id="scrubTitle">Spot</span>
       <span class="readout num" id="readout">0<small>m</small></span>
       <span class="where" id="where"></span>
-      <span class="sound num" id="sound"></span>
-      <span class="sound num" id="walker"></span>
       <span class="sp"></span>
-      <span class="layers" role="group" aria-label="Ruler layer">
-        <button type="button" data-layer="blocked" aria-pressed="true">Blocked</button>
-        <button type="button" data-layer="loud" aria-pressed="false">Loudness</button>
-        <button type="button" data-layer="horns" aria-pressed="false">Horns</button>
-        <button type="button" data-layer="vehicles" aria-pressed="false">Vehicles</button>
+      <span class="worst" id="worst"></span>
+    </div>
+    <div class="ctl-row">
+      <span class="layers" role="group" aria-label="What the ruler shows">
+        <button type="button" data-layer="blocked" aria-pressed="true">Blocked days</button>
+        <button type="button" data-layer="vehicles" aria-pressed="false" class="g">Vehicles</button>
         <button type="button" data-layer="people" aria-pressed="false">People</button>
-        <button type="button" data-layer="swerves" aria-pressed="false">Swerves</button>
+        <button type="button" data-layer="swerves" aria-pressed="false" class="g">Swerves</button>
+        <button type="button" data-layer="loud" aria-pressed="false" class="g">Loudness</button>
+        <button type="button" data-layer="horns" aria-pressed="false">Horns</button>
       </span>
+      <span class="sp"></span>
       <details class="look" id="lookBox">
         <summary>Look-ahead <b class="num" id="lookVal">4.0 m</b></summary>
         <div class="look-body">
@@ -253,6 +269,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
       <div class="thumb" id="thumb"></div>
     </div>
     <div class="legend" id="legend"></div>
+    <div class="stats" id="stats" aria-label="This spot at a glance"></div>
    </div>
     <figure class="inset">
       <svg id="inset" viewBox="0 0 100 100" role="img" aria-label="Street plan of the corridor with the current spot marked"></svg>
@@ -264,14 +281,14 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     <div class="bands" id="bands" role="group" aria-label="Time of walk"></div>
     <div>
       <div class="mrow-head"><h2><i class="dirsw" style="background:var(--dirA)"></i>A → B</h2><span class="sub">South-west bound</span>
-        <span class="orient" title="What is on each side of the photo">◀ <b>Shopfronts</b> │ <b>Road</b> ▶</span><span id="headA"></span></div>
+        <span class="orient" title="What is on each side of the photo">◀ <b>Shopfronts</b> │ <b>Road</b> ▶</span><span class="sp"></span><span id="headA"></span></div>
       <div class="tiles" id="rowA"></div>
     </div>
     <div class="split" id="split" aria-label="Directional asymmetry at spot S"></div>
     <div>
       <div class="mrow-head"><h2><i class="dirsw" style="background:var(--dirB)"></i>B → A</h2><span class="sub">North-east bound · same footpath, seen from the other end</span>
         <span class="orient" id="orientB" title="What is on each side of the photo">◀ <b>Road</b> │ <b>Shopfronts</b> ▶</span>
-        <button class="btn sm" id="mirrorBtn" type="button" aria-pressed="false" title="Flip B→A photos so the road is on the same side as A→B. Signboard text reads backwards.">Mirror to match A→B</button><span id="headB"></span></div>
+        <button class="btn sm" id="mirrorBtn" type="button" aria-pressed="false" title="Flip B→A photos so the road is on the same side as A→B. Signboard text reads backwards.">Mirror to match A→B</button><span class="sp"></span><span id="headB"></span></div>
       <div class="tiles" id="rowB"></div>
     </div>
     <div class="okey" aria-label="Overlay key">
@@ -280,7 +297,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
       <span><i class="sw" style="background:color-mix(in srgb,var(--green) 45%,transparent)"></i>≥ 1.2 m clear</span>
       <span><i class="bx" style="border:2px solid var(--red)"></i>Clutter on every day</span>
       <span><i class="bx" style="border:2px dashed var(--yellow)"></i>Clutter some days</span>
-      <span id="causeKey"><i class="sw" style="background:var(--vehicles)"></i>Vehicles <i class="sw" style="background:var(--people)"></i>People <i class="sw" style="background:var(--fixed)"></i>Fixed objects <span class="note">bar under each photo: share of the walking zone, daylight only</span></span>
+      <span id="causeKey"><i class="sw" style="background:var(--vehicles)"></i>vehicles <i class="sw" style="background:var(--people)"></i>people <i class="sw" style="background:var(--fixed)"></i>fixtures <span class="note">main blocker under a blocked daylight photo</span></span>
       <span class="note">Bands and boxes are estimated from photo clutter; tape-measured widths replace the band.</span>
     </div>
   </section>
@@ -357,7 +374,8 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   let LOOK = 4;
   try { const v = parseFloat(localStorage.getItem('si-look-v2')); if (v >= 2 && v <= 8) LOOK = v; } catch (e) {}
   const state = { S: 80, layer: 'blocked', mirror: false, band: 'all' };
-  try { const v = parseFloat(localStorage.getItem('si-s')); if (v >= 0 && v <= L) state.S = v; } catch (e) {}
+  let savedS = false;
+  try { const v = localStorage.getItem('si-s'); if (v !== null && +v >= 0 && +v <= L) { state.S = +v; savedS = true; } } catch (e) {}
 
   /* The manifest stores camera positions. A forward-facing camera photographs the ground ahead,
      so each frame is credited to the spot it looks at: camera + LOOK on A→B, camera − LOOK on B→A. */
@@ -535,7 +553,8 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     return share < 0.05 ? { key: 'other', name: 'Clutter other than people or vehicles', share } : { key: k, name: CAUSE_NAME[k], share };
   }
   const LAYER = {
-    blocked: { color: (s, side) => laneColor(s[side].cls), tip: (s, side) => PERS[s[side].cls].short },
+    blocked: { color: (s, side) => { const d = s[side]; return d.seen < 3 ? 'var(--line)' : `color-mix(in srgb, var(--red) ${Math.round(6 + 94 * d.blocked / d.seen)}%, var(--sunken))`; },
+               tip: (s, side) => `blocked ${s[side].blocked} of ${s[side].seen} days · ${PERS[s[side].cls].short}` },
     loud: { color: (s, side) => { const v = AUD[side === 'A' ? 'forward' : 'return'][s.i].db; return v == null ? 'var(--line)' : ramp((v + 2) / 4); },
             tip: (s, side) => { const v = AUD[side === 'A' ? 'forward' : 'return'][s.i].db; return v == null ? 'no audio' : `${v >= 0 ? '+' : ''}${fmt(v, 1)} dB vs corridor median`; } },
     horns: { color: (s, side) => { const v = AUD[side === 'A' ? 'forward' : 'return'][s.i].horn; return v == null ? 'var(--line)' : ramp(v / 2); },
@@ -549,11 +568,10 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   };
   function renderLegend() {
     const keys = '<span class="keys">← → 1 m · ↑ ↓ 25 m</span>';
+    const nd = days.length;
     $('legend').innerHTML = state.layer === 'blocked' ? `
-      <span><i style="background:var(--red)"></i>Blocked every day</span>
-      <span><i style="background:var(--yellow)"></i>Blocked some days</span>
-      <span><i style="background:var(--green)"></i>Clear</span>
-      <span><i style="background:var(--line)"></i>Under 3 days of frames</span>${keys}`
+      <span class="num">0<i class="ramp" style="background:linear-gradient(90deg, color-mix(in srgb, var(--red) 6%, var(--sunken)), var(--red))"></i>${nd} of ${nd} days blocked</span>
+      <span class="note">Each cell: worst frame in a 10 m stretch · top A→B, bottom B→A</span>${keys}`
       : state.layer === 'loud' ? `<span class="num">−2 dB<i class="ramp"></i>+2 dB vs the corridor's median second</span>
       <span class="note">Relative: phone mic, not calibrated dB(A)</span>${keys}`
       : state.layer === 'horns' ? `<span class="num">0<i class="ramp"></i>2+ horn-seconds per walk</span><span class="note">Estimated from the audio track; faint horns are missed</span>${keys}`
@@ -608,14 +626,14 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   const inBand = (d, key) => state.band === 'all' || bandOfWalk(d, key) === state.band;
   function renderBands() {
     const count = id => days.reduce((a, d) => a + DIRS.filter(({ key }) => d[key] && (id === 'all' || bandOfWalk(d, key) === id)).length, 0);
-    $('bands').innerHTML = '<span class="lbl">Time of walk</span>' + BANDS.map(b => {
-      const n = count(b.id);
-      return `<button type="button" class="bandchip" data-band="${b.id}" aria-pressed="${state.band === b.id}" ${n ? '' : 'disabled'}>${b.name} <span class="num">${n}</span></button>`;
-    }).join('') + '<span class="sp"></span><button class="btn sm" id="timesBtn" type="button">Recording times</button>';
+    const anyTime = days.some(d => DIRS.some(({ key }) => d[key] && timeOf(d, key)));
+    $('bands').innerHTML = '<span class="lbl">Time of walk</span>' + BANDS.filter(b => b.id === 'all' || count(b.id)).map(b =>
+      `<button type="button" class="bandchip" data-band="${b.id}" aria-pressed="${state.band === b.id}">${b.name} <span class="num">${count(b.id)}</span></button>`).join('')
+      + `<span class="sp"></span>${anyTime ? '' : '<span class="note">Add recording times to compare AM peak, midday and PM peak</span>'}<button class="btn sm" id="timesBtn" type="button">Recording times</button>`;
   }
   document.addEventListener('click', e => {
     const b = e.target.closest('.bandchip');
-    if (b && !b.disabled) { state.band = b.dataset.band; renderBands(); renderMatrix(); return; }
+    if (b && !b.disabled) { state.band = b.dataset.band; renderBands(); renderMatrix(); renderStats(); return; }
     if (e.target.closest('#timesBtn')) { renderTimes(); $('timesMsg').textContent = ''; $('timesDlg').showModal(); }
   });
   function renderTimes() {
@@ -824,6 +842,13 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     }
     return svg + `</svg><span class="pbadge"><i style="background:${col}"></i>${BADGE[t.band][0]} ${BADGE[t.band][1]} <em>est.</em></span>`;
   }
+  function causeWord(t) {
+    if (!HAS_SEG || !t.blocked) return '';
+    const n = nearestNode(t.w, state.S, 5);
+    if (!segOK(t.w, n)) return '';
+    const m = mainCause([n.seg]);
+    return m && m.key !== 'other' ? ` · <span style="color:var(--${m.key})" title="${CAUSE_NAME[m.key]} cover ${fmt(m.share * 100)}% of the walking zone">${m.key === 'fixed' ? 'fixtures' : m.key}</span>` : '';
+  }
   function causeBar(t) {
     if (!HAS_SEG) return '';
     const n = nearestNode(t.w, state.S, 5);
@@ -841,27 +866,23 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     const bg = t.v && t.v.kind === 'spot' ? spotStyle(w, t.v.idx) : t.v && w.frame_sheet ? frameStyle(w, t.v.node) : '';
     const ph = `<div class="ph${bg ? '' : ' none'}" style="${bg}">${bg ? '' : '<span style="position:absolute;top:8px;left:0;right:0">Sample · no photo</span>'}${overlay(t, persist)}</div>`;
     return `<button class="tile" type="button" data-s="${st}" data-day="${d.day}" data-key="${key}" aria-label="Day ${d.day}, ${key === 'forward' ? 'A to B' : 'B to A'}, ${st}, ${BAND[t.band].name}">
-      ${ph}${causeBar(t)}<div class="cap"><b>Day ${d.day}</b><span>${light} · <span style="color:${t.blocked ? 'var(--red)' : 'var(--green)'}">${t.blocked ? 'Blocked' : 'Clear'}</span>${sw}</span></div></button>`;
+      ${ph}<div class="cap"><b>Day ${d.day}</b><span>${light}${causeWord(t)}${sw}</span></div></button>`;
   }
   const chip = (cls, txt) => `<span class="chip ${cls}">${txt}</span>`;
-  function headChip(r, key) {
+  function headChip(r) {
+    if (!r.seen) return '';
     const p = PERS[r.cls];
-    let cause = '';
-    if (HAS_SEG) {
-      const list = r.tiles.filter(t => t.w).map(t => { const n = nearestNode(t.w, state.S, 5); return segOK(t.w, n) ? n.seg : null; }).filter(Boolean);
-      const m = mainCause(list);
-      cause = m ? ` <span class="note">· mostly ${m.name.toLowerCase()} (${fmt(m.share * 100)}% of the walking zone, ${list.length} daylight days)</span>` : ' <span class="note">· no daylight frames here</span>';
-    }
-    return `${chip(p.chip, p.short)} <span class="note num">blocked ${r.blocked}/${r.seen} days</span>${cause}`;
+    return `<span class="note num">blocked ${r.blocked} of ${r.seen} day${r.seen === 1 ? '' : 's'}</span> ${chip(p.chip, p.short)}`;
   }
   let ROWS = {};
   function renderMatrix() {
     ROWS = { forward: rowInfo('forward'), return: rowInfo('return') };
     const none = '<p class="note" style="margin:8px 0">No walks in this time band. Add recording times to sort walks by time of day.</p>';
+    $('rowA').style.setProperty('--n', Math.max(1, ROWS.forward.tiles.length)); $('rowB').style.setProperty('--n', Math.max(1, ROWS.return.tiles.length));
     $('rowA').innerHTML = ROWS.forward.tiles.map(t => tileHtml(t, ROWS.forward.persist)).join('') || none;
     $('rowB').innerHTML = ROWS.return.tiles.map(t => tileHtml(t, ROWS.return.persist)).join('') || none;
-    $('headA').innerHTML = headChip(ROWS.forward, 'forward');
-    $('headB').innerHTML = headChip(ROWS.return, 'return');
+    $('headA').innerHTML = headChip(ROWS.forward);
+    $('headB').innerHTML = headChip(ROWS.return);
     renderSplit();
   }
   document.addEventListener('click', e => {
@@ -882,30 +903,41 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   /* ---------- Directional asymmetry: split bar between the rows ---------- */
   function renderSplit(keepInputs) {
     const i = binOf(state.S), wa = widthOf(i, 'A'), wb = widthOf(i, 'B'), A = ROWS.forward, B = ROWS.return;
-    const side = (wm, r) => wm != null ? { band: bandOfWidth(wm), val: wm, txt: `${fmt(wm, 2)} m`, frac: Math.min(wm, 2) / 2, src: 'measured' }
-      : r.typical ? { band: r.typical, txt: `${BAND[r.typical].range} est.`, frac: r.seen ? r.clearDays / r.seen : 0, src: 'est' } : null;
-    const a = side(wa, A), b = side(wb, B);
-    let gap = '–', gapNote = '';
-    if (a && b && a.src === 'measured' && b.src === 'measured') { gap = `${fmt(Math.abs(a.val - b.val), 2)} m`; gapNote = Math.abs(a.val - b.val) < 0.2 ? 'about equal' : `${a.val < b.val ? 'A→B' : 'B→A'} narrower`; }
-    else if (a && b) { const dl = Math.abs(RANK[a.band] - RANK[b.band]); gap = dl ? `${dl} band${dl > 1 ? 's' : ''}` : 'none'; gapNote = dl ? `${RANK[a.band] > RANK[b.band] ? 'A→B' : 'B→A'} worse · bar = share of clear days` : 'bar = share of clear days'; }
-    const dot = x => x ? `<i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${BANDCOL[x.band]}"></i>` : '';
+    const measured = wa != null && wb != null;
+    let left, right, verdict, note;
+    if (measured) {
+      left = { txt: `${fmt(wa, 2)} m`, frac: Math.min(wa, 2) / 2, col: BANDCOL[bandOfWidth(wa)] };
+      right = { txt: `${fmt(wb, 2)} m`, frac: Math.min(wb, 2) / 2, col: BANDCOL[bandOfWidth(wb)] };
+      const dl = Math.abs(wa - wb);
+      verdict = dl < 0.2 ? 'About the same width' : `${wa < wb ? 'A→B' : 'B→A'} side ${fmt(dl, 2)} m narrower`;
+      note = 'tape-measured clear width · bar to 2 m';
+    } else {
+      const fa = A.seen ? A.blocked / A.seen : 0, fb = B.seen ? B.blocked / B.seen : 0;
+      left = { txt: A.seen ? `${A.blocked}/${A.seen} days` : '–', frac: fa, col: 'var(--red)' };
+      right = { txt: B.seen ? `${B.blocked}/${B.seen} days` : '–', frac: fb, col: 'var(--red)' };
+      const dd = Math.abs(fa - fb);
+      verdict = !A.seen || !B.seen ? 'Needs walks from both directions' : dd < 0.15 ? 'Blocked about as often from both sides' : `More often blocked walking ${fa > fb ? 'A→B' : 'B→A'}`;
+      note = 'share of days blocked · measure both widths to compare in metres';
+    }
     const top = `<div class="split-top">
-        <span>A→B <b class="num">${a ? a.txt : '–'}</b> ${dot(a)}</span><span class="note">vs</span>
-        <span>B→A <b class="num">${b ? b.txt : '–'}</b> ${dot(b)}</span>
-        <span>Asymmetry gap <span class="gap num">${gap}</span> <span class="note">${gapNote}</span></span><span class="sp"></span>
+        <span class="gap">${verdict}</span><span class="note">${note}</span><span class="sp"></span>
         <details class="mw" id="mwBox"${state.mwOpen ? ' open' : ''}><summary>Measured widths · ${binName(i)}</summary>
           <div class="widths">
             <label for="wA">A→B side (m)<input id="wA" type="number" min="0" max="6" step="0.05" inputmode="decimal" value="${wa ?? ''}"></label>
             <label for="wB">B→A side (m)<input id="wB" type="number" min="0" max="6" step="0.05" inputmode="decimal" value="${wb ?? ''}"></label>
             <span class="note" id="wMsg">Tape-measured clear width</span>
           </div></details></div>`;
-    const bar = `<div class="sbar num" aria-hidden="true"><span>A→B</span>
-        <div class="half l"><i style="width:${a ? a.frac * 100 : 0}%;background:${a ? BANDCOL[a.band] : 'transparent'}"></i></div><div class="mid"></div>
-        <div class="half r"><i style="width:${b ? b.frac * 100 : 0}%;background:${b ? BANDCOL[b.band] : 'transparent'}"></i></div><span>B→A</span></div>`;
+    const bar = `<div class="sbar num"><span>A→B</span>
+        <div class="half l" title="A→B ${left.txt}"><i style="width:${left.frac * 100}%;background:${left.col}"></i></div><div class="mid"></div>
+        <div class="half r" title="B→A ${right.txt}"><i style="width:${right.frac * 100}%;background:${right.col}"></i></div><span>B→A</span></div>
+        <div class="sbar num" style="margin-top:-2px"><span></span><span style="text-align:right">${left.txt}</span><span></span><span style="text-align:left">${right.txt}</span><span></span></div>`;
     if (keepInputs && $('mwBox')) {
       const tmp = document.createElement('div'); tmp.innerHTML = top;
-      $('split').querySelector('.split-top').querySelectorAll(':scope > span').forEach((el, k) => el.outerHTML = tmp.firstElementChild.querySelectorAll(':scope > span')[k].outerHTML);
-      $('split').querySelector('.sbar').outerHTML = bar;
+      const cur = $('split').querySelector('.split-top'), nxt = tmp.firstElementChild;
+      cur.querySelector('.gap').textContent = nxt.querySelector('.gap').textContent;
+      cur.querySelector('.note').textContent = nxt.querySelector('.note').textContent;
+      $('split').querySelectorAll('.sbar').forEach(el => el.remove());
+      $('split').insertAdjacentHTML('beforeend', bar);
       return;
     }
     $('split').innerHTML = top + bar;
@@ -926,20 +958,49 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     $('readout').innerHTML = `${fmt(S, S % 1 ? 1 : 0)}<small>m</small>`;
     const ll = GEO && GEO.ok ? GEO.at(S) : null;
     $('where').innerHTML = `<span class="chain num">${chain(S)}</span>${ll ? ` <span class="num">· ${ll[0].toFixed(5)}, ${ll[1].toFixed(5)}</span>` : ''} · ${binName(binOf(S))}${l ? ` · near ${l.name}` : ''}`;
-    if (HAS_SWERVE) {
-      const i = binOf(S), a = SWV.forward[i], b = SWV.return[i];
-      $('walker').textContent = a && a.junction ? 'Junction · turning expected' : a && b ? `Swerved here on ${a.walksWith + b.walksWith} of ${a.walks + b.walks} walks` : '';
-    }
-    if (HAS_AUDIO) {
-      const i = binOf(S), vals = [AUD.forward[i], AUD.return[i]].filter(Boolean);
-      const dbs = vals.map(v => v.db).filter(v => v != null), hs = vals.map(v => v.horn).filter(v => v != null);
-      $('sound').textContent = dbs.length ? `Sound ${median(dbs) >= 0 ? '+' : ''}${fmt(median(dbs), 1)} dB · ${fmt(hs.reduce((a, b) => a + b, 0) / hs.length, 1)} horn-s per walk` : '';
-    }
+    renderWorst();
     $('thumb').style.left = `${S / L * 100}%`;
     moveInsetMark();
     $('bar').setAttribute('aria-valuenow', String(S));
     $('bar').setAttribute('aria-valuetext', `${fmt(S)} metres${l ? ', near ' + l.name : ''}`);
     renderMatrix();
+    renderStats();
+  }
+
+  /* ---------- This spot at a glance: four facts, each switches the ruler to its layer ---------- */
+  function renderStats() {
+    const i = binOf(state.S), sp = SPOTS[i], cells = [];
+    const A = ROWS.forward || { blocked: 0, seen: 0 }, B = ROWS.return || { blocked: 0, seen: 0 };
+    cells.push({ layer: 'blocked', k: 'Blocked in these photos', v: `<span class="num">${A.blocked}/${A.seen}</span> <span class="s">A→B</span> · <span class="num">${B.blocked}/${B.seen}</span> <span class="s">B→A</span>`, s: `anywhere in ${binName(i)}: ${sp.A.blocked}/${sp.A.seen} · ${sp.B.blocked}/${sp.B.seen} days` });
+    if (HAS_SEG) {
+      const m = mainCause([CAUSE.forward[i], CAUSE.return[i]]), nDay = CAUSE.forward[i].n + CAUSE.return[i].n;
+      cells.push({ layer: m && m.key === 'people' ? 'people' : 'vehicles', k: 'Main blocker', v: m ? (m.key === 'other' ? 'Other clutter' : `${m.key === 'fixed' ? 'Fixtures' : m.key[0].toUpperCase() + m.key.slice(1)} <span class="num">${fmt(m.share * 100)}%</span>`) : '–', s: m ? `of the walking zone · ${nDay} daylight frame${nDay === 1 ? '' : 's'}` : 'no daylight frames' });
+    }
+    if (HAS_SWERVE) {
+      const a = SWV.forward[i], b = SWV.return[i];
+      cells.push({ layer: 'swerves', k: 'Walkers swerved', v: a.junction ? 'Junction' : `<span class="num">${a.walksWith + b.walksWith}</span> of <span class="num">${a.walks + b.walks}</span> walks`, s: a.junction ? 'turning expected, not counted' : 'turned aside and back here' });
+    }
+    if (HAS_AUDIO) {
+      const vals = [AUD.forward[i], AUD.return[i]], dbs = vals.map(v => v.db).filter(v => v != null), hs = vals.map(v => v.horn).filter(v => v != null);
+      cells.push({ layer: 'loud', k: 'Sound', v: dbs.length ? `<span class="num">${median(dbs) >= 0 ? '+' : ''}${fmt(median(dbs), 1)} dB</span>` : '–', s: hs.length ? `${fmt(hs.reduce((a, c) => a + c, 0) / hs.length, 1)} horn-seconds per walk` : '' });
+    }
+    $('stats').style.gridTemplateColumns = window.matchMedia('(max-width: 640px)').matches ? '' : `repeat(${cells.length}, minmax(0, 1fr))`;
+    $('stats').innerHTML = cells.map(c => `<button type="button" class="stat" data-layer="${c.layer}" aria-pressed="${state.layer === c.layer || (c.layer === 'loud' && state.layer === 'horns') || (c.k === 'Main blocker' && (state.layer === 'vehicles' || state.layer === 'people'))}" title="Show on the ruler">
+      <span class="k">${c.k}</span><span class="v">${c.v}</span><span class="s">${c.s}</span></button>`).join('');
+  }
+  $('stats').addEventListener('click', e => { const b = e.target.closest('.stat'); if (b) setLayer(b.dataset.layer); });
+  function renderWorst() {
+    const top = bottlenecks(), cur = binOf(state.S);
+    $('worst').innerHTML = top.length ? 'Worst spots ' + top.map(x => `<button type="button" data-m="${x.s.i * BIN + BIN / 2}" aria-current="${x.s.i === cur}">${binName(x.s.i)}</button>`).join('') : '';
+  }
+  $('worst').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setS(+b.dataset.m); });
+
+  function setLayer(id) {
+    const btn = document.querySelector(`.layers button[data-layer="${id}"]`);
+    if (!btn || btn.disabled) return;
+    state.layer = id;
+    document.querySelectorAll('.layers button').forEach(x => x.setAttribute('aria-pressed', String(x === btn)));
+    renderScrubber(); renderInset(); moveInsetMark(); renderStats();
   }
 
   /* ---------- Ward report ---------- */
@@ -1002,11 +1063,7 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
     if ((b.dataset.layer === 'loud' || b.dataset.layer === 'horns') && !HAS_AUDIO) { b.disabled = true; b.title = 'Run soundscape.py to add the sound layers'; }
     if ((b.dataset.layer === 'vehicles' || b.dataset.layer === 'people') && !HAS_SEG) { b.disabled = true; b.title = 'Run segment_frames.py to add these layers'; }
     if (b.dataset.layer === 'swerves' && !HAS_SWERVE) { b.disabled = true; b.title = 'Run swerves.py to add this layer'; }
-    b.addEventListener('click', () => {
-      state.layer = b.dataset.layer;
-      document.querySelectorAll('.layers button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
-      renderScrubber(); renderInset(); moveInsetMark();
-    });
+    b.addEventListener('click', () => setLayer(b.dataset.layer));
   });
   $('mirrorBtn').addEventListener('click', () => {
     state.mirror = !state.mirror;
@@ -1018,7 +1075,8 @@ dialog::backdrop { background: rgba(2, 6, 23, .75); }
   GEO = geoFit();
   if (GEO.why) { const fc = document.querySelector('.inset figcaption'); if (fc) fc.textContent += ' ' + GEO.why + ' Coordinates hidden.'; }
   if (!HAS_SEG && $('causeKey')) $('causeKey').hidden = true;
-  computeAudio(); computeCause(); computeSwerves(); renderBands(); computeSpots(); renderScrubber(); renderInset(); render();
+  computeAudio(); computeCause(); computeSwerves(); renderBands(); computeSpots();
+  if (!savedS) { const t = bottlenecks()[0]; if (t) state.S = t.s.i * BIN + BIN / 2; } renderScrubber(); renderInset(); render();
   setTimeout(initStore, 0);
 })();
 </script>
