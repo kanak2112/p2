@@ -1,6 +1,6 @@
 # Street Intelligence Map: developer spec
 
-Working prototype: `map.html` (open it from this folder so `data/manifest.js` and the frame sheets load).
+App: `map.html` (open it from this folder so `data/manifest.js` and the frame sheets load). Build a deployable copy with `python build_site.py` (writes `site/`).
 Figma: P2 file, section "Street Intelligence · Pedestrian map v2 (clickable)".
 
 The prototype is the behaviour reference. Every number it shows is computed in the browser from
@@ -43,7 +43,7 @@ All rules work on 10 m stretches (22 of them), on the walks that pass the curren
 | Swerves | swerves per walk | < 0.25 | 0.25 to 0.5 | > 0.5 |
 | Horns | horn-seconds per walk | < 0.6 | 0.6 to 1.0 | > 1.0 |
 
-Shade and Lighting stay disabled until the capture standard records them.
+Shade and lighting are not offered until the capture standard records them.
 
 ### Filters
 
@@ -78,8 +78,16 @@ Ask runs fixed questions whose answers are computed from the current filters: pr
 
 ## Screens
 
-Explore (map, layers, strip, readout) · Footpath stretch (filters, verdict, strip, room to walk, photos, facts, Know before you go) · Date range · Light · Layers · Most often blocked · Ask · Directions · Steps · Walk · Contribute (record, add times, check a photo) · You (walk list) · Record · Recording.
+Explore (map, zoom, layers, strip, readout) · Search (stretch, landmark or metre) · Footpath stretch (date and light filters, verdict, strip, room to walk, photos with overlays, blocked by, swerves, horns, day and night, About these numbers, save, share) · Date range · Light · Layers · Blocked spots · Ask · Directions · Steps · Walk (preview) · Contribute (record the opposite footpath, check a photo) · You (saved stretches, walks) · Record (capture checklist).
 
-## Not in the prototype
+Saved stretches, the chosen layer and photo checks are kept in the browser (localStorage).
 
-Real map tiles and geocoding, accounts, upload, live location, and Live View.
+## Deploy
+
+1. `python build_site.py` copies `map.html` to `site/index.html` with `data/manifest.js` and the 15 photo sheets (about 21 MB).
+2. Upload `site/` to any static host (GitHub Pages, Netlify, Cloudflare Pages, S3). There is no server code.
+3. Rebuild after each new walk is processed.
+
+## Not built yet
+
+Map tiles and geocoding, accounts, upload, live location (walk mode is a preview at the median walking pace), and Live View.
