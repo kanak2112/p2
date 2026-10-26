@@ -1,0 +1,931 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
+<title>Street Intelligence Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,400..700&display=swap">
+<style>
+/* Layout: a phone-sized pedestrian map app on the left, a short prototype guide on the right; stacks on phones. */
+:root {
+  --page: #E7EAE3; --page-ink: #1E2730; --page-muted: #56616C; --page-line: #CDD3C8; --page-card: #F4F6F1;
+  /* The app itself is a light map product in both themes, like the maps it borrows from. */
+  --land: #EEF0EA; --block: #E1E4DC; --street: #FFFFFF; --hwy: #F6DFA8; --dash: #AEB4AA;
+  --surface: #FFFFFF; --sunken: #F2F4F1; --line: #D9DDD5; --ink: #0F172A; --ink2: #475569; --ink3: #94A3B8;
+  --accent: #2563EB; --accent-ink: #0B57D0; --accent-soft: #D3E3FD; --nav: #146C43; --nav-soft: #D1FAE5; --ai: #F3EEFC;
+  --rare: #1AA6C0; --some: #F5B014; --most: #9F1D1D; --none: #AEB4AA; --scrim: rgba(15, 23, 42, .32);
+  --font: "Google Sans Flex", "Google Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --page: #12171C; --page-ink: #E4E8EC; --page-muted: #9AA5B0; --page-line: #2A323A; --page-card: #1A2027; color-scheme: dark } }
+:root[data-theme="dark"] { --page: #12171C; --page-ink: #E4E8EC; --page-muted: #9AA5B0; --page-line: #2A323A; --page-card: #1A2027; color-scheme: dark }
+html, body { height: 100% }
+body { background: var(--page); color: var(--page-ink); font-family: var(--font); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 16px; box-sizing: border-box }
+.stage { display: flex; gap: 32px; align-items: flex-start; justify-content: center; min-height: 100% }
+.phone { position: relative; width: 390px; max-width: 100%; height: min(844px, calc(100dvh - 32px)); min-height: 640px; border-radius: 36px; overflow: hidden; background: var(--land); color: var(--ink); box-shadow: 0 0 0 10px #0F172A, 0 24px 60px rgba(0,0,0,.28); flex: 0 0 auto; font-size: 14px; isolation: isolate }
+.guide { width: 340px; min-width: 0; display: grid; gap: 14px; font-size: 14px; line-height: 1.5 }
+.guide h1 { margin: 0; font-size: 22px; line-height: 1.2; text-wrap: balance }
+.guide p { margin: 0; color: var(--page-muted) }
+.guide h2 { margin: 6px 0 0; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--page-muted) }
+.guide .jump { display: flex; flex-wrap: wrap; gap: 6px }
+.guide button { font: inherit; font-size: 13px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--page-line); background: var(--page-card); color: var(--page-ink); cursor: pointer }
+.guide button:hover { border-color: var(--page-muted) }
+.guide ul { margin: 0; padding-left: 18px; color: var(--page-muted) }
+.guide li + li { margin-top: 4px }
+.guide code { font-size: 12px; background: var(--page-card); padding: 1px 4px; border-radius: 4px }
+@media (max-width: 820px) { .stage { flex-direction: column; align-items: center } .guide { width: 100%; max-width: 390px } }
+@media (max-width: 440px) { .phone { width: 100%; border-radius: 22px; box-shadow: 0 0 0 1px var(--page-line) } }
+
+/* ---------- App primitives ---------- */
+.phone * { box-sizing: border-box }
+:where(.phone button) { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer }
+.phone :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px }
+.ic { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; display: block }
+.ic.spark { stroke: none; fill: url(#sparkGrad) }
+.scr { position: absolute; inset: 0; display: flex; flex-direction: column; background: var(--surface) }
+.scr.mapbg { background: var(--land) }
+.scroll { overflow-y: auto; overscroll-behavior: contain; flex: 1 1 auto; min-height: 0 }
+.row { display: flex; align-items: center; gap: 8px }
+.col { display: flex; flex-direction: column; gap: 4px; min-width: 0 }
+.grow { flex: 1 1 auto; min-width: 0 }
+.muted { color: var(--ink2) }
+.small { font-size: 12px }
+.num { font-variant-numeric: tabular-nums }
+.h1 { font-size: 20px; font-weight: 700; line-height: 1.25; margin: 0 }
+.h2 { font-size: 16px; font-weight: 700; margin: 0 }
+.pill { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px 0 12px; border-radius: 18px; border: 1px solid var(--line); background: var(--surface); color: var(--accent-ink); font-weight: 600; white-space: nowrap }
+.pill.fill { background: var(--accent); border-color: var(--accent); color: #fff }
+.pill.soft { background: var(--accent-soft); border-color: transparent; color: var(--accent-ink) }
+.pill.big { height: 48px; border-radius: 24px; justify-content: center; font-size: 15px }
+.pill[aria-disabled="true"] { color: var(--ink3); border-color: var(--line); cursor: default }
+.chip { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px 0 10px; border-radius: 18px; background: var(--surface); box-shadow: 0 1px 3px rgba(0,0,0,.18); font-weight: 500; white-space: nowrap; color: var(--ink) }
+.chip[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent-ink) }
+.fab { position: absolute; display: grid; place-items: center; background: var(--surface); box-shadow: 0 1px 4px rgba(0,0,0,.22); border-radius: 50%; color: var(--ink) }
+.iconbtn { width: 44px; height: 44px; border-radius: 22px; display: grid; place-items: center; color: var(--ink); flex: 0 0 auto }
+.iconbtn.sunk { background: var(--sunken) }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--surface); border-radius: 24px 24px 0 0; box-shadow: 0 -2px 12px rgba(0,0,0,.12) }
+.handle { width: 32px; height: 4px; border-radius: 2px; background: var(--line); margin: 8px auto 4px }
+.navbar { position: absolute; left: 0; right: 0; bottom: 0; height: 76px; display: flex; background: var(--surface); border-top: 1px solid var(--line); padding: 10px 8px 12px; z-index: 5 }
+.navbar button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; font-weight: 500; color: var(--ink2) }
+.navbar .ind { width: 56px; height: 32px; border-radius: 16px; display: grid; place-items: center }
+.navbar [aria-current="page"] { color: var(--ink); font-weight: 700 }
+.navbar [aria-current="page"] .ind { background: var(--accent-soft); color: var(--accent-ink) }
+.topbar { display: flex; align-items: center; gap: 6px; padding: 40px 8px 8px 4px; background: var(--surface); border-bottom: 1px solid var(--line); flex: 0 0 auto; z-index: 3 }
+.topbar .t { font-size: 18px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.toast { position: absolute; left: 16px; right: 16px; bottom: 96px; background: #1F2937; color: #fff; padding: 12px 14px; border-radius: 12px; font-size: 13px; z-index: 50; box-shadow: 0 6px 18px rgba(0,0,0,.25) }
+.scrimlayer { position: absolute; inset: 0; background: var(--scrim); z-index: 20 }
+.modal { position: absolute; left: 0; right: 0; bottom: 0; z-index: 21; background: var(--surface); border-radius: 24px 24px 0 0; max-height: 86%; display: flex; flex-direction: column; box-shadow: 0 -4px 20px rgba(0,0,0,.18) }
+.modal .scroll { padding: 0 20px 28px }
+.sw { width: 14px; height: 8px; border-radius: 2px; flex: 0 0 auto; display: inline-block }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--ink2); align-items: center }
+.legend b { color: var(--ink); font-weight: 500 }
+.legend span { display: inline-flex; align-items: center; gap: 5px }
+
+/* Strip: 22 ten-metre cells, scrubbable */
+.strip { position: relative; display: grid; grid-template-columns: repeat(22, 1fr); gap: 2px; height: 22px; align-items: center; touch-action: none; cursor: ew-resize; user-select: none }
+.strip i { height: 14px; border-radius: 3px; display: block }
+.strip i.sel { height: 22px; box-shadow: 0 0 0 2px var(--ink) }
+.strip i.you { box-shadow: 0 -6px 0 -3px var(--accent) }
+.ends { display: flex; justify-content: space-between; font-size: 11px; font-weight: 500; color: var(--ink2); gap: 8px }
+
+/* Explore */
+.mapwrap { position: absolute; inset: 0; touch-action: none; overflow: hidden; cursor: grab }
+.mapwrap.drag { cursor: grabbing }
+.mapwrap svg { width: 100%; height: 100%; display: block }
+.search { position: absolute; left: 16px; right: 16px; top: 44px; height: 52px; border-radius: 26px; background: var(--surface); box-shadow: 0 2px 6px rgba(0,0,0,.18); display: flex; align-items: center; gap: 12px; padding: 0 10px 0 16px; z-index: 4; color: var(--ink2); font-size: 16px; text-align: left }
+.avatar { width: 32px; height: 32px; border-radius: 16px; background: var(--accent-ink); color: #fff; display: grid; place-items: center; font-weight: 600; font-size: 14px }
+.chips { position: absolute; left: 0; right: 0; top: 104px; display: flex; gap: 8px; overflow-x: auto; padding: 2px 16px 8px; z-index: 4; scrollbar-width: none }
+.chips::-webkit-scrollbar { display: none }
+.zoomctl { right: 16px; width: 40px; border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; z-index: 4 }
+.zoomctl button { height: 40px; display: grid; place-items: center }
+.zoomctl button + button { border-top: 1px solid var(--line) }
+.readout { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; background: var(--sunken); text-align: left; width: 100% }
+.readout .k { font-weight: 700 }
+
+/* Detail */
+.card { border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px }
+.verdict { border-radius: 16px; padding: 14px 16px; display: grid; gap: 6px }
+.dot { width: 10px; height: 10px; border-radius: 5px; display: inline-block; flex: 0 0 auto }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 18px; overflow: hidden }
+.seg button { height: 32px; padding: 0 12px; font-weight: 600; font-size: 13px }
+.seg [aria-pressed="true"] { background: var(--ink); color: #fff }
+.photos { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; margin-right: -16px; padding-right: 16px; scroll-snap-type: x proximity }
+.tile { flex: 0 0 104px; display: grid; gap: 6px; text-align: left; scroll-snap-align: start }
+.ph { position: relative; width: 104px; aspect-ratio: 338 / 600; border-radius: 12px; overflow: hidden; background-color: var(--sunken); background-repeat: no-repeat; border: 3px solid var(--none) }
+.ph svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none }
+.pbadge { position: absolute; left: 5px; top: 5px; display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 8px; background: rgba(15,23,42,.72); color: #fff; font-size: 10px; font-weight: 600 }
+.pbadge i { width: 7px; height: 7px; border-radius: 4px; display: inline-block }
+.tile .cap { font-size: 12px; color: var(--ink2); line-height: 1.3 }
+.tile .cap b { color: var(--ink); font-weight: 600 }
+.bars { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--sunken) }
+.bars i { display: block; height: 100% }
+.fact { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--line) }
+.fact .ic { color: var(--ink2); margin-top: 2px }
+.fact .v { font-size: 15px; font-weight: 500 }
+.kbyg { background: var(--ai); border-radius: 16px; padding: 14px 16px; display: grid; gap: 6px }
+.ribbon { width: 100%; height: 76px; display: block; touch-action: none; cursor: ew-resize }
+
+/* Menu / options */
+.opt { display: flex; align-items: center; gap: 12px; padding: 12px 4px; width: 100%; text-align: left; border-bottom: 1px solid var(--line) }
+.opt[aria-checked="true"] .t1 { font-weight: 700; color: var(--accent-ink) }
+.opt[aria-disabled="true"] { color: var(--ink3) }
+.opt .t1 { font-size: 15px; font-weight: 500 }
+.daychips { display: flex; flex-wrap: wrap; gap: 6px }
+.daychips button { height: 34px; padding: 0 12px; border-radius: 17px; border: 1px solid var(--line); font-size: 13px; font-weight: 500 }
+.daychips [aria-pressed="true"] { background: var(--accent-soft); border-color: transparent; color: var(--accent-ink) }
+.tiles { display: flex; gap: 12px; flex-wrap: wrap }
+.ltile { width: 76px; display: grid; gap: 6px; justify-items: center; font-size: 12px; font-weight: 500; text-align: center }
+.ltile .th { width: 76px; height: 64px; border-radius: 14px; background: var(--land); display: grid; place-items: center; border: 2.5px solid transparent; color: #334155 }
+.ltile[aria-pressed="true"] .th { border-color: var(--accent) }
+.ltile[aria-pressed="true"] { color: var(--accent-ink); font-weight: 700 }
+.ltile[aria-disabled="true"] { color: var(--ink3) }
+.ltile[aria-disabled="true"] .th { background: var(--sunken); color: var(--ink3) }
+
+/* Ask */
+.bubble { align-self: flex-end; max-width: 80%; background: var(--accent-soft); padding: 12px 16px; border-radius: 20px 20px 6px 20px; font-size: 15px; line-height: 1.4 }
+.answer { display: grid; gap: 10px; font-size: 14px; line-height: 1.5 }
+.answer .lead { font-size: 17px; font-weight: 500; line-height: 1.4 }
+.stretch { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-top: 1px solid var(--line); width: 100%; text-align: left }
+.stretch:first-child { border-top: 0 }
+.stretch .bar { width: 6px; height: 34px; border-radius: 3px; flex: 0 0 auto }
+.suggest { display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 14px 0 12px; border-radius: 19px; border: 1px solid var(--line); color: var(--accent-ink); font-weight: 500; text-align: left }
+.askfield { display: flex; align-items: center; gap: 10px; height: 48px; border-radius: 24px; background: var(--sunken); padding: 0 6px 0 18px }
+.askfield input { flex: 1; min-width: 0; border: 0; background: none; font: inherit; font-size: 15px; color: var(--ink); outline: none }
+.send { width: 36px; height: 36px; border-radius: 18px; background: var(--accent); color: #fff; display: grid; place-items: center }
+
+/* Walk */
+.banner { position: absolute; left: 12px; right: 12px; top: 40px; border-radius: 20px; background: var(--nav); color: #fff; display: flex; gap: 14px; align-items: center; padding: 14px 16px 14px 14px; box-shadow: 0 2px 8px rgba(0,0,0,.25); z-index: 3 }
+.warn { position: absolute; left: 12px; right: 12px; border-radius: 16px; background: var(--surface); box-shadow: 0 2px 10px rgba(0,0,0,.2); display: flex; gap: 12px; padding: 12px 14px 12px 12px; z-index: 3 }
+.warn .wi { width: 40px; height: 40px; border-radius: 20px; background: var(--most); color: #fff; display: grid; place-items: center; flex: 0 0 auto }
+canvas.corridor { position: absolute; inset: 0; width: 100%; height: 100%; display: block }
+.trip { position: absolute; left: 0; right: 0; bottom: 0; background: var(--surface); border-radius: 24px 24px 0 0; box-shadow: 0 -2px 12px rgba(0,0,0,.15); padding: 14px 16px 22px; display: grid; gap: 10px; z-index: 3 }
+.lbl { position: absolute; z-index: 3 }
+
+/* Lightbox */
+.lb { position: absolute; inset: 0; z-index: 30; background: #0B1220; color: #fff; display: flex; flex-direction: column }
+.lb .big { position: relative; flex: 1 1 auto; min-height: 0; margin: 0 16px; border-radius: 16px; overflow: hidden; background-repeat: no-repeat }
+.lb .big svg { position: absolute; inset: 0; width: 100%; height: 100% }
+.lb .meta { padding: 12px 16px 24px; display: grid; gap: 8px; font-size: 13px; color: #CBD5E1 }
+.lb .legend { color: #CBD5E1 }
+.lb .legend b { color: #fff }
+@media (prefers-reduced-motion: reduce) { .phone * { transition: none !important; animation: none !important } }
+</style>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="sparkGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4285F4"/><stop offset=".55" stop-color="#9B72CB"/><stop offset="1" stop-color="#D96570"/></linearGradient></defs></svg>
+
+<div class="stage">
+  <div class="phone" id="phone" aria-label="Street Intelligence pedestrian map prototype"></div>
+  <aside class="guide" aria-label="Prototype guide">
+    <h1>Street Intelligence Map</h1>
+    <p>A pedestrian map for one 220 m footpath in Andheri East, built on 15 recorded walks over 8 survey days. Every number is computed from those walks as you use it.</p>
+    <h2>Screens</h2>
+    <div class="jump" id="jump"></div>
+    <h2>Try</h2>
+    <ul>
+      <li>Pinch, scroll or use + and − on the map. Zoomed in, the footpath becomes a ribbon as wide as the estimated room to walk.</li>
+      <li>Drag along the coloured strip or the room-to-walk ribbon. The spot, photos, overlays and counts follow your finger.</li>
+      <li>Change the date range or light filter on a footpath. Counts, colours and photos recompute.</li>
+      <li>Start a walk from Directions to see the walking space narrow and widen ahead of you.</li>
+    </ul>
+    <h2>Data rules</h2>
+    <ul>
+      <li>Blocked: the worst photo in a 10 m stretch scores an obstruction index of 1.4 or more.</li>
+      <li>Room to walk: proxemic band of that photo. Under 0.8 m intimate, 0.8 to 1.2 m social, 1.2 m or more clear. Estimated from photos, not tape-measured.</li>
+      <li>Dates are upload dates. The pilot videos lost their recording dates.</li>
+      <li>Crowding uses daylight photos only. Night segmentation is unreliable.</li>
+    </ul>
+    <p class="small">Spec for developers: <code>street-intelligence/MAP_SPEC.md</code> in the repo.</p>
+  </aside>
+</div>
+
+<script src="data/manifest.js"></script>
+<script>
+(() => {
+'use strict';
+/* =================== Data =================== */
+const RAW = window.STREET_DATA;
+const L = RAW.corridor.length_m, NB = Math.ceil(L / 10), OBS = 1.4, NEAR = 1.4;
+const binOf = m => Math.min(NB - 1, Math.max(0, Math.floor(m / 10)));
+const binName = i => `${i * 10}–${Math.min(L, i * 10 + 10)} m`;
+const WIDTH = { C: 1.5, P: 1.0, I: 0.6 };           // representative width per proxemic band, metres
+const RK = { C: 0, P: 1, I: 2 };
+const BAND = { C: { name: 'clear', range: '≥ 1.2 m', cat: 'R' }, P: { name: 'social', range: '0.8–1.2 m', cat: 'S' }, I: { name: 'intimate', range: '< 0.8 m', cat: 'M' } };
+const COL = { R: 'var(--rare)', S: 'var(--some)', M: 'var(--most)', N: 'var(--none)' };
+const HEX = { R: '#1AA6C0', S: '#F5B014', M: '#9F1D1D', N: '#AEB4AA' };
+const DIRS = { forward: { label: 'A → B', from: 'R.K. Chouhan', to: 'Amratlal G. Vasani', fromL: 'A', toL: 'B' }, return: { label: 'B → A', from: 'Amratlal G. Vasani', to: 'R.K. Chouhan', fromL: 'B', toL: 'A' } };
+const LM = { 80: 'Green bins', 104: 'Turn onto the highway service road', 162: 'Underpass walkway', 191: 'Underpass walkway ends' };
+const bandOf = n => n.near_field >= NEAR ? 'I' : n.obstruction >= OBS ? 'P' : 'C';
+const mean = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
+const median = a => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y), h = s.length >> 1; return s.length % 2 ? s[h] : (s[h - 1] + s[h]) / 2; };
+const DAYS = RAW.days.filter(d => !d.mock).sort((a, b) => a.day - b.day);
+const WALKS = [];
+DAYS.forEach(d => ['forward', 'return'].forEach(key => { const w = d[key]; if (w) WALKS.push({ id: `${d.day}${key[0]}`, day: d.day, key, w, date: d.processed, light: w.lighting || 'daylight', dur: w.summary.duration_s }); }));
+const dayNum = s => Date.parse(s + 'T00:00:00Z') / 864e5;
+const LATEST = Math.max(...WALKS.map(x => dayNum(x.date)));
+const fmtDate = s => new Date(s + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+const RANGES = [
+  { id: '24h', name: 'Last 24 hours', test: x => LATEST - dayNum(x.date) <= 1 },
+  { id: '7d', name: 'Last 7 days', test: x => LATEST - dayNum(x.date) <= 7 },
+  { id: '30d', name: 'Last 30 days', test: x => LATEST - dayNum(x.date) <= 30 },
+  { id: '1y', name: 'Last year', test: x => LATEST - dayNum(x.date) <= 365 },
+  { id: 'all', name: `All ${DAYS.length} survey days`, test: () => true },
+  { id: 'custom', name: 'Custom range', test: x => state.custom.has(x.day) }
+];
+
+/* Worst photo of a walk inside a 10 m stretch */
+function worst(W, i) { let b = null; for (const n of W.w.nodes) if (binOf(n.meter) === i && (!b || n.obstruction > b.obstruction)) b = n; return b; }
+function newDir() { return { seen: 0, blocked: 0, b: { C: 0, P: 0, I: 0 }, wsum: 0 }; }
+function typicalOf(b) { const t = ['I', 'P', 'C'].sort((x, y) => b[y] - b[x] || RK[y] - RK[x])[0]; return b[t] ? t : null; }
+function computeStats(walks) {
+  const out = [];
+  for (let i = 0; i < NB; i++) {
+    const s = { i, dir: { forward: newDir(), return: newDir() }, all: newDir(), ppl: [], veh: [], fix: [], swW: 0, swN: 0, horn: 0, light: {}, tiles: [] };
+    for (const W of walks) {
+      const n = worst(W, i); if (!n) continue;
+      const bl = n.obstruction >= OBS, band = bandOf(n);
+      for (const d of [s.dir[W.key], s.all]) { d.seen++; if (bl) d.blocked++; d.b[band]++; d.wsum += WIDTH[band]; }
+      const lt = s.light[W.light] || (s.light[W.light] = { seen: 0, blocked: 0 }); lt.seen++; if (bl) lt.blocked++;
+      if (W.light === 'daylight') for (const x of W.w.nodes) if (binOf(x.meter) === i && x.seg) { s.ppl.push(x.seg.people); s.veh.push(x.seg.vehicles); s.fix.push(x.seg.fixed); }
+      const sw = (W.w.swerves || []).filter(e => binOf(e.m) === i).length; if (sw) { s.swW++; s.swN += sw; }
+      s.horn += (W.w.honks || []).filter(e => binOf(e.m) === i).reduce((a, e) => a + e.dur, 0);
+      s.tiles.push({ W, n, bl, band });
+    }
+    const a = s.all;
+    s.seen = a.seen; s.blocked = a.blocked; s.share = a.seen ? a.blocked / a.seen : null;
+    s.width = a.seen ? a.wsum / a.seen : null; s.typical = typicalOf(a.b);
+    for (const k of ['forward', 'return']) { const d = s.dir[k]; d.share = d.seen ? d.blocked / d.seen : null; d.width = d.seen ? d.wsum / d.seen : null; d.typical = typicalOf(d.b); }
+    s.people = mean(s.ppl); s.vehicles = mean(s.veh); s.fixed = mean(s.fix);
+    s.swPer = a.seen ? s.swN / a.seen : null; s.hornPer = a.seen ? s.horn / a.seen : null;
+    out.push(s);
+  }
+  return out;
+}
+const LAYERS = {
+  blocked: { name: 'Blocked', icon: 'bars', val: s => s.share, cat: v => v < 1 / 3 ? 'R' : v <= 2 / 3 ? 'S' : 'M', title: 'Blocked on', legend: ['< 1 in 3 walks', '1–2 in 3', '> 2 in 3'], line: s => `Blocked on ${s.blocked} of ${s.seen} walks` },
+  space: { name: 'Room', icon: 'space', val: s => s.typical, cat: v => BAND[v].cat, title: 'Usual room to walk', legend: ['≥ 1.2 m', '0.8–1.2 m', '< 0.8 m'], line: s => `Usually ${BAND[s.typical].range} (${BAND[s.typical].name}) on ${s.all.b[s.typical]} of ${s.seen} walks` },
+  crowd: { name: 'Crowding', icon: 'people', val: s => s.people, cat: v => v < 0.1 ? 'R' : v <= 0.2 ? 'S' : 'M', title: 'People in the way', legend: ['Light', 'Busy', 'Crowded'], line: s => s.people == null ? 'No daylight photos in this range' : `People cover ${Math.round(s.people * 100)}% of the walking zone in daylight photos` },
+  swerve: { name: 'Swerves', icon: 'swerve', val: s => s.swPer, cat: v => v < 0.25 ? 'R' : v <= 0.5 ? 'S' : 'M', title: 'Walkers swerved', legend: ['Rarely', 'Sometimes', 'Often'], line: s => `Walkers swerved on ${s.swW} of ${s.seen} walks` },
+  horns: { name: 'Horns', icon: 'sound', val: s => s.hornPer, cat: v => v < 0.6 ? 'R' : v <= 1 ? 'S' : 'M', title: 'Horn time per walk', legend: ['< 0.6 s', '0.6–1 s', '> 1 s'], line: s => `${s.hornPer.toFixed(1)} horn-seconds a walk` }
+};
+const catOf = (s, layer = state.layer) => { const L_ = LAYERS[layer], v = s.seen ? L_.val(s) : null; return v == null ? 'N' : L_.cat(v); };
+
+/* =================== State =================== */
+const state = { screen: 'explore', stack: [], range: 'all', custom: new Set(DAYS.map(d => d.day)), light: 'any', layer: 'blocked', spot: 7, photoDir: 'forward', mode: 'pram', travel: 'forward', walkD: 35, playing: false, speed: 4, chat: [], view: null, rec: null };
+try { const sv = JSON.parse(localStorage.getItem('si-map') || '{}'); if (sv.layer && LAYERS[sv.layer]) state.layer = sv.layer; } catch (e) { /* storage unavailable */ }
+const save = () => { try { localStorage.setItem('si-map', JSON.stringify({ layer: state.layer })); } catch (e) { /* ignore */ } };
+let FW = [], STATS = [];
+function filtered() { const r = RANGES.find(x => x.id === state.range); return WALKS.filter(x => r.test(x) && (state.light === 'any' || x.light === state.light)); }
+function recompute() { FW = filtered(); STATS = computeStats(FW); }
+const rangeLabel = () => state.range === 'custom' ? `${state.custom.size} day${state.custom.size === 1 ? '' : 's'} picked` : RANGES.find(x => x.id === state.range).name;
+const lightLabel = () => ({ any: 'Any light', daylight: 'Daylight', night: 'Night' })[state.light];
+
+/* =================== Icons =================== */
+const IC = {
+  search: '<circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/>', mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+  layers: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>', locate: '<circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>',
+  dir: '<path d="M9 15v-4a1 1 0 0 1 1-1h6"/><path d="M13 7l3 3-3 3"/>', walk: '<circle cx="13" cy="4" r="2"/><path d="M9 21l2.5-6.5L14 17v4M7.5 12l2-4.5 4 .5 2.5 4 2.5 1M11.5 14.5l1-6.5"/>',
+  chair: '<circle cx="10" cy="4" r="2"/><path d="M10 7v6h6l2.5 5"/><path d="M7 11a6 6 0 1 0 8 7"/>', pram: '<path d="M3 10h13a6.5 6.5 0 0 1-13 0z"/><path d="M16 10l1.5-5H21"/><circle cx="6" cy="20" r="1.5"/><circle cx="14" cy="20" r="1.5"/>',
+  flag: '<path d="M5 21V4h11l-2 4 2 4H5"/>', route: '<circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h7"/>',
+  bookmark: '<path d="M6 3h12v18l-6-4-6 4z"/>', share: '<path d="M4 13v6a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-6M12 3v12M7 8l5-5 5 5"/>', rec: '<rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2.5h5L16 6"/>',
+  explore: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>', you: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>', plus: '<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
+  back: '<path d="M19 12H5M11 6l-6 6 6 6"/>', close: '<path d="M6 6l12 12M18 6L6 18"/>', down: '<path d="M6 9l6 6 6-6"/>', chev: '<path d="M9 6l6 6-6 6"/>', check: '<path d="M5 12l5 5 9-10"/>',
+  cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>', sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  people: '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5M15 15c3 0 6 1.5 6 4.5"/>', swerve: '<path d="M8 21c0-6 8-6 8-12V3"/><path d="M13 6l3-3 3 3"/>',
+  sound: '<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/>', clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  bulb: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>', swap: '<path d="M7 4v16M3 8l4-4 4 4M17 20V4M13 16l4 4 4-4"/>',
+  nav: '<path d="M12 2l7 19-7-4-7 4z"/>', list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>', warn: '<path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17h.01"/>',
+  up: '<path d="M12 20V5M6 11l6-6 6 6"/>', ar: '<path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><circle cx="12" cy="12" r="3"/>',
+  play: '<path d="M7 4l13 8-13 8z"/>', pause: '<path d="M8 4v16M16 4v16"/>', send: '<path d="M4 12l16-8-6 16-2-6z"/>', pin: '<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>', bars: '<path d="M5 20V10M10 20V4M15 20v-7M20 20v-4"/>', space: '<path d="M4 4v16M20 4v16M8 12h8M8 12l2-2M8 12l2 2M16 12l-2-2M16 12l-2 2"/>',
+  zin: '<path d="M12 5v14M5 12h14"/>', zout: '<path d="M5 12h14"/>', more: '<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>', moon: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>'
+};
+const ic = (k, s = 20) => `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true">${IC[k]}</svg>`;
+const spark = (s = 20) => `<svg class="ic spark" width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C12.8 7.5 16.5 11.2 22 12 16.5 12.8 12.8 16.5 12 22 11.2 16.5 7.5 12.8 2 12 7.5 11.2 11.2 7.5 12 2Z"/></svg>`;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
+/* =================== Photos and proxemic overlays =================== */
+function photoStyle(W, n) {
+  const fs = W.w.frame_sheet; const j = n.cell ?? n.i, c = j % fs.cols, r = Math.floor(j / fs.cols);
+  return `background-image:url('${W.w.folder}/${fs.file}');background-size:${fs.cols * 100}% ${fs.rows * 100}%;background-position:${fs.cols > 1 ? c / (fs.cols - 1) * 100 : 0}% ${fs.rows > 1 ? r / (fs.rows - 1) * 100 : 0}%`;
+}
+function clutterBoxes(W, n) {
+  const sv = W.w.spot_views; if (!sv || !sv.c) return [];
+  let k = 0; for (let j = 1; j < sv.t.length; j++) if (Math.abs(sv.t[j] - n.t) < Math.abs(sv.t[k] - n.t)) k = j;
+  if (Math.abs(sv.t[k] - n.t) > 2) return [];
+  const mask = sv.c[k], { cols, rows, zone: [t, b, l, r] } = sv.grid, seen = new Set(), out = [];
+  for (let j = 0; j < cols * rows; j++) {
+    if (!(mask >> j & 1) || seen.has(j)) continue;
+    const st = [j]; let c0 = 9, c1 = -1, r0 = 9, r1 = -1; seen.add(j);
+    while (st.length) {
+      const q = st.pop(), rr = Math.floor(q / cols), cc = q % cols;
+      c0 = Math.min(c0, cc); c1 = Math.max(c1, cc); r0 = Math.min(r0, rr); r1 = Math.max(r1, rr);
+      [[0, 1], [0, -1], [1, 0], [-1, 0]].forEach(([dr, dc]) => { const nr = rr + dr, nc = cc + dc, nk = nr * cols + nc; if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && (mask >> nk & 1) && !seen.has(nk)) { seen.add(nk); st.push(nk); } });
+    }
+    out.push({ x: (l + (r - l) * c0 / cols) * 100, y: (t + (b - t) * r0 / rows) * 100, w: (r - l) * (c1 - c0 + 1) / cols * 100, h: (b - t) * (r1 - r0 + 1) / rows * 100 });
+  }
+  return out;
+}
+function overlaySvg(W, n, band) {
+  const col = HEX[BAND[band].cat];
+  let s = `<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="22,100 78,100 57,60 43,60" fill="${col}" fill-opacity=".28" stroke="${col}" stroke-width="1.6" vector-effect="non-scaling-stroke"/>`;
+  if (band !== 'C') clutterBoxes(W, n).forEach(b => { s += `<rect x="${b.x + .8}" y="${b.y + .5}" width="${b.w - 1.6}" height="${b.h - 1}" fill="none" stroke="#EF4444" stroke-width="2" vector-effect="non-scaling-stroke"/>`; });
+  return s + '</svg>';
+}
+const badge = band => `<span class="pbadge"><i style="background:${HEX[BAND[band].cat]}"></i>${BAND[band].range}</span>`;
+
+/* =================== Map geometry =================== */
+const ROAD = [[348.1, 270], [168.1, 381.6], [158.8, 411.8], [181.8, 459.4], [45, 522.7]];
+const OFF = 9;                              // footpath sits 9 map px to the north-west of the road centre
+const FP = (() => {                         // offset polyline (mitred)
+  const n = ROAD.length, segN = [];
+  for (let j = 0; j < n - 1; j++) { const dx = ROAD[j + 1][0] - ROAD[j][0], dy = ROAD[j + 1][1] - ROAD[j][1], l = Math.hypot(dx, dy); segN.push([-dy / l, dx / l]); }
+  return ROAD.map((p, j) => {
+    const a = segN[Math.max(0, j - 1)], b = segN[Math.min(n - 2, j)];
+    let mx = a[0] + b[0], my = a[1] + b[1]; const ml = Math.hypot(mx, my); mx /= ml; my /= ml;
+    const cos = mx * b[0] + my * b[1];
+    return [p[0] + mx * OFF / cos, p[1] + my * OFF / cos];
+  });
+})();
+const FPC = [0]; for (let j = 1; j < FP.length; j++) FPC.push(FPC[j - 1] + Math.hypot(FP[j][0] - FP[j - 1][0], FP[j][1] - FP[j - 1][1]));
+const FPLEN = FPC[FPC.length - 1], PXM = FPLEN / L;    // map px per metre
+function along(m) {
+  const t = Math.max(0, Math.min(L, m)) / L * FPLEN; let j = 0; while (j < FP.length - 2 && FPC[j + 1] < t) j++;
+  const u = (t - FPC[j]) / (FPC[j + 1] - FPC[j]); return [FP[j][0] + (FP[j + 1][0] - FP[j][0]) * u, FP[j][1] + (FP[j + 1][1] - FP[j][1]) * u];
+}
+const SAMPLES = Array.from({ length: L + 1 }, (_, m) => along(m));
+const NORMALS = SAMPLES.map((p, m) => { const a = SAMPLES[Math.max(0, m - 2)], b = SAMPLES[Math.min(L, m + 2)], dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1; return [-dy / l, dx / l]; });
+function widthAt(m, key) {                  // smooth width estimate (metres) between 10 m stretch centres
+  const get = i => { const s = STATS[Math.max(0, Math.min(NB - 1, i))]; const d = key ? s.dir[key] : s.all; return d.width ?? s.width ?? 1.0; };
+  const x = m / 10 - 0.5, i = Math.floor(x), f = x - i, e = (1 - Math.cos(Math.PI * Math.max(0, Math.min(1, f)))) / 2;
+  return get(i) * (1 - e) + get(i + 1) * e;
+}
+
+/* =================== Shell =================== */
+const phone = document.getElementById('phone');
+function go(screen, opts = {}) { if (!opts.replace && state.screen !== screen) state.stack.push(state.screen); state.screen = screen; stopWalk(); render(); }
+function back() { const p = state.stack.pop() || 'explore'; state.screen = p; stopWalk(); render(); }
+let toastTimer;
+function toast(msg) { let t = phone.querySelector('.toast'); if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); phone.appendChild(t); } t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 2600); }
+const navbar = active => `<nav class="navbar" aria-label="Main">${[['explore', 'Explore'], ['you', 'You'], ['plus', 'Contribute']].map(([k, l]) => `<button type="button" data-act="nav" data-to="${l === 'Explore' ? 'explore' : l === 'You' ? 'you' : 'contribute'}" ${l === active ? 'aria-current="page"' : ''}><span class="ind">${ic(k, 22)}</span>${l}</button>`).join('')}</nav>`;
+function stripHtml(id, cats, sel, you) {
+  return `<div class="strip" id="${id}" role="slider" tabindex="0" aria-label="Footpath stretch" aria-valuemin="0" aria-valuemax="${NB - 1}" aria-valuenow="${sel ?? 0}" aria-valuetext="${sel != null ? binName(sel) : ''}">${cats.map((c, i) => `<i class="${i === sel ? 'sel' : ''}${i === you ? ' you' : ''}" style="background:${COL[c]}"></i>`).join('')}</div>`;
+}
+function bindScrub(el, onPick) {
+  if (!el || el._scrub) return; el._scrub = true;
+  const id = el.id;
+  const pick = e => { const cur = document.getElementById(id) || el, r = cur.getBoundingClientRect(); onPick(Math.max(0, Math.min(NB - 1, Math.floor((e.clientX - r.left) / r.width * NB)))); };
+  el.addEventListener('pointerdown', e => {
+    e.preventDefault(); pick(e);
+    const move = ev => pick(ev), stop = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', stop); window.removeEventListener('pointercancel', stop); };
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', stop); window.addEventListener('pointercancel', stop);
+  });
+  el.addEventListener('keydown', e => { const v = +el.getAttribute('aria-valuenow'); let n = null; if (e.key === 'ArrowRight') n = Math.min(NB - 1, v + 1); if (e.key === 'ArrowLeft') n = Math.max(0, v - 1); if (n != null) { e.preventDefault(); onPick(n); const cur = document.getElementById(id); if (cur) cur.focus(); } });
+}
+function render() {
+  recompute();
+  closeModal();
+  const fn = SCREENS[state.screen]; phone.innerHTML = ''; fn();
+  document.querySelectorAll('#jump button').forEach(b => b.setAttribute('aria-pressed', b.dataset.s === state.screen));
+}
+
+/* =================== Explore =================== */
+let mapView = null;
+function SCR_explore() {
+  phone.insertAdjacentHTML('beforeend', `<section class="scr mapbg" aria-label="Explore">
+    <div class="mapwrap" id="map"></div>
+    <button class="search" type="button" data-act="ask">${ic('walk', 22)}<span class="grow">Search footpaths and places</span>${ic('mic', 22)}<span class="avatar">K</span></button>
+    <div class="chips" role="toolbar" aria-label="Shortcuts">
+      <button class="chip" type="button" data-act="ask">${spark(18)}Ask</button>
+      <button class="chip" type="button" data-act="spots">${ic('flag', 18)}Blocked spots</button>
+      <button class="chip" type="button" data-act="dirmode" data-mode="pram">${ic('pram', 18)}With pram</button>
+      <button class="chip" type="button" data-act="dirmode" data-mode="wheelchair">${ic('chair', 18)}Wheelchair</button>
+      <button class="chip" type="button" data-act="date" id="exDate">${ic('cal', 18)}${esc(rangeLabel())}</button>
+    </div>
+    <button class="fab" type="button" data-act="layers" style="right:16px;top:156px;width:40px;height:40px;z-index:4" aria-label="Layers">${ic('layers', 20)}</button>
+    <div class="fab zoomctl" style="top:206px;border-radius:20px"><button type="button" data-act="zin" aria-label="Zoom in">${ic('zin', 20)}</button><button type="button" data-act="zout" aria-label="Zoom out">${ic('zout', 20)}</button></div>
+    <div class="sheet" id="exSheet" style="bottom:76px;padding:0 16px 14px;z-index:4">
+      <div class="handle"></div>
+      <div class="col" style="gap:2px;margin-bottom:10px"><h2 class="h1">Jijamata Rd footpath</h2><span class="muted small num" id="exSub"></span></div>
+      <div class="col" style="gap:6px">
+        <div class="row" style="justify-content:space-between"><span class="small" style="font-weight:600" id="exLayerTitle"></span><span class="legend" id="exLegend"></span></div>
+        <div id="exStrip"></div>
+        <div class="ends"><span>A · R.K. Chouhan</span><span>Amratlal G. Vasani · B</span></div>
+        <button class="readout" type="button" data-act="detail" id="exRead"></button>
+      </div>
+      <div class="row" style="gap:8px;margin-top:12px;overflow-x:auto;scrollbar-width:none">
+        <button class="pill fill" type="button" data-act="dirmode" data-mode="walk">${ic('dir', 18)}Directions</button>
+        <button class="pill" type="button" data-act="detail">${ic('eye', 18)}This spot</button>
+        <button class="pill" type="button" data-act="nav" data-to="record">${ic('rec', 18)}Record</button>
+        <button class="pill" type="button" data-act="share">${ic('share', 18)}Share</button>
+      </div>
+    </div>
+    <button class="fab" type="button" data-act="dirmode" data-mode="walk" id="exFab" style="right:16px;width:56px;height:56px;border-radius:16px;background:var(--accent);color:#fff;z-index:4" aria-label="Directions">${ic('dir', 26)}</button>
+    <button class="fab" type="button" data-act="fit" id="exLoc" style="right:22px;width:44px;height:44px;color:var(--accent-ink);z-index:4" aria-label="Show the whole footpath">${ic('locate', 22)}</button>
+    ${navbar('Explore')}
+  </section>`);
+  mapView = buildMap(document.getElementById('map'));
+  updateExplore();
+  const sh = document.getElementById('exSheet');
+  const place = () => { if (!document.getElementById('exFab')) return; const top = sh.offsetTop; document.getElementById('exFab').style.top = (top - 70) + 'px'; document.getElementById('exLoc').style.top = (top - 124) + 'px'; mapView.setSafe(top); };
+  place(); new ResizeObserver(place).observe(sh);
+}
+function updateExplore() {
+  const Ly = LAYERS[state.layer], s = STATS[state.spot];
+  document.getElementById('exSub').textContent = `220 m · ${FW.length} walk${FW.length === 1 ? '' : 's'} · ${rangeLabel()}${state.light !== 'any' ? ' · ' + lightLabel() : ''}`;
+  document.getElementById('exLayerTitle').textContent = Ly.title;
+  document.getElementById('exDate').innerHTML = `${ic('cal', 18)}${esc(rangeLabel())}`;
+  document.getElementById('exLegend').innerHTML = ['R', 'S', 'M'].map((c, k) => `<span><i class="sw" style="background:${COL[c]}"></i>${Ly.legend[k]}</span>`).join('');
+  document.getElementById('exStrip').innerHTML = stripHtml('exS', STATS.map(x => catOf(x)), state.spot);
+  bindScrub(document.getElementById('exS'), i => { state.spot = i; updateExplore(); mapView.select(i); });
+  document.getElementById('exRead').innerHTML = s.seen ? `<span class="dot" style="background:${COL[catOf(s)]}"></span><span class="col grow" style="gap:0"><span class="k num">${binName(s.i)}${LM[Object.keys(LM).find(k => binOf(+k) === s.i)] ? ' · ' + LM[Object.keys(LM).find(k => binOf(+k) === s.i)] : ''}</span><span class="muted small">${Ly.line(s)}</span></span>${ic('chev', 18)}` : `<span class="muted">${binName(s.i)} · no walks in this range</span>`;
+  mapView.paint();
+}
+function buildMap(host) {
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('aria-label', 'Map of the footpath. Drag to pan, pinch or use the buttons to zoom, tap the footpath to open a stretch.'); svg.setAttribute('role', 'img');
+  const g = document.createElementNS(NS, 'g'); svg.appendChild(g);
+  const base = `<rect x="-400" y="-400" width="1200" height="1700" fill="#EEF0EA"/>
+    ${[[-20, 40, 150, 170], [170, 30, 170, 150], [250, 330, 170, 170], [-30, 560, 180, 140], [190, 600, 220, 190], [-20, 250, 120, 200], [40, 720, 140, 160], [-200, -200, 160, 220], [360, 40, 200, 220], [430, 560, 180, 200]].map(([x, y, w, h]) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="#E1E4DC"/>`).join('')}
+    <path d="M85 -220 L185 1100" stroke="#F6DFA8" stroke-width="46" fill="none"/>
+    ${[['M-220 213 L620 192'], ['M160 -220 L205 1100'], ['M-220 705 L620 637'], ['M300 -220 L330 330']].map(([d]) => `<path d="${d}" stroke="#fff" stroke-width="12" stroke-linecap="round" fill="none"/><path d="${d}" transform="translate(-0.5,-9)" stroke="#AEB4AA" stroke-width="3" stroke-dasharray="4 5" fill="none" vector-effect="non-scaling-stroke"/>`).join('')}
+    <path d="M${ROAD.map(p => p.join(' ')).join(' L')}" stroke="#fff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M${ROAD.map(p => (p[0] + 9 * 0.53) + ' ' + (p[1] + 9 * 0.85)).join(' L')}" stroke="#AEB4AA" stroke-width="3" stroke-dasharray="4 5" fill="none" vector-effect="non-scaling-stroke"/>
+    <text x="96" y="160" transform="rotate(84 96 160)" font-size="9" fill="#8A6D2B" letter-spacing="1">WESTERN EXPRESS HWY</text>`;
+  g.innerHTML = base + '<g id="rib"></g><g id="marks"></g>';
+  host.appendChild(svg);
+  const rib = g.querySelector('#rib'), marks = g.querySelector('#marks');
+  const v = state.view || { k: 1.15, tx: -30, ty: -110 };
+  let safeBottom = 560;
+  function apply() { g.setAttribute('transform', `translate(${v.tx} ${v.ty}) scale(${v.k})`); state.view = v; }
+  function paint() {
+    const k = v.k, exag = 1.6;
+    let h = '';
+    for (let i = 0; i < NB; i++) {
+      const c = catOf(STATS[i]), L_ = [], R_ = [];
+      for (let m = i * 10; m <= Math.min(L, i * 10 + 10); m++) {
+        const p = SAMPLES[m], n = NORMALS[m], hw = Math.max(widthAt(m) * exag, 3.4 / k) / 2;
+        L_.push(`${(p[0] + n[0] * hw).toFixed(2)},${(p[1] + n[1] * hw).toFixed(2)}`); R_.unshift(`${(p[0] - n[0] * hw).toFixed(2)},${(p[1] - n[1] * hw).toFixed(2)}`);
+      }
+      h += `<polygon points="${L_.join(' ')} ${R_.join(' ')}" fill="${HEX[c]}" stroke="${HEX[c]}" stroke-width="${0.6 / k}"/>`;
+    }
+    rib.innerHTML = h;
+    const pin = (x, y, l, fill) => `<g transform="translate(${x} ${y}) scale(${1 / k})"><circle r="14" fill="${fill}" stroke="#fff" stroke-width="2.5"/><text text-anchor="middle" dy="4.5" font-size="13" font-weight="700" fill="#fff">${l}</text></g>`;
+    const sel = SAMPLES[state.spot * 10 + 5];
+    let mk = `<g transform="translate(${sel[0]} ${sel[1]}) scale(${1 / k})"><circle r="15" fill="rgba(37,99,235,.14)" stroke="#2563EB" stroke-width="2.5"/></g>`;
+    if (k >= 2.2) {
+      Object.entries(LM).forEach(([m, name]) => { const p = SAMPLES[+m]; mk += `<g transform="translate(${p[0]} ${p[1]}) scale(${1 / k})"><circle r="3.5" fill="#475569"/><text x="8" y="-6" font-size="11" font-weight="600" fill="#334155" stroke="#EEF0EA" stroke-width="3" paint-order="stroke">${name}</text></g>`; });
+      for (let i = 0; i < NB; i += k >= 3.5 ? 1 : 2) { const p = SAMPLES[i * 10], n = NORMALS[i * 10]; mk += `<g transform="translate(${p[0] - n[0] * 12} ${p[1] - n[1] * 12}) scale(${1 / k})"><text text-anchor="middle" font-size="10" fill="#475569" stroke="#EEF0EA" stroke-width="3" paint-order="stroke">${i * 10} m</text></g>`; }
+    }
+    mk += pin(SAMPLES[0][0], SAMPLES[0][1], 'A', '#0F172A') + pin(SAMPLES[L][0], SAMPLES[L][1], 'B', '#0F172A');
+    marks.innerHTML = mk;
+  }
+  function zoomAt(f, cx, cy) { const nk = Math.max(0.8, Math.min(9, v.k * f)); f = nk / v.k; v.tx = cx - (cx - v.tx) * f; v.ty = cy - (cy - v.ty) * f; v.k = nk; apply(); paint(); }
+  function toMap(cx, cy) { return [(cx - v.tx) / v.k, (cy - v.ty) / v.k]; }
+  function local(e) { const r = svg.getBoundingClientRect(); return [(e.clientX - r.left) * 390 / r.width, (e.clientY - r.top) * 390 / r.width]; }
+  svg.setAttribute('viewBox', `0 0 390 ${host.clientHeight * 390 / host.clientWidth}`);
+  const ptrs = new Map(); let start = null, pinch = null;
+  host.addEventListener('pointerdown', e => { host.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, local(e)); host.classList.add('drag'); if (ptrs.size === 1) start = { p: local(e), t: performance.now(), tx: v.tx, ty: v.ty, moved: false }; if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), k: v.k }; start = null; } });
+  host.addEventListener('pointermove', e => {
+    if (!ptrs.has(e.pointerId)) return; ptrs.set(e.pointerId, local(e));
+    if (ptrs.size === 2 && pinch) { const [a, b] = [...ptrs.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]); zoomAt(pinch.k * d / pinch.d / v.k, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2); }
+    else if (start) { const p = local(e); if (Math.hypot(p[0] - start.p[0], p[1] - start.p[1]) > 5) start.moved = true; v.tx = start.tx + p[0] - start.p[0]; v.ty = start.ty + p[1] - start.p[1]; apply(); }
+  });
+  const up = e => {
+    if (!ptrs.has(e.pointerId)) return; ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch = null; if (!ptrs.size) host.classList.remove('drag');
+    if (start && !start.moved && performance.now() - start.t < 400) { const [mx, my] = toMap(...start.p); let best = -1, bd = 1e9; SAMPLES.forEach((p, m) => { const d = Math.hypot(p[0] - mx, p[1] - my); if (d < bd) { bd = d; best = m; } }); if (bd * v.k < 22) { state.spot = binOf(best); updateExplore(); } }
+    start = null;
+  };
+  host.addEventListener('pointerup', up); host.addEventListener('pointercancel', up);
+  host.addEventListener('wheel', e => { e.preventDefault(); const [cx, cy] = local(e); zoomAt(Math.exp(-e.deltaY * 0.0022), cx, cy); }, { passive: false });
+  host.addEventListener('dblclick', e => { const [cx, cy] = local(e); zoomAt(1.8, cx, cy); });
+  function fit() { const h = safeBottom * 390 / host.clientWidth; v.k = 1.15; v.tx = 195 - 196 * v.k; v.ty = (110 + h) / 2 - 396 * v.k; apply(); paint(); }
+  function select(i) { const p = SAMPLES[i * 10 + 5]; const h = safeBottom * 390 / host.clientWidth; const sx = p[0] * v.k + v.tx, sy = p[1] * v.k + v.ty; if (sx < 30 || sx > 360 || sy < 150 || sy > h - 20) { v.tx = 195 - p[0] * v.k; v.ty = (150 + h) / 2 - p[1] * v.k; apply(); } paint(); }
+  apply(); if (!state.view || !state._fitted) { state._fitted = true; }
+  return { paint, zoomAt: f => zoomAt(f, 195, 330), fit, select, setSafe: t => { safeBottom = t; if (!state._placed) { state._placed = true; fit(); } } };
+}
+
+/* =================== Detail (one 10 m stretch) =================== */
+function SCR_detail() {
+  phone.insertAdjacentHTML('beforeend', `<section class="scr" aria-label="Footpath stretch">
+    <header class="topbar"><button class="iconbtn" type="button" data-act="back" aria-label="Back">${ic('back', 22)}</button><div class="col grow" style="gap:0"><span class="t" id="dtTitle"></span><span class="muted small">Jijamata Rd footpath · Andheri East</span></div><button class="iconbtn" type="button" data-act="save" aria-label="Save">${ic('bookmark', 22)}</button><button class="iconbtn" type="button" data-act="share" aria-label="Share">${ic('share', 22)}</button></header>
+    <div class="scroll" id="dtScroll"><div class="col" style="gap:22px;padding:12px 16px 40px" id="dtBody"></div></div>
+  </section>`);
+  updateDetail();
+}
+function updateDetail() {
+  const s = STATS[state.spot], body = document.getElementById('dtBody'); if (!body) return;
+  const lm = Object.entries(LM).find(([m]) => binOf(+m) === s.i);
+  document.getElementById('dtTitle').textContent = binName(s.i) + (lm ? ' · ' + lm[1].replace('Turn onto the ', '').replace('Underpass walkway ends', 'underpass end') : '');
+  const F = s.dir.forward, B = s.dir.return, few = d => d.seen < 3;
+  const c = catOf(s, 'blocked');
+  const verdictTitle = !s.seen ? 'No walks in this range' : c === 'M' ? 'Blocked most walks' : c === 'S' ? 'Blocked on some walks' : 'Usually clear';
+  const dirTxt = (d, k) => d.seen ? `${d.blocked} of ${d.seen} walks ${k === 'forward' ? 'towards B' : 'towards A'}` : `no walks ${k === 'forward' ? 'towards B' : 'towards A'}`;
+  const pd = state.photoDir, tiles = s.tiles.filter(t => t.W.key === pd).sort((a, b) => a.W.day - b.W.day);
+  const missing = FW.filter(W => W.key === pd && !tiles.some(t => t.W === W));
+  const lt = s.light, dl = lt.daylight, nt = lt.night;
+  const pctx = x => x == null ? '–' : Math.round(x * 100) + '%';
+  const corrHorn = mean(STATS.filter(x => x.seen).map(x => x.hornPer));
+  const causes = [['people', s.people, '#7C3AED'], ['vehicles', s.vehicles, '#0EA5E9'], ['fixtures', s.fixed, '#64748B']];
+  const main = causes.filter(x => x[1] != null).sort((a, b) => b[1] - a[1])[0];
+  const bandBar = ['C', 'P', 'I'].map(b => `<i style="width:${s.seen ? s.all.b[b] / s.seen * 100 : 0}%;background:${HEX[BAND[b].cat]}"></i>`).join('');
+  const kbyg = !s.seen ? 'No walks match these filters. Widen the date range or light filter.'
+    : `${c === 'M' ? 'Expect to step around obstacles here on most walks' : c === 'S' ? 'Obstacles show up here on some walks' : 'This stretch was usually passable'}${main && main[1] > 0.1 ? `, mostly ${main[0]}` : ''}. Usual room to walk is ${BAND[s.typical].range}. ${dl && nt ? `Daylight walks were blocked ${dl.blocked} of ${dl.seen} times, night walks ${nt.blocked} of ${nt.seen}.` : ''}`;
+  body.innerHTML = `
+    <div class="row" style="gap:8px;flex-wrap:wrap">
+      <button class="pill soft" type="button" data-act="date" style="border-radius:10px;padding:0 10px">${ic('cal', 16)}${esc(rangeLabel())}${ic('down', 16)}</button>
+      <button class="pill" type="button" data-act="light" style="border-radius:10px;padding:0 10px;color:var(--ink)">${ic(state.light === 'night' ? 'moon' : 'sun', 16)}${lightLabel()}${ic('down', 16)}</button>
+    </div>
+    <div class="verdict" style="background:${c === 'N' ? 'var(--sunken)' : `color-mix(in srgb, ${COL[c]} 10%, white)`}">
+      <div class="row"><span class="dot" style="background:${COL[c]}"></span><h2 class="h1" style="font-size:18px">${verdictTitle}</h2></div>
+      <p style="margin:0;line-height:1.45">${s.seen ? `Blocked somewhere in this 10 m on ${dirTxt(F, 'forward')} and ${dirTxt(B, 'return')}.` : 'Change the filters to see this stretch.'}${s.seen && (few(F) || few(B)) ? ' <span class="muted">Fewer than 3 walks in a direction is too few to judge.</span>' : ''}</p>
+    </div>
+    <div class="col" style="gap:8px">
+      <div class="row" style="justify-content:space-between"><h3 class="h2">Along the footpath</h3><span class="muted small">Drag to move</span></div>
+      ${stripHtml('dtS', STATS.map(x => catOf(x, 'blocked')), s.i)}
+      <div class="ends"><span>A</span><span style="color:var(--ink);font-weight:700">${binName(s.i)}</span><span>B</span></div>
+    </div>
+    <div class="col" style="gap:10px">
+      <div class="row" style="justify-content:space-between"><h3 class="h2">Room to walk</h3><span class="small" style="font-weight:600;padding:3px 10px;border-radius:12px;background:#FEF3C7;color:#92400E">Estimated from photos</span></div>
+      <svg class="ribbon" id="dtRib" viewBox="0 0 358 76" role="slider" tabindex="0" aria-label="Room to walk along the footpath" aria-valuemin="0" aria-valuemax="${NB - 1}" aria-valuenow="${s.i}"></svg>
+      <div class="row" style="gap:10px;align-items:flex-start">
+        <div class="col grow" style="gap:6px"><span style="font-size:15px;font-weight:600">${s.seen ? `Usually ${BAND[s.typical].range} · ${BAND[s.typical].name}` : '–'}</span>
+        <div class="bars" aria-hidden="true">${bandBar}</div>
+        <span class="legend">${['C', 'P', 'I'].map(b => `<span><i class="sw" style="background:${HEX[BAND[b].cat]}"></i>${BAND[b].range} <b class="num">${s.all.b[b]}</b></span>`).join('')}</span></div>
+      </div>
+      <p class="muted small" style="margin:0">Width follows the proxemic band of each walk's photo: intimate under 0.8 m, social 0.8–1.2 m, clear 1.2 m or more. Tape measurements will replace it.</p>
+    </div>
+    <div class="col" style="gap:10px">
+      <div class="row" style="justify-content:space-between"><h3 class="h2">Photos here</h3>
+        <div class="seg" role="group" aria-label="Direction"><button type="button" data-act="pdir" data-k="forward" aria-pressed="${pd === 'forward'}">A → B</button><button type="button" data-act="pdir" data-k="return" aria-pressed="${pd === 'return'}">B → A</button></div></div>
+      <div class="photos">${tiles.map(t => `<button class="tile" type="button" data-act="photo" data-w="${t.W.id}"><div class="ph" style="${photoStyle(t.W, t.n)};border-color:${HEX[BAND[t.band].cat]}">${overlaySvg(t.W, t.n, t.band)}${badge(t.band)}</div><span class="cap"><b>Day ${t.W.day}</b> · ${t.W.light}<br>${t.bl ? 'blocked' : 'clear'}${(t.W.w.swerves || []).some(e => binOf(e.m) === s.i) ? ' · swerved' : ''}</span></button>`).join('') || '<p class="muted" style="margin:0">No walks in this direction for these filters.</p>'}
+        ${missing.length ? `<div class="tile"><div class="ph" style="display:grid;place-items:center;color:var(--ink2);font-size:12px;text-align:center;padding:8px">No photo in this 10 m</div><span class="cap">Day ${missing.map(x => x.day).join(', ')}</span></div>` : ''}</div>
+      <p class="muted small" style="margin:0">Overlay: the walking channel, coloured by room to walk, and red boxes where clutter sits in the walking zone. Tap a photo to enlarge.</p>
+    </div>
+    <div class="col" style="gap:0">
+      <div class="fact">${ic('people', 22)}<div class="col grow"><span class="muted small">What blocks it · daylight photos</span><span class="v">${main ? `Mostly ${main[0]}` : 'No daylight photos in this range'}</span>${main ? `<div class="bars" style="margin-top:4px">${causes.map(x => `<i style="width:${Math.min(100, (x[1] || 0) * 100)}%;background:${x[2]}"></i>`).join('')}</div><span class="legend">${causes.map(x => `<span><i class="sw" style="background:${x[2]}"></i>${x[0]} ${pctx(x[1])}</span>`).join('')}</span>` : ''}</div></div>
+      <div class="fact">${ic('swerve', 22)}<div class="col grow"><span class="muted small">Walkers swerved here</span><span class="v num">${s.seen ? `${s.swW} of ${s.seen} walks` : '–'}</span></div></div>
+      <div class="fact">${ic('sound', 22)}<div class="col grow"><span class="muted small">Horns</span><span class="v num">${s.seen ? `${s.hornPer.toFixed(1)} horn-seconds a walk · corridor average ${corrHorn.toFixed(1)}` : '–'}</span></div></div>
+      <div class="fact">${ic('sun', 22)}<div class="col grow"><span class="muted small">Daylight and night</span><span class="v num">${dl ? `Daylight ${dl.blocked} of ${dl.seen} blocked` : 'No daylight walks'}${nt ? ` · night ${nt.blocked} of ${nt.seen}` : ''}</span><span class="muted small">Night walks were all B → A, so direction and light are mixed.</span></div></div>
+      <div class="fact" style="border-bottom:0">${ic('clock', 22)}<div class="col grow"><span class="muted small">Best time to walk</span><span class="v">Not enough timed walks yet</span></div></div>
+    </div>
+    <div class="kbyg"><div class="row">${spark(18)}<strong>Know before you go</strong></div><p style="margin:0;line-height:1.5">${kbyg}</p><span class="muted small">From ${s.seen} recorded walk${s.seen === 1 ? '' : 's'}</span></div>
+    <div class="row" style="gap:10px"><button class="pill big grow" type="button" data-act="report">${ic('flag', 18)}Report a change</button><button class="pill big fill grow" type="button" data-act="nav" data-to="record">${ic('rec', 18)}Record this</button></div>`;
+  bindScrub(document.getElementById('dtS'), i => { if (i !== state.spot) { state.spot = i; updateDetail(); } });
+  drawRibbon(document.getElementById('dtRib'), s.i);
+}
+function drawRibbon(svg, sel) {
+  if (!svg) return;
+  const W = 358, H = 76, cy = 34, sc = 20; let h = '';
+  for (let i = 0; i < NB; i++) {
+    const top = [], bot = [];
+    for (let m = i * 10; m <= Math.min(L, i * 10 + 10); m++) { const x = m / L * W, w = widthAt(m) * sc / 2; top.push(`${x.toFixed(1)},${(cy - w).toFixed(1)}`); bot.unshift(`${x.toFixed(1)},${(cy + w).toFixed(1)}`); }
+    const s = STATS[i], c = s.seen ? BAND[s.typical].cat : 'N';
+    h += `<polygon points="${top.join(' ')} ${bot.join(' ')}" fill="${HEX[c]}" stroke="${HEX[c]}" stroke-width=".6"/>`;
+  }
+  const x0 = sel * 10 / L * W, x1 = (sel * 10 + 10) / L * W;
+  h += `<rect x="${x0 - 1}" y="2" width="${x1 - x0 + 2}" height="${cy * 2 - 4}" rx="4" fill="none" stroke="#0F172A" stroke-width="2"/>`;
+  h += `<text x="0" y="${H - 2}" font-size="11" font-weight="700" fill="#475569">A</text><text x="${W}" y="${H - 2}" text-anchor="end" font-size="11" font-weight="700" fill="#475569">B</text>`;
+  const w = STATS[sel].width; if (w != null) h += `<text x="${Math.min(W - 60, Math.max(60, (x0 + x1) / 2))}" y="${H - 2}" text-anchor="middle" font-size="11" font-weight="700" fill="#0F172A">≈ ${w.toFixed(1)} m</text>`;
+  svg.innerHTML = h;
+  svg.setAttribute('aria-valuenow', sel); svg.setAttribute('aria-valuetext', `${binName(sel)}, about ${w ? w.toFixed(1) : '–'} metres`);
+  if (!svg._bound) { svg._bound = true; bindScrub(svg, i => { if (i !== state.spot) { state.spot = i; updateDetail(); } }); }
+}
+
+/* =================== Modals =================== */
+function closeModal() { phone.querySelectorAll('.scrimlayer,.modal,.lb').forEach(e => e.remove()); }
+function modal(html, label) {
+  closeModal();
+  phone.insertAdjacentHTML('beforeend', `<div class="scrimlayer" data-act="close"></div><div class="modal" role="dialog" aria-modal="true" aria-label="${label}"><div class="handle"></div><div class="row" style="padding:4px 20px 10px;justify-content:space-between"><h2 class="h1" style="font-size:22px">${label}</h2><button class="iconbtn sunk" type="button" data-act="close" aria-label="Close" style="width:36px;height:36px">${ic('close', 18)}</button></div><div class="scroll">${html}</div></div>`);
+  phone.querySelector('.modal button[data-act="close"]').focus();
+}
+function openLayers() {
+  const t = (id, label, on, dis) => `<button class="ltile" type="button" ${dis ? 'aria-disabled="true"' : `data-act="layer" data-id="${id}"`} aria-pressed="${on}"><span class="th">${id === 'blocked' ? `<span class="row" style="gap:3px">${['R', 'S', 'M', 'S'].map(c => `<i style="width:10px;height:22px;border-radius:3px;display:block;background:${COL[c]}"></i>`).join('')}</span>` : ic(LAYERS[id] ? LAYERS[id].icon : id, 26)}</span>${label}</button>`;
+  modal(`<div class="col" style="gap:16px">
+    <div class="col" style="gap:10px"><strong>Footpath data</strong><div class="tiles">${Object.entries(LAYERS).map(([id, L_]) => t(id, L_.name, state.layer === id)).join('')}</div><p class="muted small" style="margin:0">${LAYERS[state.layer].title}: ${LAYERS[state.layer].legend.join(' · ')}. Grey means no walks in the current filters.</p></div>
+    <div class="col" style="gap:10px"><strong>Needs more walks</strong><div class="tiles">${t('sun', 'Shade', false, true)}${t('bulb', 'Lighting', false, true)}</div><p class="muted small" style="margin:0">Shade and lighting need walks recorded with the new capture standard.</p></div>
+  </div>`, 'Layers');
+}
+function openDate() {
+  const counts = RANGES.map(r => ({ r, n: WALKS.filter(x => r.test(x) && (state.light === 'any' || x.light === state.light)).length }));
+  modal(`<div role="radiogroup" aria-label="Date range">${counts.filter(x => x.r.id !== 'custom').map(({ r, n }) => {
+    const dis = n === 0; return `<button class="opt" type="button" role="radio" aria-checked="${state.range === r.id}" ${dis ? 'aria-disabled="true"' : `data-act="range" data-id="${r.id}"`}><span class="col grow" style="gap:0"><span class="t1">${r.name}</span><span class="muted small num">${n} walk${n === 1 ? '' : 's'}${n && n < 3 ? ' · too few to judge most stretches' : ''}</span></span>${state.range === r.id ? `<span style="color:var(--accent-ink)">${ic('check', 20)}</span>` : ''}</button>`;
+  }).join('')}
+  <div class="col" style="gap:10px;padding:14px 4px 4px"><span class="row" style="gap:10px;color:var(--accent-ink);font-weight:600">${ic('cal', 20)}Custom range · pick survey days</span>
+  <div class="daychips">${DAYS.map(d => `<button type="button" data-act="cday" data-d="${d.day}" aria-pressed="${state.range === 'custom' ? state.custom.has(d.day) : true}">Day ${d.day} · ${fmtDate(d.processed)}</button>`).join('')}</div></div>
+  <p class="muted small" style="margin:14px 4px 0">Ranges count back from the latest walk (${fmtDate(new Date(LATEST * 864e5).toISOString().slice(0, 10))}). Dates are upload dates because the pilot videos lost their recording dates.</p></div>`, 'Date range');
+}
+function openLight() {
+  modal(`<div role="radiogroup">${[['any', 'Any light'], ['daylight', 'Daylight'], ['night', 'Night']].map(([id, n]) => { const c = WALKS.filter(x => RANGES.find(r => r.id === state.range).test(x) && (id === 'any' || x.light === id)).length; return `<button class="opt" type="button" role="radio" aria-checked="${state.light === id}" data-act="setlight" data-id="${id}"><span class="col grow" style="gap:0"><span class="t1">${n}</span><span class="muted small">${c} walk${c === 1 ? '' : 's'}</span></span>${state.light === id ? `<span style="color:var(--accent-ink)">${ic('check', 20)}</span>` : ''}</button>`; }).join('')}<p class="muted small" style="margin:14px 4px 0">Night walks were all recorded walking B → A.</p></div>`, 'Light');
+}
+function openSpots() {
+  const list = STATS.filter(s => s.seen).sort((a, b) => b.share - a.share || b.seen - a.seen).slice(0, 8);
+  modal(`<div>${list.map(s => `<button class="stretch" type="button" data-act="gospot" data-i="${s.i}"><span class="bar" style="background:${COL[catOf(s, 'blocked')]}"></span><span class="col grow" style="gap:2px"><strong class="num">${binName(s.i)}</strong><span class="muted small">Blocked on ${s.blocked} of ${s.seen} walks · usually ${BAND[s.typical].range}</span></span>${ic('chev', 18)}</button>`).join('')}</div>`, 'Most often blocked');
+}
+function openPhoto(id) {
+  const s = STATS[state.spot], t = s.tiles.find(x => x.W.id === id); if (!t) return;
+  phone.insertAdjacentHTML('beforeend', `<div class="lb" role="dialog" aria-modal="true" aria-label="Photo">
+    <div class="row" style="padding:40px 8px 10px 4px"><button class="iconbtn" type="button" data-act="close" aria-label="Close" style="color:#fff">${ic('close', 22)}</button><strong class="grow">Day ${t.W.day} · ${DIRS[t.W.key].label} · ${binName(s.i)}</strong></div>
+    <div class="big" style="${photoStyle(t.W, t.n)}">${overlaySvg(t.W, t.n, t.band)}${badge(t.band)}</div>
+    <div class="meta"><span>${t.W.light} · photo at ${t.n.meter.toFixed(0)} m · ${t.bl ? 'blocked' : 'clear'} · obstruction ${t.n.obstruction.toFixed(2)} · near field ${t.n.near_field.toFixed(2)}</span>
+      <span class="legend"><span><i class="sw" style="background:${HEX[BAND[t.band].cat]}"></i><b>Walking channel</b> · ${BAND[t.band].name} (${BAND[t.band].range})</span><span><i class="sw" style="background:transparent;border:2px solid #EF4444"></i><b>Clutter</b> in the walking zone</span></span>
+      ${t.n.seg && t.W.light === 'daylight' ? `<span>Walking zone: people ${Math.round(t.n.seg.people * 100)}%, vehicles ${Math.round(t.n.seg.vehicles * 100)}%, fixtures ${Math.round(t.n.seg.fixed * 100)}%</span>` : '<span>No segmentation at night.</span>'}</div></div>`);
+}
+
+/* =================== Ask =================== */
+const QUESTIONS = [
+  { id: 'pram', q: 'Can I push a pram from A to B?', kw: /pram|stroller|buggy|wheelchair|push/ },
+  { id: 'worst', q: 'Where is it worst?', kw: /worst|blocked|bad|where/ },
+  { id: 'light', q: 'Is it better in daylight or at night?', kw: /night|day|dark|light/ },
+  { id: 'swerve', q: 'Where do walkers swerve most?', kw: /swerve|weave|dodge/ },
+  { id: 'horns', q: 'How noisy is it?', kw: /horn|noise|noisy|loud/ }
+];
+function stretchesOf(pred, key) { const out = []; let cur = null; STATS.forEach((s, i) => { const d = key ? s.dir[key] : s.all; if (d.seen && pred(d, s)) { if (cur && cur.b === i - 1) cur.b = i; else out.push(cur = { a: i, b: i }); } }); return out; }
+const spanName = r => `${r.a * 10}–${r.b * 10 + 10} m`;
+function answer(id) {
+  if (!FW.length) return { lead: 'There are no walks in the current filters.', body: '<p style="margin:0">Widen the date range to ask about this footpath.</p>' };
+  if (id === 'pram') {
+    const st = stretchesOf(d => d.share > 2 / 3 || d.typical === 'I', 'forward');
+    const rows = st.map(r => { const ds = STATS.slice(r.a, r.b + 1).map(s => s.dir.forward); const bs = ds.map(d => d.blocked), se = Math.max(...ds.map(d => d.seen)), lo = Math.min(...bs), hi = Math.max(...bs); return `<button class="stretch" type="button" data-act="gospot" data-i="${r.a}"><span class="bar" style="background:var(--most)"></span><span class="col grow" style="gap:2px"><strong class="num">${spanName(r)}</strong><span class="muted small">${ds.length > 1 ? 'Each 10 m blocked' : 'Blocked'} on ${lo === hi ? lo : lo + '–' + hi} of ${se} walks towards B${ds.some(d => d.typical === 'I') ? ' · usually under 0.8 m' : ''}</span></span>${ic('chev', 18)}</button>`; });
+    return { lead: st.length ? `Not comfortably. Expect to leave the footpath ${st.length === 1 ? 'once' : st.length === 2 ? 'twice' : st.length + ' times'} on the way to B.` : 'Probably. No stretch was blocked on most walks towards B.', body: `${rows.length ? `<div class="card" style="padding:0;overflow:hidden">${rows.join('')}</div>` : ''}<p style="margin:0" class="muted">I flag a stretch when it was blocked on more than 2 in 3 walks towards B, or usually had under 0.8 m of room.</p>` };
+  }
+  if (id === 'worst') {
+    const top = STATS.filter(s => s.seen >= 3).sort((a, b) => b.share - a.share).slice(0, 3);
+    return { lead: top.length ? `${binName(top[0].i)} is the worst: blocked on ${top[0].blocked} of ${top[0].seen} walks.` : 'Too few walks to compare stretches.', body: `<div class="card" style="padding:0;overflow:hidden">${top.map(s => `<button class="stretch" type="button" data-act="gospot" data-i="${s.i}"><span class="bar" style="background:${COL[catOf(s, 'blocked')]}"></span><span class="col grow" style="gap:2px"><strong class="num">${binName(s.i)}</strong><span class="muted small">Blocked on ${s.blocked} of ${s.seen} walks · usually ${BAND[s.typical].range}</span></span>${ic('chev', 18)}</button>`).join('')}</div>` };
+  }
+  if (id === 'light') {
+    const tally = l => { let b = 0, n = 0; STATS.forEach(s => { const x = s.light[l]; if (x) { b += x.blocked; n += x.seen; } }); return { b, n }; };
+    const d = tally('daylight'), n = tally('night');
+    if (!d.n || !n.n) return { lead: 'The current filters only include one kind of light.', body: '<p style="margin:0">Set light to Any to compare.</p>' };
+    const pd = d.b / d.n, pn = n.b / n.n;
+    return { lead: `Stretches were blocked ${Math.round(pd * 100)}% of the time in daylight and ${Math.round(pn * 100)}% at night.`, body: `<p style="margin:0">That counts every 10 m stretch on every walk. All night walks went B → A, so part of the difference may be direction, not light. Night photos are also harder to read.</p>` };
+  }
+  if (id === 'swerve') {
+    const top = STATS.filter(s => s.seen >= 3).sort((a, b) => b.swPer - a.swPer).slice(0, 3);
+    if (!top.length) return { lead: 'Too few walks to compare stretches.', body: '' };
+    return { lead: `Walkers swerved most at ${binName(top[0].i)}: on ${top[0].swW} of ${top[0].seen} walks.`, body: `<div class="card" style="padding:0;overflow:hidden">${top.map(s => `<button class="stretch" type="button" data-act="gospot" data-i="${s.i}"><span class="bar" style="background:${COL[catOf(s, 'swerve')]}"></span><span class="col grow" style="gap:2px"><strong class="num">${binName(s.i)}</strong><span class="muted small">${s.swN} swerves over ${s.seen} walks</span></span>${ic('chev', 18)}</button>`).join('')}</div><p style="margin:0" class="muted">A swerve is a turn of 12° or more that comes back within seconds, read from the chest camera.</p>` };
+  }
+  const per = FW.map(W => W.w.audio ? W.w.audio.horn_s : 0), top = STATS.filter(s => s.seen >= 3).sort((a, b) => b.hornPer - a.hornPer)[0];
+  if (!top) return { lead: `A typical walk had ${median(per).toFixed(0)} seconds of horns over 220 m.`, body: '' };
+  return { lead: `A typical walk had ${median(per).toFixed(0)} seconds of horns over 220 m.`, body: `<p style="margin:0">The loudest stretch for horns is ${binName(top.i)} at ${top.hornPer.toFixed(1)} horn-seconds a walk. Loudness itself is not compared because the phone's microphone evened it out.</p>` };
+}
+function SCR_ask() {
+  phone.insertAdjacentHTML('beforeend', `<section class="scr" aria-label="Ask">
+    <header class="topbar" style="border:0"><button class="iconbtn" type="button" data-act="back" aria-label="Back">${ic('back', 22)}</button>${spark(22)}<div class="col grow" style="gap:0"><span class="t">Ask</span><span class="muted small">About Jijamata Rd footpath</span></div><button class="iconbtn" type="button" data-act="clearchat" aria-label="New chat">${ic('more', 22)}</button></header>
+    <div class="scroll" id="askScroll"><div class="col" style="gap:18px;padding:8px 16px 20px" id="askBody"></div></div>
+    <form id="askForm" style="padding:8px 16px 22px;border-top:1px solid var(--line);display:grid;gap:6px"><label class="askfield" for="askIn"><input id="askIn" autocomplete="off" placeholder="Ask about walking here"><button class="send" type="submit" aria-label="Send">${ic('send', 18)}</button></label><span class="muted" style="font-size:11px;text-align:center">Answers are computed from ${FW.length} recorded walks and can be out of date.</span></form>
+  </section>`);
+  if (!state.chat.length) state.chat.push({ q: QUESTIONS[0].q, id: 'pram' });
+  drawChat();
+  document.getElementById('askForm').addEventListener('submit', e => { e.preventDefault(); const v = document.getElementById('askIn').value.trim(); if (!v) return; const m = QUESTIONS.find(x => x.kw.test(v.toLowerCase())); state.chat.push({ q: v, id: m ? m.id : null }); document.getElementById('askIn').value = ''; drawChat(); });
+}
+function drawChat() {
+  const body = document.getElementById('askBody');
+  body.innerHTML = `<span class="row small muted" style="gap:6px;padding:6px 12px;border-radius:16px;background:var(--sunken);align-self:flex-start">${ic('pin', 16)}Jijamata Rd · 220 m · ${esc(rangeLabel())}</span>` + state.chat.map(c => {
+    const a = c.id ? answer(c.id) : { lead: 'I can only answer questions about this footpath so far.', body: '<p style="margin:0">Try one of the suggestions below.</p>' };
+    return `<div class="bubble">${esc(c.q)}</div><div class="answer"><span class="row small muted" style="gap:8px">${spark(18)}From ${FW.length} recorded walks</span><p class="lead" style="margin:0">${a.lead}</p>${a.body}</div>`;
+  }).join('') + `<div class="col" style="gap:8px">${QUESTIONS.filter(q => !state.chat.some(c => c.id === q.id)).map(q => `<button class="suggest" type="button" data-act="askq" data-id="${q.id}">${spark(14)}${q.q}</button>`).join('')}<button class="suggest" type="button" data-act="nav" data-to="record">${spark(14)}Record the opposite footpath</button></div>`;
+  const sc = document.getElementById('askScroll'); sc.scrollTop = sc.scrollHeight;
+}
+
+/* =================== Directions =================== */
+const MODES = { walk: { name: 'Walk', icon: 'walk', pred: d => d.share > 2 / 3, rule: 'blocked on more than 2 in 3 walks' }, wheelchair: { name: 'Wheelchair', icon: 'chair', pred: d => d.share > 2 / 3 || d.typical === 'I' || d.typical === 'P', rule: 'often blocked or usually under 1.2 m' }, pram: { name: 'Pram', icon: 'pram', pred: d => d.share > 2 / 3 || d.typical === 'I', rule: 'often blocked or usually under 0.8 m' } };
+function SCR_directions() {
+  const key = state.travel, D = DIRS[key], M = MODES[state.mode], walks = FW.filter(x => x.key === key);
+  const st = stretchesOf(M.pred, key), dur = median(walks.map(x => x.dur));
+  phone.insertAdjacentHTML('beforeend', `<section class="scr mapbg" aria-label="Directions">
+    <div class="mapwrap" id="map"></div>
+    <div style="position:absolute;left:0;right:0;top:0;background:var(--surface);border-radius:0 0 20px 20px;box-shadow:0 2px 8px rgba(0,0,0,.12);padding:40px 12px 12px 4px;display:grid;gap:10px;z-index:4">
+      <div class="row" style="gap:4px"><button class="iconbtn" type="button" data-act="back" aria-label="Back">${ic('back', 22)}</button>
+        <div class="col grow" style="gap:8px">${[['var(--accent)', `${D.from} (${D.fromL})`], ['var(--most)', `${D.to} (${D.toL})`]].map(([c, l]) => `<div class="row" style="height:40px;border:1px solid var(--line);border-radius:10px;padding:0 12px;gap:10px"><span class="dot" style="background:${c}"></span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l}</span></div>`).join('')}</div>
+        <button class="iconbtn" type="button" data-act="swap" aria-label="Swap start and end">${ic('swap', 20)}</button></div>
+      <div class="row" style="gap:8px;padding-left:48px;overflow-x:auto;scrollbar-width:none" role="tablist">${Object.entries(MODES).map(([k, m]) => `<button class="pill ${state.mode === k ? 'soft' : ''}" style="${state.mode === k ? '' : 'color:var(--ink)'}" type="button" role="tab" aria-selected="${state.mode === k}" data-act="mode" data-mode="${k}">${ic(m.icon, 18)}${m.name}</button>`).join('')}</div>
+    </div>
+    <div class="sheet" style="max-height:52%;display:flex;flex-direction:column;z-index:4"><div class="handle"></div>
+      <div class="scroll" style="padding:4px 16px 24px"><div class="col" style="gap:14px">
+        <span class="small muted" style="font-weight:600">Routes for ${M.name.toLowerCase() === 'walk' ? 'walking' : 'a ' + M.name.toLowerCase()} · ${esc(rangeLabel())}</span>
+        <div class="card col" style="gap:10px;border:2px solid var(--accent)">
+          <div class="col" style="gap:2px"><span class="h1 num">${dur ? `${Math.floor(dur / 60)} min ${Math.round(dur % 60)} s` : '–'} · 220 m</span><span class="muted small">Jijamata Rd footpath · median of ${walks.length} recorded walk${walks.length === 1 ? '' : 's'} ${D.label}</span></div>
+          ${stripHtml('drS', STATS.map(s => { const d = s.dir[key]; return !d.seen ? 'N' : M.pred(d) ? 'M' : d.share > 1 / 3 ? 'S' : 'R'; }), null)}
+          <div class="ends"><span>${D.fromL}</span><span>${D.toL}</span></div>
+          <div class="row" style="align-items:flex-start;color:var(--most);font-weight:500">${ic('warn', 18)}<span>${walks.length < 3 ? 'Too few walks in this direction to judge.' : st.length ? `Leave the footpath at ${st.map(spanName).join(', ')} on most walks` : 'No stretch is a problem for this mode on most walks'}</span></div>
+          <span class="muted small">Flagged when ${M.rule}.</span>
+          <div class="row" style="gap:8px"><button class="pill fill" type="button" data-act="startwalk" ${walks.length ? '' : 'aria-disabled="true"'}>${ic('nav', 16)}Start</button><button class="pill" type="button" data-act="steps">${ic('list', 16)}Steps</button><button class="pill" type="button" data-act="save">${ic('bookmark', 16)}Save</button></div>
+        </div>
+        <div class="card col" style="gap:10px"><span class="h2" style="color:var(--ink2)">Opposite footpath</span><span class="muted small">Not recorded yet, so no footpath conditions</span>${stripHtml('drS2', STATS.map(() => 'N'), null)}<button class="pill" type="button" data-act="nav" data-to="record" style="justify-self:start;align-self:flex-start">${ic('rec', 16)}Record this footpath</button></div>
+      </div></div></div>
+  </section>`);
+  mapView = buildMap(document.getElementById('map'));
+  const sh = phone.querySelector('.sheet'); mapView.setSafe(sh.offsetTop); state._placed = false; mapView.fit();
+}
+function openSteps() {
+  const key = state.travel, pts = Object.keys(LM).map(Number).filter(m => m !== 80).map(m => key === 'forward' ? { d: m, t: LM[m] } : { d: L - m, t: LM[m] }).sort((a, b) => a.d - b.d);
+  modal(`<div>${[{ d: 0, t: `Start at ${DIRS[key].from}` }, ...pts, { d: L, t: `Arrive at ${DIRS[key].to}` }].map(p => `<div class="opt"><span class="col grow" style="gap:0"><span class="t1">${p.t}</span><span class="muted small num">${p.d.toFixed(0)} m</span></span></div>`).join('')}</div>`, 'Steps');
+}
+
+/* =================== Walk mode =================== */
+let raf = 0, lastT = 0;
+function stopWalk() { state.playing = false; cancelAnimationFrame(raf); }
+function SCR_walk() {
+  phone.insertAdjacentHTML('beforeend', `<section class="scr" aria-label="Walking" style="background:#E9ECE4">
+    <canvas class="corridor" id="cv" aria-label="Footpath ahead. The walkable width narrows and widens with the estimated room to walk."></canvas>
+    <div class="banner" id="wkBan"></div>
+    <div class="warn" id="wkWarn" hidden></div>
+    <div class="lbl" id="wkW" style="right:16px;top:50%;background:var(--surface);border-radius:10px;padding:6px 10px;box-shadow:0 1px 4px rgba(0,0,0,.2);font-weight:700;white-space:nowrap" aria-live="polite"></div>
+    <div class="trip" id="wkTrip">
+      <div class="row"><button class="iconbtn sunk" type="button" data-act="endwalk" aria-label="End walk">${ic('close', 20)}</button>
+        <div class="col grow" style="align-items:center;gap:0"><span id="wkTime" style="font-size:22px;font-weight:700;color:var(--nav)" class="num"></span><span id="wkLeft" class="muted small num"></span></div>
+        <button class="iconbtn sunk" type="button" data-act="playpause" id="wkPlay" aria-label="Pause">${ic('pause', 20)}</button></div>
+      <div id="wkStrip"></div>
+      <div class="ends"><span>${DIRS[state.travel].fromL}</span><span id="wkYou" style="color:var(--accent);font-weight:700"></span><span>${DIRS[state.travel].toL}</span></div>
+      <div class="row" style="justify-content:space-between"><span class="muted small">Room to walk is estimated from photos</span><span class="seg" role="group" aria-label="Speed">${[1, 4, 10].map(x => `<button type="button" data-act="speed" data-x="${x}" aria-pressed="${state.speed === x}">${x}×</button>`).join('')}</span></div>
+    </div>
+  </section>`);
+  const walks = FW.filter(x => x.key === state.travel); state.pace = L / (median(walks.map(x => x.dur)) || 145);
+  if (state.walkD >= L) state.walkD = 0;
+  state.playing = true; lastT = performance.now();
+  const cv = document.getElementById('cv'); const fit = () => { const r = cv.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1); cv.width = r.width * dpr; cv.height = r.height * dpr; }; fit();
+  new ResizeObserver(fit).observe(cv);
+  const tick = t => { if (state.playing) { state.walkD = Math.min(L, state.walkD + (t - lastT) / 1000 * state.pace * state.speed); if (state.walkD >= L) { state.playing = false; toast(`Arrived at ${DIRS[state.travel].to}`); setPlayIcon(); } } lastT = t; drawWalk(); raf = requestAnimationFrame(tick); };
+  raf = requestAnimationFrame(tick);
+}
+const corrM = d => state.travel === 'forward' ? d : L - d;
+function setPlayIcon() { const b = document.getElementById('wkPlay'); if (b) { b.innerHTML = ic(state.playing ? 'pause' : 'play', 20); b.setAttribute('aria-label', state.playing ? 'Pause' : 'Play'); } }
+let lastWkBin = -1, lastBanner = '';
+function drawWalk() {
+  const cv = document.getElementById('cv'); if (!cv) return;
+  const key = state.travel, d0 = state.walkD, ctx = cv.getContext('2d'), Wd = cv.width, Ht = cv.height, dpr = cv.width / cv.getBoundingClientRect().width;
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, Wd, Ht);
+  const trip = document.getElementById('wkTrip'), bottom = (trip ? trip.offsetTop : Ht / dpr) * dpr;
+  const hor = Ht * 0.34, camH = 2.6, z0 = 3, F = (bottom - hor) * z0 / camH, cx = Wd * 0.5;
+  const P = (x, d) => { const z = d + z0; return [cx + F * x / z, hor + F * camH / z]; };
+  // sky / far ground
+  ctx.fillStyle = '#DDE3EA'; ctx.fillRect(0, 0, Wd, hor); ctx.fillStyle = '#E9ECE4'; ctx.fillRect(0, hor, Wd, Ht - hor);
+  const ahead = 60, step = 0.5, FPW = 2.0, ROADW = 6;
+  const quad = (pts, fill) => { ctx.beginPath(); pts.forEach((p, k) => k ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath(); ctx.fillStyle = fill; ctx.fill(); };
+  // buildings / shopfronts on the left, road on the right
+  quad([P(-6, -3), P(-FPW / 2, -3), P(-FPW / 2, ahead), P(-6, ahead)], '#D6D9D0');
+  quad([P(FPW / 2 + 0.15, -3), P(FPW / 2 + 0.15 + ROADW, -3), P(FPW / 2 + 0.15 + ROADW, ahead), P(FPW / 2 + 0.15, ahead)], '#6B7280');
+  for (let d = Math.ceil(d0 / 4) * 4 - d0; d < ahead; d += 4) quad([P(FPW / 2 + 3.1, d), P(FPW / 2 + 3.25, d), P(FPW / 2 + 3.25, d + 2), P(FPW / 2 + 3.1, d + 2)], '#E5E7EB');
+  quad([P(FPW / 2, -3), P(FPW / 2 + 0.15, -3), P(FPW / 2 + 0.15, ahead), P(FPW / 2, ahead)], '#F8FAFC');
+  // footpath slab
+  quad([P(-FPW / 2, -3), P(FPW / 2, -3), P(FPW / 2, ahead), P(-FPW / 2, ahead)], '#C9CDC2');
+  // walking space: free channel of estimated width, coloured by band
+  for (let d = -3; d < ahead && d0 + d < L; d += step) {
+    const m1 = corrM(Math.max(0, d0 + d)), m2 = corrM(Math.max(0, Math.min(L, d0 + d + step)));
+    const w1 = Math.min(FPW, widthAt(m1, key)), w2 = Math.min(FPW, widthAt(m2, key));
+    const cat = w1 >= 1.2 ? 'R' : w1 >= 0.8 ? 'S' : 'M';
+    const off = 0.05;
+    // obstacles fill what the channel leaves: shop side first, then kerb side
+    quad([P(-FPW / 2, d), P(-FPW / 2 + (FPW - w1) * 0.65, d), P(-FPW / 2 + (FPW - w2) * 0.65, d + step + off), P(-FPW / 2, d + step + off)], '#8C8F86');
+    quad([P(FPW / 2 - (FPW - w1) * 0.35, d), P(FPW / 2, d), P(FPW / 2, d + step + off), P(FPW / 2 - (FPW - w2) * 0.35, d + step + off)], '#8C8F86');
+    const xl1 = -FPW / 2 + (FPW - w1) * 0.65, xl2 = -FPW / 2 + (FPW - w2) * 0.65;
+    quad([P(xl1, d), P(xl1 + w1, d), P(xl2 + w2, d + step + off), P(xl2, d + step + off)], HEX[cat]);
+  }
+  // end of corridor
+  if (L - d0 < ahead) { const [, y] = P(0, L - d0); ctx.fillStyle = '#0F172A'; ctx.font = `${700} ${13 * dpr}px ${getComputedStyle(document.body).fontFamily}`; ctx.textAlign = 'center'; ctx.fillText(`${DIRS[key].toL} · ${DIRS[key].to}`, cx, y - 8 * dpr); }
+  // distance ticks
+  ctx.font = `${600} ${11 * dpr}px ${getComputedStyle(document.body).fontFamily}`; ctx.textAlign = 'right'; ctx.fillStyle = '#334155';
+  for (const t of [10, 20, 30]) { if (d0 + t > L) break; const [x, y] = P(-FPW / 2 - 0.1, t); ctx.fillText(`${t} m`, x, y); }
+  // walker puck with heading beam
+  const [px, py] = P(-FPW / 2 + (FPW - Math.min(FPW, widthAt(corrM(d0), key))) * 0.65 + Math.min(FPW, widthAt(corrM(d0), key)) / 2, 0.3);
+  const gr = ctx.createRadialGradient(px, py, 4 * dpr, px, py - 60 * dpr, 90 * dpr); gr.addColorStop(0, 'rgba(37,99,235,.40)'); gr.addColorStop(1, 'rgba(37,99,235,0)');
+  ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px - 46 * dpr, py - 90 * dpr); ctx.quadraticCurveTo(px, py - 110 * dpr, px + 46 * dpr, py - 90 * dpr); ctx.closePath(); ctx.fillStyle = gr; ctx.fill();
+  ctx.beginPath(); ctx.arc(px, py, 13 * dpr, 0, Math.PI * 2); ctx.fillStyle = '#fff'; ctx.fill(); ctx.beginPath(); ctx.arc(px, py, 10 * dpr, 0, Math.PI * 2); ctx.fillStyle = '#2563EB'; ctx.fill();
+  // text panels (update only when something changes)
+  const here = widthAt(corrM(d0), key), wEl = document.getElementById('wkW'), [wx, wy] = P(FPW / 2 + 0.2, 6);
+  wEl.textContent = `≈ ${here.toFixed(1)} m here`; wEl.style.top = Math.max(250, wy / dpr) + 'px'; wEl.style.left = Math.min(300, wx / dpr) + 'px'; wEl.style.right = 'auto';
+  const left = L - d0; document.getElementById('wkTime').textContent = `${Math.max(0, Math.ceil(left / state.pace / 60))} min`;
+  const binsAhead = []; for (let dd = 0; dd < left; dd += 10) binsAhead.push(binOf(corrM(Math.min(L - 0.01, d0 + dd))));
+  const flagged = [...new Set(binsAhead)].filter(i => { const d = STATS[i].dir[key]; return d.seen >= 3 && d.share > 2 / 3; });
+  document.getElementById('wkLeft').textContent = `${left.toFixed(0)} m · ${flagged.length} often-blocked stretch${flagged.length === 1 ? '' : 'es'} ahead`;
+  document.getElementById('wkYou').textContent = `You · ${d0.toFixed(0)} m`;
+  const cb = binOf(corrM(Math.min(L - 0.01, d0)));
+  if (!document.getElementById('wkS')) {
+    const order = key === 'forward' ? STATS : [...STATS].reverse();
+    document.getElementById('wkStrip').innerHTML = stripHtml('wkS', order.map(s => { const d = s.dir[key]; return !d.seen ? 'N' : d.share > 2 / 3 ? 'M' : d.share > 1 / 3 ? 'S' : 'R'; }), null);
+    bindScrub(document.getElementById('wkS'), i => { state.walkD = Math.min(L - 1, i * 10 + 2); });
+    lastWkBin = -1;
+  }
+  if (cb !== lastWkBin) { lastWkBin = cb; const pos = key === 'forward' ? cb : NB - 1 - cb; document.querySelectorAll('#wkS i').forEach((el, k) => el.classList.toggle('you', k === pos)); document.getElementById('wkS').setAttribute('aria-valuenow', pos); }
+  // next manoeuvre
+  const man = Object.keys(LM).map(Number).filter(m => m !== 80).map(m => ({ d: key === 'forward' ? m : L - m, t: LM[m] })).filter(x => x.d > d0).sort((a, b) => a.d - b.d)[0];
+  const ban = man ? `${ic('up', 34)}<div class="col grow" style="gap:2px"><strong style="font-size:20px;line-height:1.2">${man.t}</strong><span style="color:var(--nav-soft);font-size:13px" class="num">In ${Math.round(man.d - d0)} m · towards ${DIRS[key].to} (${DIRS[key].toL})</span></div>` : `${ic('pin', 34)}<div class="col grow"><strong style="font-size:20px">${left > 1 ? `Continue to ${DIRS[key].to}` : 'You have arrived'}</strong><span style="color:var(--nav-soft);font-size:13px" class="num">${left > 1 ? `${left.toFixed(0)} m` : DIRS[key].toL}</span></div>`;
+  const banEl = document.getElementById('wkBan'); if (ban !== lastBanner) { banEl.innerHTML = ban; lastBanner = ban; }
+  // next often-blocked stretch within 60 m
+  let next = null; for (let dd = 0; dd <= 60 && d0 + dd <= L; dd += 1) { const i = binOf(corrM(Math.min(L - 0.01, d0 + dd))), d = STATS[i].dir[key]; if (d.seen >= 3 && d.share > 2 / 3) { next = { i, dd, d }; break; } }
+  const warn = document.getElementById('wkWarn'); warn.style.top = (banEl.offsetTop + banEl.offsetHeight + 8) + 'px';
+  if (next) {
+    const s = STATS[next.i], causes = [['people', s.people], ['vehicles', s.vehicles], ['fixtures', s.fixed]].filter(x => x[1] != null).sort((a, b) => b[1] - a[1])[0];
+    const html = `<span class="wi">${ic('warn', 20)}</span><div class="col grow" style="gap:3px"><strong style="font-size:16px">${next.dd < 2 ? 'Often blocked here' : `In ${Math.round(next.dd)} m · often blocked`}</strong><span class="muted small" style="line-height:1.4">${binName(next.i)} was blocked on ${next.d.blocked} of ${next.d.seen} walks ${DIRS[key].label}${causes && causes[1] > 0.1 ? `, mostly ${causes[0]}` : ''}. Usual room ${BAND[next.d.typical || s.typical].range}. Watch for traffic if you step out.</span></div>`;
+    if (warn.innerHTML !== html) warn.innerHTML = html; warn.hidden = false;
+  } else warn.hidden = true;
+}
+
+/* =================== Contribute, You, Record =================== */
+let checkTile = null;
+function pickCheck() { const pool = []; STATS.forEach(s => s.tiles.forEach(t => { if (t.W.light === 'daylight') pool.push({ s, t }); })); checkTile = pool[Math.floor(Math.random() * pool.length)] || null; }
+function SCR_contribute() {
+  if (!checkTile) pickCheck();
+  let done = 0; try { done = +(localStorage.getItem('si-checks') || 0); } catch (e) { /* ignore */ }
+  const c = checkTile;
+  phone.insertAdjacentHTML('beforeend', `<section class="scr" aria-label="Contribute" style="background:var(--sunken)">
+    <div class="scroll"><div class="col" style="gap:14px;padding:48px 16px 100px">
+      <h1 style="margin:0;font-size:28px">Contribute</h1>
+      <div class="row" style="background:var(--surface);border-radius:20px;padding:16px;gap:12px"><span style="width:44px;height:44px;border-radius:22px;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center">${ic('route', 22)}</span><div class="col grow" style="gap:1px"><strong style="font-size:18px">${WALKS.length} walks recorded</strong><span class="muted small">220 m of footpath · ${DAYS.length} survey days · ${done} photo check${done === 1 ? '' : 's'} by you</span></div></div>
+      <span class="muted" style="font-weight:600">Ways to help</span>
+      ${[['rec', 'Record the opposite footpath', 'Not recorded yet · about 2½ min', 'Start', 'record', true], ['clock', 'Add times to your walks', `${WALKS.length} walks have no recording time, so the map can't say when to go`, 'Add', 'times', false]].map(([k, t, s, b, act, on]) => `<div class="row" style="background:var(--surface);border-radius:16px;padding:14px;gap:12px;align-items:center"><span style="width:40px;height:40px;border-radius:12px;background:var(--sunken);display:grid;place-items:center;color:#334155">${ic(k, 20)}</span><div class="col grow" style="gap:2px"><strong>${t}</strong><span class="muted small">${s}</span></div><button class="pill ${on ? 'fill' : ''}" type="button" data-act="${act === 'record' ? 'nav' : 'times'}" data-to="record">${b}</button></div>`).join('')}
+      ${c ? `<div class="col" style="background:var(--surface);border-radius:16px;padding:14px;gap:10px"><strong>Is the footpath blocked here?</strong><span class="muted small">Day ${c.t.W.day} · ${binName(c.s.i)} · ${DIRS[c.t.W.key].label}</span>
+        <div class="row" style="justify-content:center"><div class="ph" style="${photoStyle(c.t.W, c.t.n)};width:150px;border-color:var(--line)"></div></div>
+        <div class="row" style="gap:8px">${['Blocked', 'Clear', 'Not sure'].map(x => `<button class="pill grow" style="justify-content:center" type="button" data-act="check" data-v="${x}">${x}</button>`).join('')}</div>
+        <span class="muted small">Your answers show where the photo model gets it wrong. The model said <b>${c.t.bl ? 'blocked' : 'clear'}</b>; you'll see that after you answer.</span></div>` : ''}
+    </div></div>${navbar('Contribute')}</section>`);
+}
+function SCR_you() {
+  phone.insertAdjacentHTML('beforeend', `<section class="scr" aria-label="You" style="background:var(--sunken)"><div class="scroll"><div class="col" style="gap:12px;padding:48px 16px 100px">
+    <div class="row" style="gap:12px"><span class="avatar" style="width:52px;height:52px;border-radius:26px;font-size:20px">K</span><div class="col"><strong style="font-size:20px">Your walks</strong><span class="muted small">${WALKS.length} walks on Jijamata Rd</span></div></div>
+    ${WALKS.map(W => { const bl = new Set(W.w.nodes.filter(n => n.obstruction >= OBS).map(n => binOf(n.meter))).size; return `<div class="row" style="background:var(--surface);border-radius:14px;padding:12px 14px;gap:12px"><span class="dot" style="background:${W.light === 'night' ? '#334155' : 'var(--some)'}"></span><div class="col grow" style="gap:1px"><strong class="num">Day ${W.day} · ${DIRS[W.key].label}</strong><span class="muted small num">${fmtDate(W.date)} · ${W.light} · ${Math.floor(W.dur / 60)} min ${Math.round(W.dur % 60)} s · ${bl} of ${NB} stretches blocked</span></div></div>`; }).join('')}
+  </div></div>${navbar('You')}</section>`);
+}
+function SCR_record() {
+  phone.insertAdjacentHTML('beforeend', `<section class="scr mapbg" aria-label="Record a footpath"><div class="mapwrap" id="map"></div>
+    <button class="fab" type="button" data-act="back" style="left:16px;top:44px;width:44px;height:44px;z-index:4" aria-label="Back">${ic('back', 22)}</button>
+    <div class="sheet" style="padding:6px 20px 28px;display:grid;gap:12px;z-index:4"><div class="handle"></div>
+      <div class="col" style="gap:2px"><h2 class="h1" style="font-size:22px">Record the opposite footpath</h2><span class="muted">One walk from A to B, about 2½ minutes</span></div>
+      <div class="row" style="background:var(--sunken);border-radius:12px;padding:12px 14px;gap:12px;color:var(--accent-ink)">${ic('swap', 22)}<span style="color:var(--ink)">Turn the phone sideways and clip it at chest height</span></div>
+      ${['Main 1× lens, not ultrawide', 'Horizon in the top third of the screen', 'Time and start point are saved for you', 'Faces are blurred before upload'].map(x => `<div class="row" style="gap:10px"><span style="color:var(--rare)">${ic('check', 18)}</span>${x}</div>`).join('')}
+      <button class="pill big fill" type="button" data-act="startrec">Start at A</button></div></section>`);
+  mapView = buildMap(document.getElementById('map')); state._placed = false; mapView.setSafe(phone.querySelector('.sheet').offsetTop);
+}
+function SCR_recording() {
+  phone.insertAdjacentHTML('beforeend', `<section class="scr" aria-label="Recording" style="background:linear-gradient(180deg,#2A3A52 0%,#253247 46%,#3B3A36 47%,#2B2A27 100%);color:#E2E8F0">
+    <div class="row" style="padding:44px 16px 12px;background:rgba(15,23,42,.72);gap:10px;flex-wrap:wrap"><span class="row" style="gap:6px;font-weight:700"><span class="dot" style="background:#EF4444"></span><span id="recT" class="num">REC 00:00</span></span><span class="small" id="recM">A → B · 0 m</span></div>
+    <div style="flex:1"></div>
+    <div class="col" style="gap:10px;padding:14px 16px 26px;background:rgba(15,23,42,.8)">
+      <button type="button" data-act="rectap" data-k="cross" style="min-height:56px;border-radius:12px;border:1px solid #F59E0B;color:#FCD34D;font-weight:700">Hold while crossing the road <span class="num" id="recC">· 0</span></button>
+      <button type="button" data-act="rectap" data-k="push" style="min-height:56px;border-radius:12px;border:1px solid #EF4444;color:#FCA5A5;font-weight:700">Pushed off the footpath <span class="num" id="recP">· 0</span></button>
+      <button type="button" data-act="stoprec" style="min-height:52px;border-radius:12px;background:#3B82F6;color:#fff;font-weight:700">Arrive at B</button></div></section>`);
+  state.rec = { t0: performance.now(), cross: 0, push: 0 };
+  const tick = () => { if (state.screen !== 'recording') return; const s = (performance.now() - state.rec.t0) / 1000; const el = document.getElementById('recT'); if (el) { el.textContent = `REC ${String(Math.floor(s / 60)).padStart(2, '0')}:${String(Math.floor(s % 60)).padStart(2, '0')}`; document.getElementById('recM').textContent = `A → B · about ${Math.min(L, s * 1.5).toFixed(0)} m`; } requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+}
+const SCREENS = { explore: SCR_explore, ask: SCR_ask, detail: SCR_detail, directions: SCR_directions, walk: SCR_walk, contribute: SCR_contribute, you: SCR_you, record: SCR_record, recording: SCR_recording };
+
+/* =================== Actions =================== */
+function refreshCurrent() { recompute(); if (state.screen === 'explore') updateExplore(); else if (state.screen === 'detail') updateDetail(); else { const sc = phone.querySelector('.scroll'); render(); } }
+phone.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el || el.getAttribute('aria-disabled') === 'true') return;
+  const a = el.dataset.act;
+  switch (a) {
+    case 'nav': go(el.dataset.to); break;
+    case 'back': back(); break;
+    case 'close': closeModal(); break;
+    case 'ask': go('ask'); break;
+    case 'askq': state.chat.push({ q: QUESTIONS.find(q => q.id === el.dataset.id).q, id: el.dataset.id }); drawChat(); break;
+    case 'clearchat': state.chat = []; render(); break;
+    case 'layers': openLayers(); break;
+    case 'layer': state.layer = el.dataset.id; save(); closeModal(); updateExplore(); toast(`${LAYERS[state.layer].name} layer`); break;
+    case 'zin': mapView.zoomAt(1.6); break;
+    case 'zout': mapView.zoomAt(1 / 1.6); break;
+    case 'fit': mapView.fit(); break;
+    case 'detail': go('detail'); break;
+    case 'gospot': state.spot = +el.dataset.i; closeModal(); if (state.screen === 'detail') updateDetail(); else go('detail'); break;
+    case 'spots': openSpots(); break;
+    case 'dirmode': state.mode = el.dataset.mode; go('directions'); break;
+    case 'mode': state.mode = el.dataset.mode; render(); break;
+    case 'swap': state.travel = state.travel === 'forward' ? 'return' : 'forward'; render(); break;
+    case 'steps': openSteps(); break;
+    case 'startwalk': state.walkD = 0; go('walk'); break;
+    case 'endwalk': go('explore', { replace: true }); state.stack = []; break;
+    case 'playpause': state.playing = !state.playing; lastT = performance.now(); if (state.walkD >= L) state.walkD = 0, state.playing = true; setPlayIcon(); break;
+    case 'speed': state.speed = +el.dataset.x; phone.querySelectorAll('[data-act="speed"]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.x === state.speed)); break;
+    case 'date': openDate(); break;
+    case 'range': state.range = el.dataset.id; closeModal(); refreshCurrent(); toast(`${rangeLabel()} · ${FW.length} walks`); break;
+    case 'cday': { if (state.range !== 'custom') { state.range = 'custom'; state.custom = new Set(DAYS.map(d => d.day)); } const d = +el.dataset.d; if (state.custom.has(d)) { if (state.custom.size > 1) state.custom.delete(d); } else state.custom.add(d); el.setAttribute('aria-pressed', state.custom.has(d)); recompute(); if (state.screen === 'explore') updateExplore(); else if (state.screen === 'detail') updateDetail(); phone.querySelectorAll('.opt').forEach(o => { o.setAttribute('aria-checked', 'false'); const ck = o.querySelector('span[style*="accent-ink"]'); if (ck) ck.remove(); }); break; }
+    case 'light': openLight(); break;
+    case 'setlight': state.light = el.dataset.id; closeModal(); refreshCurrent(); toast(`${lightLabel()} · ${FW.length} walks`); break;
+    case 'pdir': state.photoDir = el.dataset.k; updateDetail(); break;
+    case 'photo': openPhoto(el.dataset.w); break;
+    case 'check': { let n = 0; try { n = +(localStorage.getItem('si-checks') || 0) + 1; localStorage.setItem('si-checks', n); } catch (err) { /* ignore */ } toast(`Thanks. The photo model said ${checkTile.t.bl ? 'blocked' : 'clear'}; you said ${el.dataset.v.toLowerCase()}.`); pickCheck(); render(); break; }
+    case 'times': toast('Recording times are added from the capture app'); break;
+    case 'startrec': go('recording'); break;
+    case 'rectap': { const k = el.dataset.k; state.rec[k]++; document.getElementById(k === 'cross' ? 'recC' : 'recP').textContent = `· ${state.rec[k]}`; break; }
+    case 'stoprec': toast(`Walk saved on this phone: ${state.rec.cross} crossing${state.rec.cross === 1 ? '' : 's'}, ${state.rec.push} push-off${state.rec.push === 1 ? '' : 's'}. Upload is not connected in this prototype.`); state.stack = ['explore']; go('contribute', { replace: true }); break;
+    case 'report': toast('Reports go to the ward engineer in the full app'); break;
+    case 'save': toast('Saved to You'); break;
+    case 'share': toast('Sharing is not connected in this prototype'); break;
+  }
+});
+phone.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+/* Guide jump links */
+const JUMP = [['explore', 'Explore'], ['detail', 'Footpath stretch'], ['ask', 'Ask'], ['directions', 'Directions'], ['walk', 'Walk'], ['contribute', 'Contribute'], ['you', 'You'], ['record', 'Record']];
+document.getElementById('jump').innerHTML = JUMP.map(([s, l]) => `<button type="button" data-s="${s}">${l}</button>`).join('');
+document.getElementById('jump').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; state.stack = state.screen === 'explore' ? ['explore'] : ['explore']; if (b.dataset.s === 'walk') state.walkD = 0; state.screen = b.dataset.s; stopWalk(); render(); });
+
+const startHash = (location.hash || '').slice(1); if (SCREENS[startHash] && startHash !== 'recording') state.screen = startHash;
+render();
+})();
+</script>
+</body>
+</html>
