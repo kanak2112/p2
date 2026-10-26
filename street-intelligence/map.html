@@ -757,21 +757,21 @@ function drawWalk() {
   const key = state.travel, d0 = state.walkD, ctx = cv.getContext('2d'), Wd = cv.width, Ht = cv.height, dpr = cv.width / cv.getBoundingClientRect().width;
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, Wd, Ht);
   const trip = document.getElementById('wkTrip'), bottom = (trip ? trip.offsetTop : Ht / dpr) * dpr;
-  const hor = Ht * 0.34, camH = 2.6, z0 = 3, F = (bottom - hor) * z0 / camH, cx = Wd * 0.5;
+  const hor = Ht * 0.34, camH = 2.6, z0 = 8, F = (bottom - hor) * z0 / camH, cx = Wd * 0.5;
   const P = (x, d) => { const z = d + z0; return [cx + F * x / z, hor + F * camH / z]; };
   // sky / far ground
   ctx.fillStyle = '#DDE3EA'; ctx.fillRect(0, 0, Wd, hor); ctx.fillStyle = '#E9ECE4'; ctx.fillRect(0, hor, Wd, Ht - hor);
   const ahead = 60, step = 0.5, FPW = 2.0, ROADW = 6;
   const quad = (pts, fill) => { ctx.beginPath(); pts.forEach((p, k) => k ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath(); ctx.fillStyle = fill; ctx.fill(); };
   // buildings / shopfronts on the left, road on the right
-  quad([P(-6, -3), P(-FPW / 2, -3), P(-FPW / 2, ahead), P(-6, ahead)], '#D6D9D0');
-  quad([P(FPW / 2 + 0.15, -3), P(FPW / 2 + 0.15 + ROADW, -3), P(FPW / 2 + 0.15 + ROADW, ahead), P(FPW / 2 + 0.15, ahead)], '#6B7280');
+  quad([P(-6, -2), P(-FPW / 2, -2), P(-FPW / 2, ahead), P(-6, ahead)], '#D6D9D0');
+  quad([P(FPW / 2 + 0.15, -2), P(FPW / 2 + 0.15 + ROADW, -2), P(FPW / 2 + 0.15 + ROADW, ahead), P(FPW / 2 + 0.15, ahead)], '#6B7280');
   for (let d = Math.ceil(d0 / 4) * 4 - d0; d < ahead; d += 4) quad([P(FPW / 2 + 3.1, d), P(FPW / 2 + 3.25, d), P(FPW / 2 + 3.25, d + 2), P(FPW / 2 + 3.1, d + 2)], '#E5E7EB');
-  quad([P(FPW / 2, -3), P(FPW / 2 + 0.15, -3), P(FPW / 2 + 0.15, ahead), P(FPW / 2, ahead)], '#F8FAFC');
+  quad([P(FPW / 2, -2), P(FPW / 2 + 0.15, -2), P(FPW / 2 + 0.15, ahead), P(FPW / 2, ahead)], '#F8FAFC');
   // footpath slab
-  quad([P(-FPW / 2, -3), P(FPW / 2, -3), P(FPW / 2, ahead), P(-FPW / 2, ahead)], '#C9CDC2');
+  quad([P(-FPW / 2, -2), P(FPW / 2, -2), P(FPW / 2, ahead), P(-FPW / 2, ahead)], '#C9CDC2');
   // walking space: free channel of estimated width, coloured by band
-  for (let d = -3; d < ahead && d0 + d < L; d += step) {
+  for (let d = -2; d < ahead && d0 + d < L; d += step) {
     const m1 = corrM(Math.max(0, d0 + d)), m2 = corrM(Math.max(0, Math.min(L, d0 + d + step)));
     const w1 = Math.min(FPW, widthAt(m1, key)), w2 = Math.min(FPW, widthAt(m2, key));
     const cat = w1 >= 1.2 ? 'R' : w1 >= 0.8 ? 'S' : 'M';
