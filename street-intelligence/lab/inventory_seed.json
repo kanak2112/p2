@@ -1,0 +1,450 @@
+{
+"seed00": {
+"type": "shop",
+"m": 3,
+"d": -1.25,
+"src": "photo",
+"len": 6,
+"wid": 2.5
+},
+"seed01": {
+"type": "shop",
+"m": 9,
+"d": -1.25,
+"src": "photo",
+"len": 6,
+"wid": 2.5
+},
+"seed02": {
+"type": "shop",
+"m": 15,
+"d": -1.25,
+"src": "photo",
+"len": 6,
+"wid": 2.5
+},
+"seed03": {
+"type": "shop",
+"m": 21,
+"d": -1.25,
+"src": "photo",
+"len": 6,
+"wid": 2.5
+},
+"seed04": {
+"type": "shop",
+"m": 27,
+"d": -1.25,
+"src": "photo",
+"len": 6,
+"wid": 2.5
+},
+"seed05": {
+"type": "shop",
+"m": 33,
+"d": -1.25,
+"src": "photo",
+"len": 6,
+"wid": 2.5
+},
+"seed06": {
+"type": "shop",
+"m": 39,
+"d": -1.25,
+"src": "photo",
+"len": 6,
+"wid": 2.5
+},
+"seed07": {
+"type": "shop",
+"m": 45,
+"d": -1.25,
+"src": "photo",
+"len": 6,
+"wid": 2.5
+},
+"seed08": {
+"type": "shop",
+"m": 51,
+"d": -1.25,
+"src": "photo",
+"len": 6,
+"wid": 2.5
+},
+"seed09": {
+"type": "shop",
+"m": 57,
+"d": -1.25,
+"src": "photo",
+"len": 6,
+"wid": 2.5
+},
+"seed10": {
+"type": "shop",
+"m": 113,
+"d": -1.25,
+"src": "photo",
+"len": 6,
+"wid": 2.5
+},
+"seed11": {
+"type": "shop",
+"m": 119,
+"d": -1.25,
+"src": "photo",
+"len": 6,
+"wid": 2.5
+},
+"seed12": {
+"type": "shop",
+"m": 125,
+"d": -1.25,
+"src": "photo",
+"len": 6,
+"wid": 2.5
+},
+"seed13": {
+"type": "shop",
+"m": 203,
+"d": -1.25,
+"src": "photo",
+"len": 6,
+"wid": 2.5
+},
+"seed14": {
+"type": "shop",
+"m": 209,
+"d": -1.25,
+"src": "photo",
+"len": 6,
+"wid": 2.5
+},
+"seed15": {
+"type": "spill",
+"m": 54,
+"d": 0.6,
+"len": 6,
+"wid": 1.0,
+"src": "photo"
+},
+"seed16": {
+"type": "stall",
+"m": 74,
+"d": 0.7,
+"src": "photo",
+"len": 2,
+"wid": 1.2
+},
+"seed17": {
+"type": "tapri",
+"m": 81.5,
+"d": 0.8,
+"src": "photo",
+"len": 1.8,
+"wid": 1.4
+},
+"seed18": {
+"type": "stall",
+"m": 104,
+"d": 2.4,
+"len": 2.5,
+"wid": 1.2,
+"src": "photo"
+},
+"seed19": {
+"type": "transformer",
+"m": 113,
+"d": 0.6,
+"src": "photo",
+"len": 1.5,
+"wid": 1
+},
+"seed20": {
+"type": "kiosk",
+"m": 122,
+"d": 0.6,
+"src": "photo",
+"len": 1.2,
+"wid": 0.8
+},
+"seed21": {
+"type": "bins",
+"m": 80,
+"d": 2.6,
+"src": "walker",
+"len": 2.4,
+"wid": 1.1
+},
+"seed22": {
+"type": "bins",
+"m": 124,
+"d": 1.0,
+"len": 1.2,
+"wid": 1.0,
+"src": "photo"
+},
+"seed23": {
+"type": "twowheeler",
+"m": 13,
+"d": 2.5,
+"src": "photo",
+"len": 1.9,
+"wid": 0.7
+},
+"seed24": {
+"type": "twowheeler",
+"m": 15,
+"d": 2.5,
+"src": "photo",
+"len": 1.9,
+"wid": 0.7
+},
+"seed25": {
+"type": "twowheeler",
+"m": 17,
+"d": 2.5,
+"src": "photo",
+"len": 1.9,
+"wid": 0.7
+},
+"seed26": {
+"type": "twowheeler",
+"m": 19,
+"d": 2.5,
+"src": "photo",
+"len": 1.9,
+"wid": 0.7
+},
+"seed27": {
+"type": "twowheeler",
+"m": 21,
+"d": 2.5,
+"src": "photo",
+"len": 1.9,
+"wid": 0.7
+},
+"seed28": {
+"type": "twowheeler",
+"m": 23,
+"d": 2.5,
+"src": "photo",
+"len": 1.9,
+"wid": 0.7
+},
+"seed29": {
+"type": "twowheeler",
+"m": 27,
+"d": 2.5,
+"src": "photo",
+"len": 1.9,
+"wid": 0.7
+},
+"seed30": {
+"type": "twowheeler",
+"m": 29,
+"d": 2.5,
+"src": "photo",
+"len": 1.9,
+"wid": 0.7
+},
+"seed31": {
+"type": "twowheeler",
+"m": 34,
+"d": 2.4,
+"src": "photo",
+"len": 1.9,
+"wid": 0.7
+},
+"seed32": {
+"type": "twowheeler",
+"m": 36,
+"d": 2.4,
+"src": "photo",
+"len": 1.9,
+"wid": 0.7
+},
+"seed33": {
+"type": "twowheeler",
+"m": 38,
+"d": 2.4,
+"src": "photo",
+"len": 1.9,
+"wid": 0.7
+},
+"seed34": {
+"type": "twowheeler",
+"m": 42,
+"d": 2.4,
+"src": "photo",
+"len": 1.9,
+"wid": 0.7
+},
+"seed35": {
+"type": "twowheeler",
+"m": 44,
+"d": 2.4,
+"src": "photo",
+"len": 1.9,
+"wid": 0.7
+},
+"seed36": {
+"type": "twowheeler",
+"m": 84,
+"d": 2.6,
+"src": "photo",
+"len": 1.9,
+"wid": 0.7
+},
+"seed37": {
+"type": "twowheeler",
+"m": 140,
+"d": 3.6,
+"src": "photo",
+"len": 1.9,
+"wid": 0.7
+},
+"seed38": {
+"type": "twowheeler",
+"m": 142,
+"d": 3.6,
+"src": "photo",
+"len": 1.9,
+"wid": 0.7
+},
+"seed39": {
+"type": "twowheeler",
+"m": 144,
+"d": 3.6,
+"src": "photo",
+"len": 1.9,
+"wid": 0.7
+},
+"seed40": {
+"type": "car",
+"m": 133,
+"d": 4.3,
+"src": "photo",
+"len": 4.2,
+"wid": 1.8
+},
+"seed41": {
+"type": "car",
+"m": 138.5,
+"d": 4.3,
+"src": "photo",
+"len": 4.2,
+"wid": 1.8
+},
+"seed42": {
+"type": "auto",
+"m": 152,
+"d": 3.7,
+"src": "photo",
+"len": 2.6,
+"wid": 1.4
+},
+"seed43": {
+"type": "auto",
+"m": 211,
+"d": 2.9,
+"src": "photo",
+"len": 2.6,
+"wid": 1.4
+},
+"seed44": {
+"type": "lightpole",
+"m": 46,
+"d": 2.85,
+"src": "photo",
+"len": 0.3,
+"wid": 0.3
+},
+"seed45": {
+"type": "lightpole",
+"m": 68,
+"d": 2.85,
+"src": "photo",
+"len": 0.3,
+"wid": 0.3
+},
+"seed46": {
+"type": "lightpole",
+"m": 84.5,
+"d": 2.85,
+"src": "photo",
+"len": 0.3,
+"wid": 0.3
+},
+"seed47": {
+"type": "pole",
+"m": 31,
+"d": 2.8,
+"src": "photo",
+"len": 0.3,
+"wid": 0.3
+},
+"seed48": {
+"type": "pole",
+"m": 102,
+"d": 2.8,
+"src": "photo",
+"len": 0.3,
+"wid": 0.3
+},
+"seed49": {
+"type": "tree",
+"m": 101,
+"d": 2.6,
+"src": "photo",
+"len": 4,
+"wid": 4
+},
+"seed50": {
+"type": "tree",
+"m": 214,
+"d": 2.8,
+"src": "photo",
+"len": 4,
+"wid": 4
+},
+"seed51": {
+"type": "hedge",
+"m": 15,
+"d": 2.9,
+"len": 3,
+"wid": 0.8,
+"src": "photo"
+},
+"seed52": {
+"type": "drain",
+"m": 5,
+"d": 1.2,
+"src": "photo",
+"len": 1,
+"wid": 1
+},
+"seed53": {
+"type": "drain",
+"m": 92,
+"d": 1.0,
+"src": "photo",
+"len": 1,
+"wid": 1
+},
+"seed54": {
+"type": "wall",
+"m": 176.5,
+"d": -0.15,
+"len": 29,
+"wid": 0.3,
+"src": "photo"
+},
+"seed55": {
+"type": "railing",
+"m": 176.5,
+"d": 1.5,
+"len": 29,
+"wid": 0.1,
+"src": "photo"
+}
+}
