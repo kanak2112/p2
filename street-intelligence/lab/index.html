@@ -353,7 +353,7 @@ const normItem = it => { const t = TOOL[it.t]; if (!t) return null; for (const k
 /* ---------- street inventory: what stands on the street now (shared, editable) ---------- */
 // Cross-section in metres, building line = 0, increasing towards the road. The footpath width is not surveyed:
 // 3 m is what the camera frame spans 4 m ahead, so photo positions map onto it directly.
-const XS = { BLD: 3, FW: 3, KERB: .15, LANE: 2.5, ROAD: 7 }; const DK = XS.FW + XS.KERB, DL = DK + XS.LANE, DR = DL + XS.ROAD;
+const XS = { BLD: 2.5, FW: 3, KERB: .15, LANE: 2.5, ROAD: 3.5 }; const DK = XS.FW + XS.KERB, DL = DK + XS.LANE, DR = DL + XS.ROAD;
 const INVT = { // type: name, default length along the street, default width across (m), what removes it
   shop: ['Shop frontage', 6, 2.5, []], spill: ['Goods on the footpath', 4, 1, ['frontage', 'vendor']],
   stall: ['Stall or handcart', 2, 1.2, ['vendor']], tapri: ['Tea stall (tapri)', 1.8, 1.4, ['vendor']], kiosk: ['Kiosk or cabinet', 1.2, .8, ['vendor', 'utility']],
@@ -457,11 +457,11 @@ function invShape(o, X, Y, k) {
     case 'stall': s = blk(x, y, w, h, PAL.coral, k); for (let m = 0; m < o.len; m += .5) s += R(x + m * k, y, .25 * k, h, '#fff', 'opacity=".55"'); break;
     case 'tapri': s = blk(x, y, w, h, PAL.sun, k) + C(cx, cy, .28 * k, PAL.coral[0]) + C(cx, cy, .12 * k, '#fff'); break;
     case 'kiosk': s = blk(x, y, w, h, PAL.plum, k) + R(x + w * .2, y + h * .3, w * .6, h * .15, '#fff', 'opacity=".7"'); break;
-    case 'twowheeler': s = blk(x, y, w, h, PAL.coral, k, .35) + R(X(o.m + o.len * .32), y - .15 * k, .08 * k, h + .3 * k, PAL.ink[0]) + R(x + w * .35, y + h * .25, w * .3, h * .5, PAL.coral[2], `rx="${h * .25}"`); break;
-    case 'car': s = blk(x, y, w, h, PAL.plum, k, .5) + R(x + w * .62, y + h * .12, w * .16, h * .76, '#CFE6FF', `rx="${k * .15}"`) + R(x + w * .12, y + h * .15, w * .12, h * .7, '#CFE6FF', `rx="${k * .15}"`); break;
+    case 'twowheeler': s = R(x - 1.5, y - 1.5, w + 3, h + 3, '#fff', `rx="${h / 2 + 1.5}"`) + blk(x, y, w, h, PAL.coral, k, .35) + R(X(o.m + o.len * .32), y - .15 * k, .08 * k, h + .3 * k, PAL.ink[0]) + R(x + w * .35, y + h * .25, w * .3, h * .5, PAL.coral[2], `rx="${h * .25}"`); break;
+    case 'car': s = R(x - 1.5, y - 1.5, w + 3, h + 3, '#fff', `rx="${k * .25 + 1.5}"`) + blk(x, y, w, h, PAL.plum, k, .5) + R(x + w * .62, y + h * .12, w * .16, h * .76, '#CFE6FF', `rx="${k * .15}"`) + R(x + w * .12, y + h * .15, w * .12, h * .7, '#CFE6FF', `rx="${k * .15}"`); break;
     case 'auto': s = blk(x, y, w, h, ['#2C3A4B', '#1A2433'], k, .4) + R(x + w * .12, y + h * .1, w * .7, h * .8, PAL.sun[0], `rx="${k * .25}"`) + C(X(o.m + o.len * .42), cy, .18 * k, PAL.sun[2]); break;
     case 'pole': s = C(cx, cy + Math.max(1, .1 * k), Math.max(2, .17 * k), PAL.slate[1]) + C(cx, cy, Math.max(2, .17 * k), PAL.slate[0]); break;
-    case 'lightpole': s = C(cx, cy, 3 * k, PAL.sun[0], 'opacity=".08"') + R(cx - .05 * k, cy - 1.4 * k, Math.max(1.2, .1 * k), 1.4 * k, PAL.slate[0]) + C(cx, cy - 1.4 * k, Math.max(2, .25 * k), PAL.sun[0]) + C(cx, cy + Math.max(1, .1 * k), Math.max(2, .17 * k), PAL.slate[1]) + C(cx, cy, Math.max(2, .17 * k), PAL.slate[0]); break;
+    case 'lightpole': s = C(cx, cy, 3 * k, PAL.sun[0], 'opacity=".05"') + R(cx - .05 * k, cy - 1.4 * k, Math.max(1.2, .1 * k), 1.4 * k, PAL.slate[0]) + C(cx, cy - 1.4 * k, Math.max(2, .25 * k), PAL.sun[0]) + C(cx, cy + Math.max(1, .1 * k), Math.max(2, .17 * k), PAL.slate[1]) + C(cx, cy, Math.max(2, .17 * k), PAL.slate[0]); break;
     case 'transformer': s = blk(x, y, w, h, PAL.slate, k, .1) + `<path d="M${cx + .1 * k} ${y + h * .2}l${-.25 * k} ${h * .35}h${.3 * k}l${-.25 * k} ${h * .35}" stroke="${PAL.sun[0]}" stroke-width="${Math.max(1.5, .08 * k)}" fill="none"/>`; break;
     case 'bins': s = blk(x, y, w * .47, h, PAL.grass, k, .2) + blk(x + w * .53, y, w * .47, h, PAL.grass, k, .2); break;
     case 'drain': s = R(x, y, w, h, PAL.slate[2], `stroke="${PAL.slate[1]}"`); for (let m = .2; m < o.len; m += .2) s += R(x + m * k, y, 1, h, PAL.slate[1]); break;
@@ -496,7 +496,7 @@ function toolShape(it, X, Y, k) {
 function Street(host, mini, opts) {
   host.innerHTML = `<svg role="img" aria-label="Street seen from above, to scale"><g class="pan"><g class="base"></g><g class="top"></g></g></svg><div class="zoom"><button type="button" data-z="-1" aria-label="Zoom out">−</button><button type="button" data-z="1" aria-label="Zoom in">+</button></div><span class="hint">drag or scroll to move along the street</span><span class="scalebar" aria-hidden="true"></span>`;
   const svg = host.querySelector('svg'), pan = svg.querySelector('.pan'), base = svg.querySelector('.base'), top = svg.querySelector('.top');
-  const v = { k: 12, tx: 0, w: 800 }, RH = 26;
+  const v = { k: 30, tx: 0, w: 800 }, RH = 26;
   const X = m => m * v.k, Y = d => (d + XS.BLD) * v.k, HH = () => (XS.BLD + DR) * v.k;
   const clamp = () => { const min = Math.min(0, v.w - L * v.k - 30); v.tx = Math.max(min, Math.min(30, v.tx)); };
   function size() { v.w = host.clientWidth || 800; const H = HH() + RH; svg.setAttribute('viewBox', `0 0 ${v.w} ${H}`); svg.setAttribute('width', v.w); svg.setAttribute('height', H); clamp(); const sb = host.querySelector('.scalebar'); sb.style.width = (5 * v.k) + 'px'; sb.textContent = '5 m'; }
@@ -507,9 +507,9 @@ function Street(host, mini, opts) {
     h += R(x0, Y(0), xw, XS.FW * k, 'var(--footpath)');
     h += R(x0, Y(XS.FW), xw, XS.KERB * k + 1, 'var(--kerb)');
     h += R(x0, Y(DK), xw, XS.LANE * k, 'var(--road2)') + R(x0, Y(DL), xw, XS.ROAD * k, 'var(--road)');
-    for (let m = -10; m < L + 10; m += 6) h += R(X(m), Y(DL + XS.ROAD / 2) - .07 * k, 3 * k, .14 * k, 'var(--mark)', 'opacity=".7"');
+    for (let m = -10; m < L + 10; m += 6) h += R(X(m), Y(DR) - .2 * k, 3 * k, .12 * k, 'var(--mark)', 'opacity=".7"');
     const fs = Math.max(9, Math.min(12, k * .8));
-    h += `<text x="${X(1)}" y="${Y(DK + XS.LANE / 2) + fs / 3}" font-size="${fs}" fill="var(--mark)" opacity=".85" font-family="Figtree">parking lane</text><text x="${X(1)}" y="${Y(DL + 1.4) + fs / 3}" font-size="${fs}" fill="var(--mark)" opacity=".85" font-family="Figtree">carriageway</text><text x="${X(1)}" y="${Y(-XS.BLD / 2) + fs / 3}" font-size="${fs}" fill="var(--ink3)" font-family="Figtree">buildings</text>`;
+    h += `<text x="${X(1)}" y="${Y(DK + XS.LANE / 2) + fs / 3}" font-size="${fs}" fill="var(--mark)" opacity=".85" font-family="Figtree">parking lane</text><text x="${X(1)}" y="${Y(DL + 1.4) + fs / 3}" font-size="${fs}" fill="var(--mark)" opacity=".85" font-family="Figtree">carriageway (near lane)</text><text x="${X(1)}" y="${Y(-XS.BLD / 2) + fs / 3}" font-size="${fs}" fill="var(--ink3)" font-family="Figtree">buildings</text>`;
     // walking path: measured clear width inside the traced ground, coloured by the chosen measure
     const ease = (m, f) => { const q = m / 10 - .5, a = Math.max(0, Math.min(NB - 1, Math.floor(q))), b = Math.min(NB - 1, a + 1), u = Math.max(0, Math.min(1, q - a)), w = (1 - Math.cos(Math.PI * u)) / 2; const va = f(stats[a]), vb = f(stats[b]); return va + (vb - va) * w; };
     const YU = u => Y(Math.max(-.2, Math.min(1.6, u)) * XS.FW);
@@ -522,12 +522,12 @@ function Street(host, mini, opts) {
     // photo sightings: objects seen 3+ times in the same spot, at real size
     if (opts.sightings && opts.sightings()) {
       const cells = {}; for (const [m, u, kd] of D.dets) { if (items.some(it => TOOL[it.t].fixes.includes(kd) && (() => { const [a, b] = span(it); return m >= a && m <= b; })())) continue; const key = kd + '|' + Math.floor(m / 5) + '|' + Math.round(u * 5); const c = cells[key] = cells[key] || { kd, m: 0, u: 0, n: 0 }; c.m += m; c.u += u; c.n++; }
-      for (const c of Object.values(cells)) { if (c.n < 3) continue; const m = c.m / c.n, d = Math.max(-.3, Math.min(1.4, c.u / c.n)) * XS.FW, op = Math.min(.9, .35 + c.n / 20);
+      for (const c of Object.values(cells)) { if (c.n < (c.kd === 'people' ? 2 : 3)) continue; const m = c.m / c.n, d = Math.max(-.3, Math.min(1.4, c.u / c.n)) * XS.FW, op = Math.min(.9, .35 + c.n / 20);
         const o = { m, d, len: c.kd === 'vehicle' ? 1.9 : c.kd === 'plants' ? 1.2 : c.kd === 'barrier' ? 2 : .5, wid: c.kd === 'vehicle' ? .7 : c.kd === 'plants' ? 1.2 : c.kd === 'barrier' ? .15 : .45 };
         let body;
-        if (c.kd === 'people') { const n = Math.min(5, Math.max(1, Math.round(c.n / 3))); body = ''; for (let j = 0; j < n; j++) { const ang = j * 2.4, rr = j ? .45 + .12 * j : 0, px = X(m + rr * Math.cos(ang)), py = Y(d + rr * Math.sin(ang)); body += `<ellipse cx="${px.toFixed(1)}" cy="${(py + Math.max(1, .06 * k)).toFixed(1)}" rx="${Math.max(2.5, .26 * k)}" ry="${Math.max(2, .17 * k)}" fill="${PAL.ocean[1]}"/><ellipse cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" rx="${Math.max(2.5, .26 * k)}" ry="${Math.max(2, .17 * k)}" fill="${PAL.ocean[0]}"/>` + C(px, py, Math.max(1.6, .11 * k), '#5A3B2A'); } }
+        if (c.kd === 'people') { const n = Math.min(8, Math.max(1, Math.round(c.n / 2))); body = ''; for (let j = 0; j < n; j++) { const ang = j * 2.4, rr = j ? .5 + .14 * j : 0, px = X(m + rr * Math.cos(ang)), py = Y(d + .7 * rr * Math.sin(ang)), sw = .27 * k, sd = .16 * k; body += `<g transform="rotate(${(j * 37) % 60 - 30} ${px.toFixed(1)} ${py.toFixed(1)})"><ellipse cx="${px.toFixed(1)}" cy="${(py + Math.max(1, .05 * k)).toFixed(1)}" rx="${sw}" ry="${sd}" fill="#1E5FA8"/><ellipse cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" rx="${sw}" ry="${sd}" fill="#3A9BF2" stroke="#fff" stroke-width="1.2"/>${C(px, py, .12 * k, '#3B2A20', 'stroke="#fff" stroke-width="1"')}</g>`; } }
         else body = invShape(Object.assign(o, { type: { vehicle: 'twowheeler', plants: 'hedge', pole: 'pole', barrier: 'wall' }[c.kd] }), X, Y, k);
-        h += `<g opacity="${Math.max(.7, op)}" pointer-events="none"><title>${c.kd === 'people' ? 'People' : 'Seen'} here in ${c.n} photos</title>${body}</g>`; }
+        h += `<g opacity="1" pointer-events="none"><title>${c.kd === 'people' ? 'People' : 'Seen'} here in ${c.n} photos</title>${body}</g>`; }
     }
     // inventory, at real size; fixes that remove an item hide it in the "with changes" view
     for (const o of inv) { if (invGone(o, items)) continue; const on = selInv === o.id; h += `<g class="inv" data-id="${o.id}" style="cursor:${opts.onInvDown ? 'grab' : 'pointer'}" transform="rotate(${o.rot || 0} ${X(o.m).toFixed(1)} ${Y(o.d).toFixed(1)})">${invShape(o, X, Y, k)}${on ? R(X(o.m - o.len / 2) - 3, Y(o.d) - o.wid * k / 2 - 3, o.len * k + 6, o.wid * k + 6, 'none', 'stroke="var(--accent)" stroke-width="2.5" rx="5"') : ''}</g>`; }
