@@ -45,7 +45,50 @@ for (grp, i), (n, w, pid, ov) in best.items():
     im.save(os.path.join(HERE, "ph", pid + ".jpg"), quality=70)
     photos.setdefault(grp, {})[i] = {"id": pid, "path": ov.get("path", []), "obs": ov.get("obs", []), "night": ov.get("night", False),
                                      "src": f"Day {w['folder'].split('day')[-1].split('_')[0]} · {n['file']}"}
-out = {"corridor": m["corridor"], "walks": walks, "photos": photos}
+# Existing components: what the daylight photos show in the same stretch on many walks.
+day = [w for w in walks if not w["night"]]
+seg = {}
+for d in m["days"]:
+    for key in ("forward", "return"):
+        w = d.get(key)
+        if w and w.get("lighting") != "night":
+            for n in w["nodes"]:
+                if n.get("seg"):
+                    seg.setdefault(min(NB - 1, int(n["meter"] // 10)), []).append(n["seg"])
+xs = {}
+for (grp, i), (n, w, pid, ov) in best.items():
+    pass
+for d in m["days"]:
+    for key in ("forward", "return"):
+        w = d.get(key)
+        if not w or w.get("lighting") == "night":
+            continue
+        for n in w["nodes"]:
+            for b in (n.get("ov") or {}).get("obs", []):
+                xs.setdefault((min(NB - 1, int(n["meter"] // 10)), b[4]), []).append(b[0] + b[2] / 2)
+def share(i, k):
+    rs = [w["s"][i] for w in day if w["s"][i]]
+    return sum(k in r["ks"] for r in rs) / max(1, len(rs)), len(rs)
+RULES = [("pole", .4, "Poles and signs"), ("plants", .4, "Greenery"), ("vehicle", .6, "Vehicles stopping or parked"), ("people", .9, "Crowding")]
+existing = []
+for k, th, name in RULES:
+    run = []
+    for i in range(NB + 1):
+        s, n = share(i, k) if i < NB else (0, 0)
+        veg = i < NB and k == "plants" and sum(x["vegetation"] for x in seg[i]) / len(seg[i]) >= .12
+        if i < NB and (s >= th or veg):
+            run.append((i, s, n))
+        elif run:
+            a, b = run[0][0], run[-1][0]
+            x = [v for (j, _, _) in run for v in xs.get((j, k), [])]
+            existing.append({"kind": k, "name": name, "from": a * 10, "to": b * 10 + 10, "share": round(sum(r[1] for r in run) / len(run), 2),
+                             "walks": run[0][2], "x": round(sum(x) / len(x), 2) if x else .5})
+            run = []
+walled = [i for i in range(NB) if sum(x["fixed"] for x in seg[i]) / len(seg[i]) >= .1]
+if walled:
+    existing.append({"kind": "barrier", "name": "Underpass walls", "from": walled[0] * 10, "to": walled[-1] * 10 + 10, "share": None, "walks": None, "x": .1})
+existing.append({"kind": "bins", "name": "Green bins", "from": 76, "to": 84, "share": None, "walks": None, "x": .85, "src": "walker's landmark"})
+out = {"corridor": m["corridor"], "walks": walks, "photos": photos, "existing": existing}
 with open(os.path.join(HERE, "data.js"), "w") as f:
     f.write("window.LAB=" + json.dumps(out, separators=(",", ":")) + ";\n")
 print(len(walks), "walks", sum(len(v) for v in photos.values()), "photos")
