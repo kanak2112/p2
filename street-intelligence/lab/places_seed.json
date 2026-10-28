@@ -1,0 +1,23 @@
+{
+ "underpass": {
+  "type": "underpass",
+  "name": "Underpass walkway",
+  "from": 162,
+  "to": 191,
+  "src": "walker"
+ },
+ "junction": {
+  "type": "junction",
+  "name": "Turn onto highway service road",
+  "from": 104,
+  "to": 104,
+  "src": "walker"
+ },
+ "bins": {
+  "type": "bins",
+  "name": "Community bins",
+  "from": 80,
+  "to": 80,
+  "src": "walker"
+ }
+}

@@ -42,7 +42,9 @@ nav.tabs a { padding: 7px 14px; border-radius: 9px; text-decoration: none; color
 nav.tabs a[aria-current="page"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow) }
 .view { display: grid; gap: 16px; padding-top: 18px }
 .bar { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center }
-.seg { display: inline-flex; background: var(--sunken); border-radius: 10px; padding: 3px; gap: 2px }
+.bar > .row, #cmp .row { min-width: 0; max-width: 100%; flex-wrap: wrap }
+#cmp { scroll-margin-top: 90px }
+.seg { display: inline-flex; background: var(--sunken); border-radius: 10px; padding: 3px; gap: 2px; flex-wrap: wrap; max-width: 100% }
 .seg button { border: 0; background: none; padding: 6px 11px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--ink2); cursor: pointer; white-space: nowrap }
 .seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow) }
 .lbl { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink3) }
@@ -176,6 +178,22 @@ details.acc:not([open]) summary::after { transform: rotate(-90deg) }
 .accsum { margin-left: auto; font: 500 12.5px var(--f-num); color: var(--ink2); text-align: right }
 .accb { padding: 0 12px 12px; display: grid; gap: 8px }
 .accs { display: grid; gap: 8px; margin-top: 12px }
+.rel { display: inline-flex; align-items: center; border-radius: 99px; padding: 2px 8px; font: 700 11px var(--f-ui); border: 1px solid currentColor; white-space: nowrap; margin: 1px 0 }
+.rel.cur { color: var(--ok) } .rel.age { color: var(--warn) } .rel.sup { color: var(--ink3) } .rel.unr { color: var(--bad) } .rel.mix { color: var(--accent-ink) }
+.cmpt { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 620px }
+.cmpt th, .cmpt td { padding: 7px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top }
+.cmpt th { font-size: 11px; color: var(--ink3); text-transform: uppercase; letter-spacing: .06em; font-weight: 700 }
+.cmpt tr.on td { background: var(--accent-soft) }
+.cmpt .meter { margin: 4px 0 3px; max-width: 140px }
+.lnk { border: 0; background: none; padding: 0; color: var(--accent-ink); font-weight: 700; cursor: pointer; text-decoration: underline; text-underline-offset: 2px }
+.verdict { padding: 12px 14px; border-radius: 12px; background: var(--accent-soft); color: var(--ink); font-size: 14px; line-height: 1.5; display: grid; gap: 6px }
+.checks { display: grid; gap: 7px; font-size: 13px; padding: 0; margin: 0 }
+.checks li { list-style: none; padding-left: 22px; position: relative }
+.checks li::before { content: '!'; position: absolute; left: 0; top: 1px; width: 15px; height: 15px; border-radius: 50%; background: var(--warn); color: #fff; font: 800 10px/15px var(--f-ui); text-align: center }
+.checks li.ok::before { content: '✓'; background: var(--ok) }
+select.sel, .pled input, .pled select { font: 600 13px var(--f-ui); padding: 6px 8px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); color: var(--ink) }
+.pled { display: grid; gap: 10px } .pled .row { flex-wrap: wrap; gap: 6px; align-items: center }
+.pled input[type=number] { width: 70px; font-family: var(--f-num) } .pled input.nm { width: 190px }
 .tagchip { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase }
 .tagchip i { width: 9px; height: 9px; border-radius: 50%; display: inline-block }
 .mini .cells i.on { box-shadow: 0 0 0 2px var(--surface), 0 0 0 5px var(--ink); position: relative; z-index: 2 }
@@ -205,8 +223,11 @@ details.acc:not([open]) summary::after { transform: rotate(-90deg) }
     <div class="row"><span class="lbl">Show</span><div class="seg" data-k="layer"><button data-v="blocked">Blocked</button><button data-v="width">Clear width</button><button data-v="swerves">Swerves</button><button data-v="honks">Horns</button></div></div>
     <div class="row"><span class="lbl">On the street</span><div class="seg" data-k="inv"><button data-v="on">Show</button><button data-v="off">Hide</button></div></div>
     <div class="row"><span class="lbl">Photo sightings</span><div class="seg" data-k="sight"><button data-v="on">Show</button><button data-v="off">Hide</button></div></div>
+    <div class="row"><span class="lbl">Places</span><div class="seg" data-k="pl"><button data-v="on">Show</button><button data-v="off">Hide</button></div></div>
     <button class="btn ghost" id="editInv" type="button">Edit what is there</button>
+    <button class="btn ghost" id="cmpBtn" type="button">Compare two groups</button>
   </div>
+  <div class="card pad" id="cmp" style="display:grid;gap:12px;grid-template-columns:minmax(0,1fr)" hidden></div>
   <div class="card pad" style="display:grid;gap:12px">
     <div class="row" style="flex-wrap:wrap"><h2 class="grow" id="exTitle">Where walking breaks down</h2><div class="legend" id="exLegend"></div></div>
     <div class="street" id="exStreet"></div>
@@ -402,13 +423,111 @@ function saveInv(o) {
   invSaveTimers[o.id] = setTimeout(() => (delete invSaveTimers[o.id], DB).collection('inventory').doc(o.id).set({ type: o.type, m: +o.m.toFixed(1), d: +o.d.toFixed(2), len: +o.len.toFixed(2), wid: +o.wid.toFixed(2), rot: +(o.rot || 0), src: o.src || 'site' }).catch(() => note('This change was not saved: you can view the inventory but not edit it.')), 400);
 }
 function delInv(id) { INV = INV.filter(x => x.id !== id); if (DB) DB.collection('inventory').doc(id).delete().catch(() => note('This item was not deleted: you can view the inventory but not edit it.')); }
+
+/* ---------- places: infrastructure that can change what a stretch is like, with the date it changed ---------- */
+const PLT = { underpass: 'Underpass', junction: 'Junction or crossing', bins: 'Municipal bins', busstop: 'Bus stop', metro: 'Metro station', mall: 'Mall', construction: 'Construction site' };
+const PL_SEED = [{ id: 'underpass', type: 'underpass', name: 'Underpass walkway', from: 162, to: 191, src: 'walker' }, { id: 'junction', type: 'junction', name: 'Turn onto highway service road', from: 104, to: 104, src: 'walker' }, { id: 'bins', type: 'bins', name: 'Community bins', from: 80, to: 80, src: 'walker' }];
+let PL = PL_SEED.map(p => Object.assign({}, p));
+function savePl(p) {
+  if (!DB) { note('Not saved: open the page on claude.ai while signed in to keep place changes.'); return; }
+  DB.collection('places').doc(p.id).set({ type: p.type, name: p.name || '', from: +p.from, to: +p.to, changedOn: p.changedOn || '', src: p.src || 'site' }).catch(() => note('This place was not saved: you can view places but not edit them.'));
+}
+function delPl(id) { PL = PL.filter(p => p.id !== id); if (DB) DB.collection('places').doc(id).delete().catch(() => note('This place was not deleted.')); }
+const fmtDate = s => new Date(s + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+
+/* ---------- reliability: every record is kept and labelled with how far to trust it ---------- */
+const TODAY = new Date(), ageDays = w => Math.floor((TODAY - new Date(w.date + 'T12:00:00')) / 864e5);
+const REL = { cur: ['Current', 'walked in the last 30 days'], age: ['Ageing', '30 days or older: walk it again'], sup: ['Superseded', 'walked before a place nearby changed'], unr: ['Unreliable', 'night photo too dark to read'], mix: ['Mixed up', 'direction and light change together in these walks'] };
+function relOf(w, i) {
+  const m = i * 10 + 5;
+  if (PL.some(p => p.changedOn && p.changedOn > w.date && m >= p.from - 50 && m <= p.to + 50)) return 'sup';
+  if (w.night || (w.s[i] && w.s[i].k === 'dark')) return 'unr';
+  return ageDays(w) >= 30 ? 'age' : 'cur';
+}
+const relChip = (k, n) => `<span class="rel ${k}" title="${REL[k][1]}">${n != null ? n + ' ' : ''}${REL[k][0]}</span>`;
+const relCounts = (W, i) => W.reduce((c, w) => { if (w.s[i]) { const k = relOf(w, i); c[k] = (c[k] || 0) + 1; } return c; }, {});
+const relHtml = c => ['cur', 'age', 'sup', 'unr'].filter(k => c[k]).map(k => relChip(k, c[k])).join(' ');
+
+/* ---------- compare: two groups of walks over a window of the route ---------- */
+const CONF = { dir: [w => w.dir[0], { f: 'A → B', r: 'B → A' }, 'direction'], light: [w => w.night ? 'n' : 'd', { d: 'daylight', n: 'night' }, 'light'] };
+function cmpGroups(c) {
+  if (c.by === 'date') {
+    const p = PL.find(x => x.id === c.place && x.changedOn) || PL.find(x => x.changedOn); if (!p) return null;
+    return { la: 'Before', lb: 'After', pa: `before ${fmtDate(p.changedOn)}`, pb: `from ${fmtDate(p.changedOn)}`, what: `the change at ${p.name.toLowerCase()}`, place: p, a: D.walks.filter(w => w.date < p.changedOn), b: D.walks.filter(w => w.date >= p.changedOn) };
+  }
+  if (c.by === 'dir') return { la: 'A → B', lb: 'B → A', pa: 'going A → B', pb: 'going B → A', what: 'walking B → A', a: D.walks.filter(w => w.dir[0] === 'f'), b: D.walks.filter(w => w.dir[0] === 'r') };
+  return { la: 'Daylight', lb: 'Night', pa: 'by day', pb: 'at night', what: 'darkness', a: D.walks.filter(w => !w.night), b: D.walks.filter(w => w.night) };
+}
+const shareOf = (W, i) => { const r = W.map(w => w.s[i]).filter(Boolean); return { n: r.length, b: r.filter(x => x.o >= OBS).length }; };
+const pct = x => x.n ? Math.round(x.b / x.n * 100) : null;
+const listAnd = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
+function cmpAnalyse(c) {
+  const G = cmpGroups(c); if (!G) return null;
+  const rows = []; for (let i = Math.floor(c.from / 10); i < Math.min(NB, Math.ceil(c.to / 10)); i++) { const A = shareOf(G.a, i), B = shareOf(G.b, i); rows.push({ i, A, B, d: A.n && B.n ? pct(B) - pct(A) : null }); }
+  const peak = rows.filter(r => r.d != null).sort((x, y) => Math.abs(y.d) - Math.abs(x.d))[0];
+  const checks = [], why = [], fresh = [], matched = [];
+  for (const v of Object.keys(CONF).filter(v => v !== c.by)) {
+    const [f, names, word] = CONF[v], vals = Object.keys(names), has = (W, x) => W.filter(w => f(w) === x);
+    const desc = W => { const n = vals.filter(x => has(W, x).length); return n.length === 1 ? `all ${names[n[0]]}` : n.map(x => `${has(W, x).length} ${names[x]}`).join(', '); };
+    const pa = has(G.a, vals[0]).length / Math.max(1, G.a.length), pb = has(G.b, vals[0]).length / Math.max(1, G.b.length);
+    if (!G.a.length || !G.b.length || Math.abs(pa - pb) <= .34) { checks.push([true, `${word[0].toUpperCase() + word.slice(1)} is balanced between the two groups.`]); continue; }
+    checks.push([false, `${word[0].toUpperCase() + word.slice(1)} is mixed up with the comparison: ${G.lb.toLowerCase()} walks are ${desc(G.b)}; ${G.la.toLowerCase()} walks are ${desc(G.a)}.`]);
+    why.push(`${word} is mixed up with ${c.by === 'date' ? 'the date' : CONF[c.by][2]}`);
+    if (peak) for (const x of vals.filter(x => has(G.a, x).length && has(G.b, x).length)) {
+      const A = shareOf(has(G.a, x), peak.i), B = shareOf(has(G.b, x), peak.i); if (!A.n || !B.n) continue;
+      matched.push(`Comparing ${names[x]} walks only at ${sname(peak.i)}: ${pct(A)}% ${G.pa} (${A.b} of ${A.n}) and ${pct(B)}% ${G.pb} (${B.b} of ${B.n})` + (Math.abs(pct(B) - pct(A)) < Math.abs(peak.d) / 2 ? `, so much of the gap may come from ${word}, not ${G.what}.` : '.'));
+    }
+    [['a', G.a, G.pa], ['b', G.b, G.pb]].forEach(([g, W, ph]) => { if (g === 'a' && c.by === 'date') return; vals.filter(x => !has(W, x).length).forEach(x => fresh.push(v === 'dir' ? `walk ${names[x]} ${ph} 3 times` : `walk ${ph} ${x === 'n' ? 'at night' : 'by day'} 3 times`)); });
+  }
+  [['a', G.a, G.pa], ['b', G.b, G.pb]].forEach(([g, W, ph]) => {
+    if (W.length >= 5) return; checks.push([false, `Only ${W.length} walks ${ph}: one walk changes each figure by ${Math.round(100 / Math.max(1, W.length))} points.`]); why.push(`there are only ${W.length} walks ${ph}`);
+    if (!fresh.some(t => t.includes(ph)) && !(g === 'a' && c.by === 'date')) fresh.push(`walk ${5 - W.length} more times ${ph}`);
+  });
+  const all = G.a.concat(G.b), win = rows.map(r => r.i), cnt = k => win.reduce((n, i) => n + all.filter(w => w.s[i] && relOf(w, i) === k).length, 0), recs = win.reduce((n, i) => n + all.filter(w => w.s[i]).length, 0);
+  if (cnt('unr')) { checks.push([false, `${cnt('unr')} of ${recs} records in this window are unreliable: the night photos are too dark to show whether anything else was in the way.`]); why.push('night photos can\'t be read'); fresh.push('measure the light (a lux reading every 10 m)'); }
+  if (cnt('sup')) checks.push([false, `${cnt('sup')} records were walked before a place nearby changed. They are kept and labelled superseded.`]);
+  else checks.push([true, 'No place in this window has changed since these walks.']);
+  if (cnt('age')) checks.push([false, `${cnt('age')} records are 30 days old or more: walk the window again.`]); else checks.push([true, 'Every record here is under 30 days old.']);
+  const near = G.place || PL.filter(p => p.to >= c.from && p.from <= c.to).sort((x, y) => (y.to - y.from) - (x.to - x.from))[0];
+  let verdict = '';
+  if (peak) {
+    const where = near ? `at the ${near.name.toLowerCase()}` : `between ${c.from} and ${c.to} m`, nums = `${pct(peak.A)}% ${G.pa}, ${pct(peak.B)}% ${G.pb} at ${sname(peak.i)}`;
+    verdict = Math.abs(peak.d) < 15 ? `Blocking ${where} is about the same for both groups (${nums}).` : `Blocking ${where} is associated with ${peak.d > 0 ? G.what : (c.by === 'light' ? 'daylight' : c.by === 'dir' ? 'walking A → B' : 'the period before the change')} (${nums}).`;
+  }
+  return { G, rows, peak, checks, why, fresh, matched, verdict };
+}
+const cmpCell = (x, W) => { const p = pct(x), f = shareOf(W.filter(w => w.dir[0] === 'f'), x.i), r = shareOf(W.filter(w => w.dir[0] === 'r'), x.i); return `<b class="num">${p == null ? '—' : p + '%'}</b> <span class="small ink3 num">${x.b}/${x.n}</span><div class="meter"><i style="width:${p || 0}%"></i></div><div class="small ink3 num">A→B ${f.n ? f.b + '/' + f.n : '—'} · B→A ${r.n ? r.b + '/' + r.n : '—'}</div>`; };
+function renderCompare() {
+  const P = $('#cmp'); P.hidden = !S.cmpOn; if (!S.cmpOn) return;
+  const c = S.cmp, R0 = cmpAnalyse(c), opt = (v, lo, hi) => Array.from({ length: (hi - lo) / 10 + 1 }, (_, j) => lo + j * 10).map(m => `<option value="${m}" ${m === v ? 'selected' : ''}>${m} m</option>`).join('');
+  const dated = PL.filter(p => p.changedOn);
+  let body;
+  if (!R0) body = `<p class="small ink2">No place on this route has a “changed on” date yet, so there is no before and after to compare. Tap “Edit what is there”, then give a place the date it changed (for example the day the bins were moved, or a mall opened). Walks from before that date are kept and labelled superseded.</p>`;
+  else {
+    const { G, rows, checks, why, fresh, matched, verdict } = R0;
+    body = `${verdict ? `<div class="verdict"><b>${esc(verdict)}</b>${why.length ? `<span>This isn't proven: ${esc(listAnd(why))}.</span>` : ''}${matched.map(t => `<span>${esc(t)}</span>`).join('')}${fresh.length ? `<span><b>To resolve it,</b> ${esc(listAnd(fresh))}.</span>` : ''}</div>` : '<p class="small ink2">Neither group has walks in this window.</p>'}
+      <div style="overflow-x:auto;min-width:0;max-width:100%"><table class="cmpt"><thead><tr><th>Stretch</th><th>${esc(G.la)} · ${G.a.length} walks</th><th>${esc(G.lb)} · ${G.b.length} walks</th><th>Difference</th><th>How far to trust it</th></tr></thead><tbody>
+      ${rows.map(r => `<tr${r.i === S.sel ? ' class="on"' : ''}><td><button class="lnk num" data-go="${r.i}">${sname(r.i)}</button><div class="small ink3">${esc(PL.filter(p => p.to >= r.i * 10 && p.from < r.i * 10 + 10).map(p => p.name).join(' · '))}</div></td><td>${cmpCell(Object.assign({ i: r.i }, r.A), G.a)}</td><td>${cmpCell(Object.assign({ i: r.i }, r.B), G.b)}</td><td class="num"><b>${r.d == null ? '—' : (r.d > 0 ? '+' : '') + r.d + ' pts'}</b></td><td>${relHtml(relCounts(G.a.concat(G.b), r.i))}</td></tr>`).join('')}</tbody></table></div>
+      ${acc('cmp-checks', 'Automatic checks', `${checks.filter(x => !x[0]).length} to watch`, `<ul class="checks">${checks.map(([ok, t]) => `<li class="${ok ? 'ok' : ''}">${esc(t)}</li>`).join('')}</ul><p class="small ink3">Blocked = the photo shows the path obstructed (score 1.4 or more). No walk is ever deleted: old or unreadable records stay and are labelled.</p>`)}`;
+  }
+  P.innerHTML = `<div class="row" style="flex-wrap:wrap;gap:10px;align-items:flex-start"><div class="grow"><h2>Compare two groups of walks</h2><p class="small ink2">The same stretches, two groups of walks, both directions shown.</p></div><button class="btn" type="button" data-scn="underpass">Example: the underpass at night</button><button class="btn ghost" type="button" data-cmpclose="1">Close</button></div>
+    <div class="row" style="flex-wrap:wrap;gap:12px 18px"><div class="row"><span class="lbl">Compare</span><div class="seg" data-c="by">${[['light', 'Daylight vs night'], ['dir', 'A → B vs B → A'], ['date', 'Before vs after a change']].map(([v, t]) => `<button type="button" data-v="${v}" aria-pressed="${c.by === v}">${t}</button>`).join('')}</div></div>
+    ${c.by === 'date' && dated.length ? `<label class="row"><span class="lbl">Place</span><select class="sel" data-c="place">${dated.map(p => `<option value="${p.id}" ${p.id === c.place ? 'selected' : ''}>${esc(p.name)} · ${fmtDate(p.changedOn)}</option>`).join('')}</select></label>` : ''}
+    <label class="row"><span class="lbl">From</span><select class="sel" data-c="from">${opt(c.from, 0, L - 10)}</select></label><label class="row"><span class="lbl">To</span><select class="sel" data-c="to">${opt(c.to, 10, L)}</select></label></div>
+    ${body}`;
+}
+// Before/after comparisons look at the 100 m around the place that changed.
+function fitWin() { const p = PL.find(x => x.id === S.cmp.place && x.changedOn) || PL.find(x => x.changedOn); if (!p) return; S.cmp.place = p.id; S.cmp.from = Math.max(0, Math.min(L - 100, Math.floor(((p.from + p.to) / 2 - 50) / 10) * 10)); S.cmp.to = S.cmp.from + 100; }
+function loadUnderpass() {
+  S.cmpOn = true; S.cmp = { by: 'light', from: 150, to: 200, place: '' }; S.pl = 'on'; S.sel = 16; saveUi(); syncSegs(); renderExplore(); setTimeout(() => { ex.centerOn(175); $('#cmp').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 30);
+}
 function note(msg) { const n = $('#note'); n.textContent = msg; n.hidden = false; clearTimeout(note.t); note.t = setTimeout(() => n.hidden = true, 4000); }
 
 /* ---------- state ---------- */
-const S = Object.assign({ light: 'any', dir: 'both', layer: 'blocked', view: 'after', sel: 8, inv: 'on', sight: 'on', edit: false }, store.get('ui2', {}));
+const S = Object.assign({ light: 'any', dir: 'both', layer: 'blocked', view: 'after', sel: 8, inv: 'on', sight: 'on', pl: 'on', edit: false, cmpOn: false, cmp: { by: 'light', from: 150, to: 200, place: '' } }, store.get('ui2', {}));
 let ITEMS = [];
 let OPTS = [null, null, null];
-const saveUi = () => store.set('ui2', { light: S.light, dir: S.dir, layer: S.layer, view: S.view, sel: S.sel, inv: S.inv, sight: S.sight });
+const saveUi = () => store.set('ui2', { light: S.light, dir: S.dir, layer: S.layer, view: S.view, sel: S.sel, inv: S.inv, sight: S.sight, pl: S.pl, cmpOn: S.cmpOn, cmp: S.cmp });
 
 /* ---------- model ---------- */
 const walksFor = (light, dir = 'both') => D.walks.filter(w => (light === 'any' || (light === 'night') === w.night) && (dir === 'both' || w.dir[0] === dir));
@@ -561,9 +680,13 @@ function Street(host, mini, opts) {
     }
     // inventory, at real size; fixes that remove an item hide it in the "with changes" view
     for (const o of inv) { if (invGone(o, items)) continue; const on = selInv === o.id; h += `<g class="inv" data-id="${o.id}" style="cursor:${opts.onInvDown ? 'grab' : 'pointer'}" transform="rotate(${o.rot || 0} ${X(o.m).toFixed(1)} ${Y(o.d).toFixed(1)})">${invShape(o, X, Y, k)}${on ? R(X(o.m - o.len / 2) - 3, Y(o.d) - o.wid * k / 2 - 3, o.len * k + 6, o.wid * k + 6, 'none', 'stroke="var(--accent)" stroke-width="2.5" rx="5"') : ''}</g>`; }
-    // landmarks
-    h += R(X(162), 0, X(191) - X(162), HH(), '#0B1220', 'opacity=".3" pointer-events="none"') + `<text x="${X(176.5)}" y="${Math.max(13, Y(-XS.BLD) + 14)}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)" font-family="Figtree" pointer-events="none">Underpass walkway</text>`;
-    h += R(X(104) - 1, 0, 2, HH(), 'var(--ink)', 'opacity=".45" pointer-events="none"') + `<text x="${X(104) + 6}" y="${Y(-XS.BLD) + 14}" font-size="12" font-weight="700" fill="var(--ink)" font-family="Figtree" pointer-events="none">↱ turn onto highway service road</text>`;
+    // places on the route, and the compare window
+    (opts.places ? opts.places() : []).forEach((p, j) => {
+      const lab = esc(p.name || PLT[p.type]) + (p.changedOn ? ` · changed ${fmtDate(p.changedOn)}` : ''), ty = Math.max(13, Y(-XS.BLD) + 14) + (j % 2) * 16;
+      if (p.to - p.from >= 2) h += R(X(p.from), 0, X(p.to) - X(p.from), HH(), p.type === 'underpass' ? '#0B1220' : 'var(--accent)', `opacity="${p.type === 'underpass' ? .3 : .12}" pointer-events="none"`) + `<text x="${X((p.from + p.to) / 2)}" y="${ty}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)" font-family="Figtree" pointer-events="none">${lab}</text>`;
+      else h += R(X(p.from) - 1, 0, 2, HH(), 'var(--ink)', 'opacity=".45" pointer-events="none"') + `<text x="${X(p.from) + 6}" y="${ty}" font-size="12" font-weight="700" fill="var(--ink)" font-family="Figtree" pointer-events="none">${p.type === 'junction' ? '↱ ' : ''}${lab}</text>`;
+    });
+    const win = opts.win && opts.win(); if (win) h += R(X(win[0]), Y(0) - 8, X(win[1]) - X(win[0]), XS.FW * k + 16, 'none', 'stroke="var(--accent)" stroke-width="2.5" stroke-dasharray="8 5" rx="8" pointer-events="none"') + `<text x="${X(win[0]) + 6}" y="${Y(XS.FW) + 22}" font-size="11" font-weight="700" fill="var(--accent-ink)" font-family="Figtree" pointer-events="none">Compare window ${win[0]}–${win[1]} m</text>`;
     h += `<text x="${X(0) + 4}" y="${Y(-XS.BLD) + 14}" font-size="12" font-weight="800" fill="var(--ink)" font-family="Figtree">A</text><text x="${X(L) - 4}" y="${Y(-XS.BLD) + 14}" text-anchor="end" font-size="12" font-weight="800" fill="var(--ink)" font-family="Figtree">B</text>`;
     if (sel != null) { h += R(X(sel * 10) - 3, Y(0) - 5, 10 * k + 6, XS.FW * k + 10, 'none', 'stroke="var(--surface)" stroke-width="6" rx="8" pointer-events="none"') + R(X(sel * 10), Y(0) - 2, 10 * k, XS.FW * k + 4, 'none', 'stroke="var(--ink)" stroke-width="3" rx="6" pointer-events="none"'); const lw = 74, lx = X(sel * 10 + 5) - lw / 2, ly = Y(0) - 30; h += R(lx, ly, lw, 22, 'var(--ink)', 'rx="11" pointer-events="none"') + `<text x="${X(sel * 10 + 5)}" y="${ly + 15.5}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--surface)" font-family="IBM Plex Mono" pointer-events="none">${sel * 10}–${sel * 10 + 10} m</text>`; }
     h += R(x0, HH(), xw, RH, 'var(--surface)');
@@ -668,6 +791,7 @@ function renderExplore(keepPanel) {
   const ly = LAYERS[S.layer], C = compute(S.light, S.dir, []), s = C.st[S.sel];
   $('#exTitle').textContent = ly.title; $('#exLegend').innerHTML = legendHtml(ly);
   ex.render(C.st, ly, S.sel, [], null, selInvEx, S.inv === 'on' ? INV : []);
+  renderCompare(); $('#cmpBtn').classList.toggle('ghost', !S.cmpOn);
   $('#editInv').textContent = S.edit ? 'Done editing' : 'Edit what is there';
   $('#editInv').classList.toggle('ghost', !S.edit);
   $('#invPal').hidden = !S.edit;
@@ -683,14 +807,20 @@ function renderExplore(keepPanel) {
     <div class="detail">${photoHtml(p)}<div style="min-width:0" class="accs">
       ${acc('ex-measures', 'Measures', `${s.n ? s.blocked + '/' + s.n + ' blocked' : '—'} · ${s.width == null ? 'width n/a' : s.width.toFixed(1) + ' m'}`, `<div><div class="stat"><span>Blocked</span><b>${s.n ? `${s.blocked} of ${s.n} walks` : '—'}</b></div><div class="stat"><span>Clear width</span><b>${s.width == null ? 'not measurable' : s.width.toFixed(1) + ' m'}</b></div><div class="stat"><span>Swerves</span><b>${s.sw}</b></div><div class="stat"><span>Horns</span><b>${s.hk}</b></div></div>`)}
       ${acc('ex-causes', 'What blocked it', causes.length ? causes.reduce((a, c) => a + c[1], 0) + ' blocks' : 'clear', causeHtml)}
+      ${(() => { const rc = relCounts(C.W, S.sel), near = PL.filter(p => p.changedOn && S.sel * 10 + 5 >= p.from - 50 && S.sel * 10 + 5 <= p.to + 50); return acc('ex-rel', 'How far to trust it', Object.keys(rc).length ? Object.entries(rc).sort((a, b) => b[1] - a[1])[0][1] + ' ' + REL[Object.entries(rc).sort((a, b) => b[1] - a[1])[0][0]][0].toLowerCase() : '—', `<div class="row" style="flex-wrap:wrap;gap:6px">${relHtml(rc)}${S.light === 'night' || S.dir === 'r' ? ' ' + relChip('mix') : ''}</div><p class="small ink2">${['cur', 'age', 'sup', 'unr'].filter(k => rc[k]).map(k => `${REL[k][0]}: ${REL[k][1]}.`).join(' ')}${near.length ? ' Nearby change: ' + near.map(p => `${esc(p.name)} on ${fmtDate(p.changedOn)}`).join(', ') + '.' : ''} Nothing is deleted; old records stay and are labelled.</p>`, false); })()}
       ${here.length ? acc('ex-here', 'On the street here', here.length + ' items', ['friction', 'life', 'fixed'].filter(g => hereTags[g]).map(g => `<div>${tagChip(g)}<p class="small ink2" style="margin-top:2px">${hereTags[g].join(' · ')}</p></div>`).join(''), false) : ''}
     </div></div>
     <div class="small ink3" style="margin-top:10px">${p ? `Worst photo: ${esc(p.src)}. Green = walkable ground traced from the photo; boxes = what is in the way.` : 'No photo for this filter.'}</div>
     <div style="margin-top:12px"><button class="btn" id="tryFix">Try a fix here in the sandbox →</button></div>`;
   const ranked = C.st.filter(x => x.share != null).sort((a, b) => b.share - a.share).slice(0, 5);
   $('#exSummary').innerHTML = `<div class="lbl">For these walks</div><div class="row" style="align-items:baseline;gap:10px;margin:6px 0 2px"><span class="big">${C.mostly}</span><span class="ink2">of 22 stretches blocked on most walks</span></div><p class="small ink2">${C.W.length} walks · ${S.light === 'night' ? 'all night walks went B → A' : S.light === 'day' ? 'daylight only' : 'daylight and night'}</p>
-    <div class="accs">${acc('ex-worst', 'Worst stretches', 'top 5', `<div class="causes">${ranked.map(x => `<button class="cause" data-go="${x.i}" style="border:0;background:none;padding:4px 0;cursor:pointer;text-align:left;grid-template-columns:78px 1fr 40px"><b class="num">${sname(x.i)}</b><span class="meter"><i style="width:${Math.round(x.share * 100)}%"></i></span><span class="num">${Math.round(x.share * 100)}%</span></button>`).join('')}</div>`)}${acc('ex-irc', 'IRC:103 width screening', `${C.irc.ok}/${C.irc.of} stretches`, `<p class="small ink2">${C.irc.ok} of ${C.irc.of} measurable stretches have at least 1.8 m clear (the residential minimum). This is screening from uncalibrated camera estimates, not a legal score.</p>`, false)}</div>
+    <div class="accs">${acc('ex-worst', 'Worst stretches', 'top 5', `<div class="causes">${ranked.map(x => `<button class="cause" data-go="${x.i}" style="border:0;background:none;padding:4px 0;cursor:pointer;text-align:left;grid-template-columns:78px 1fr 40px"><b class="num">${sname(x.i)}</b><span class="meter"><i style="width:${Math.round(x.share * 100)}%"></i></span><span class="num">${Math.round(x.share * 100)}%</span></button>`).join('')}</div>`)}${acc('ex-places', 'Places on the route', PL.length + ' tagged', placesHtml(), S.edit)}${acc('ex-irc', 'IRC:103 width screening', `${C.irc.ok}/${C.irc.of} stretches`, `<p class="small ink2">${C.irc.ok} of ${C.irc.of} measurable stretches have at least 1.8 m clear (the residential minimum). This is screening from uncalibrated camera estimates, not a legal score.</p>`, false)}</div>
     ${S.light === 'night' || S.dir === 'r' ? `<p class="small" style="margin-top:14px;padding:10px;border-radius:10px;background:var(--accent-soft);color:var(--accent-ink)">All 4 night walks went B → A, so night and direction are mixed up in this view.</p>` : ''}`;
+}
+function placesHtml() {
+  const srt = PL.slice().sort((a, b) => a.from - b.from);
+  if (!S.edit) return `<div class="causes">${srt.map(p => `<button class="cause" data-go="${Math.min(NB - 1, Math.floor((p.from + p.to) / 20))}" style="border:0;background:none;padding:4px 0;cursor:pointer;text-align:left;grid-template-columns:1fr auto"><span><b>${esc(p.name || PLT[p.type])}</b><span class="small ink3"> · ${PLT[p.type]}${p.changedOn ? ' · changed ' + fmtDate(p.changedOn) : ''}</span></span><span class="num small">${p.to > p.from ? `${p.from}–${p.to}` : p.from} m</span></button>`).join('')}</div><p class="small ink3">Places that can change a stretch. Give one a “changed on” date to compare before and after; tap “Edit what is there” to edit.</p>`;
+  return `<div class="pled">${srt.map(p => `<div class="row" data-pl="${p.id}"><input class="nm" data-f="name" value="${esc(p.name || '')}" aria-label="Name"><select data-f="type" aria-label="Type">${Object.entries(PLT).map(([k, t]) => `<option value="${k}" ${k === p.type ? 'selected' : ''}>${t}</option>`).join('')}</select><input type="number" data-f="from" value="${p.from}" min="0" max="${L}" aria-label="From (m)"><span class="small">to</span><input type="number" data-f="to" value="${p.to}" min="0" max="${L}" aria-label="To (m)"><span class="small">m · changed on</span><input type="date" data-f="changedOn" value="${p.changedOn || ''}" aria-label="Changed on"><button type="button" class="btn ghost" data-pldel="${p.id}" style="font-size:13px;padding:6px 10px">Delete</button></div>`).join('')}<div><button type="button" class="btn ghost" data-pladd="1" style="font-size:13px;padding:7px 10px">Add a place</button></div></div>`;
 }
 function renderInvPanel() {
   const P = $('#invPanel'), o = INV.find(x => x.id === selInvEx);
@@ -805,7 +935,7 @@ function dragMove(street, e, get, apply, done) {
 function initSandbox() {
   $('#palette').innerHTML = `<div class="lbl">Fixes · drag onto the street</div><input id="q" class="search" type="search" placeholder="Search ${TOOLS.length} fixes" aria-label="Search fixes"><div id="cats">${paletteHtml('')}</div><p class="small ink3" style="margin-top:4px">Keyboard: focus a fix and press Enter to place it in the middle of the view.</p>`;
   $('#q').addEventListener('input', e => { $('#cats').innerHTML = paletteHtml(e.target.value); });
-  sb = Street($('#sbStreet'), $('#sbMini'), { sightings: () => S.sight === 'on',
+  sb = Street($('#sbStreet'), $('#sbMini'), { sightings: () => S.sight === 'on', places: () => PL,
     onItemDown(id, e) { const it = ITEMS.find(x => x.id === id); if (!it) return; const t = TOOL[it.t]; selItem = id; selInvSb = null; renderSandbox();
       dragMove(sb, e, () => ({ m: it.m, d: it.d }), (m, d) => { it.m = Math.max(0, Math.min(L, Math.round(m * 2) / 2)); const z = zoneOf(d); let snapD = null; if (t.lane !== 'road' && (z === 'path' || z === 'lane')) { for (const s of z === 'path' ? [.3, XS.FW / 2, XS.FW - .25] : [DK + XS.LANE / 2]) if (Math.abs(d - s) < .3) { d = s; snapD = s; } it.lane = z; it.d = fitD(t, z, d); } sb.guide = { m: it.m, d: snapD }; renderSandbox(true); }, () => { sb.guide = null; save(); renderSandbox(); }); },
     onInv(id) { selInvSb = id; selItem = null; renderSandbox(); },
@@ -834,7 +964,7 @@ function initSandbox() {
   });
 }
 function initExplore() {
-  ex = Street($('#exStreet'), $('#exMini'), { sightings: () => S.sight === 'on',
+  ex = Street($('#exStreet'), $('#exMini'), { sightings: () => S.sight === 'on', places: () => S.pl === 'on' ? PL : [], win: () => S.cmpOn ? [S.cmp.from, S.cmp.to] : null,
     onSelect(i) { S.sel = i; saveUi(); renderExplore(); ex.centerOn(i * 10 + 5); },
     onInv(id) { selInvEx = id; renderExplore(); },
     onInvDown(id, e) { if (!S.edit) { selInvEx = id; renderExplore(); return; } const o = INV.find(x => x.id === id); if (!o) return; selInvEx = id; renderExplore();
@@ -845,6 +975,21 @@ function initExplore() {
     const o = INV.find(x => x.id === selInvEx); if (!o) return; const v = parseFloat(e.target.value); if (!isFinite(v)) return;
     const key = { 'g-m': 'm', 'g-d': 'd', 'g-len': 'len', 'g-wid': 'wid', 'g-rot': 'rot' }[e.target.id]; if (!key) return;
     const lim = { m: [0, L], d: [-XS.BLD, DR], len: [.1, 60], wid: [.05, 10], rot: [-180, 180] }[key]; o[key] = Math.max(lim[0], Math.min(lim[1], v)); saveInv(o); renderExplore(true);
+  });
+  $('#cmpBtn').addEventListener('click', () => { S.cmpOn = !S.cmpOn; saveUi(); renderExplore(); });
+  $('#cmp').addEventListener('click', e => {
+    if (e.target.closest('[data-scn=underpass]')) { loadUnderpass(); return; }
+    if (e.target.closest('[data-cmpclose]')) { S.cmpOn = false; saveUi(); renderExplore(); return; }
+    const b = e.target.closest('.seg[data-c] button'); if (b) { S.cmp.by = b.dataset.v; if (b.dataset.v === 'date') fitWin(); saveUi(); renderExplore(); }
+  });
+  $('#cmp').addEventListener('change', e => { const k = e.target.dataset.c; if (!k) return; S.cmp[k] = k === 'place' ? e.target.value : +e.target.value; if (k === 'place') fitWin(); if (S.cmp.to <= S.cmp.from) { if (k === 'from') S.cmp.to = Math.min(L, S.cmp.from + 50); else S.cmp.from = Math.max(0, S.cmp.to - 50); } saveUi(); renderExplore(); });
+  $('#exSummary').addEventListener('change', e => {
+    const row = e.target.closest('[data-pl]'), f = e.target.dataset.f; if (!row || !f) return; const p = PL.find(x => x.id === row.dataset.pl); if (!p) return;
+    p[f] = f === 'from' || f === 'to' ? Math.max(0, Math.min(L, +e.target.value || 0)) : e.target.value; if (p.to < p.from) p.to = p.from; savePl(p); renderExplore();
+  });
+  $('#exSummary').addEventListener('click', e => {
+    const d = e.target.closest('[data-pldel]'); if (d) { delPl(d.dataset.pldel); renderExplore(); return; }
+    if (e.target.closest('[data-pladd]')) { const m = S.sel * 10; const p = { id: 'p' + Date.now().toString(36), type: 'construction', name: 'New place', from: m, to: m + 10, changedOn: '', src: 'site' }; PL.push(p); savePl(p); renderExplore(); }
   });
   $('#v-explore').addEventListener('click', e => {
     const nd = e.target.closest('#invPanel [data-nudge]'); if (nd) { const inp = $('#' + nd.dataset.nudge); inp.value = +(parseFloat(inp.value) + parseFloat(nd.dataset.d)).toFixed(2); inp.dispatchEvent(new Event('input', { bubbles: true })); return; }
@@ -892,5 +1037,10 @@ setTimeout(() => { ex.centerOn(S.sel * 10 + 5); }, 50);
     INV = snap.docs.map(d => Object.assign({ id: d.id }, d.data())).filter(o => INVT[o.type] && isFinite(o.m) && isFinite(o.d)).map(o => local[o.id] || o);
     invState = 'ok'; route(editing);
   }, () => { invState = 'error'; route(); });
+  db.collection('places').onSnapshot(snap => {
+    if (document.activeElement && document.activeElement.closest && document.activeElement.closest('.pled')) return;
+    const docs = snap.docs.map(d => Object.assign({ id: d.id }, d.data())).filter(p => PLT[p.type] && isFinite(p.from) && isFinite(p.to));
+    if (docs.length) { PL = docs; route(true); }
+  }, () => {});
 })();
 </script>
