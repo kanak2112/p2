@@ -69,8 +69,11 @@ Shade and lighting are not offered until the capture standard records them.
 ### Photos and overlays
 
 - Each tile crops the walk's `frames.jpg` at the worst photo's `cell`.
-- Overlay: the walking channel trapezoid (22,100 → 78,100 → 57,60 → 43,60 in % of the frame), filled and stroked in the band colour. When the band is not clear, red boxes mark clutter cells from the nearest spot view (within 2 s).
-- Badge: the band's width range. Tapping a tile opens a larger view with the obstruction and near-field values and the segmentation shares.
+- Overlay: traced from each photo by `photo_overlays.py` and stored as `node.ov` (fractions of the frame).
+  - `path`: polygon of the free ground ahead, filled and stroked in the band colour. It follows the ground the walker actually had, around bikes, people and kerbs. Empty when no free ground is visible.
+  - `obs`: up to five boxes `[x, y, w, h, kind]` (people, vehicle, pole, barrier, plants) on or beside the path, stroked red.
+  - `night`: low-light photos (night walks, the underpass) get a path traced from floor texture and colour, a dashed outline and no boxes, because segmentation is unreliable in the dark.
+- Badge: the band's width range. Tapping a tile opens a larger view with the obstruction and near-field values, what the boxes are, and the segmentation shares.
 
 ### Ask
 

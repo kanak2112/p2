@@ -276,24 +276,21 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 
 /* =================== Photos and proxemic overlays =================== */
 function photoStyle(W, n) { const fs = W.w.frame_sheet, j = n.cell ?? n.i, c = j % fs.cols, r = Math.floor(j / fs.cols); return `background-image:url('${W.w.folder}/${fs.file}');background-size:${fs.cols * 100}% ${fs.rows * 100}%;background-position:${fs.cols > 1 ? c / (fs.cols - 1) * 100 : 0}% ${fs.rows > 1 ? r / (fs.rows - 1) * 100 : 0}%`; }
-function clutterBoxes(W, n) {
-  const sv = W.w.spot_views; if (!sv || !sv.c) return [];
-  let k = 0; for (let j = 1; j < sv.t.length; j++) if (Math.abs(sv.t[j] - n.t) < Math.abs(sv.t[k] - n.t)) k = j;
-  if (Math.abs(sv.t[k] - n.t) > 2) return [];
-  const mask = sv.c[k], { cols, rows, zone: [t, b, l, r] } = sv.grid, seen = new Set(), out = [];
-  for (let j = 0; j < cols * rows; j++) {
-    if (!(mask >> j & 1) || seen.has(j)) continue;
-    const st = [j]; let c0 = 9, c1 = -1, r0 = 9, r1 = -1; seen.add(j);
-    while (st.length) { const q = st.pop(), rr = Math.floor(q / cols), cc = q % cols; c0 = Math.min(c0, cc); c1 = Math.max(c1, cc); r0 = Math.min(r0, rr); r1 = Math.max(r1, rr); [[0, 1], [0, -1], [1, 0], [-1, 0]].forEach(([dr, dc]) => { const nr = rr + dr, nc = cc + dc, nk = nr * cols + nc; if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && (mask >> nk & 1) && !seen.has(nk)) { seen.add(nk); st.push(nk); } }); }
-    out.push({ x: (l + (r - l) * c0 / cols) * 100, y: (t + (b - t) * r0 / rows) * 100, w: (r - l) * (c1 - c0 + 1) / cols * 100, h: (b - t) * (r1 - r0 + 1) / rows * 100 });
-  }
-  return out;
-}
+// n.ov is traced from the photo itself (photo_overlays.py): the free ground ahead and the obstacles on or beside it.
 function overlaySvg(W, n, band) {
-  const col = HEX[BAND[band].cat];
-  let s = `<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="22,100 78,100 57,60 43,60" fill="${col}" fill-opacity=".28" stroke="${col}" stroke-width="1.6" vector-effect="non-scaling-stroke"/>`;
-  if (band !== 'C') clutterBoxes(W, n).forEach(b => { s += `<rect x="${b.x + .8}" y="${b.y + .5}" width="${b.w - 1.6}" height="${b.h - 1}" fill="none" stroke="#EF4444" stroke-width="2" vector-effect="non-scaling-stroke"/>`; });
+  const ov = n.ov; if (!ov) return '';
+  const col = HEX[BAND[band].cat], dash = ov.night ? ' stroke-dasharray="4 3"' : '';
+  let s = '<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">';
+  if (ov.path.length) s += `<polygon points="${ov.path.map(([x, y]) => `${(x * 100).toFixed(1)},${(y * 100).toFixed(1)}`).join(' ')}" fill="${col}" fill-opacity=".3" stroke="${col}" stroke-width="1.6" stroke-linejoin="round" vector-effect="non-scaling-stroke"${dash}/>`;
+  ov.obs.forEach(([x, y, w, h]) => { s += `<rect x="${(x * 100).toFixed(1)}" y="${(y * 100).toFixed(1)}" width="${(w * 100).toFixed(1)}" height="${(h * 100).toFixed(1)}" fill="none" stroke="#EF4444" stroke-width="1.6" vector-effect="non-scaling-stroke"/>`; });
   return s + '</svg>';
+}
+const OBS_NAME = { people: 'people', vehicle: 'vehicles', pole: 'poles and signs', barrier: 'walls and fences', plants: 'plants' };
+function obsLine(n) {
+  const ov = n.ov; if (!ov) return '';
+  if (ov.night) return 'Low light: the dashed outline is approximate and obstacles are not marked.';
+  const kinds = [...new Set(ov.obs.map(o => OBS_NAME[o[4]]))];
+  return (ov.path.length ? 'Shaded: the free ground ahead.' : 'No free ground ahead in this photo.') + (kinds.length ? ` Red boxes: ${kinds.join(', ')}.` : '');
 }
 const badge = band => `<span class="pbadge"><i style="background:${HEX[BAND[band].cat]}"></i>${BAND[band].range}</span>`;
 
@@ -552,7 +549,7 @@ function openAbout() {
   modal(`<div class="col" style="gap:12px">${[
     ['Blocked', 'The most cluttered photo in a 10 m stretch scores 1.4 or more on the obstruction index.'],
     ['Room to walk', 'Each photo falls in a proxemic band: under 0.8 m (intimate), 0.8–1.2 m (social) or 1.2 m and more (clear). The ribbon averages them. Tape measurements will replace it.'],
-    ['Photos', 'One photo every 3 seconds of walking. The overlay marks the walking channel and red boxes where clutter sits.'],
+    ['Photos', 'One photo every 3 seconds of walking. The shading is the free ground ahead, traced from each photo; red boxes are the people, vehicles, poles, walls and plants on or beside it.'],
     ['Dates', 'Upload dates stand in for recording dates, which the pilot videos lost.'],
     ['Night', 'All night walks went B → A. Crowding uses daylight photos only.']
   ].map(([a, b]) => `<div class="col"><b>${a}</b><span class="t-body ink2">${b}</span></div>`).join('')}</div>`, 'About these numbers');
@@ -563,6 +560,7 @@ function openPhoto(id) {
     <div class="row" style="padding:36px 8px 10px 4px"><button class="icon" type="button" data-act="close" aria-label="Close" style="color:#fff">${ic('close', 22)}</button><b class="grow">Day ${t.W.day} · ${DIRS[t.W.key].label} · ${binName(s.i)}</b></div>
     <div class="big" style="${photoStyle(t.W, t.n)}">${overlaySvg(t.W, t.n, t.band)}${badge(t.band)}</div>
     <div class="meta"><span>${t.W.light} · ${t.n.meter.toFixed(0)} m · ${t.bl ? 'blocked' : 'clear'} · obstruction ${t.n.obstruction.toFixed(2)}</span>
+      ${obsLine(t.n) ? `<span>${obsLine(t.n)}</span>` : ''}
       ${t.n.seg && t.W.light === 'daylight' ? `<span>People ${Math.round(t.n.seg.people * 100)}% · vehicles ${Math.round(t.n.seg.vehicles * 100)}% · fixtures ${Math.round(t.n.seg.fixed * 100)}% of the walking space</span>` : ''}</div></div>`);
   app.querySelector('.lb [data-act="close"]').focus();
 }

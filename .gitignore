@@ -23,3 +23,4 @@ dist-ssr
 *.sln
 *.sw?
 street-intelligence/site/
+street-intelligence/seg_cache/

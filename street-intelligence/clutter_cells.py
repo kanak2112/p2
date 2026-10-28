@@ -13,6 +13,7 @@ day is drawn solid red (persistent), otherwise dashed amber (transient). Cells a
 where clutter sits in the frame, not detected objects.
 
 Run after process_day1.py:  python clutter_cells.py
+(The viewer no longer draws these cells on photos; photo_overlays.py traces obstacles from each photo.)
 """
 import json
 import os
