@@ -356,19 +356,32 @@ function compute(light, dir, items) {
     const recs = W.map(w => w.s[i]).filter(Boolean), act = items.filter(it => covers(it, i));
     const fixed = r => act.some(it => TOOL[it.t].fixes.includes(r.k));
     const blockedRecs = recs.filter(r => r.o >= OBS), still = blockedRecs.filter(r => !fixed(r));
-    const gaps = dayW.map(w => w.s[i]).filter(r => r && r.g > 0).map(r => r.g).sort((a, b) => a - b);
-    let width = gaps.length && !(i >= 16 && i <= 18) ? gaps[Math.floor(gaps.length / 2)] : null;
-    const es = (dayW.some(w => w.s[i] && w.s[i].e) ? dayW : walksFor('day')).map(w => w.s[i] && w.s[i].e).filter(Boolean), med = arr => { const q = arr.slice().sort((x, y) => x - y); return q.length ? q[Math.floor(q.length / 2)] : null; };
-    let el = med(es.map(x => x[0])) ?? .15, er = med(es.map(x => x[1])) ?? .9;
-    if (width != null) {
-      for (const it of items) { const t = TOOL[it.t]; if (!t.depth) continue; const [a, b] = t.len ? [it.m - it.len / 2, it.m + it.len / 2] : [it.m - 1, it.m + 1]; const f = overlap(a, b, i); if (!f) continue; if (t.adds) { width += it.depth * f; er = Math.min(1.6, er + it.depth / 3 * f); } if (t.foot && it.lane === 'path') width -= it.depth * f; }
-      width = Math.max(0, +width.toFixed(2));
+    const med = arr => { const q = arr.slice().sort((x, y) => x - y); return q.length ? q[Math.floor(q.length / 2)] : null; };
+    // A fix that clears a blocked walk gives that walk the path of the clear walks in the same stretch (or its neighbours).
+    const pool = dayW.map(w => w.s[i]).filter(Boolean);
+    let clear = pool.filter(r => r.o < OBS); if (clear.length < 2) clear = clear.concat([i - 1, i + 1].filter(j => j >= 0 && j < NB).flatMap(j => dayW.map(w => w.s[j]).filter(r => r && r.o < OBS)));
+    const ce = clear.filter(r => r.e), cg = clear.filter(r => r.g > 0);
+    const ref = { e: ce.length ? [med(ce.map(r => r.e[0])), med(ce.map(r => r.e[1]))] : null, g: cg.length ? med(cg.map(r => r.g)) : null };
+    const eff = pool.map(r => r.o >= OBS && fixed(r) ? { e: ref.e || r.e, g: ref.g ?? r.g } : r);
+    const gs = eff.filter(r => r.g > 0).map(r => r.g), es = eff.filter(r => r.e).map(r => r.e);
+    let width = gs.length && !(i >= 16 && i <= 18) ? med(gs) : null;
+    let el = es.length ? med(es.map(x => x[0])) : .15, er = es.length ? med(es.map(x => x[1])) : .9;
+    for (const it of items) {
+      const t = TOOL[it.t]; if (!t.depth) continue; const [a, b] = t.len ? [it.m - it.len / 2, it.m + it.len / 2] : [it.m - 1, it.m + 1]; const f = overlap(a, b, i); if (!f) continue;
+      if (t.adds) { if (width != null) width += it.depth * f; er += it.depth / 3 * f; }
+      if (t.foot && it.lane === 'path') { if (width != null) width -= it.depth * f; const u = (it.y - VY.path) / VY.pathH; if (u - el < er - u) el += it.depth / 3 * f; else er -= it.depth / 3 * f; }
     }
+    if (width != null) width = Math.max(0, +width.toFixed(2));
+    // The clear path sits inside the traced ground, pushed away from where the remaining obstacles stand.
+    const obs = D.dets.filter(d => d[0] >= i * 10 && d[0] < i * 10 + 10 && !act.some(it => TOOL[it.t].fixes.includes(d[2]))).map(d => d[1]);
+    const ob = obs.length ? med(obs) : .5, span0 = Math.max(.05, er - el), wf = Math.min(span0, (width ?? span0 * 1.8) / 3);
+    const cm = Math.max(el + wf / 2, Math.min(er - wf / 2, (el + er) / 2 + (.5 - ob) * (span0 - wf)));
+    const rl = cm - wf / 2, rr = cm + wf / 2;
     let sw = 0, hk = 0; W.forEach(w => { sw += w.swerves.filter(m => Math.min(NB - 1, Math.floor(m / 10)) === i).length; hk += w.honks.filter(m => Math.min(NB - 1, Math.floor(m / 10)) === i).length; });
     let swf = 1, hkf = 1; act.forEach(it => { swf = Math.min(swf, TOOL[it.t].sw); hkf = Math.min(hkf, TOOL[it.t].hk); });
     sw = Math.round(sw * swf); hk = Math.round(hk * hkf);
     const causes = {}; still.forEach(r => causes[r.k] = (causes[r.k] || 0) + 1);
-    st.push({ i, el, er, n: recs.length, blocked: still.length, was: blockedRecs.length, share: recs.length ? still.length / recs.length : null, width, sw, hk, swpw: W.length ? sw / W.length : 0, hkpw: W.length ? hk / W.length : 0, causes });
+    st.push({ i, el, er, rl, rr, n: recs.length, blocked: still.length, was: blockedRecs.length, share: recs.length ? still.length / recs.length : null, width, sw, hk, swpw: W.length ? sw / W.length : 0, hkpw: W.length ? hk / W.length : 0, causes });
   }
   const gapOf = ms => { let g = 0, p = 0; for (const m of ms.slice().sort((a, b) => a - b).concat([L])) { g = Math.max(g, m - p); p = m; } return g; };
   const seats = items.filter(it => TOOL[it.t].seat).map(it => it.m), crossings = items.filter(it => TOOL[it.t].cross && it.t !== 'fob').map(it => it.m);
@@ -406,31 +419,27 @@ function Street(host, mini, opts) {
   const X = m => m * v.k;
   function size() { v.w = host.clientWidth || 800; svg.setAttribute('viewBox', `0 0 ${v.w} ${VY.H}`); svg.setAttribute('width', v.w); clamp(); }
   function place() { pan.setAttribute('transform', `translate(${v.tx} 0)`); drawMini(); }
-  function drawBase(stats, ly, sel, selEx) {
+  let pathY = null;
+  function drawBase(stats, ly, sel, selEx, items) {
     const k = v.k; let h = '';
     h += `<rect x="${X(-10)}" y="0" width="${X(L + 20) - X(-10)}" height="${VY.ruler}" fill="var(--plot)"/>`;
     // plots
     for (let m = -10; m < L + 10; m += 14) h += `<rect x="${X(m) + 1}" y="4" width="${12 * k - 2}" height="${VY.path - 10}" rx="4" fill="var(--sunken)"/>`;
-    h += `<rect x="${X(-10)}" y="${VY.path}" width="${X(L + 20) - X(-10)}" height="${VY.pathH}" fill="url(#hatch-${host.id})"/>`;
     h += `<rect x="${X(-10)}" y="${VY.kerb}" width="${X(L + 20) - X(-10)}" height="6" fill="var(--kerb)"/>`;
     h += `<rect x="${X(-10)}" y="${VY.lane}" width="${X(L + 20) - X(-10)}" height="${VY.laneH}" fill="var(--road2)"/>`;
     h += `<rect x="${X(-10)}" y="${VY.road}" width="${X(L + 20) - X(-10)}" height="${VY.roadH}" fill="var(--road)"/>`;
     for (let m = -10; m < L + 10; m += 6) h += `<rect x="${X(m)}" y="${VY.road + VY.roadH / 2 - 1.5}" width="${3 * k}" height="3" rx="1.5" fill="var(--mark)" opacity=".7"/>`;
     h += `<text x="${X(1)}" y="${VY.lane + 24}" font-size="11" fill="var(--mark)" opacity=".8" font-family="Figtree">parking lane</text><text x="${X(1)}" y="${VY.road + 24}" font-size="11" fill="var(--mark)" opacity=".8" font-family="Figtree">carriageway</text>`;
-    // walkable ground traced from the photos (building side on top, kerb side below) and, inside it, the clear width
+    // The walking path: the measured clear width, placed inside the ground traced from the photos (building side on top, kerb side below).
     const ease = (m, f) => { const q = m / 10 - .5, a = Math.max(0, Math.min(NB - 1, Math.floor(q))), b = Math.min(NB - 1, a + 1), u = Math.max(0, Math.min(1, q - a)), w = (1 - Math.cos(Math.PI * u)) / 2; const va = f(stats[a]), vb = f(stats[b]); return va + (vb - va) * w; };
-    const Y = u => VY.path + Math.max(0, Math.min(1, u)) * VY.pathH;
-    { const A = [], B = []; for (let m = 0; m <= L; m++) { A.push(`${X(m).toFixed(1)},${Y(ease(m, s => s.el)).toFixed(1)}`); B.unshift(`${X(m).toFixed(1)},${Y(ease(m, s => s.er)).toFixed(1)}`); } h += `<polygon points="${A.join(' ')} ${B.join(' ')}" fill="var(--surface)" fill-opacity=".85" stroke="var(--ink3)" stroke-width="1" stroke-dasharray="3 3"/>`; }
+    const Y = u => VY.path + Math.max(-.4, Math.min(1.6, u)) * VY.pathH;
     for (let i = 0; i < NB; i++) {
       const s = stats[i], c = ly.cat(ly.val(s)), A = [], B = [];
-      for (let m = i * 10; m <= i * 10 + 10; m += 1) {
-        const el = ease(m, s => s.el), er = ease(m, s => s.er), hw = Math.min(er - el, ease(m, s => (s.width ?? 1.2) / 3)) / 2, mid = Math.max(el + hw, Math.min(er - hw, (el + er) / 2));
-        A.push(`${X(m).toFixed(1)},${Y(mid - hw).toFixed(1)}`); B.unshift(`${X(m).toFixed(1)},${Y(mid + hw).toFixed(1)}`);
-      }
-      h += `<polygon points="${A.join(' ')} ${B.join(' ')}" fill="${COLV(c)}" opacity="${s.width == null && ly !== LAYERS.width ? .75 : .92}"/>`;
+      for (let m = i * 10; m <= i * 10 + 10; m += 1) { A.push(`${X(m).toFixed(1)},${Y(ease(m, s => s.rl)).toFixed(1)}`); B.unshift(`${X(m).toFixed(1)},${Y(ease(m, s => s.rr)).toFixed(1)}`); }
+      h += `<polygon points="${A.join(' ')} ${B.join(' ')}" fill="${COLV(c)}" stroke="${COLV(c)}" stroke-width=".8"/>`;
     }
+    pathY = (m, u) => Y(ease(m, s => s.el) + u * (ease(m, s => s.er) - ease(m, s => s.el)));
     // stretch ticks + ruler
-    for (let i = 0; i <= NB; i++) { h += `<rect x="${X(i * 10) - .5}" y="${VY.path}" width="1" height="${VY.pathH}" fill="var(--surface)" opacity=".6"/>`; }
     h += `<rect x="${X(-10)}" y="${VY.ruler}" width="${X(L + 20) - X(-10)}" height="${VY.H - VY.ruler}" fill="var(--surface)"/>`;
     for (let m = 0; m <= L; m += 10) h += `<rect x="${X(m) - .5}" y="${VY.ruler}" width="1" height="${m % 50 ? 5 : 9}" fill="var(--ink3)"/>${m % 20 === 0 ? `<text x="${X(m)}" y="${VY.ruler + 22}" text-anchor="middle" font-size="11" fill="var(--ink2)" font-family="IBM Plex Mono">${m} m</text>` : ''}`;
     // landmarks
@@ -440,18 +449,21 @@ function Street(host, mini, opts) {
     if (sel != null) h += `<rect x="${X(sel * 10)}" y="${VY.path - 4}" width="${10 * k}" height="${VY.pathH + 8}" rx="6" fill="none" stroke="var(--accent)" stroke-width="3"/>`;
     // hit areas for stretches
     for (let i = 0; i < NB; i++) h += `<rect class="hit" data-i="${i}" x="${X(i * 10)}" y="${VY.path}" width="${10 * k}" height="${VY.pathH}" fill="transparent"/>`;
-    if (typeof opts.existing === 'function' ? opts.existing() : opts.existing) h += drawExisting(selEx);
+    if (typeof opts.existing === 'function' ? opts.existing() : opts.existing) h += drawExisting(selEx, items || []);
     base.innerHTML = h;
   }
-  function drawExisting(selEx) {
+  function drawExisting(selEx, items) {
     let h = '';
+    const gone = (m, k) => items.some(it => TOOL[it.t].fixes.includes(k) && (() => { const [a, b] = span(it); return m >= a && m <= b; })());
     for (const e of EXIST) {
-      const a = X(e.from), b = X(e.to), y = VY.path + 10 + e.x * (VY.pathH - 20), on = selEx === e.k;
-      h += `<g class="ex" data-k="${e.k}" style="cursor:pointer"><rect x="${a + 1}" y="${y - 12}" width="${b - a - 2}" height="24" rx="12" fill="var(--surface)" fill-opacity="${on ? .9 : .45}" stroke="${on ? 'var(--accent)' : 'var(--ink)'}" stroke-opacity="${on ? 1 : .5}" stroke-width="${on ? 2.5 : 1.2}" stroke-dasharray="${on ? '' : '4 3'}"/>`;
-      const n = Math.max(1, Math.round((e.to - e.from) / 10)), ic = EXICON[e.kind];
-      for (let j = 0; j < n; j++) { const cx = a + (b - a) * (j + .5) / n, kk = e.kind === 'vehicle' && j % 2 ? 'car' : ic, sz = kk === 'car' ? 26 : 22; h += `<use href="#i-${kk}" x="${cx - sz / 2}" y="${y - sz / 2}" width="${sz}" height="${sz}"/>`; }
-      h += `</g>`;
+      const a = X(e.from), b = X(e.to), mid = (e.from + e.to) / 2, y1 = pathY(mid, e.u[0]) - 9, y2 = pathY(mid, e.u[2]) + 9, on = selEx === e.k;
+      h += `<rect class="ex" data-k="${e.k}" x="${a + 1}" y="${Math.min(y1, y2 - 18)}" width="${b - a - 2}" height="${Math.max(18, y2 - y1)}" rx="9" fill="var(--surface)" fill-opacity="${on ? .35 : .01}" stroke="${on ? 'var(--accent)' : 'var(--ink)'}" stroke-opacity="${on ? 1 : .45}" stroke-width="${on ? 2.5 : 1.2}" stroke-dasharray="${on ? '' : '4 3'}" style="cursor:pointer"/>`;
+      if (e.kind === 'bins') h += `<use href="#i-bins" x="${X(80) - 11}" y="${pathY(80, e.u[1]) - 11}" width="22" height="22" class="ex" data-k="${e.k}" style="cursor:pointer"/>`;
     }
+    const IC = { vehicle: 'scooter', people: 'person', pole: 'pole', plants: 'plants', barrier: 'barrier' };
+    // Objects seen at least 3 times in the same 5 m x 1/5-path cell, sized by how often.
+    const cells = {}; for (const [m, u, k] of D.dets) { if (gone(m, k)) continue; const key = k + '|' + Math.floor(m / 5) + '|' + Math.round(u * 5); (cells[key] = cells[key] || { k, m: 0, u: 0, n: 0 }); const c = cells[key]; c.m += m; c.u += u; c.n++; }
+    for (const c of Object.values(cells)) { if (c.n < 3) continue; const m = c.m / c.n, u = c.u / c.n, s = Math.min(24, 11 + 2.2 * Math.sqrt(c.n)); h += `<use href="#i-${IC[c.k]}" x="${X(m) - s / 2}" y="${pathY(m, u) - s / 2}" width="${s}" height="${s}" opacity="${Math.min(1, .55 + c.n / 20)}" pointer-events="none"><title>${c.n} sightings</title></use>`; }
     return h;
   }
   function drawTop(items, selId) {
@@ -515,7 +527,7 @@ function Street(host, mini, opts) {
     toY: clientY => (clientY - host.getBoundingClientRect().top) * (VY.H / host.getBoundingClientRect().height),
     centerOn(m) { v.tx = v.w / 2 - m * v.k; clamp(); place(); },
     last: null,
-    render(stats, ly, sel, items, selId, selEx) { if (stats) api.last = [stats, ly, sel, items, selId, selEx]; const [st, l, s, it, sid, sx] = api.last; size(); drawBase(st, l, s, sx); drawTop(it || [], sid); miniCells = st.map(x => l.cat(l.val(x))); place(); }
+    render(stats, ly, sel, items, selId, selEx) { if (stats) api.last = [stats, ly, sel, items, selId, selEx]; const [st, l, s, it, sid, sx] = api.last; size(); drawBase(st, l, s, sx, it); drawTop(it || [], sid); miniCells = st.map(x => l.cat(l.val(x))); place(); }
   };
   new ResizeObserver(() => api.last && api.render()).observe(host);
   return api;
@@ -638,7 +650,7 @@ function renderPanel() {
       <div class="sugg">${(SUGGEST[e.kind] || []).map(id => `<button type="button" class="tool" data-place="${id}" data-ex="${e.k}">${icon(id, 32)}<div><b>${TOOL[id].name}</b><span>${TOOL[id].cost.toLowerCase()} cost</span></div></button>`).join('')}</div>`;
   } else P.innerHTML = '';
 }
-function placeOver(id, e) { const t = TOOL[id], it = normItem({ id: 'x' + (uid++), t: id, m: (e.from + e.to) / 2, lane: t.lane === 'road' ? 'road' : t.lane }); if (t.len) it.len = Math.max(t.len[1], Math.min(t.len[2], e.to - e.from)); it.y = fitY(t, it.lane, VY.path + 12 + e.x * (VY.pathH - 24)); ITEMS.push(it); selItem = it.id; selEx = null; save(); if (S.view !== 'after') { S.view = 'after'; syncSegs(); } renderSandbox(); }
+function placeOver(id, e) { const t = TOOL[id], it = normItem({ id: 'x' + (uid++), t: id, m: (e.from + e.to) / 2, lane: t.lane === 'road' ? 'road' : t.lane }); if (t.len) it.len = Math.max(t.len[1], Math.min(t.len[2], e.to - e.from)); it.y = fitY(t, it.lane, VY.path + Math.max(0, Math.min(1, e.u[1])) * VY.pathH); ITEMS.push(it); selItem = it.id; selEx = null; save(); if (S.view !== 'after') { S.view = 'after'; syncSegs(); } renderSandbox(); }
 function addItem(id, m, y) { const t = TOOL[id], lane = laneOf(y); if (!okLane(t, lane)) return false; const ln = t.lane === 'road' ? 'road' : lane; const it = normItem({ id: 'x' + (uid++), t: id, m: Math.max(0, Math.min(L, +m.toFixed(1))), lane: ln }); it.y = fitY(t, ln, y); ITEMS.push(it); selItem = it.id; selEx = null; save(); renderSandbox(); return true; }
 function paletteHtml(q) {
   q = (q || '').trim().toLowerCase();

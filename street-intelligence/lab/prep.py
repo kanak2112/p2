@@ -103,7 +103,39 @@ walled = [i for i in range(NB) if sum(x["fixed"] for x in seg[i]) / len(seg[i]) 
 if walled:
     existing.append({"kind": "barrier", "name": "Underpass walls", "from": walled[0] * 10, "to": walled[-1] * 10 + 10, "share": None, "walks": None, "x": .1})
 existing.append({"kind": "bins", "name": "Green bins", "from": 76, "to": 84, "share": None, "walks": None, "x": .85, "src": "walker's landmark"})
-out = {"corridor": m["corridor"], "walks": walks, "photos": photos, "existing": existing}
+# Every object in the daylight worst photos, placed along the street (camera position +/- 4 m look-ahead) and
+# across it relative to the traced path where it touches the ground: 0 = building-side edge, 1 = kerb-side edge.
+def rel(path, b, fwd):
+    h = len(path) // 2
+    L, R = path[:h][::-1], path[h:]
+    y = max(.45, min(1, b[1] + b[3]))
+    l = float(np.interp(y, [q[1] for q in L], [q[0] for q in L])); r = float(np.interp(y, [q[1] for q in R], [q[0] for q in R]))
+    u = (b[0] + b[2] / 2 - l) / max(.05, r - l)
+    return u if fwd else 1 - u
+dets = []
+for d in m["days"]:
+    for key in ("forward", "return"):
+        w = d.get(key)
+        if not w or w.get("lighting") == "night":
+            continue
+        for n in w["nodes"]:
+            ov = n.get("ov") or {}
+            if ov.get("night") or len(ov.get("path", [])) < 6:
+                continue
+            for b in ov.get("obs", []):
+                mm = n["meter"] + (4 if key == "forward" else -4)
+                dets.append([round(max(0, min(220, mm)), 1), round(max(-.6, min(1.6, rel(ov["path"], b, key == "forward"))), 2), b[4]])
+for e in existing:
+    if e["kind"] == "bins":
+        e["u"] = [.85, .95, 1.05]
+        continue
+    us = sorted(u for mm, u, k in dets if (k == e["kind"] or (e["kind"] == "bins" and k in ("barrier", "pole"))) and e["from"] <= mm < e["to"])
+    if us:
+        q = lambda f: us[min(len(us) - 1, int(f * len(us)))]
+        e["u"] = [round(q(.25), 2), round(q(.5), 2), round(q(.75), 2)]
+    else:
+        e["u"] = {"barrier": [-.3, -.15, 0], "bins": [.85, .95, 1.05]}.get(e["kind"], [.4, .5, .6])
+out = {"corridor": m["corridor"], "walks": walks, "photos": photos, "existing": existing, "dets": dets}
 with open(os.path.join(HERE, "data.js"), "w") as f:
     f.write("window.LAB=" + json.dumps(out, separators=(",", ":")) + ";\n")
 print(len(walks), "walks", sum(len(v) for v in photos.values()), "photos")
