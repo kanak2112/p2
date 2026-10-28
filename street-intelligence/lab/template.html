@@ -232,7 +232,7 @@ select.sel, .pled input, .pled select { font: 600 13px var(--f-ui); padding: 6px
     <div class="row" style="flex-wrap:wrap"><h2 class="grow" id="exTitle">Obstruction of the walkway</h2><div class="legend" id="exLegend"></div></div>
     <div class="street" id="exStreet"></div>
     <div class="mini" id="exMini"></div>
-    <p class="small ink3 streetkey"><b class="ink2">Coloured band:</b> the clear walkway, the full width people could actually walk on this side of the road, measured from the walk photos and drawn to scale. <b class="ink2">Above it:</b> buildings and frontage. <b class="ink2">Below it:</b> the roadside edge up to the parking lane, taken up by parked vehicles, poles, bins or uneven ground.</p>
+    <p class="small ink3 streetkey"><b class="ink2">Coloured band:</b> the clear walkway, the full width people could actually walk on this side of the road, measured from the walk photos and drawn to scale. <b class="ink2">Above it:</b> buildings and frontage. <b class="ink2">Below it:</b> the roadside edge up to the parking lane, taken up by parked vehicles, poles, bins or uneven ground. <b class="ink2">Figures and vehicles:</b> obstructions seen at the same spot on at least two separate daytime walks, placed where they touch the ground; they follow the walking-direction filter.</p>
     <div id="invPal" class="invpalwrap" hidden></div>
     <div class="selpanel" id="invPanel"></div>
   </div>
@@ -256,7 +256,7 @@ select.sel, .pled input, .pled select { font: 600 13px var(--f-ui); padding: 6px
       <div class="row" style="flex-wrap:wrap"><h2 class="grow">Proposed street</h2><div class="legend" id="sbLegend"></div></div>
       <div class="street" id="sbStreet"></div>
       <div class="mini" id="sbMini"></div>
-      <p class="small ink3 streetkey"><b class="ink2">Coloured band:</b> the clear walkway, the full width people could actually walk on this side of the road, measured from the walk photos and drawn to scale. <b class="ink2">Above it:</b> buildings and frontage. <b class="ink2">Below it:</b> the roadside edge up to the parking lane, taken up by parked vehicles, poles, bins or uneven ground.</p>
+      <p class="small ink3 streetkey"><b class="ink2">Coloured band:</b> the clear walkway, the full width people could actually walk on this side of the road, measured from the walk photos and drawn to scale. <b class="ink2">Above it:</b> buildings and frontage. <b class="ink2">Below it:</b> the roadside edge up to the parking lane, taken up by parked vehicles, poles, bins or uneven ground. <b class="ink2">Figures and vehicles:</b> obstructions seen at the same spot on at least two separate daytime walks, placed where they touch the ground; they follow the walking-direction filter.</p>
       <div class="selpanel" id="selPanel"></div>
       <div class="chg" id="chg"></div>
     </div>
@@ -671,15 +671,17 @@ function Street(host, mini, opts) {
       h += `<polygon points="${A.join(' ')} ${B.join(' ')}" fill="${COLV(c)}" stroke="var(--surface)" stroke-width="1.5" stroke-linejoin="round"/>`;
     }
     for (let i = 0; i < NB; i++) h += R(X(i * 10), Y(0), 10 * k, XS.FW * k, 'transparent', `class="hit" data-i="${i}"`);
-    // photo sightings: objects seen 3+ times in the same spot, at real size
+    // obstructions seen in the photos: objects that recur at the same spot on at least two separate walks, at real size.
+    // Each detection is placed where it touches the ground (see prep.py); the walking-direction filter applies.
     if (opts.sightings && opts.sightings()) {
-      const cells = {}; for (const [m, u, kd] of D.dets) { if (items.some(it => TOOL[it.t].fixes.includes(kd) && (() => { const [a, b] = span(it); return m >= a && m <= b; })())) continue; const key = kd + '|' + Math.floor(m / 5) + '|' + Math.round(u * 5); const c = cells[key] = cells[key] || { kd, m: 0, u: 0, n: 0 }; c.m += m; c.u += u; c.n++; }
-      for (const c of Object.values(cells)) { if (c.n < (c.kd === 'people' ? 2 : 3)) continue; const m = c.m / c.n, d = Math.max(-.3, Math.min(1.4, c.u / c.n)) * XS.FW, op = Math.min(.9, .35 + c.n / 20);
+      const dirF = opts.sightDir ? opts.sightDir() : 'both';
+      const cells = {}; for (const [m, u, kd, wd, day] of D.dets) { if (dirF !== 'both' && wd !== dirF) continue; if (items.some(it => TOOL[it.t].fixes.includes(kd) && (() => { const [a, b] = span(it); return m >= a && m <= b; })())) continue; const key = kd + '|' + Math.floor(m / 4) + '|' + Math.round(u * 4); const c = cells[key] = cells[key] || { kd, m: 0, u: 0, n: 0, walks: new Set(), f: 0, r: 0 }; c.m += m; c.u += u; c.n++; c.walks.add(wd + day); c[wd]++; }
+      for (const c of Object.values(cells)) { if (c.walks.size < 2) continue; const m = c.m / c.n, uu = c.u / c.n, el = ease(m, q => q.el), er = ease(m, q => q.er), d = Math.max(-.5, Math.min(DK + .6, (el + uu * Math.max(.05, er - el)) * XS.FW)), op = Math.min(.9, .35 + c.n / 20);
         const o = { m, d, len: c.kd === 'vehicle' ? 1.9 : c.kd === 'plants' ? 1.2 : c.kd === 'barrier' ? 2 : .5, wid: c.kd === 'vehicle' ? .7 : c.kd === 'plants' ? 1.2 : c.kd === 'barrier' ? .15 : .45 };
         let body;
         if (c.kd === 'people') { const n = Math.min(8, Math.max(1, Math.round(c.n / 2))); body = ''; for (let j = 0; j < n; j++) { const ang = j * 2.4, rr = j ? .5 + .14 * j : 0, px = X(m + rr * Math.cos(ang)), py = Y(d + .7 * rr * Math.sin(ang)), sw = .27 * k, sd = .16 * k; body += `<g transform="rotate(${(j * 37) % 60 - 30} ${px.toFixed(1)} ${py.toFixed(1)})"><ellipse cx="${px.toFixed(1)}" cy="${(py + Math.max(1, .05 * k)).toFixed(1)}" rx="${sw}" ry="${sd}" fill="#1E5FA8"/><ellipse cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" rx="${sw}" ry="${sd}" fill="#3A9BF2" stroke="#fff" stroke-width="1.2"/>${C(px, py, .12 * k, '#3B2A20', 'stroke="#fff" stroke-width="1"')}</g>`; } }
         else body = invShape(Object.assign(o, { type: { vehicle: 'twowheeler', plants: 'hedge', pole: 'pole', barrier: 'wall' }[c.kd] }), X, Y, k);
-        h += `<g opacity="1" pointer-events="none"><title>${c.kd === 'people' ? 'People' : 'Seen'} here in ${c.n} photos</title>${body}</g>`; }
+        h += `<g opacity="1" pointer-events="none"><title>${c.kd === 'people' ? 'People' : CAUSE[c.kd] ? CAUSE[c.kd][1] : 'Obstruction'} seen here on ${c.walks.size} walks (${c.f} sightings going A → B, ${c.r} going B → A)</title>${body}</g>`; }
     }
     // inventory, at real size; fixes that remove an item hide it in the "with changes" view
     for (const o of inv) { if (invGone(o, items)) continue; const on = selInv === o.id; h += `<g class="inv" data-id="${o.id}" style="cursor:${opts.onInvDown ? 'grab' : 'pointer'}" transform="rotate(${o.rot || 0} ${X(o.m).toFixed(1)} ${Y(o.d).toFixed(1)})">${invShape(o, X, Y, k)}${on ? R(X(o.m - o.len / 2) - 3, Y(o.d) - o.wid * k / 2 - 3, o.len * k + 6, o.wid * k + 6, 'none', 'stroke="var(--accent)" stroke-width="2.5" rx="5"') : ''}</g>`; }
@@ -967,7 +969,7 @@ function initSandbox() {
   });
 }
 function initExplore() {
-  ex = Street($('#exStreet'), $('#exMini'), { sightings: () => S.sight === 'on', places: () => S.pl === 'on' ? PL : [], win: () => S.cmpOn ? [S.cmp.from, S.cmp.to] : null,
+  ex = Street($('#exStreet'), $('#exMini'), { sightings: () => S.sight === 'on', sightDir: () => S.dir, places: () => S.pl === 'on' ? PL : [], win: () => S.cmpOn ? [S.cmp.from, S.cmp.to] : null,
     onSelect(i) { S.sel = i; saveUi(); renderExplore(); ex.centerOn(i * 10 + 5); },
     onInv(id) { selInvEx = id; renderExplore(); },
     onInvDown(id, e) { if (!S.edit) { selInvEx = id; renderExplore(); return; } const o = INV.find(x => x.id === id); if (!o) return; selInvEx = id; renderExplore();

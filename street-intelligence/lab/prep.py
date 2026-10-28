@@ -103,33 +103,45 @@ walled = [i for i in range(NB) if sum(x["fixed"] for x in seg[i]) / len(seg[i]) 
 if walled:
     existing.append({"kind": "barrier", "name": "Underpass walls", "from": walled[0] * 10, "to": walled[-1] * 10 + 10, "share": None, "walks": None, "x": .1})
 existing.append({"kind": "bins", "name": "Green bins", "from": 76, "to": 84, "share": None, "walks": None, "x": .85, "src": "walker's landmark"})
-# Every object in the daylight worst photos, placed along the street (camera position +/- 4 m look-ahead) and
-# across it relative to the traced path where it touches the ground: 0 = building-side edge, 1 = kerb-side edge.
+# Every object detected in the daylight photos, placed on the street where it touches the ground.
+# Along the street: distance ahead of the camera from a flat-ground model (phone at chest height, 1.3 m; vertical
+# field of view about 65 degrees; horizon at 0.31 of the frame height, the 5th-10th percentile of the far end of the
+# traced path). Ahead means further along the route on A -> B walks and back along it on B -> A walks.
+# Across the street: relative to the traced walkable path at the same image row: 0 = building-side edge,
+# 1 = kerb-side edge, mirrored on B -> A walks because the buildings are then on the right of the frame.
+# Boxes whose bottom edge is above 0.42 of the frame do not touch the ground near the walker (awnings, signs, far
+# objects) and are left out.
+CAM_H, FY, HORIZON, MIN_Y, MAX_D = 1.3, .785, .31, .42, 12.0
+def ahead(y):
+    return min(MAX_D, CAM_H * FY / max(.01, y - HORIZON))
 def rel(path, b, fwd):
     h = len(path) // 2
     L, R = path[:h][::-1], path[h:]
-    y = max(.45, min(1, b[1] + b[3]))
+    y = min(1, b[1] + b[3])
     l = float(np.interp(y, [q[1] for q in L], [q[0] for q in L])); r = float(np.interp(y, [q[1] for q in R], [q[0] for q in R]))
     u = (b[0] + b[2] / 2 - l) / max(.05, r - l)
     return u if fwd else 1 - u
 dets = []
-for d in m["days"]:
+for di, d in enumerate(m["days"]):
     for key in ("forward", "return"):
         w = d.get(key)
         if not w or w.get("lighting") == "night":
             continue
         for n in w["nodes"]:
-            ov = n.get("ov") or {}
+            ov = P(n.get("ov") or {})
             if ov.get("night") or len(ov.get("path", [])) < 6:
                 continue
             for b in ov.get("obs", []):
-                mm = n["meter"] + (4 if key == "forward" else -4)
-                dets.append([round(max(0, min(220, mm)), 1), round(max(-.6, min(1.6, rel(ov["path"], b, key == "forward"))), 2), b[4]])
+                y = min(1, b[1] + b[3])
+                if y < MIN_Y or (b[2] >= .95 and b[3] >= .95):
+                    continue
+                mm = float(n["meter"]) + (ahead(y) if key == "forward" else -ahead(y))
+                dets.append([round(max(0, min(220, mm)), 1), round(max(-.6, min(1.6, rel(ov["path"], b, key == "forward"))), 2), b[4], key[0], di + 1])
 for e in existing:
     if e["kind"] == "bins":
         e["u"] = [.85, .95, 1.05]
         continue
-    us = sorted(u for mm, u, k in dets if (k == e["kind"] or (e["kind"] == "bins" and k in ("barrier", "pole"))) and e["from"] <= mm < e["to"])
+    us = sorted(u for mm, u, k, *_ in dets if (k == e["kind"] or (e["kind"] == "bins" and k in ("barrier", "pole"))) and e["from"] <= mm < e["to"])
     if us:
         q = lambda f: us[min(len(us) - 1, int(f * len(us)))]
         e["u"] = [round(q(.25), 2), round(q(.5), 2), round(q(.75), 2)]
