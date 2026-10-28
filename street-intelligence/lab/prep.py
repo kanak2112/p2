@@ -5,11 +5,24 @@ estimated free width, the people count and the traced overlay. The worst photo p
 of the three walk groups (daylight A->B, daylight B->A, night B->A) is copied to lab/ph at 240 px wide.
 """
 import ast, json, os
+import numpy as np
 from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 NB, OBS = 22, 1.4
+def edges(path, fwd):
+    """Building-side and kerb-side edge of the traced ground, averaged over the 0.70-0.85 band of the frame."""
+    if len(path) < 6:
+        return None
+    h = len(path) // 2
+    left, right = path[:h][::-1], path[h:]          # both now run top -> bottom
+    def at(edge, y):
+        ys = [q[1] for q in edge]; xs = [q[0] for q in edge]
+        return float(np.interp(y, ys, xs))
+    band = np.linspace(.70, .85, 6)
+    l = float(np.mean([at(left, y) for y in band])); r = float(np.mean([at(right, y) for y in band]))
+    return (round(l, 3), round(r, 3)) if fwd else (round(1 - r, 3), round(1 - l, 3))
 P = lambda v: ast.literal_eval(v) if isinstance(v, str) else v
 
 m = json.load(open(os.path.join(ROOT, "data", "manifest.json")))
@@ -31,7 +44,8 @@ for d in m["days"]:
             ov = n.get("ov") or {}
             obs = ov.get("obs", [])
             pid = f"{d['day']}{key[0]}{i}"
-            rec.append({"o": round(n["obstruction"], 2), "g": (n.get("seg") or {}).get("gap_m"), "p": n.get("people", 0),
+            e = edges(ov.get("path", []), key == "forward") if not night and not ov.get("night") else None
+            rec.append({"e": e, "o": round(n["obstruction"], 2), "g": (n.get("seg") or {}).get("gap_m"), "p": n.get("people", 0),
                         "k": obs[0][4] if obs else ("dark" if night else "none"), "ks": sorted({b[4] for b in obs}), "id": pid})
             if (grp, i) not in best or n["obstruction"] > best[(grp, i)][0]["obstruction"]:
                 best[(grp, i)] = (n, w, pid, ov)
@@ -65,7 +79,8 @@ for d in m["days"]:
             continue
         for n in w["nodes"]:
             for b in (n.get("ov") or {}).get("obs", []):
-                xs.setdefault((min(NB - 1, int(n["meter"] // 10)), b[4]), []).append(b[0] + b[2] / 2)
+                x = b[0] + b[2] / 2
+                xs.setdefault((min(NB - 1, int(n["meter"] // 10)), b[4]), []).append(x if key == "forward" else 1 - x)
 def share(i, k):
     rs = [w["s"][i] for w in day if w["s"][i]]
     return sum(k in r["ks"] for r in rs) / max(1, len(rs)), len(rs)

@@ -166,7 +166,7 @@ details.cat summary .num { margin-left: auto; font-size: 12px }
 <header class="top"><div class="wrap">
   <div class="brand"><svg viewBox="0 0 30 30" aria-hidden="true"><rect x="1" y="3" width="28" height="26" rx="8" fill="#1A8E88"/><rect x="1" y="1" width="28" height="26" rx="8" fill="#2BC0B8"/><path d="M8 20c4-1 5-9 9-9s4 5 6 5" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="8" cy="20" r="2.6" fill="#fff"/><circle cx="23" cy="16" r="2.6" fill="#fff"/></svg>
     <div>Street Lab<small>Old Nagardas Rd → underpass · Andheri East · 220 m · 15 walks</small></div></div>
-  <nav class="tabs" aria-label="Views"><a href="#explore">Explore</a><a href="#sandbox">Sandbox</a><a href="#findings">Findings</a><a href="#method">Method</a></nav>
+  <nav class="tabs" aria-label="Views"><a href="#explore">Explore</a><a href="#sandbox">Sandbox</a></nav>
 </div></header>
 
 <main class="wrap">
@@ -208,8 +208,6 @@ details.cat summary .num { margin-left: auto; font-size: 12px }
   </div>
 </section>
 
-<section class="view" id="v-findings" hidden></section>
-<section class="view" id="v-method" hidden></section>
 </main>
 
 <script>/*DATA*/</script>
@@ -360,15 +358,17 @@ function compute(light, dir, items) {
     const blockedRecs = recs.filter(r => r.o >= OBS), still = blockedRecs.filter(r => !fixed(r));
     const gaps = dayW.map(w => w.s[i]).filter(r => r && r.g > 0).map(r => r.g).sort((a, b) => a - b);
     let width = gaps.length && !(i >= 16 && i <= 18) ? gaps[Math.floor(gaps.length / 2)] : null;
+    const es = (dayW.some(w => w.s[i] && w.s[i].e) ? dayW : walksFor('day')).map(w => w.s[i] && w.s[i].e).filter(Boolean), med = arr => { const q = arr.slice().sort((x, y) => x - y); return q.length ? q[Math.floor(q.length / 2)] : null; };
+    let el = med(es.map(x => x[0])) ?? .15, er = med(es.map(x => x[1])) ?? .9;
     if (width != null) {
-      for (const it of items) { const t = TOOL[it.t]; if (!t.depth) continue; const [a, b] = t.len ? [it.m - it.len / 2, it.m + it.len / 2] : [it.m - 1, it.m + 1]; const f = overlap(a, b, i); if (!f) continue; if (t.adds) width += it.depth * f; if (t.foot && it.lane === 'path') width -= it.depth * f; }
+      for (const it of items) { const t = TOOL[it.t]; if (!t.depth) continue; const [a, b] = t.len ? [it.m - it.len / 2, it.m + it.len / 2] : [it.m - 1, it.m + 1]; const f = overlap(a, b, i); if (!f) continue; if (t.adds) { width += it.depth * f; er = Math.min(1.6, er + it.depth / 3 * f); } if (t.foot && it.lane === 'path') width -= it.depth * f; }
       width = Math.max(0, +width.toFixed(2));
     }
     let sw = 0, hk = 0; W.forEach(w => { sw += w.swerves.filter(m => Math.min(NB - 1, Math.floor(m / 10)) === i).length; hk += w.honks.filter(m => Math.min(NB - 1, Math.floor(m / 10)) === i).length; });
     let swf = 1, hkf = 1; act.forEach(it => { swf = Math.min(swf, TOOL[it.t].sw); hkf = Math.min(hkf, TOOL[it.t].hk); });
     sw = Math.round(sw * swf); hk = Math.round(hk * hkf);
     const causes = {}; still.forEach(r => causes[r.k] = (causes[r.k] || 0) + 1);
-    st.push({ i, n: recs.length, blocked: still.length, was: blockedRecs.length, share: recs.length ? still.length / recs.length : null, width, sw, hk, swpw: W.length ? sw / W.length : 0, hkpw: W.length ? hk / W.length : 0, causes });
+    st.push({ i, el, er, n: recs.length, blocked: still.length, was: blockedRecs.length, share: recs.length ? still.length / recs.length : null, width, sw, hk, swpw: W.length ? sw / W.length : 0, hkpw: W.length ? hk / W.length : 0, causes });
   }
   const gapOf = ms => { let g = 0, p = 0; for (const m of ms.slice().sort((a, b) => a - b).concat([L])) { g = Math.max(g, m - p); p = m; } return g; };
   const seats = items.filter(it => TOOL[it.t].seat).map(it => it.m), crossings = items.filter(it => TOOL[it.t].cross && it.t !== 'fob').map(it => it.m);
@@ -417,11 +417,16 @@ function Street(host, mini, opts) {
     h += `<rect x="${X(-10)}" y="${VY.road}" width="${X(L + 20) - X(-10)}" height="${VY.roadH}" fill="var(--road)"/>`;
     for (let m = -10; m < L + 10; m += 6) h += `<rect x="${X(m)}" y="${VY.road + VY.roadH / 2 - 1.5}" width="${3 * k}" height="3" rx="1.5" fill="var(--mark)" opacity=".7"/>`;
     h += `<text x="${X(1)}" y="${VY.lane + 24}" font-size="11" fill="var(--mark)" opacity=".8" font-family="Figtree">parking lane</text><text x="${X(1)}" y="${VY.road + 24}" font-size="11" fill="var(--mark)" opacity=".8" font-family="Figtree">carriageway</text>`;
-    // clear ribbon per metre (eased between stretch centres)
-    const wAt = m => { const f = m / 10 - .5, a = Math.max(0, Math.min(NB - 1, Math.floor(f))), b = Math.min(NB - 1, a + 1), u = Math.max(0, Math.min(1, f - a)), e = (1 - Math.cos(Math.PI * u)) / 2; const wa = stats[a].width ?? 1.2, wb = stats[b].width ?? 1.2; return wa + (wb - wa) * e; };
+    // walkable ground traced from the photos (building side on top, kerb side below) and, inside it, the clear width
+    const ease = (m, f) => { const q = m / 10 - .5, a = Math.max(0, Math.min(NB - 1, Math.floor(q))), b = Math.min(NB - 1, a + 1), u = Math.max(0, Math.min(1, q - a)), w = (1 - Math.cos(Math.PI * u)) / 2; const va = f(stats[a]), vb = f(stats[b]); return va + (vb - va) * w; };
+    const Y = u => VY.path + Math.max(0, Math.min(1, u)) * VY.pathH;
+    { const A = [], B = []; for (let m = 0; m <= L; m++) { A.push(`${X(m).toFixed(1)},${Y(ease(m, s => s.el)).toFixed(1)}`); B.unshift(`${X(m).toFixed(1)},${Y(ease(m, s => s.er)).toFixed(1)}`); } h += `<polygon points="${A.join(' ')} ${B.join(' ')}" fill="var(--surface)" fill-opacity=".85" stroke="var(--ink3)" stroke-width="1" stroke-dasharray="3 3"/>`; }
     for (let i = 0; i < NB; i++) {
       const s = stats[i], c = ly.cat(ly.val(s)), A = [], B = [];
-      for (let m = i * 10; m <= i * 10 + 10; m += 1) { const hw = Math.min(3, wAt(m)) / 3 * VY.pathH / 2; A.push(`${X(m).toFixed(1)},${(VY.path + VY.pathH / 2 - hw).toFixed(1)}`); B.unshift(`${X(m).toFixed(1)},${(VY.path + VY.pathH / 2 + hw).toFixed(1)}`); }
+      for (let m = i * 10; m <= i * 10 + 10; m += 1) {
+        const el = ease(m, s => s.el), er = ease(m, s => s.er), hw = Math.min(er - el, ease(m, s => (s.width ?? 1.2) / 3)) / 2, mid = Math.max(el + hw, Math.min(er - hw, (el + er) / 2));
+        A.push(`${X(m).toFixed(1)},${Y(mid - hw).toFixed(1)}`); B.unshift(`${X(m).toFixed(1)},${Y(mid + hw).toFixed(1)}`);
+      }
       h += `<polygon points="${A.join(' ')} ${B.join(' ')}" fill="${COLV(c)}" opacity="${s.width == null && ly !== LAYERS.width ? .75 : .92}"/>`;
     }
     // stretch ticks + ruler
@@ -441,7 +446,7 @@ function Street(host, mini, opts) {
   function drawExisting(selEx) {
     let h = '';
     for (const e of EXIST) {
-      const a = X(e.from), b = X(e.to), y = e.kind === 'barrier' ? VY.path + 8 : VY.path + 12 + e.x * (VY.pathH - 24), on = selEx === e.k;
+      const a = X(e.from), b = X(e.to), y = VY.path + 10 + e.x * (VY.pathH - 20), on = selEx === e.k;
       h += `<g class="ex" data-k="${e.k}" style="cursor:pointer"><rect x="${a + 1}" y="${y - 12}" width="${b - a - 2}" height="24" rx="12" fill="var(--surface)" fill-opacity="${on ? .9 : .45}" stroke="${on ? 'var(--accent)' : 'var(--ink)'}" stroke-opacity="${on ? 1 : .5}" stroke-width="${on ? 2.5 : 1.2}" stroke-dasharray="${on ? '' : '4 3'}"/>`;
       const n = Math.max(1, Math.round((e.to - e.from) / 10)), ic = EXICON[e.kind];
       for (let j = 0; j < n; j++) { const cx = a + (b - a) * (j + .5) / n, kk = e.kind === 'vehicle' && j % 2 ? 'car' : ic, sz = kk === 'car' ? 26 : 22; h += `<use href="#i-${kk}" x="${cx - sz / 2}" y="${y - sz / 2}" width="${sz}" height="${sz}"/>`; }
@@ -496,7 +501,7 @@ function Street(host, mini, opts) {
   host.addEventListener('pointerup', end); host.addEventListener('pointercancel', end);
   host.addEventListener('wheel', e => { if (e.ctrlKey) { e.preventDefault(); zoom(e.deltaY < 0 ? 1 : -1, e.clientX - host.getBoundingClientRect().left); return; } const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY; if (!d) return; e.preventDefault(); v.tx -= d; clamp(); place(); }, { passive: false });
   host.querySelector('.zoom').addEventListener('click', e => { const b = e.target.closest('button'); if (b) zoom(+b.dataset.z, v.w / 2); });
-  function zoom(dir, cx) { const m = (cx - v.tx) / v.k; v.k = Math.max(3, Math.min(16, v.k * (dir > 0 ? 1.3 : 1 / 1.3))); v.tx = cx - m * v.k; clamp(); api.render(); }
+  function zoom(dir, cx) { const m = (cx - v.tx) / v.k; v.k = Math.max(Math.max(2, (v.w - 60) / L), Math.min(16, v.k * (dir > 0 ? 1.3 : 1 / 1.3))); v.tx = cx - m * v.k; clamp(); api.render(); }
   if (mini) {
     let md = null;
     const go = e => { const r = mini.getBoundingClientRect(), f = (e.clientX - r.left) / r.width; v.tx = -(f * L * v.k - v.w / 2); clamp(); place(); };
@@ -677,30 +682,6 @@ function initSandbox() {
   });
 }
 
-/* ---------- Findings & Method ---------- */
-function renderFindings() {
-  const all = compute('any', 'both', []), day = compute('day', 'both', []), night = compute('night', 'both', []);
-  const f = (i, big, unit, h, body, p) => `<article class="card pad find">${photoHtml(p)}<div style="min-width:0"><div class="lbl">${sname(i)} · ${esc(lmOf(i))}</div><div class="row" style="align-items:baseline;gap:8px;margin:6px 0"><span class="big">${big}</span><span class="ink2">${unit}</span></div><h3>${h}</h3><p class="small ink2" style="margin-top:6px">${body}</p><button class="btn ghost" data-go="${i}" style="margin-top:12px;font-size:13px;padding:7px 11px">Open in Explore</button></div></article>`;
-  const a8 = all.st[8], a10 = all.st[10], d16 = day.st[16], n16 = night.st[16];
-  $('#v-findings').innerHTML = `<div class="card pad" style="display:grid;gap:10px"><div class="lbl">What 15 walks show</div><p class="lede">One 220 m walk, filmed on a phone 15 times, is enough to show where the footpath fails, when, and what causes it. Maps and one-off audits cannot show this.</p></div>
-  <div class="finds">
-    ${f(8, `${a8.was}/${a8.n}`, 'walks blocked', 'The green bins and the corner fail every day.', `From 70 to 110 m the path was blocked on ${Math.round(all.st[7].share * 100)}–${Math.round(a8.share * 100)}% of walks, with ${all.st[7].sw + a8.sw + all.st[9].sw + a10.sw} swerves and the most horns on the route. People and parked vehicles are the main causes in the photos.`, worstPhoto(8, 'any', 'both'))}
-    ${f(16, `${n16.was}/${n16.n}`, 'night walks blocked', 'The underpass is a night problem.', `At 160–170 m, ${n16.was} of ${n16.n} night walks were blocked, against ${d16.was} of ${d16.n} in daylight. The camera cannot read the ground in the dark, which is itself the finding: the walkway is unlit.`, worstPhoto(16, 'night', 'both'))}
-    ${f(17, '4 of 7', 'B → A walks at night', 'Direction and light are mixed up.', `B → A looks worse than A → B, but 4 of the 7 B → A walks were at night and every A → B walk was in daylight. Next round: walk A → B at night and B → A by day to separate the two.`, worstPhoto(17, 'any', 'r'))}
-  </div>`;
-}
-function renderMethod() {
-  $('#v-method').innerHTML = `<div class="card pad" style="display:grid;gap:14px"><div class="lbl">How the evidence is made</div>
-    <div class="steps">${[['Walk and film', 'Phone at chest height, one walk A → B and one B → A per survey day.'], ['Keep a photo every 3 s', 'Each photo is placed on the route by walking time between known landmarks.'], ['Find what is in the way', 'Image segmentation (DeepLab v3) marks people, vehicles, poles, walls and plants, and traces the walkable ground.'], ['Score each 10 m stretch', 'The worst photo per walk counts. Blocked means a clutter score of 1.4 or more, relative to that walk.'], ['Listen and track movement', 'Horns from the audio; swerves from sudden turns of 12° or more that come back.']].map(([a, b]) => `<div class="step"><b>${a}</b><span class="small ink2">${b}</span></div>`).join('')}</div></div>
-  <div class="card pad"><div class="lbl" style="margin-bottom:8px">Measures and their limits</div><div class="tbl"><table><tr><th>Measure</th><th>What it tells you</th><th>Limit</th><th>How to fix the limit</th></tr>
-    <tr><td><b>Blocked</b></td><td>How often a stretch was obstructed across walks</td><td>Relative to each walk; one walker's view</td><td>More walkers, more days</td></tr>
-    <tr><td><b>Clear width</b></td><td>Free width about 4 m ahead</td><td>Uncalibrated camera; fails in the dark underpass</td><td>Tape-measure five stretches to calibrate</td></tr>
-    <tr><td><b>Swerves</b></td><td>Where walkers had to step around something</td><td>Phone sway can add noise</td><td>Pair with photo checks</td></tr>
-    <tr><td><b>Horns</b></td><td>Traffic stress heard while walking</td><td>Cannot tell who honked at whom</td><td>Treat as context, not cause</td></tr>
-    <tr><td><b>Sandbox effects</b></td><td>Which recorded blocks a fix would remove</td><td>Rules on past walks; no behaviour change modelled</td><td>Re-walk after a real change</td></tr></table></div></div>
-  <div class="card pad"><div class="lbl" style="margin-bottom:6px">Data</div><p class="small ink2">15 walks over 8 survey days, 10–25 October 2026 (dates are upload dates; the pilot videos lost their recording dates). 11 in daylight, 4 at night, all night walks B → A. Amenities such as benches, lights and water points are not tagged yet, so the sandbox treats them as absent.</p></div>`;
-}
-
 /* ---------- wiring ---------- */
 function syncSegs() { document.querySelectorAll('.seg').forEach(sg => sg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(S[sg.dataset.k] === b.dataset.v)))); }
 document.addEventListener('click', e => {
@@ -711,10 +692,10 @@ document.addEventListener('click', e => {
   const poly = e.target.closest('#exMap polygon[data-i]'); if (poly) { S.sel = +poly.dataset.i; saveUi(); renderExplore(); ex.centerOn(S.sel * 10 + 5); }
 });
 function route() {
-  const v = (location.hash || '#explore').slice(1), name = ['explore', 'sandbox', 'findings', 'method'].includes(v) ? v : 'explore';
+  const v = (location.hash || '#explore').slice(1), name = ['explore', 'sandbox'].includes(v) ? v : 'explore';
   document.querySelectorAll('.view').forEach(s => s.hidden = s.id !== 'v-' + name);
   document.querySelectorAll('nav.tabs a').forEach(a => { if (a.getAttribute('href') === '#' + name) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
-  if (name === 'explore') renderExplore(); if (name === 'sandbox') renderSandbox(); if (name === 'findings') renderFindings(); if (name === 'method') renderMethod();
+  if (name === 'explore') renderExplore(); if (name === 'sandbox') renderSandbox();
 }
 ex = Street($('#exStreet'), $('#exMini'), { existing: () => S.what === 'on', onExist(k) { const e = EXIST[k]; S.sel = Math.min(NB - 1, Math.floor((e.from + e.to) / 20)); saveUi(); renderExplore(); }, onSelect(i) { S.sel = i; saveUi(); renderExplore(); } });
 initSandbox(); syncSegs();
