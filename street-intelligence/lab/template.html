@@ -168,13 +168,6 @@ details.cat summary .num { margin-left: auto; font-size: 12px }
 .street .scalebar { text-indent: calc(100% + 6px); white-space: nowrap }
 .note { position: fixed; z-index: 60; left: 50%; bottom: max(16px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--surface); padding: 10px 14px; border-radius: 10px; font-size: 14px; box-shadow: var(--shadow); max-width: calc(100% - 32px) }
 
-.story { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px }
-@media (max-width: 760px) { .story { grid-template-columns: 1fr } }
-.story button { display: grid; grid-template-columns: 32px 1fr; gap: 2px 12px; align-items: center; text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 10px 14px; cursor: pointer; color: var(--ink) }
-.story button .n { grid-row: span 2; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font: 700 14px var(--f-num); background: var(--sunken); color: var(--ink2) }
-.story button[aria-current="step"] { border-color: var(--ink); box-shadow: 0 0 0 1.5px var(--ink) }
-.story button[aria-current="step"] .n { background: var(--ink); color: var(--surface) }
-.story b { font-size: 14.5px } .story .s { font-size: 12.5px; color: var(--ink2) }
 details.acc { border: 1px solid var(--line); border-radius: 12px; background: var(--surface) }
 details.acc summary { display: flex; gap: 10px; align-items: center; padding: 10px 12px; cursor: pointer; font-weight: 700; font-size: 14px; list-style: none }
 details.acc summary::-webkit-details-marker { display: none }
@@ -205,7 +198,6 @@ details.acc:not([open]) summary::after { transform: rotate(-90deg) }
 
 <div id="note" class="note" role="status" hidden></div>
 <main class="wrap">
-<nav class="story" id="story" aria-label="Story" style="padding-top:16px"><button type="button" data-story="1"><span class="n">1</span><b>Diagnose</b><span class="s">Where and when does the street fail?</span></button><button type="button" data-story="2"><span class="n">2</span><b>Evidence</b><span class="s">What does it look like on the ground?</span></button><button type="button" data-story="3"><span class="n">3</span><b>Prescribe</b><span class="s">What would fix it, and for whom?</span></button></nav>
 <section class="view" id="v-explore" hidden>
   <div class="bar">
     <div class="row"><span class="lbl">Light</span><div class="seg" data-k="light"><button data-v="any">All 15</button><button data-v="day">Daylight · 11</button><button data-v="night">Night · 4</button></div></div>
@@ -686,14 +678,14 @@ function renderExplore(keepPanel) {
   const byTag = {}; causes.forEach(([k, n]) => (byTag[CAUSE_TAG[k]] = byTag[CAUSE_TAG[k]] || []).push([k, n]));
   const causeHtml = causes.length ? ['friction', 'life', 'fixed'].filter(g => byTag[g]).map(g => `<div>${tagChip(g)}<div class="causes" style="margin-top:4px">${byTag[g].map(([k, n]) => `<div class="cause">${icon(CAUSE[k][0], 22)}<span>${CAUSE[k][1]}</span><b class="num">${n}</b></div>`).join('')}</div></div>`).join('') + (byTag.life ? '<p class="small ink3">Street life is part of a working street: the aim is to give it room, not to remove it.</p>' : '') : '<span class="small ink2">Nothing: this stretch was clear on every walk shown.</span>';
   const hereTags = {}; here.forEach(o => (hereTags[INV_TAG[o.type]] = hereTags[INV_TAG[o.type]] || []).push(INVT[o.type][0]));
-  $('#exDetail').innerHTML = `<div class="row" style="margin-bottom:12px;align-items:flex-start"><div class="grow"><div class="lbl">Step 2 · Evidence · stretch ${S.sel + 1} of 22</div><h2 class="num" style="font-size:22px">${sname(S.sel)}</h2><div class="small ink2">${esc(lmOf(S.sel) || 'Along the route')}</div></div><div class="row" style="gap:6px"><button class="btn ghost" data-step="-1" aria-label="Previous stretch">‹</button><button class="btn ghost" data-step="1" aria-label="Next stretch">›</button></div></div>
+  $('#exDetail').innerHTML = `<div class="row" style="margin-bottom:12px;align-items:flex-start"><div class="grow"><div class="lbl">Stretch ${S.sel + 1} of 22</div><h2 class="num" style="font-size:22px">${sname(S.sel)}</h2><div class="small ink2">${esc(lmOf(S.sel) || 'Along the route')}</div></div><div class="row" style="gap:6px"><button class="btn ghost" data-step="-1" aria-label="Previous stretch">‹</button><button class="btn ghost" data-step="1" aria-label="Next stretch">›</button></div></div>
     <div class="detail">${photoHtml(p)}<div style="min-width:0" class="accs">
       ${acc('ex-measures', 'Measures', `${s.n ? s.blocked + '/' + s.n + ' blocked' : '—'} · ${s.width == null ? 'width n/a' : s.width.toFixed(1) + ' m'}`, `<div><div class="stat"><span>Blocked</span><b>${s.n ? `${s.blocked} of ${s.n} walks` : '—'}</b></div><div class="stat"><span>Clear width</span><b>${s.width == null ? 'not measurable' : s.width.toFixed(1) + ' m'}</b></div><div class="stat"><span>Swerves</span><b>${s.sw}</b></div><div class="stat"><span>Horns</span><b>${s.hk}</b></div></div>`)}
       ${acc('ex-causes', 'What blocked it', causes.length ? causes.reduce((a, c) => a + c[1], 0) + ' blocks' : 'clear', causeHtml)}
       ${here.length ? acc('ex-here', 'On the street here', here.length + ' items', ['friction', 'life', 'fixed'].filter(g => hereTags[g]).map(g => `<div>${tagChip(g)}<p class="small ink2" style="margin-top:2px">${hereTags[g].join(' · ')}</p></div>`).join(''), false) : ''}
     </div></div>
     <div class="small ink3" style="margin-top:10px">${p ? `Worst photo: ${esc(p.src)}. Green = walkable ground traced from the photo; boxes = what is in the way.` : 'No photo for this filter.'}</div>
-    <div style="margin-top:12px"><button class="btn" id="tryFix">Step 3 · Try a fix here in the sandbox →</button></div>`;
+    <div style="margin-top:12px"><button class="btn" id="tryFix">Try a fix here in the sandbox →</button></div>`;
   const ranked = C.st.filter(x => x.share != null).sort((a, b) => b.share - a.share).slice(0, 5);
   $('#exSummary').innerHTML = `<div class="lbl">For these walks</div><div class="row" style="align-items:baseline;gap:10px;margin:6px 0 2px"><span class="big">${C.mostly}</span><span class="ink2">of 22 stretches blocked on most walks</span></div><p class="small ink2">${C.W.length} walks · ${S.light === 'night' ? 'all night walks went B → A' : S.light === 'day' ? 'daylight only' : 'daylight and night'}</p>
     <div class="accs">${acc('ex-worst', 'Worst stretches', 'top 5', `<div class="causes">${ranked.map(x => `<button class="cause" data-go="${x.i}" style="border:0;background:none;padding:4px 0;cursor:pointer;text-align:left;grid-template-columns:78px 1fr 40px"><b class="num">${sname(x.i)}</b><span class="meter"><i style="width:${Math.round(x.share * 100)}%"></i></span><span class="num">${Math.round(x.share * 100)}%</span></button>`).join('')}</div>`)}${acc('ex-irc', 'IRC:103 width screening', `${C.irc.ok}/${C.irc.of} stretches`, `<p class="small ink2">${C.irc.ok} of ${C.irc.of} measurable stretches have at least 1.8 m clear (the residential minimum). This is screening from uncalibrated camera estimates, not a legal score.</p>`, false)}</div>
@@ -753,7 +745,7 @@ function renderSandbox(keepPanel) {
   const pctI = c => c.irc.of ? Math.round(c.irc.ok / c.irc.of * 100) : 0;
   const topFor = k => { const best = ITEMS.map(it => [it, CON[it.id] ? CON[it.id][k] : 0]).filter(x => x[1] > 0).sort((a, b) => b[1] - a[1])[0]; return best ? `<div class="contrib">most from ${TOOL[best[0].t].name} at ${Math.round(best[0].m)} m (+${best[1]})</div>` : ''; };
   const remTags = {}; removed.forEach(o => { const g = INV_TAG[o.type]; remTags[g] = remTags[g] || {}; const n = INVT[o.type][0]; remTags[g][n] = (remTags[g][n] || 0) + 1; });
-  $('#impact').innerHTML = `<div class="lbl">Step 3 · Prescribe · impact on ${after.W.length} recorded walks</div>
+  $('#impact').innerHTML = `<div class="lbl">Impact on ${after.W.length} recorded walks</div>
     <div class="row${changed ? ' bump' : ''}" style="align-items:baseline;gap:10px;margin-top:6px"><span class="big">${base.mostly} → ${after.mostly}</span></div><p class="small ink2">stretches blocked on most walks ${d(base.mostly, after.mostly, true)}</p>
     <div class="row${changed ? ' bump' : ''}" style="align-items:baseline;gap:10px;margin-top:10px"><span class="big" style="font-size:26px">${pctI(base)}% → ${pctI(after)}%</span></div><p class="small ink2">IRC:103 width screening: measurable stretches with ≥ 1.8 m clear ${d(pctI(base), pctI(after))}</p>
     <div class="accs">
@@ -842,7 +834,7 @@ function initSandbox() {
 }
 function initExplore() {
   ex = Street($('#exStreet'), $('#exMini'), { sightings: () => S.sight === 'on',
-    onSelect(i) { S.sel = i; S.step = 2; saveUi(); renderExplore(); ex.centerOn(i * 10 + 5); syncStory(); },
+    onSelect(i) { S.sel = i; saveUi(); renderExplore(); ex.centerOn(i * 10 + 5); },
     onInv(id) { selInvEx = id; renderExplore(); },
     onInvDown(id, e) { if (!S.edit) { selInvEx = id; renderExplore(); return; } const o = INV.find(x => x.id === id); if (!o) return; selInvEx = id; renderExplore();
       dragMove(ex, e, () => ({ m: o.m, d: o.d }), (m, d) => { o.m = Math.max(0, Math.min(L, +m.toFixed(1))); o.d = Math.max(-XS.BLD, Math.min(DR, +d.toFixed(2))); renderExplore(true); }, moved => { if (moved) saveInv(o); renderExplore(); }); },
@@ -869,18 +861,7 @@ function rotateSel(by) {
 }
 document.addEventListener('keydown', e => { if ((e.key === 'r' || e.key === 'R') && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) rotateSel(e.shiftKey ? -15 : 15); });
 
-/* ---------- story: diagnose, evidence, prescribe ---------- */
-function storyStep() { return location.hash === '#sandbox' ? 3 : (S.step === 2 ? 2 : 1); }
-function syncStory() { const n = storyStep(); document.querySelectorAll('#story button').forEach(b => { if (+b.dataset.story === n) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); }); }
-const worstIdx = () => { const C = compute(S.light, S.dir, []); return C.st.filter(x => x.share != null).sort((a, b) => b.share - a.share)[0].i; };
 const flash = el => { if (!el) return; el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); };
-document.getElementById('story').addEventListener('click', e => {
-  const b = e.target.closest('[data-story]'); if (!b) return; const n = +b.dataset.story;
-  if (n === 1) { S.step = 1; S.layer = 'blocked'; syncSegs(); if (location.hash !== '#explore') location.hash = '#explore'; else route(); setTimeout(() => { ex.centerOn(worstIdx() * 10 + 5); $('#exStreet').scrollIntoView({ behavior: 'smooth', block: 'center' }); flash($('#exMini')); }, 40); }
-  if (n === 2) { S.step = 2; if (location.hash !== '#explore') location.hash = '#explore'; if (S.sel == null) S.sel = worstIdx(); route(); setTimeout(() => { ex.centerOn(S.sel * 10 + 5); $('#exDetail').scrollIntoView({ behavior: 'smooth', block: 'center' }); flash($('#exDetail')); }, 40); }
-  if (n === 3) { const m = S.sel * 10 + 5; location.hash = '#sandbox'; setTimeout(() => { sb.centerOn(m); note(`Tap something on the street near ${sname(S.sel)} to see the fixes that suit it, or drag one from the left.`); }, 60); }
-  saveUi(); syncStory();
-});
 
 /* ---------- wiring ---------- */
 function syncSegs() { document.querySelectorAll('.seg[data-k]').forEach(sg => sg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(S[sg.dataset.k] === b.dataset.v)))); }
@@ -896,7 +877,6 @@ function route(keepPanel) {
   document.querySelectorAll('.view').forEach(s => s.hidden = s.id !== 'v-' + name);
   document.querySelectorAll('nav.tabs a').forEach(a => { if (a.getAttribute('href') === '#' + name) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   if (name === 'explore') renderExplore(keepPanel); if (name === 'sandbox') renderSandbox(keepPanel);
-  syncStory();
 }
 initExplore(); initSandbox(); syncSegs();
 window.addEventListener('hashchange', () => route()); route();
