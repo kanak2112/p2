@@ -347,9 +347,9 @@ const CATCOL = Object.fromEntries(CATS.map(c => [c[0], c[2]]));
 TOOLS.forEach(t => { if (!ICONS[t.id]) ICONS[t.id] = () => badge(CATCOL[t.cat], GLYPH[t.id] || GLYPH.repave); });
 ICONS.zebra = () => ICONS.crossing();
 const TOOL = Object.fromEntries(TOOLS.map(t => [t.id, t]));
-const half = (it, t = TOOL[it.t]) => t.len ? it.len / 2 : t.reach ? it.reach : 1;
+const half = (it, t = TOOL[it.t]) => { if (!t.len) return t.reach ? it.reach : 1; const r = (it.rot || 0) * Math.PI / 180; return (Math.abs(it.len * Math.cos(r)) + Math.abs((it.depth || .6) * Math.sin(r))) / 2; };
 const span = it => { const t = TOOL[it.t], h = half(it), r = t.len && t.reach ? it.reach : 0; return [it.m - h - r, it.m + h + r]; };
-const normItem = it => { const t = TOOL[it.t]; if (!t) return null; for (const k of ['len', 'depth', 'reach']) if (t[k] && it[k] == null) it[k] = t[k][0]; return it; };
+const normItem = it => { const t = TOOL[it.t]; if (!t) return null; for (const k of ['len', 'depth', 'reach']) if (t[k] && it[k] == null) it[k] = t[k][0]; if (it.rot == null) it.rot = 0; return it; };
 /* ---------- street inventory: what stands on the street now (shared, editable) ---------- */
 // Cross-section in metres, building line = 0, increasing towards the road. The footpath width is not surveyed:
 // 3 m is what the camera frame spans 4 m ahead, so photo positions map onto it directly.
@@ -370,16 +370,16 @@ const invSaveTimers = {};
 function saveInv(o) {
   if (!DB) return;
   clearTimeout(invSaveTimers[o.id]);
-  invSaveTimers[o.id] = setTimeout(() => (delete invSaveTimers[o.id], DB).collection('inventory').doc(o.id).set({ type: o.type, m: +o.m.toFixed(1), d: +o.d.toFixed(2), len: +o.len.toFixed(2), wid: +o.wid.toFixed(2), src: o.src || 'site' }).catch(() => note('This change was not saved: you can view the inventory but not edit it.')), 400);
+  invSaveTimers[o.id] = setTimeout(() => (delete invSaveTimers[o.id], DB).collection('inventory').doc(o.id).set({ type: o.type, m: +o.m.toFixed(1), d: +o.d.toFixed(2), len: +o.len.toFixed(2), wid: +o.wid.toFixed(2), rot: +(o.rot || 0), src: o.src || 'site' }).catch(() => note('This change was not saved: you can view the inventory but not edit it.')), 400);
 }
 function delInv(id) { INV = INV.filter(x => x.id !== id); if (DB) DB.collection('inventory').doc(id).delete().catch(() => note('This item was not deleted: you can view the inventory but not edit it.')); }
 function note(msg) { const n = $('#note'); n.textContent = msg; n.hidden = false; clearTimeout(note.t); note.t = setTimeout(() => n.hidden = true, 4000); }
 
 /* ---------- state ---------- */
-const S = Object.assign({ light: 'any', dir: 'both', layer: 'blocked', view: 'after', sel: 8, inv: 'on', sight: 'off', edit: false }, store.get('ui', {}));
+const S = Object.assign({ light: 'any', dir: 'both', layer: 'blocked', view: 'after', sel: 8, inv: 'on', sight: 'on', edit: false }, store.get('ui2', {}));
 let ITEMS = [];
 let OPTS = [null, null, null];
-const saveUi = () => store.set('ui', { light: S.light, dir: S.dir, layer: S.layer, view: S.view, sel: S.sel, inv: S.inv, sight: S.sight });
+const saveUi = () => store.set('ui2', { light: S.light, dir: S.dir, layer: S.layer, view: S.view, sel: S.sel, inv: S.inv, sight: S.sight });
 
 /* ---------- model ---------- */
 const walksFor = (light, dir = 'both') => D.walks.filter(w => (light === 'any' || (light === 'night') === w.night) && (dir === 'both' || w.dir[0] === dir));
@@ -524,10 +524,13 @@ function Street(host, mini, opts) {
       const cells = {}; for (const [m, u, kd] of D.dets) { if (items.some(it => TOOL[it.t].fixes.includes(kd) && (() => { const [a, b] = span(it); return m >= a && m <= b; })())) continue; const key = kd + '|' + Math.floor(m / 5) + '|' + Math.round(u * 5); const c = cells[key] = cells[key] || { kd, m: 0, u: 0, n: 0 }; c.m += m; c.u += u; c.n++; }
       for (const c of Object.values(cells)) { if (c.n < 3) continue; const m = c.m / c.n, d = Math.max(-.3, Math.min(1.4, c.u / c.n)) * XS.FW, op = Math.min(.9, .35 + c.n / 20);
         const o = { m, d, len: c.kd === 'vehicle' ? 1.9 : c.kd === 'plants' ? 1.2 : c.kd === 'barrier' ? 2 : .5, wid: c.kd === 'vehicle' ? .7 : c.kd === 'plants' ? 1.2 : c.kd === 'barrier' ? .15 : .45 };
-        h += `<g opacity="${op}" pointer-events="none"><title>${c.n} sightings</title>${c.kd === 'people' ? C(X(m), Y(d), .25 * k, PAL.ocean[0]) + C(X(m), Y(d), .12 * k, '#5A3B2A') : invShape(Object.assign(o, { type: { vehicle: 'twowheeler', plants: 'hedge', pole: 'pole', barrier: 'wall' }[c.kd] }), X, Y, k)}</g>`; }
+        let body;
+        if (c.kd === 'people') { const n = Math.min(5, Math.max(1, Math.round(c.n / 3))); body = ''; for (let j = 0; j < n; j++) { const ang = j * 2.4, rr = j ? .45 + .12 * j : 0, px = X(m + rr * Math.cos(ang)), py = Y(d + rr * Math.sin(ang)); body += `<ellipse cx="${px.toFixed(1)}" cy="${(py + Math.max(1, .06 * k)).toFixed(1)}" rx="${Math.max(2.5, .26 * k)}" ry="${Math.max(2, .17 * k)}" fill="${PAL.ocean[1]}"/><ellipse cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" rx="${Math.max(2.5, .26 * k)}" ry="${Math.max(2, .17 * k)}" fill="${PAL.ocean[0]}"/>` + C(px, py, Math.max(1.6, .11 * k), '#5A3B2A'); } }
+        else body = invShape(Object.assign(o, { type: { vehicle: 'twowheeler', plants: 'hedge', pole: 'pole', barrier: 'wall' }[c.kd] }), X, Y, k);
+        h += `<g opacity="${Math.max(.7, op)}" pointer-events="none"><title>${c.kd === 'people' ? 'People' : 'Seen'} here in ${c.n} photos</title>${body}</g>`; }
     }
     // inventory, at real size; fixes that remove an item hide it in the "with changes" view
-    for (const o of inv) { if (invGone(o, items)) continue; const on = selInv === o.id; h += `<g class="inv" data-id="${o.id}" style="cursor:${opts.onInvDown ? 'grab' : 'pointer'}">${invShape(o, X, Y, k)}${on ? R(X(o.m - o.len / 2) - 3, Y(o.d) - o.wid * k / 2 - 3, o.len * k + 6, o.wid * k + 6, 'none', 'stroke="var(--accent)" stroke-width="2.5" rx="5"') : ''}</g>`; }
+    for (const o of inv) { if (invGone(o, items)) continue; const on = selInv === o.id; h += `<g class="inv" data-id="${o.id}" style="cursor:${opts.onInvDown ? 'grab' : 'pointer'}" transform="rotate(${o.rot || 0} ${X(o.m).toFixed(1)} ${Y(o.d).toFixed(1)})">${invShape(o, X, Y, k)}${on ? R(X(o.m - o.len / 2) - 3, Y(o.d) - o.wid * k / 2 - 3, o.len * k + 6, o.wid * k + 6, 'none', 'stroke="var(--accent)" stroke-width="2.5" rx="5"') : ''}</g>`; }
     // landmarks
     h += R(X(162), 0, X(191) - X(162), HH(), '#0B1220', 'opacity=".3" pointer-events="none"') + `<text x="${X(176.5)}" y="${Math.max(13, Y(-XS.BLD) + 14)}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)" font-family="Figtree" pointer-events="none">Underpass walkway</text>`;
     h += R(X(104) - 1, 0, 2, HH(), 'var(--ink)', 'opacity=".45" pointer-events="none"') + `<text x="${X(104) + 6}" y="${Y(-XS.BLD) + 14}" font-size="12" font-weight="700" fill="var(--ink)" font-family="Figtree" pointer-events="none">↱ turn onto highway service road</text>`;
@@ -542,7 +545,7 @@ function Street(host, mini, opts) {
     for (const it of items) {
       const t = TOOL[it.t], on = it.id === selId; let g = '';
       if (t.fixes.length || t.sw < 1 || t.hk < 1) { const [a, b] = span(it); g += R(X(a), Y(0), X(b) - X(a), XS.FW * v.k, 'var(--accent)', 'opacity=".08" stroke="var(--accent)" stroke-dasharray="5 4" stroke-opacity=".5"'); }
-      g += toolShape(it, X, Y, v.k);
+      g += `<g transform="rotate(${it.rot || 0} ${X(it.m).toFixed(1)} ${Y(it.d).toFixed(1)})">${toolShape(it, X, Y, v.k)}</g>`;
       const bx = X(it.m), by = (t.cross ? Y(DK) : Y(it.d) - ((it.depth || .6) * v.k) / 2) - 11;
       g += `<g transform="translate(${bx - 9} ${by - 9})"><circle cx="9" cy="9" r="10" fill="var(--surface)" stroke="${on ? 'var(--accent)' : 'var(--line)'}" stroke-width="${on ? 2.5 : 1}"/><use href="#i-${t.id}" x="2" y="2" width="14" height="14"/></g>`;
       h += `<g class="item" data-id="${it.id}" style="cursor:grab">${g}</g>`;
@@ -663,7 +666,7 @@ function renderInvPanel() {
   if (!o) { P.innerHTML = invStatus(); return; }
   const fixes = INVT[o.type][3];
   P.innerHTML = `<div class="row" style="align-items:flex-start"><div class="grow"><b>${INVT[o.type][0]}</b><p class="small ink2">${ZONE[zoneOf(o.d)] || ''} · ${SRC[o.src] || 'added on this page'}. Positions from photos are approximate to a few metres until checked on site.</p></div>${S.edit ? `<button class="btn ghost" data-invdel="${o.id}" style="font-size:13px;padding:7px 10px">Delete</button>` : ''}<button class="btn ghost" data-invclose="1" style="font-size:13px;padding:7px 10px">Close</button></div>
-    ${S.edit ? `<div class="flds">${numField('g-m', 'Position', +o.m.toFixed(1), 0, L, .5, 'm')}${numField('g-d', 'From building line', +o.d.toFixed(2), -XS.BLD, DR, .1, 'm')}${numField('g-len', 'Length along street', o.len, .1, 60, .1, 'm')}${numField('g-wid', 'Width across', o.wid, .05, 10, .1, 'm')}</div>` : `<p class="small num">${esc(invLine(o))}</p>`}
+    ${S.edit ? `<div class="flds">${numField('g-m', 'Position', +o.m.toFixed(1), 0, L, .5, 'm')}${numField('g-d', 'From building line', +o.d.toFixed(2), -XS.BLD, DR, .1, 'm')}${numField('g-len', 'Length along street', o.len, .1, 60, .1, 'm')}${numField('g-wid', 'Width across', o.wid, .05, 10, .1, 'm')}${numField('g-rot', 'Rotation', o.rot || 0, -180, 180, 15, '°')}<label class="fld"><span>&nbsp;</span><button type="button" class="btn ghost" data-rot90="inv" style="padding:7px 10px;font-size:13px">Rotate 90°</button></label></div>` : `<p class="small num">${esc(invLine(o))}</p>`}
     <p class="small ink2">${fixes.length ? 'Removed in the sandbox by: ' + fixes.map(id => TOOL[id].name).join(', ') + '.' : 'Stays in place in the sandbox.'}</p>`;
 }
 function addInv(type, m, d) {
@@ -725,7 +728,7 @@ function renderPanel() {
     const it = ITEMS.find(x => x.id === selItem); if (!it) { selItem = null; P.innerHTML = ''; return; } const t = TOOL[it.t];
     const dr = it.lane === 'lane' ? [DK, DL] : it.lane === 'road' ? [DL, DR] : [0, XS.FW];
     P.innerHTML = `<div class="row" style="align-items:flex-start">${icon(t.id, 40)}<div class="grow"><b>${t.name}</b><p class="small ink2">${t.note}</p></div><button class="btn ghost" data-del="${it.id}" style="font-size:13px;padding:7px 10px">Remove</button></div>
-      <div class="flds">${numField('f-m', 'Position', +it.m.toFixed(1), 0, L, .5, 'm')}${t.lane !== 'road' ? numField('f-d', 'From building line', +it.d.toFixed(2), dr[0], dr[1], .1, 'm') : ''}${t.len ? numField('f-len', 'Length along street', it.len, t.len[1], t.len[2], .5, 'm') : ''}${t.depth ? numField('f-depth', t.adds ? 'Width added' : 'Width it takes', it.depth, t.depth[1], t.depth[2], .1, 'm') : ''}${t.reach ? numField('f-reach', t.lit ? 'Lit radius' : t.id === 'tree' ? 'Canopy radius' : 'Reach', it.reach, t.reach[1], t.reach[2], .5, 'm') : ''}
+      <div class="flds">${numField('f-m', 'Position', +it.m.toFixed(1), 0, L, .5, 'm')}${t.lane !== 'road' ? numField('f-d', 'From building line', +it.d.toFixed(2), dr[0], dr[1], .1, 'm') : ''}${t.len ? numField('f-len', 'Length along street', it.len, t.len[1], t.len[2], .5, 'm') : ''}${t.depth ? numField('f-depth', t.adds ? 'Width added' : 'Width it takes', it.depth, t.depth[1], t.depth[2], .1, 'm') : ''}${t.reach ? numField('f-reach', t.lit ? 'Lit radius' : t.id === 'tree' ? 'Canopy radius' : 'Reach', it.reach, t.reach[1], t.reach[2], .5, 'm') : ''}${numField('f-rot', 'Rotation', it.rot || 0, -180, 180, 15, '°')}<label class="fld"><span>&nbsp;</span><button type="button" class="btn ghost" data-rot90="fix" style="padding:7px 10px;font-size:13px">Rotate 90°</button></label>
       ${t.lane !== 'road' ? `<label class="fld"><span>Placed in</span><span class="seg" style="width:max-content">${['path', 'lane'].map(l => `<button type="button" data-lane="${l}" aria-pressed="${it.lane === l}">${ZONE[l]}</button>`).join('')}</span></label>` : ''}</div>
       <p class="small ink3" id="selEff">${effectLine(it, compute(S.light, 'both', []), compute(S.light, 'both', ITEMS))}</p>`;
   } else if (selInvSb) {
@@ -767,13 +770,14 @@ function initSandbox() {
   document.addEventListener('keydown', e => { if ((e.key === 'Delete' || e.key === 'Backspace') && selItem && location.hash === '#sandbox' && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) { ITEMS = ITEMS.filter(x => x.id !== selItem); selItem = null; save(); renderSandbox(); } });
   $('#selPanel').addEventListener('input', e => {
     const it = ITEMS.find(x => x.id === selItem); if (!it) return; const t = TOOL[it.t], v = parseFloat(e.target.value); if (!isFinite(v)) return;
-    const key = { 'f-m': 'm', 'f-d': 'd', 'f-len': 'len', 'f-depth': 'depth', 'f-reach': 'reach' }[e.target.id]; if (!key) return;
-    const lim = key === 'm' ? [0, 0, L] : key === 'd' ? [0, ...(it.lane === 'lane' ? [DK, DL] : [0, XS.FW])] : t[key];
+    const key = { 'f-m': 'm', 'f-d': 'd', 'f-len': 'len', 'f-depth': 'depth', 'f-reach': 'reach', 'f-rot': 'rot' }[e.target.id]; if (!key) return;
+    const lim = key === 'rot' ? [0, -180, 180] : key === 'm' ? [0, 0, L] : key === 'd' ? [0, ...(it.lane === 'lane' ? [DK, DL] : [0, XS.FW])] : t[key];
     it[key] = Math.max(lim[1], Math.min(lim[2], v)); save(); renderSandbox(true); $('#selEff').textContent = effectLine(it, compute(S.light, 'both', []), compute(S.light, 'both', ITEMS));
   });
   $('#selPanel').addEventListener('change', e => { if (e.target.matches('input')) renderPanel(); });
   $('#v-sandbox').addEventListener('click', e => {
     const nd = e.target.closest('#selPanel [data-nudge]'); if (nd) { const inp = $('#' + nd.dataset.nudge); inp.value = +(parseFloat(inp.value) + parseFloat(nd.dataset.d)).toFixed(2); inp.dispatchEvent(new Event('input', { bubbles: true })); renderPanel(); return; }
+    if (e.target.closest('[data-rot90=fix]')) { rotateSel(90); return; }
     const ln = e.target.closest('[data-lane]'); if (ln) { const it = ITEMS.find(x => x.id === selItem); if (it) { it.lane = ln.dataset.lane; it.d = fitD(TOOL[it.t], it.lane, it.lane === 'path' ? XS.FW / 2 : DK + XS.LANE / 2); save(); renderSandbox(); } return; }
     const pl = e.target.closest('[data-place]'); if (pl) { placeOver(pl.dataset.place, INV.find(o => o.id === pl.dataset.inv)); return; }
     if (e.target.closest('[data-unsel]')) { selInvSb = null; renderSandbox(); return; }
@@ -794,16 +798,24 @@ function initExplore() {
   $('#invPal').addEventListener('pointerdown', e => { const b = e.target.closest('[data-inv]'); if (!b) return; const tp = b.dataset.inv; paletteDrag(e, `<span class="chip" style="white-space:nowrap">${INVT[tp][0]}</span>`, ex, (m, d) => addInv(tp, m, d)); });
   $('#invPanel').addEventListener('input', e => {
     const o = INV.find(x => x.id === selInvEx); if (!o) return; const v = parseFloat(e.target.value); if (!isFinite(v)) return;
-    const key = { 'g-m': 'm', 'g-d': 'd', 'g-len': 'len', 'g-wid': 'wid' }[e.target.id]; if (!key) return;
-    const lim = { m: [0, L], d: [-XS.BLD, DR], len: [.1, 60], wid: [.05, 10] }[key]; o[key] = Math.max(lim[0], Math.min(lim[1], v)); saveInv(o); renderExplore(true);
+    const key = { 'g-m': 'm', 'g-d': 'd', 'g-len': 'len', 'g-wid': 'wid', 'g-rot': 'rot' }[e.target.id]; if (!key) return;
+    const lim = { m: [0, L], d: [-XS.BLD, DR], len: [.1, 60], wid: [.05, 10], rot: [-180, 180] }[key]; o[key] = Math.max(lim[0], Math.min(lim[1], v)); saveInv(o); renderExplore(true);
   });
   $('#v-explore').addEventListener('click', e => {
     const nd = e.target.closest('#invPanel [data-nudge]'); if (nd) { const inp = $('#' + nd.dataset.nudge); inp.value = +(parseFloat(inp.value) + parseFloat(nd.dataset.d)).toFixed(2); inp.dispatchEvent(new Event('input', { bubbles: true })); return; }
+    if (e.target.closest('[data-rot90=inv]')) { rotateSel(90); return; }
     if (e.target.closest('#editInv')) { S.edit = !S.edit; if (S.edit && S.inv !== 'on') { S.inv = 'on'; syncSegs(); } renderExplore(); return; }
     const dl = e.target.closest('[data-invdel]'); if (dl) { delInv(dl.dataset.invdel); selInvEx = null; renderExplore(); return; }
     if (e.target.closest('[data-invclose]')) { selInvEx = null; renderExplore(); }
   });
 }
+
+const wrap180 = a => ((a + 180) % 360 + 360) % 360 - 180;
+function rotateSel(by) {
+  if (location.hash === '#sandbox') { const it = ITEMS.find(x => x.id === selItem); if (!it) return; it.rot = wrap180((it.rot || 0) + by); save(); renderSandbox(); return; }
+  const o = INV.find(x => x.id === selInvEx); if (!o || !S.edit) return; o.rot = wrap180((o.rot || 0) + by); saveInv(o); renderExplore();
+}
+document.addEventListener('keydown', e => { if ((e.key === 'r' || e.key === 'R') && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) rotateSel(e.shiftKey ? -15 : 15); });
 
 /* ---------- wiring ---------- */
 function syncSegs() { document.querySelectorAll('.seg[data-k]').forEach(sg => sg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(S[sg.dataset.k] === b.dataset.v)))); }
