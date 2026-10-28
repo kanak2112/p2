@@ -8,7 +8,7 @@
   --bg: #F3F5F8; --surface: #FFFFFF; --sunken: #E9EDF2; --line: #DCE2EA; --ink: #15202E; --ink2: #5A6878; --ink3: #8B97A5;
   --accent: #2563EB; --accent-soft: #E3ECFE; --accent-ink: #1D4ED8; --life: #7C4DDB;
   --ok: #1AA6A0; --warn: #E9A21B; --bad: #D9483B; --none: #B7C0CB;
-  --plot: #E4E7EC; --path: #F6F1E7; --footpath: #EFE9DE; --kerb: #C9CFD8; --road: #5B6573; --road2: #4E5764; --mark: #F2F4F7;
+  --plot: #E4E7EC; --path: #F6F1E7; --footpath: #C9C2B4; --kerb: #C9CFD8; --road: #5B6573; --road2: #4E5764; --mark: #F2F4F7;
   --shadow: 0 1px 2px rgba(21,32,46,.06), 0 6px 20px rgba(21,32,46,.06);
   --f-ui: "Figtree", "Segoe UI", system-ui, sans-serif; --f-num: "IBM Plex Mono", ui-monospace, monospace;
   --r: 14px; --r-s: 9px;
@@ -16,12 +16,12 @@
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0F1620; --surface: #17212D; --sunken: #1F2B39; --line: #2A3747; --ink: #E8EEF5; --ink2: #A3B0BF; --ink3: #74818F;
   --accent: #5B8CFF; --accent-soft: #1E2D4D; --accent-ink: #9DB8FF; --life: #A88BFA; --ok: #2BC0B8; --warn: #F0B23E; --bad: #F06A5D; --none: #4A5665;
-  --plot: #1C2633; --path: #2B2A26; --footpath: #2E2C27; --kerb: #4A5565; --road: #333C48; --road2: #2C3440; --mark: #8C97A4;
+  --plot: #1C2633; --path: #2B2A26; --footpath: #3A3730; --kerb: #4A5565; --road: #333C48; --road2: #2C3440; --mark: #8C97A4;
   --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25); color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #0F1620; --surface: #17212D; --sunken: #1F2B39; --line: #2A3747; --ink: #E8EEF5; --ink2: #A3B0BF; --ink3: #74818F;
   --accent: #5B8CFF; --accent-soft: #1E2D4D; --accent-ink: #9DB8FF; --life: #A88BFA; --ok: #2BC0B8; --warn: #F0B23E; --bad: #F06A5D; --none: #4A5665;
-  --plot: #1C2633; --path: #2B2A26; --footpath: #2E2C27; --kerb: #4A5565; --road: #333C48; --road2: #2C3440; --mark: #8C97A4;
+  --plot: #1C2633; --path: #2B2A26; --footpath: #3A3730; --kerb: #4A5565; --road: #333C48; --road2: #2C3440; --mark: #8C97A4;
   --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25); color-scheme: dark }
 * { box-sizing: border-box }
 [hidden] { display: none !important }
@@ -155,7 +155,7 @@ details.cat summary .num { margin-left: auto; font-size: 12px }
 .nf { display: inline-flex; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 9px; overflow: hidden }
 .nf input { width: 64px; border: 0; background: none; color: var(--ink); font: 600 14px var(--f-num); text-align: center; padding: 7px 2px; -moz-appearance: textfield }
 .nf input::-webkit-inner-spin-button, .nf input::-webkit-outer-spin-button { -webkit-appearance: none }
-.nf button { border: 0; background: var(--sunken); width: 30px; align-self: stretch; cursor: pointer; font-weight: 700 }
+.nf button { border: 0; background: var(--sunken); width: 30px; align-self: segment; cursor: pointer; font-weight: 700 }
 .nf em { font-style: normal; color: var(--ink3); padding: 0 8px 0 2px; font-size: 12px }
 .sugg { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 6px }
 .sugg .tool { grid-template-columns: 32px 1fr; cursor: pointer; text-align: left; font: inherit }
@@ -210,33 +210,34 @@ select.sel, .pled input, .pled select { font: 600 13px var(--f-ui); padding: 6px
 
 <header class="top"><div class="wrap">
   <div class="brand"><svg viewBox="0 0 30 30" aria-hidden="true"><rect x="1" y="3" width="28" height="26" rx="8" fill="#1A8E88"/><rect x="1" y="1" width="28" height="26" rx="8" fill="#2BC0B8"/><path d="M8 20c4-1 5-9 9-9s4 5 6 5" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="8" cy="20" r="2.6" fill="#fff"/><circle cx="23" cy="16" r="2.6" fill="#fff"/></svg>
-    <div>Street Lab<small>Old Nagardas Rd → underpass · Andheri East · 220 m · 15 walks</small></div></div>
-  <nav class="tabs" aria-label="Views"><a href="#explore">Explore</a><a href="#sandbox">Sandbox</a></nav>
+    <div>Street Lab<small>Old Nagardas Rd to the highway underpass · Andheri East · 220 m corridor · 15 walk surveys</small></div></div>
+  <nav class="tabs" aria-label="Views"><a href="#explore">Existing conditions</a><a href="#sandbox">Test interventions</a></nav>
 </div></header>
 
 <div id="note" class="note" role="status" hidden></div>
 <main class="wrap">
 <section class="view" id="v-explore" hidden>
   <div class="bar">
-    <div class="row"><span class="lbl">Light</span><div class="seg" data-k="light"><button data-v="any">All 15</button><button data-v="day">Daylight · 11</button><button data-v="night">Night · 4</button></div></div>
-    <div class="row"><span class="lbl">Direction</span><div class="seg" data-k="dir"><button data-v="both">Both</button><button data-v="f">A → B</button><button data-v="r">B → A</button></div></div>
-    <div class="row"><span class="lbl">Show</span><div class="seg" data-k="layer"><button data-v="blocked">Blocked</button><button data-v="width">Clear width</button><button data-v="swerves">Swerves</button><button data-v="honks">Horns</button></div></div>
-    <div class="row"><span class="lbl">On the street</span><div class="seg" data-k="inv"><button data-v="on">Show</button><button data-v="off">Hide</button></div></div>
-    <div class="row"><span class="lbl">Photo sightings</span><div class="seg" data-k="sight"><button data-v="on">Show</button><button data-v="off">Hide</button></div></div>
-    <div class="row"><span class="lbl">Places</span><div class="seg" data-k="pl"><button data-v="on">Show</button><button data-v="off">Hide</button></div></div>
-    <button class="btn ghost" id="editInv" type="button">Edit what is there</button>
-    <button class="btn ghost" id="cmpBtn" type="button">Compare two groups</button>
+    <div class="row"><span class="lbl">Time of survey</span><div class="seg" data-k="light"><button data-v="any">All · 15</button><button data-v="day">Day · 11</button><button data-v="night">Night · 4</button></div></div>
+    <div class="row"><span class="lbl">Walking direction</span><div class="seg" data-k="dir"><button data-v="both">Both</button><button data-v="f">A → B</button><button data-v="r">B → A</button></div></div>
+    <div class="row"><span class="lbl">Indicator</span><div class="seg" data-k="layer"><button data-v="blocked">Obstruction</button><button data-v="width">Clear walkway width</button><button data-v="swerves">Path deviations</button><button data-v="honks">Horn incidents</button></div></div>
+    <div class="row"><span class="lbl">Street inventory</span><div class="seg" data-k="inv"><button data-v="on">Show</button><button data-v="off">Hide</button></div></div>
+    <div class="row"><span class="lbl">Obstructions seen in photos</span><div class="seg" data-k="sight"><button data-v="on">Show</button><button data-v="off">Hide</button></div></div>
+    <div class="row"><span class="lbl">Landmarks and infrastructure</span><div class="seg" data-k="pl"><button data-v="on">Show</button><button data-v="off">Hide</button></div></div>
+    <button class="btn ghost" id="editInv" type="button">Edit street inventory</button>
+    <button class="btn ghost" id="cmpBtn" type="button">Compare survey groups</button>
   </div>
   <div class="card pad" id="cmp" style="display:grid;gap:12px;grid-template-columns:minmax(0,1fr)" hidden></div>
   <div class="card pad" style="display:grid;gap:12px">
-    <div class="row" style="flex-wrap:wrap"><h2 class="grow" id="exTitle">Where walking breaks down</h2><div class="legend" id="exLegend"></div></div>
+    <div class="row" style="flex-wrap:wrap"><h2 class="grow" id="exTitle">Obstruction of the walkway</h2><div class="legend" id="exLegend"></div></div>
     <div class="street" id="exStreet"></div>
     <div class="mini" id="exMini"></div>
+    <p class="small ink3 streetkey"><b class="ink2">Coloured band:</b> the clear walkway, the full width people could actually walk on this side of the road, measured from the walk photos and drawn to scale. <b class="ink2">Above it:</b> buildings and frontage. <b class="ink2">Below it:</b> the roadside edge up to the parking lane, taken up by parked vehicles, poles, bins or uneven ground.</p>
     <div id="invPal" class="invpalwrap" hidden></div>
     <div class="selpanel" id="invPanel"></div>
   </div>
   <div class="cols">
-    <div class="card pad map"><div class="row" style="margin-bottom:10px"><h3 class="grow">The route</h3><span class="small ink3">tap the footpath</span></div><div id="exMap"></div></div>
+    <div class="card pad map"><div class="row" style="margin-bottom:10px"><h3 class="grow">Corridor map</h3><span class="small ink3">select a segment</span></div><div id="exMap"></div></div>
     <div class="card pad"><div id="exDetail"></div></div>
     <div class="card pad" id="exSummary"></div>
   </div>
@@ -244,17 +245,18 @@ select.sel, .pled input, .pled select { font: 600 13px var(--f-ui); padding: 6px
 
 <section class="view" id="v-sandbox" hidden>
   <div class="bar">
-    <div class="row"><span class="lbl">Walks</span><div class="seg" data-k="light"><button data-v="any">All 15</button><button data-v="day">Daylight</button><button data-v="night">Night</button></div></div>
-    <div class="row"><span class="lbl">Photo sightings</span><div class="seg" data-k="sight"><button data-v="on">Show</button><button data-v="off">Hide</button></div></div>
-    <div class="row"><span class="lbl">View</span><div class="seg" data-k="view"><button data-v="after">With changes</button><button data-v="before">Today</button></div></div>
-    <span class="small ink2">Drag a fix from the left onto any point of the street. Drag placed items to move them; tap one to remove it.</span>
+    <div class="row"><span class="lbl">Time of survey</span><div class="seg" data-k="light"><button data-v="any">All · 15</button><button data-v="day">Day</button><button data-v="night">Night</button></div></div>
+    <div class="row"><span class="lbl">Obstructions seen in photos</span><div class="seg" data-k="sight"><button data-v="on">Show</button><button data-v="off">Hide</button></div></div>
+    <div class="row"><span class="lbl">Scenario</span><div class="seg" data-k="view"><button data-v="after">Proposed</button><button data-v="before">Existing</button></div></div>
+    <span class="small ink2">Drag an intervention from the list onto any point of the street. Drag a placed intervention to move it; select it to resize or remove it.</span>
   </div>
   <div class="sbx">
     <div class="palette" id="palette"></div>
     <div class="card pad" style="display:grid;gap:12px">
-      <div class="row" style="flex-wrap:wrap"><h2 class="grow">Street sandbox</h2><div class="legend" id="sbLegend"></div></div>
+      <div class="row" style="flex-wrap:wrap"><h2 class="grow">Proposed street</h2><div class="legend" id="sbLegend"></div></div>
       <div class="street" id="sbStreet"></div>
       <div class="mini" id="sbMini"></div>
+      <p class="small ink3 streetkey"><b class="ink2">Coloured band:</b> the clear walkway, the full width people could actually walk on this side of the road, measured from the walk photos and drawn to scale. <b class="ink2">Above it:</b> buildings and frontage. <b class="ink2">Below it:</b> the roadside edge up to the parking lane, taken up by parked vehicles, poles, bins or uneven ground.</p>
       <div class="selpanel" id="selPanel"></div>
       <div class="chg" id="chg"></div>
     </div>
@@ -303,10 +305,10 @@ const ICONS = {
 };
 $('#defs').innerHTML = Object.entries(ICONS).map(([k, f]) => `<symbol id="i-${k}" viewBox="0 0 64 64">${f()}</symbol>`).join('');
 const icon = (k, s = 24) => `<svg width="${s}" height="${s}" viewBox="0 0 64 64" aria-hidden="true"><use href="#i-${k}"/></svg>`;
-const CAUSE = { people: ['person', 'People and activity'], vehicle: ['scooter', 'Parked or moving vehicles'], dark: ['dark', 'Too dark to see'], none: ['none', 'Clutter with no named object'], pole: ['pole', 'Poles and signs'], barrier: ['barrier', 'Walls, fences, bins'], plants: ['plants', 'Plants'] };
+const CAUSE = { people: ['person', 'Pedestrian crowding and street activity'], vehicle: ['scooter', 'Vehicles, parked or moving'], dark: ['dark', 'Inadequate lighting'], none: ['none', 'Unclassified clutter'], pole: ['pole', 'Poles and signage'], barrier: ['barrier', 'Walls, fencing and bins'], plants: ['plants', 'Vegetation'] };
 
 // Friction vs street life: vendors and crowds are part of a living street, to be organised rather than removed.
-const TAGS = { friction: ['Disruptive friction', 'var(--bad)'], life: ['Active street life', 'var(--life)'], fixed: ['Fixed and green', 'var(--ink3)'] };
+const TAGS = { friction: ['Obstruction and encroachment', 'var(--bad)'], life: ['Active street life', 'var(--life)'], fixed: ['Fixed infrastructure and green', 'var(--ink3)'] };
 const CAUSE_TAG = { people: 'life', vehicle: 'friction', dark: 'friction', none: 'friction', pole: 'fixed', barrier: 'fixed', plants: 'fixed' };
 const INV_TAG = { shop: 'life', spill: 'life', stall: 'life', tapri: 'life', kiosk: 'life', twowheeler: 'friction', car: 'friction', auto: 'friction', transformer: 'friction', bins: 'friction', drain: 'friction', pole: 'fixed', lightpole: 'fixed', tree: 'fixed', hedge: 'fixed', wall: 'fixed', railing: 'fixed' };
 const tagChip = k => `<span class="tagchip" style="color:${TAGS[k][1]}"><i style="background:${TAGS[k][1]}"></i>${TAGS[k][0]}</span>`;
@@ -341,25 +343,25 @@ const GLYPH = {
 };
 const badge = (col, g) => { const c = PAL[col]; return `<rect x="5" y="9" width="54" height="50" rx="15" fill="${c[1]}"/><rect x="5" y="5" width="54" height="50" rx="15" fill="${c[0]}"/><g fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 -1)">${g}</g>`; };
 const CATS = [
-  ['space', 'Give walkers more room', 'ocean'], ['clear', 'Keep the footpath clear', 'ink'], ['organise', 'Organise what is already there', 'sand'],
-  ['cross', 'Crossings', 'slate'], ['surface', 'Surface and access', 'plum'], ['comfort', 'Comfort and safety', 'grass']
+  ['space', 'Walkway space', 'ocean'], ['clear', 'Encroachment and parking control', 'ink'], ['organise', 'Vending and street activity', 'sand'],
+  ['cross', 'Crossings and junctions', 'slate'], ['surface', 'Surface and universal access', 'plum'], ['comfort', 'Furniture, shade and lighting', 'grass']
 ];
 // Each fix: what it removes from the recorded walks (fixes), its size (len along the street, depth across, reach as a radius;
 // [default, min, max] in metres), and what it does to width, swerves, horns, seating, shade, light, crossings and amenities.
 const T = (id, cat, name, o) => Object.assign({ id, cat, name, fixes: [], len: null, depth: null, reach: null, adds: false, foot: false, sw: 1, hk: 1, lane: 'path', cost: 'Low', measured: 'data' }, o);
 const TOOLS = [
-  T('widen', 'space', 'Widen footpath', { fixes: ['people'], len: [20, 4, 120], depth: [1.2, .5, 3], adds: true, lane: 'lane', cost: 'High', what: 'crowding', note: 'Takes road or parking space and adds it to the footpath.' }),
-  T('buildout', 'space', 'Kerb build-out', { fixes: ['vehicle'], len: [8, 3, 30], depth: [1.5, .5, 2.5], adds: true, sw: .5, lane: 'lane', cost: 'Medium', what: 'vehicles, swerves', note: 'Extends the footpath into the parking lane at a corner or pinch point.' }),
-  T('continuous', 'space', 'Continuous footpath at side entry', { fixes: ['none'], len: [6, 3, 15], cost: 'Medium', what: 'level breaks', note: 'Keeps the footpath level across a gate or lane mouth; vehicles ramp up instead.' }),
+  T('widen', 'space', 'Widen walkway', { fixes: ['people'], len: [20, 4, 120], depth: [1.2, .5, 3], adds: true, lane: 'lane', cost: 'High', what: 'crowding', note: 'Takes road or parking space and adds it to the walkway.' }),
+  T('buildout', 'space', 'Kerb build-out', { fixes: ['vehicle'], len: [8, 3, 30], depth: [1.5, .5, 2.5], adds: true, sw: .5, lane: 'lane', cost: 'Medium', what: 'vehicles, swerves', note: 'Extends the walkway into the parking lane at a corner or pinch point.' }),
+  T('continuous', 'space', 'Continuous walkway across side entry', { fixes: ['none'], len: [6, 3, 15], cost: 'Medium', what: 'level breaks', note: 'Keeps the walkway level across a gate or lane mouth; vehicles ramp up instead.' }),
   T('arcade', 'space', 'Arcade or covered walkway', { len: [20, 5, 100], depth: [2, 1, 4], shade: true, cost: 'High', measured: 'amenity', what: 'shade, rain cover', note: 'A colonnade or canopy along the building line. Common in older Mumbai streets.' }),
   T('shared', 'space', 'Shared street (walk priority)', { fixes: ['vehicle'], len: [30, 10, 220], hk: .5, lane: 'road', cost: 'Medium', what: 'vehicles, horns', note: 'Traffic slowed to walking pace; the whole street becomes walkable.' }),
-  T('roaddiet', 'space', 'Narrow traffic lanes', { len: [30, 10, 220], depth: [1, .5, 2], adds: true, hk: .7, lane: 'road', cost: 'Medium', what: 'horns, width', note: 'Narrower lanes slow traffic; the space goes to the footpath.' }),
-  T('bollards', 'clear', 'Bollards', { fixes: ['vehicle'], len: [8, 2, 60], lane: 'path', what: 'vehicles', note: 'A row of posts at the kerb so vehicles cannot mount the footpath.' }),
-  T('planters', 'clear', 'Planter barrier', { fixes: ['vehicle'], len: [10, 2, 60], depth: [.6, .4, 1.2], foot: true, cost: 'Low', what: 'vehicles', note: 'Planters at the kerb edge. Takes footpath width if placed on it.' }),
+  T('roaddiet', 'space', 'Narrow traffic lanes', { len: [30, 10, 220], depth: [1, .5, 2], adds: true, hk: .7, lane: 'road', cost: 'Medium', what: 'horns, width', note: 'Narrower lanes slow traffic; the space goes to the walkway.' }),
+  T('bollards', 'clear', 'Bollards', { fixes: ['vehicle'], len: [8, 2, 60], lane: 'path', what: 'vehicles', note: 'A row of posts at the kerb so vehicles cannot mount the walkway.' }),
+  T('planters', 'clear', 'Planter barrier', { fixes: ['vehicle'], len: [10, 2, 60], depth: [.6, .4, 1.2], foot: true, cost: 'Low', what: 'vehicles', note: 'Planters at the kerb edge. Takes walkway width if placed on it.' }),
   T('railing', 'clear', 'Pedestrian railing', { fixes: ['vehicle'], len: [20, 4, 120], cost: 'Low', what: 'vehicles', note: 'Keeps vehicles out, but also stops people crossing where they want to. Use sparingly.' }),
   T('noparking', 'clear', 'No-parking zone and enforcement', { fixes: ['vehicle'], len: [30, 10, 220], lane: 'lane', cost: 'Low', what: 'vehicles', note: 'Markings, signs and towing. Works only with enforcement.' }),
-  T('twbay', 'clear', 'Two-wheeler parking bay', { fixes: ['vehicle'], len: [10, 4, 30], reach: [20, 5, 50], lane: 'lane', cost: 'Low', what: 'parked bikes nearby', note: 'Gives two-wheelers a place in the parking lane so they leave the footpath.' }),
-  T('autostand', 'clear', 'Auto-rickshaw stand', { fixes: ['vehicle'], len: [12, 6, 30], hk: .8, lane: 'lane', cost: 'Low', what: 'stopping autos, horns', note: 'A marked bay so autos wait off the carriageway and the footpath.' }),
+  T('twbay', 'clear', 'Two-wheeler parking bay', { fixes: ['vehicle'], len: [10, 4, 30], reach: [20, 5, 50], lane: 'lane', cost: 'Low', what: 'parked bikes nearby', note: 'Gives two-wheelers a place in the parking lane so they leave the walkway.' }),
+  T('autostand', 'clear', 'Auto-rickshaw stand', { fixes: ['vehicle'], len: [12, 6, 30], hk: .8, lane: 'lane', cost: 'Low', what: 'stopping autos, horns', note: 'A marked bay so autos wait off the carriageway and the walkway.' }),
   T('loading', 'clear', 'Loading bay', { fixes: ['vehicle'], len: [10, 6, 20], lane: 'lane', cost: 'Low', what: 'delivery vehicles', note: 'Timed bay for shop deliveries.' }),
   T('vendor', 'organise', 'Vending zone', { fixes: ['people'], len: [15, 4, 60], depth: [1.5, 1, 2.5], foot: true, cost: 'Low', what: 'vendor crowding', note: 'A marked zone for street vendors (Street Vendors Act, 2014). Keep 1.8 m clear beside it.' }),
   T('binbay', 'organise', 'Bin bay', { fixes: ['barrier', 'pole', 'none'], len: [4, 2, 10], lane: 'lane', what: 'bins, clutter', note: 'Moves community bins into a bay off the walking line.' }),
@@ -367,28 +369,28 @@ const TOOLS = [
   T('frontage', 'organise', 'Shop frontage line', { fixes: ['none', 'people'], len: [30, 10, 120], what: 'spill-over goods', note: 'A painted line shops may not cross with goods, boards or seating.' }),
   T('signs', 'organise', 'Combine signs and poles', { fixes: ['pole'], len: [20, 5, 60], what: 'poles, signs', note: 'Puts signs on fewer poles at the kerb edge.' }),
   T('trim', 'organise', 'Trim greenery', { fixes: ['plants'], len: [10, 2, 60], what: 'plants', note: 'Cuts back hedges and branches that spill into the walking space.' }),
-  T('busstop', 'organise', 'Bus stop with bulb', { fixes: ['people'], len: [12, 8, 25], depth: [1.5, 1, 2.5], adds: true, seat: true, shade: true, lane: 'lane', cost: 'Medium', what: 'queues, seating, shade', note: 'A shelter on a kerb extension so the queue does not block the footpath.' }),
+  T('busstop', 'organise', 'Bus stop with kerb bulb-out', { fixes: ['people'], len: [12, 8, 25], depth: [1.5, 1, 2.5], adds: true, seat: true, shade: true, lane: 'lane', cost: 'Medium', what: 'queues, seating, shade', note: 'A shelter on a kerb extension so the queue does not block the walkway.' }),
   T('zebra', 'cross', 'Zebra crossing', { len: [4, 3, 8], cross: true, lane: 'road', what: 'crossing', note: 'Marked crossing at road level.' }),
-  T('raised', 'cross', 'Raised crossing', { len: [4, 3, 8], cross: true, hk: .8, lane: 'road', cost: 'Medium', what: 'crossing, slower traffic', note: 'Crossing at footpath level; vehicles ramp up and slow down.' }),
+  T('raised', 'cross', 'Raised crossing', { len: [4, 3, 8], cross: true, hk: .8, lane: 'road', cost: 'Medium', what: 'crossing, slower traffic', note: 'Crossing at walkway level; vehicles ramp up and slow down.' }),
   T('refuge', 'cross', 'Refuge island', { len: [6, 3, 12], cross: true, lane: 'road', cost: 'Medium', what: 'crossing in two stages', note: 'A safe place to wait halfway across a wide road.' }),
   T('signal', 'cross', 'Signalised crossing', { len: [4, 3, 8], cross: true, hk: .8, lane: 'road', cost: 'High', what: 'crossing, signal', note: 'Pedestrian signal with a push button.' }),
   T('corner', 'cross', 'Tighter corner radius', { fixes: ['vehicle'], len: [6, 3, 12], sw: .6, lane: 'lane', cost: 'Medium', what: 'turning speed, swerves', note: 'A sharper kerb at the corner slows turning vehicles and shortens the crossing.' }),
-  T('raisedjn', 'cross', 'Raised junction', { len: [15, 8, 25], cross: true, hk: .7, lane: 'road', cost: 'High', what: 'crossing, slower traffic', note: 'The whole junction raised to footpath level.' }),
+  T('raisedjn', 'cross', 'Raised junction', { len: [15, 8, 25], cross: true, hk: .7, lane: 'road', cost: 'High', what: 'crossing, slower traffic', note: 'The whole junction raised to walkway level.' }),
   T('fob', 'cross', 'Foot overbridge', { len: [6, 4, 10], cross: true, lane: 'road', cost: 'High', measured: 'none', what: 'grade-separated crossing', note: 'Usually the worst option for walkers: stairs, detours and little use. Shown for comparison.' }),
   T('repave', 'surface', 'Re-pave and level', { fixes: ['none'], len: [20, 5, 120], cost: 'Medium', what: 'broken or uneven paving', note: 'Even paving at one level without broken tiles or open chambers.' }),
-  T('ramp', 'surface', 'Kerb ramp', { len: [2, 1.5, 4], amen: 'Kerb ramps', measured: 'amenity', what: 'step-free access', note: 'A ramp where the footpath meets a crossing.' }),
+  T('ramp', 'surface', 'Kerb ramp', { len: [2, 1.5, 4], amen: 'Kerb ramps', measured: 'amenity', what: 'step-free access', note: 'A ramp where the walkway meets a crossing.' }),
   T('lowkerb', 'surface', 'Lower kerb to 150 mm', { len: [20, 5, 120], amen: 'Kerbs ≤ 150 mm', measured: 'amenity', cost: 'Medium', what: 'kerb height', note: 'IRC:103 asks for kerbs no higher than 150 mm.' }),
   T('tactile', 'surface', 'Tactile paving', { len: [20, 2, 220], amen: 'Tactile paving', measured: 'none', what: 'guidance for blind walkers', note: 'Guiding and warning tiles. Not measured by the walks yet.' }),
   T('drain', 'surface', 'Cover open drain', { fixes: ['none'], len: [20, 5, 120], depth: [.5, .3, 1], adds: true, cost: 'Medium', what: 'open gutters, monsoon', note: 'Slabs over the side drain add walking width and stop monsoon falls.' }),
   T('underramp', 'surface', 'Ramp and handrail at underpass', { len: [10, 5, 30], amen: 'Step-free underpass', measured: 'amenity', cost: 'Medium', what: 'step-free underpass', note: 'Replaces steps into the underpass with a ramp and rail.' }),
-  T('bench', 'comfort', 'Bench', { len: [2, 1.5, 6], depth: [.6, .4, 1], foot: true, seat: true, measured: 'amenity', what: 'seating', note: 'Seating. Takes footpath width if placed on it.' }),
-  T('tree', 'comfort', 'Shade tree', { reach: [6, 3, 10], depth: [.5, .3, 1.2], foot: true, shade: true, cost: 'Medium', measured: 'amenity', what: 'shade', note: 'Shades a circle; the tree pit takes footpath width if planted on it.' }),
-  T('canopy', 'comfort', 'Shade canopy', { len: [10, 3, 40], shade: true, cost: 'Medium', measured: 'amenity', what: 'shade, rain cover', note: 'A light roof over the footpath.' }),
+  T('bench', 'comfort', 'Bench', { len: [2, 1.5, 6], depth: [.6, .4, 1], foot: true, seat: true, measured: 'amenity', what: 'seating', note: 'Seating. Takes walkway width if placed on it.' }),
+  T('tree', 'comfort', 'Shade tree', { reach: [6, 3, 10], depth: [.5, .3, 1.2], foot: true, shade: true, cost: 'Medium', measured: 'amenity', what: 'shade', note: 'Shades a circle; the tree pit takes walkway width if planted on it.' }),
+  T('canopy', 'comfort', 'Shade canopy', { len: [10, 3, 40], shade: true, cost: 'Medium', measured: 'amenity', what: 'shade, rain cover', note: 'A light roof over the walkway.' }),
   T('light', 'comfort', 'Street light', { fixes: ['dark'], reach: [12, 6, 20], lit: true, cost: 'Medium', what: 'darkness', note: 'Pedestrian-scale light. Reach is the lit radius.' }),
   T('water', 'comfort', 'Drinking water point', { len: [1.5, 1, 3], depth: [.6, .4, 1], foot: true, amen: 'Drinking water', measured: 'amenity', what: 'drinking water', note: 'A tap or water cooler.' }),
-  T('toilet', 'comfort', 'Public toilet', { len: [6, 4, 12], amen: 'Public toilet', measured: 'amenity', lane: 'lane', cost: 'High', what: 'toilet', note: 'Placed off the footpath, for example in a parking lane or plot.' }),
+  T('toilet', 'comfort', 'Public toilet', { len: [6, 4, 12], amen: 'Public toilet', measured: 'amenity', lane: 'lane', cost: 'High', what: 'toilet', note: 'Placed off the walkway, for example in a parking lane or plot.' }),
   T('wayfinding', 'comfort', 'Wayfinding sign', { len: [1, 1, 2], amen: 'Wayfinding', measured: 'amenity', what: 'directions', note: 'Map or direction sign to the station and bus stops.' }),
-  T('speedtable', 'comfort', 'Speed table', { len: [6, 4, 10], hk: .7, sw: .8, lane: 'road', cost: 'Low', what: 'speed, horns', note: 'Slows traffic along the stretch.' }),
+  T('speedtable', 'comfort', 'Speed table', { len: [6, 4, 10], hk: .7, sw: .8, lane: 'road', cost: 'Low', what: 'speed, horns', note: 'Slows traffic along the segment.' }),
   T('cctv', 'comfort', 'CCTV and help point', { len: [1, 1, 2], amen: 'CCTV', measured: 'none', cost: 'Medium', what: 'safety at night', note: 'Camera and help button. Effect on walking not measured.' }),
   T('litter', 'comfort', 'Litter bin', { len: [1, 1, 2], depth: [.4, .3, .6], foot: true, amen: 'Litter bins', measured: 'amenity', what: 'litter', note: 'Small bin at the kerb edge.' })
 ];
@@ -401,11 +403,11 @@ const half = (it, t = TOOL[it.t]) => { if (!t.len) return t.reach ? it.reach : 1
 const span = it => { const t = TOOL[it.t], h = half(it), r = t.len && t.reach ? it.reach : 0; return [it.m - h - r, it.m + h + r]; };
 const normItem = it => { const t = TOOL[it.t]; if (!t) return null; for (const k of ['len', 'depth', 'reach']) if (t[k] && it[k] == null) it[k] = t[k][0]; if (it.rot == null) it.rot = 0; return it; };
 /* ---------- street inventory: what stands on the street now (shared, editable) ---------- */
-// Cross-section in metres, building line = 0, increasing towards the road. The footpath width is not surveyed:
+// Cross-section in metres, building line = 0, increasing towards the road. The walkway width is not surveyed:
 // 3 m is what the camera frame spans 4 m ahead, so photo positions map onto it directly.
 const XS = { BLD: 2.5, FW: 3, KERB: .15, LANE: 2.5, ROAD: 3.5 }; const DK = XS.FW + XS.KERB, DL = DK + XS.LANE, DR = DL + XS.ROAD;
 const INVT = { // type: name, default length along the street, default width across (m), what removes it
-  shop: ['Shop frontage', 6, 2.5, []], spill: ['Goods on the footpath', 4, 1, ['frontage', 'vendor']],
+  shop: ['Shop frontage', 6, 2.5, []], spill: ['Goods on the walkway', 4, 1, ['frontage', 'vendor']],
   stall: ['Stall or handcart', 2, 1.2, ['vendor']], tapri: ['Tea stall (tapri)', 1.8, 1.4, ['vendor']], kiosk: ['Kiosk or cabinet', 1.2, .8, ['vendor', 'utility']],
   twowheeler: ['Parked two-wheeler', 1.9, .7, ['bollards', 'noparking', 'planters', 'railing', 'twbay', 'buildout']], car: ['Parked car', 4.2, 1.8, ['noparking', 'bollards', 'buildout', 'loading']], auto: ['Waiting auto-rickshaw', 2.6, 1.4, ['autostand', 'noparking', 'bollards']],
   pole: ['Pole or sign', .3, .3, ['signs', 'utility']], lightpole: ['Light pole', .3, .3, []], transformer: ['Transformer or utility box', 1.5, 1, ['utility']],
@@ -424,7 +426,7 @@ function saveInv(o) {
 }
 function delInv(id) { INV = INV.filter(x => x.id !== id); if (DB) DB.collection('inventory').doc(id).delete().catch(() => note('This item was not deleted: you can view the inventory but not edit it.')); }
 
-/* ---------- places: infrastructure that can change what a stretch is like, with the date it changed ---------- */
+/* ---------- places: infrastructure that can change what a segment is like, with the date it changed ---------- */
 const PLT = { underpass: 'Underpass', junction: 'Junction or crossing', bins: 'Municipal bins', busstop: 'Bus stop', metro: 'Metro station', mall: 'Mall', construction: 'Construction site' };
 const PL_SEED = [{ id: 'underpass', type: 'underpass', name: 'Underpass walkway', from: 162, to: 191, src: 'walker' }, { id: 'junction', type: 'junction', name: 'Turn onto highway service road', from: 104, to: 104, src: 'walker' }, { id: 'bins', type: 'bins', name: 'Community bins', from: 80, to: 80, src: 'walker' }];
 let PL = PL_SEED.map(p => Object.assign({}, p));
@@ -481,10 +483,10 @@ function cmpAnalyse(c) {
   }
   [['a', G.a, G.pa], ['b', G.b, G.pb]].forEach(([g, W, ph]) => {
     if (W.length >= 5) return; checks.push([false, `Only ${W.length} walks ${ph}: one walk changes each figure by ${Math.round(100 / Math.max(1, W.length))} points.`]); why.push(`there are only ${W.length} walks ${ph}`);
-    if (!fresh.some(t => t.includes(ph)) && !(g === 'a' && c.by === 'date')) fresh.push(`walk ${5 - W.length} more times ${ph}`);
+    if (!fresh.some(t => t.includes(ph)) && !(g === 'a' && c.by === 'date')) fresh.push(`survey ${5 - W.length} more walks ${ph}`);
   });
   const all = G.a.concat(G.b), win = rows.map(r => r.i), cnt = k => win.reduce((n, i) => n + all.filter(w => w.s[i] && relOf(w, i) === k).length, 0), recs = win.reduce((n, i) => n + all.filter(w => w.s[i]).length, 0);
-  if (cnt('unr')) { checks.push([false, `${cnt('unr')} of ${recs} records in this window are unreliable: the night photos are too dark to show whether anything else was in the way.`]); why.push('night photos can\'t be read'); fresh.push('measure the light (a lux reading every 10 m)'); }
+  if (cnt('unr')) { checks.push([false, `${cnt('unr')} of ${recs} records in this window are unreliable: the night photos are too dark to show whether anything else was in the way.`]); why.push('night photos can\'t be read'); fresh.push('measure illuminance at night (a lux reading every 10 m)'); }
   if (cnt('sup')) checks.push([false, `${cnt('sup')} records were walked before a place nearby changed. They are kept and labelled superseded.`]);
   else checks.push([true, 'No place in this window has changed since these walks.']);
   if (cnt('age')) checks.push([false, `${cnt('age')} records are 30 days old or more: walk the window again.`]); else checks.push([true, 'Every record here is under 30 days old.']);
@@ -492,7 +494,7 @@ function cmpAnalyse(c) {
   let verdict = '';
   if (peak) {
     const where = near ? `at the ${near.name.toLowerCase()}` : `between ${c.from} and ${c.to} m`, nums = `${pct(peak.A)}% ${G.pa}, ${pct(peak.B)}% ${G.pb} at ${sname(peak.i)}`;
-    verdict = Math.abs(peak.d) < 15 ? `Blocking ${where} is about the same for both groups (${nums}).` : `Blocking ${where} is associated with ${peak.d > 0 ? G.what : (c.by === 'light' ? 'daylight' : c.by === 'dir' ? 'walking A → B' : 'the period before the change')} (${nums}).`;
+    verdict = Math.abs(peak.d) < 15 ? `Obstruction ${where} is about the same for both groups (${nums}).` : `Obstruction ${where} is associated with ${peak.d > 0 ? G.what : (c.by === 'light' ? 'daylight' : c.by === 'dir' ? 'walking A → B' : 'the period before the change')} (${nums}).`;
   }
   return { G, rows, peak, checks, why, fresh, matched, verdict };
 }
@@ -502,15 +504,15 @@ function renderCompare() {
   const c = S.cmp, R0 = cmpAnalyse(c), opt = (v, lo, hi) => Array.from({ length: (hi - lo) / 10 + 1 }, (_, j) => lo + j * 10).map(m => `<option value="${m}" ${m === v ? 'selected' : ''}>${m} m</option>`).join('');
   const dated = PL.filter(p => p.changedOn);
   let body;
-  if (!R0) body = `<p class="small ink2">No place on this route has a “changed on” date yet, so there is no before and after to compare. Tap “Edit what is there”, then give a place the date it changed (for example the day the bins were moved, or a mall opened). Walks from before that date are kept and labelled superseded.</p>`;
+  if (!R0) body = `<p class="small ink2">No place on this route has a “changed on” date yet, so there is no before and after to compare. Tap “Edit street inventory”, then give a place the date it changed (for example the day the bins were moved, or a mall opened). Walks from before that date are kept and labelled superseded.</p>`;
   else {
     const { G, rows, checks, why, fresh, matched, verdict } = R0;
     body = `${verdict ? `<div class="verdict"><b>${esc(verdict)}</b>${why.length ? `<span>This isn't proven: ${esc(listAnd(why))}.</span>` : ''}${matched.map(t => `<span>${esc(t)}</span>`).join('')}${fresh.length ? `<span><b>To resolve it,</b> ${esc(listAnd(fresh))}.</span>` : ''}</div>` : '<p class="small ink2">Neither group has walks in this window.</p>'}
-      <div style="overflow-x:auto;min-width:0;max-width:100%"><table class="cmpt"><thead><tr><th>Stretch</th><th>${esc(G.la)} · ${G.a.length} walks</th><th>${esc(G.lb)} · ${G.b.length} walks</th><th>Difference</th><th>How far to trust it</th></tr></thead><tbody>
+      <div style="overflow-x:auto;min-width:0;max-width:100%"><table class="cmpt"><thead><tr><th>Segment</th><th>${esc(G.la)} · ${G.a.length} walks</th><th>${esc(G.lb)} · ${G.b.length} walks</th><th>Difference</th><th>Data reliability</th></tr></thead><tbody>
       ${rows.map(r => `<tr${r.i === S.sel ? ' class="on"' : ''}><td><button class="lnk num" data-go="${r.i}">${sname(r.i)}</button><div class="small ink3">${esc(PL.filter(p => p.to >= r.i * 10 && p.from < r.i * 10 + 10).map(p => p.name).join(' · '))}</div></td><td>${cmpCell(Object.assign({ i: r.i }, r.A), G.a)}</td><td>${cmpCell(Object.assign({ i: r.i }, r.B), G.b)}</td><td class="num"><b>${r.d == null ? '—' : (r.d > 0 ? '+' : '') + r.d + ' pts'}</b></td><td>${relHtml(relCounts(G.a.concat(G.b), r.i))}</td></tr>`).join('')}</tbody></table></div>
-      ${acc('cmp-checks', 'Automatic checks', `${checks.filter(x => !x[0]).length} to watch`, `<ul class="checks">${checks.map(([ok, t]) => `<li class="${ok ? 'ok' : ''}">${esc(t)}</li>`).join('')}</ul><p class="small ink3">Blocked = the photo shows the path obstructed (score 1.4 or more). No walk is ever deleted: old or unreadable records stay and are labelled.</p>`)}`;
+      ${acc('cmp-checks', 'Automatic checks', `${checks.filter(x => !x[0]).length} to watch`, `<ul class="checks">${checks.map(([ok, t]) => `<li class="${ok ? 'ok' : ''}">${esc(t)}</li>`).join('')}</ul><p class="small ink3">Obstructed = the walk photo shows the walkway obstructed (score 1.4 or more). No walk is ever deleted: old or unreadable records stay and are labelled.</p>`)}`;
   }
-  P.innerHTML = `<div class="row" style="flex-wrap:wrap;gap:10px;align-items:flex-start"><div class="grow"><h2>Compare two groups of walks</h2><p class="small ink2">The same stretches, two groups of walks, both directions shown.</p></div><button class="btn" type="button" data-scn="underpass">Example: the underpass at night</button><button class="btn ghost" type="button" data-cmpclose="1">Close</button></div>
+  P.innerHTML = `<div class="row" style="flex-wrap:wrap;gap:10px;align-items:flex-start"><div class="grow"><h2>Compare survey groups</h2><p class="small ink2">The same segments, two groups of walk surveys, both walking directions shown.</p></div><button class="btn" type="button" data-scn="underpass">Example: the underpass at night</button><button class="btn ghost" type="button" data-cmpclose="1">Close</button></div>
     <div class="row" style="flex-wrap:wrap;gap:12px 18px"><div class="row"><span class="lbl">Compare</span><div class="seg" data-c="by">${[['light', 'Daylight vs night'], ['dir', 'A → B vs B → A'], ['date', 'Before vs after a change']].map(([v, t]) => `<button type="button" data-v="${v}" aria-pressed="${c.by === v}">${t}</button>`).join('')}</div></div>
     ${c.by === 'date' && dated.length ? `<label class="row"><span class="lbl">Place</span><select class="sel" data-c="place">${dated.map(p => `<option value="${p.id}" ${p.id === c.place ? 'selected' : ''}>${esc(p.name)} · ${fmtDate(p.changedOn)}</option>`).join('')}</select></label>` : ''}
     <label class="row"><span class="lbl">From</span><select class="sel" data-c="from">${opt(c.from, 0, L - 10)}</select></label><label class="row"><span class="lbl">To</span><select class="sel" data-c="to">${opt(c.to, 10, L)}</select></label></div>
@@ -541,7 +543,7 @@ function compute(light, dir, items) {
     const fixed = r => act.some(it => TOOL[it.t].fixes.includes(r.k));
     const blockedRecs = recs.filter(r => r.o >= OBS), still = blockedRecs.filter(r => !fixed(r));
     const med = arr => { const q = arr.slice().sort((x, y) => x - y); return q.length ? q[Math.floor(q.length / 2)] : null; };
-    // A fix that clears a blocked walk gives that walk the path of the clear walks in the same stretch (or its neighbours).
+    // A fix that clears a blocked walk gives that walk the path of the clear walks in the same segment (or its neighbours).
     const pool = dayW.map(w => w.s[i]).filter(Boolean);
     let clear = pool.filter(r => r.o < OBS); if (clear.length < 2) clear = clear.concat([i - 1, i + 1].filter(j => j >= 0 && j < NB).flatMap(j => dayW.map(w => w.s[j]).filter(r => r && r.o < OBS)));
     const ce = clear.filter(r => r.e), cg = clear.filter(r => r.g > 0);
@@ -585,10 +587,10 @@ function compute(light, dir, items) {
 
 /* ---------- colour scales ---------- */
 const LAYERS = {
-  blocked: { title: 'Where walking breaks down', val: s => s.share, cat: v => v == null ? 'none' : v < 1 / 3 ? 'ok' : v <= 2 / 3 ? 'warn' : 'bad', fmt: s => s.share == null ? 'no walks' : `blocked on ${s.blocked} of ${s.n} walks`, legend: ['under a third of walks', 'a third to two thirds', 'over two thirds'] },
-  width: { title: 'How much room there is to walk', val: s => s.width, cat: v => v == null ? 'none' : v >= 1.5 ? 'ok' : v >= .9 ? 'warn' : 'bad', fmt: s => s.width == null ? 'cannot be measured here' : `about ${s.width.toFixed(1)} m clear (daylight median)`, legend: ['1.5 m or more', '0.9–1.5 m', 'under 0.9 m'] },
-  swerves: { title: 'Where walkers had to swerve', val: s => s.swpw, cat: v => v < .25 ? 'ok' : v <= .5 ? 'warn' : 'bad', fmt: s => `${s.sw} swerves over ${s.n} walks`, legend: ['under 1 in 4 walks', '1 in 4 to 1 in 2', 'more than 1 in 2'] },
-  honks: { title: 'Where horns were heard', val: s => s.hkpw, cat: v => v < .6 ? 'ok' : v <= 1 ? 'warn' : 'bad', fmt: s => `${s.hk} horns over ${s.n} walks`, legend: ['under 0.6 per walk', '0.6–1 per walk', 'over 1 per walk'] }
+  blocked: { title: 'Obstruction of the walkway', val: s => s.share, cat: v => v == null ? 'none' : v < 1 / 3 ? 'ok' : v <= 2 / 3 ? 'warn' : 'bad', fmt: s => s.share == null ? 'no walks' : `obstructed on ${s.blocked} of ${s.n} walks`, legend: ['obstructed on under 1/3 of walks', '1/3 to 2/3 of walks', 'over 2/3 of walks'] },
+  width: { title: 'Clear walkway width', val: s => s.width, cat: v => v == null ? 'none' : v >= 1.5 ? 'ok' : v >= .9 ? 'warn' : 'bad', fmt: s => s.width == null ? 'cannot be measured here' : `about ${s.width.toFixed(1)} m clear walkway (daytime median)`, legend: ['1.5 m or more', '0.9–1.5 m', 'under 0.9 m'] },
+  swerves: { title: 'Path deviations: where walkers had to step aside', val: s => s.swpw, cat: v => v < .25 ? 'ok' : v <= .5 ? 'warn' : 'bad', fmt: s => `${s.sw} deviations over ${s.n} walks`, legend: ['under 1 in 4 walks', '1 in 4 to 1 in 2', 'more than 1 in 2'] },
+  honks: { title: 'Horn incidents: vehicle–pedestrian conflict', val: s => s.hkpw, cat: v => v < .6 ? 'ok' : v <= 1 ? 'warn' : 'bad', fmt: s => `${s.hk} horn incidents over ${s.n} walks`, legend: ['under 0.6 per walk', '0.6–1 per walk', 'over 1 per walk'] }
 };
 const COLV = c => `var(--${c})`;
 const legendHtml = ly => ['ok', 'warn', 'bad'].map((c, k) => `<span><i class="sw" style="background:${COLV(c)}"></i>${ly.legend[k]}</span>`).join('') + (ly === LAYERS.width ? `<span><i class="sw" style="background:var(--none)"></i>not measurable</span>` : '');
@@ -653,19 +655,21 @@ function Street(host, mini, opts) {
   function drawBase(stats, ly, sel, selInv, items, inv) {
     const k = v.k, x0 = X(-10), xw = X(L + 20) - x0; let h = '';
     h += R(x0, 0, xw, Y(0), 'var(--plot)');
-    h += R(x0, Y(0), xw, XS.FW * k, 'var(--footpath)');
+    h += R(x0, Y(0), xw, XS.FW * k, 'var(--plot)');
     h += R(x0, Y(XS.FW), xw, XS.KERB * k + 1, 'var(--kerb)');
     h += R(x0, Y(DK), xw, XS.LANE * k, 'var(--road2)') + R(x0, Y(DL), xw, XS.ROAD * k, 'var(--road)');
     for (let m = -10; m < L + 10; m += 6) h += R(X(m), Y(DR) - .2 * k, 3 * k, .12 * k, 'var(--mark)', 'opacity=".7"');
     const fs = Math.max(9, Math.min(12, k * .8));
-    h += `<text x="${X(1)}" y="${Y(DK + XS.LANE / 2) + fs / 3}" font-size="${fs}" fill="var(--mark)" opacity=".85" font-family="Figtree">parking lane</text><text x="${X(1)}" y="${Y(DL + 1.4) + fs / 3}" font-size="${fs}" fill="var(--mark)" opacity=".85" font-family="Figtree">carriageway (near lane)</text><text x="${X(1)}" y="${Y(-XS.BLD / 2) + fs / 3}" font-size="${fs}" fill="var(--ink3)" font-family="Figtree">buildings</text>`;
-    // walking path: measured clear width inside the traced ground, coloured by the chosen measure
+    h += `<text x="${X(1)}" y="${Y(DK + XS.LANE / 2) + fs / 3}" font-size="${fs}" fill="var(--mark)" opacity=".85" font-family="Figtree">parking lane</text><text x="${X(1)}" y="${Y(DL + 1.4) + fs / 3}" font-size="${fs}" fill="var(--mark)" opacity=".85" font-family="Figtree">carriageway (near lane)</text><text x="${X(1)}" y="${Y(0) - 6}" font-size="${fs}" fill="var(--ink3)" font-family="Figtree">buildings and frontage</text><text x="${X(1)}" y="${Y(XS.FW) - 5}" font-size="${fs}" fill="var(--ink3)" font-family="Figtree">roadside edge</text>`;
+    // the walkway: the full width people could actually walk on this side, measured from the photos and coloured by the chosen indicator.
+    // The rest of the roadside, between the building line and the carriageway, is frontage use, parked vehicles or broken ground.
     const ease = (m, f) => { const q = m / 10 - .5, a = Math.max(0, Math.min(NB - 1, Math.floor(q))), b = Math.min(NB - 1, a + 1), u = Math.max(0, Math.min(1, q - a)), w = (1 - Math.cos(Math.PI * u)) / 2; const va = f(stats[a]), vb = f(stats[b]); return va + (vb - va) * w; };
     const YU = u => Y(Math.max(-.2, Math.min(1.6, u)) * XS.FW);
     for (let i = 0; i < NB; i++) {
       const s = stats[i], c = ly.cat(ly.val(s)), A = [], B = [];
       for (let m = i * 10; m <= i * 10 + 10; m += .5) { A.push(`${X(m).toFixed(1)},${YU(ease(m, s => s.rl)).toFixed(1)}`); B.unshift(`${X(m).toFixed(1)},${YU(ease(m, s => s.rr)).toFixed(1)}`); }
-      h += `<polygon points="${A.join(' ')} ${B.join(' ')}" fill="${COLV(c)}" opacity=".78"/>`;
+      h += `<polygon points="${B.slice().reverse().join(' ')} ${X(i * 10 + 10).toFixed(1)},${Y(XS.FW).toFixed(1)} ${X(i * 10).toFixed(1)},${Y(XS.FW).toFixed(1)}" fill="var(--footpath)" stroke="var(--footpath)" stroke-width="1"/>`;
+      h += `<polygon points="${A.join(' ')} ${B.join(' ')}" fill="${COLV(c)}" stroke="var(--surface)" stroke-width="1.5" stroke-linejoin="round"/>`;
     }
     for (let i = 0; i < NB; i++) h += R(X(i * 10), Y(0), 10 * k, XS.FW * k, 'transparent', `class="hit" data-i="${i}"`);
     // photo sightings: objects seen 3+ times in the same spot, at real size
@@ -754,7 +758,7 @@ const along = m => { const t = Math.max(0, Math.min(L, m)) / L * FPC[FPC.length 
 const SAMP = Array.from({ length: L + 1 }, (_, m) => along(m));
 const NORM = SAMP.map((p, m) => { const a = SAMP[Math.max(0, m - 2)], b = SAMP[Math.min(L, m + 2)], dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1; return [-dy / l, dx / l]; });
 function mapSvg(stats, ly, sel, items) {
-  let h = `<svg viewBox="10 215 380 345" role="img" aria-label="Map of the walked footpath"><rect x="0" y="200" width="400" height="380" fill="var(--plot)"/>`;
+  let h = `<svg viewBox="10 215 380 345" role="img" aria-label="Map of the surveyed corridor"><rect x="0" y="200" width="400" height="380" fill="var(--plot)"/>`;
   h += [[-20, 40, 150, 170], [170, 30, 170, 150], [250, 330, 170, 170], [-30, 560, 180, 140], [190, 600, 220, 190], [-20, 250, 120, 200], [40, 720, 140, 160], [360, 40, 200, 220], [430, 560, 180, 200]].map(([x, y, w, hh]) => `<rect x="${x}" y="${y}" width="${w}" height="${hh}" rx="10" fill="var(--sunken)"/>`).join('');
   h += `<path d="M85 -220 L185 1100" stroke="var(--warn)" stroke-opacity=".28" stroke-width="46" fill="none"/>`;
   h += ['M-220 213 L620 192', 'M160 -220 L205 1100', 'M-220 705 L620 637', 'M300 -220 L330 330'].map(d => `<path d="${d}" stroke="var(--surface)" stroke-width="12" stroke-linecap="round" fill="none"/>`).join('');
@@ -773,7 +777,7 @@ const KC = { people: '#3A9BF2', vehicle: '#FF6B5B', pole: '#FFC233', barrier: '#
 function photoHtml(p) {
   if (!p) return `<div class="photo"></div>`;
   const H = 427 / 240, path = p.path.map(q => `${q[0]},${(q[1] * H).toFixed(3)}`).join(' ');
-  return `<div class="photo"><img src="ph/${p.id}.jpg" alt="Worst photo in this stretch" loading="lazy"><svg viewBox="0 0 1 ${H.toFixed(3)}" preserveAspectRatio="none">${path ? `<polygon points="${path}" fill="#2BC0B8" fill-opacity=".28" stroke="#2BC0B8" stroke-width=".012" ${p.night ? 'stroke-dasharray=".03 .02"' : ''}/>` : ''}${p.obs.map(b => `<rect x="${b[0]}" y="${b[1] * H}" width="${b[2]}" height="${b[3] * H}" fill="none" stroke="${KC[b[4]] || '#fff'}" stroke-width=".014" rx=".02"/>`).join('')}</svg></div>`;
+  return `<div class="photo"><img src="ph/${p.id}.jpg" alt="Worst photo in this segment" loading="lazy"><svg viewBox="0 0 1 ${H.toFixed(3)}" preserveAspectRatio="none">${path ? `<polygon points="${path}" fill="#2BC0B8" fill-opacity=".28" stroke="#2BC0B8" stroke-width=".012" ${p.night ? 'stroke-dasharray=".03 .02"' : ''}/>` : ''}${p.obs.map(b => `<rect x="${b[0]}" y="${b[1] * H}" width="${b[2]}" height="${b[3] * H}" fill="none" stroke="${KC[b[4]] || '#fff'}" stroke-width=".014" rx=".02"/>`).join('')}</svg></div>`;
 }
 const groupsFor = (light, dir) => ['df', 'dr', 'nr'].filter(g => (light === 'any' || (light === 'night') === (g[0] === 'n')) && (dir === 'both' || g[1] === dir));
 function worstPhoto(i, light, dir) { let best = null; for (const g of groupsFor(light, dir)) { const p = (D.photos[g] || {})[i]; if (p && (!best || REC[p.id].o > REC[best.id].o)) best = p; } return best; }
@@ -781,7 +785,7 @@ function worstPhoto(i, light, dir) { let best = null; for (const g of groupsFor(
 /* ---------- shared bits for both views ---------- */
 function numField(id, label, val, min, max, step, unit) { return `<label class="fld" for="${id}"><span>${label}</span><span class="nf"><button type="button" data-nudge="${id}" data-d="-${step}" aria-label="Decrease ${label}">−</button><input id="${id}" type="number" inputmode="decimal" value="${val}" min="${min}" max="${max}" step="${step}"><button type="button" data-nudge="${id}" data-d="${step}" aria-label="Increase ${label}">+</button><em>${unit}</em></span></label>`; }
 const zoneOf = d => d < 0 ? 'buildings' : d <= XS.FW ? 'path' : d < DL ? 'lane' : d <= DR ? 'road' : null;
-const ZONE = { buildings: 'Building line', path: 'Footpath', lane: 'Parking lane', road: 'Carriageway' };
+const ZONE = { buildings: 'Building line', path: 'Walking zone', lane: 'Parking lane', road: 'Carriageway' };
 const invLine = o => `${INVT[o.type][0]} · ${o.m.toFixed(1)} m · ${o.d.toFixed(1)} m from the building line · ${o.len} × ${o.wid} m`;
 const invStatus = () => invState === 'none' ? '<p class="small ink2">The street inventory is stored with the page. Open it on claude.ai while signed in to see and edit it.</p>' : invState === 'error' ? '<p class="small ink2">The street inventory could not be loaded.</p>' : '';
 
@@ -792,7 +796,7 @@ function renderExplore(keepPanel) {
   $('#exTitle').textContent = ly.title; $('#exLegend').innerHTML = legendHtml(ly);
   ex.render(C.st, ly, S.sel, [], null, selInvEx, S.inv === 'on' ? INV : []);
   renderCompare(); $('#cmpBtn').classList.toggle('ghost', !S.cmpOn);
-  $('#editInv').textContent = S.edit ? 'Done editing' : 'Edit what is there';
+  $('#editInv').textContent = S.edit ? 'Done editing' : 'Edit street inventory';
   $('#editInv').classList.toggle('ghost', !S.edit);
   $('#invPal').hidden = !S.edit;
   if (S.edit && !$('#invPal').innerHTML) $('#invPal').innerHTML = `<div class="lbl">Drag onto the street to add what you see on site</div><div class="invpal">${INVGROUPS.map(([g, ts]) => `<div><div class="small ink3" style="margin-bottom:4px">${g}</div><div class="row" style="flex-wrap:wrap;gap:6px">${ts.map(tp => `<button type="button" class="chip" data-inv="${tp}">${INVT[tp][0]}</button>`).join('')}</div></div>`).join('')}</div>`;
@@ -801,26 +805,26 @@ function renderExplore(keepPanel) {
   const p = worstPhoto(S.sel, S.light, S.dir), causes = Object.entries(s.causes).sort((a, b) => b[1] - a[1]);
   const here = INV.filter(o => o.m >= S.sel * 10 && o.m < S.sel * 10 + 10);
   const byTag = {}; causes.forEach(([k, n]) => (byTag[CAUSE_TAG[k]] = byTag[CAUSE_TAG[k]] || []).push([k, n]));
-  const causeHtml = causes.length ? ['friction', 'life', 'fixed'].filter(g => byTag[g]).map(g => `<div>${tagChip(g)}<div class="causes" style="margin-top:4px">${byTag[g].map(([k, n]) => `<div class="cause">${icon(CAUSE[k][0], 22)}<span>${CAUSE[k][1]}</span><b class="num">${n}</b></div>`).join('')}</div></div>`).join('') + (byTag.life ? '<p class="small ink3">Street life is part of a working street: the aim is to give it room, not to remove it.</p>' : '') : '<span class="small ink2">Nothing: this stretch was clear on every walk shown.</span>';
+  const causeHtml = causes.length ? ['friction', 'life', 'fixed'].filter(g => byTag[g]).map(g => `<div>${tagChip(g)}<div class="causes" style="margin-top:4px">${byTag[g].map(([k, n]) => `<div class="cause">${icon(CAUSE[k][0], 22)}<span>${CAUSE[k][1]}</span><b class="num">${n}</b></div>`).join('')}</div></div>`).join('') + (byTag.life ? '<p class="small ink3">Street activity is part of a working street: plan space for it rather than remove it.</p>' : '') : '<span class="small ink2">Nothing: this segment was clear on every walk shown.</span>';
   const hereTags = {}; here.forEach(o => (hereTags[INV_TAG[o.type]] = hereTags[INV_TAG[o.type]] || []).push(INVT[o.type][0]));
-  $('#exDetail').innerHTML = `<div class="row" style="margin-bottom:12px;align-items:flex-start"><div class="grow"><div class="lbl">Stretch ${S.sel + 1} of 22</div><h2 class="num" style="font-size:22px">${sname(S.sel)}</h2><div class="small ink2">${esc(lmOf(S.sel) || 'Along the route')}</div></div><div class="row" style="gap:6px"><button class="btn ghost" data-step="-1" aria-label="Previous stretch">‹</button><button class="btn ghost" data-step="1" aria-label="Next stretch">›</button></div></div>
+  $('#exDetail').innerHTML = `<div class="row" style="margin-bottom:12px;align-items:flex-start"><div class="grow"><div class="lbl">Segment ${S.sel + 1} of 22</div><h2 class="num" style="font-size:22px">${sname(S.sel)}</h2><div class="small ink2">${esc(lmOf(S.sel) || 'Along the route')}</div></div><div class="row" style="gap:6px"><button class="btn ghost" data-step="-1" aria-label="Previous segment">‹</button><button class="btn ghost" data-step="1" aria-label="Next segment">›</button></div></div>
     <div class="detail">${photoHtml(p)}<div style="min-width:0" class="accs">
-      ${acc('ex-measures', 'Measures', `${s.n ? s.blocked + '/' + s.n + ' blocked' : '—'} · ${s.width == null ? 'width n/a' : s.width.toFixed(1) + ' m'}`, `<div><div class="stat"><span>Blocked</span><b>${s.n ? `${s.blocked} of ${s.n} walks` : '—'}</b></div><div class="stat"><span>Clear width</span><b>${s.width == null ? 'not measurable' : s.width.toFixed(1) + ' m'}</b></div><div class="stat"><span>Swerves</span><b>${s.sw}</b></div><div class="stat"><span>Horns</span><b>${s.hk}</b></div></div>`)}
-      ${acc('ex-causes', 'What blocked it', causes.length ? causes.reduce((a, c) => a + c[1], 0) + ' blocks' : 'clear', causeHtml)}
-      ${(() => { const rc = relCounts(C.W, S.sel), near = PL.filter(p => p.changedOn && S.sel * 10 + 5 >= p.from - 50 && S.sel * 10 + 5 <= p.to + 50); return acc('ex-rel', 'How far to trust it', Object.keys(rc).length ? Object.entries(rc).sort((a, b) => b[1] - a[1])[0][1] + ' ' + REL[Object.entries(rc).sort((a, b) => b[1] - a[1])[0][0]][0].toLowerCase() : '—', `<div class="row" style="flex-wrap:wrap;gap:6px">${relHtml(rc)}${S.light === 'night' || S.dir === 'r' ? ' ' + relChip('mix') : ''}</div><p class="small ink2">${['cur', 'age', 'sup', 'unr'].filter(k => rc[k]).map(k => `${REL[k][0]}: ${REL[k][1]}.`).join(' ')}${near.length ? ' Nearby change: ' + near.map(p => `${esc(p.name)} on ${fmtDate(p.changedOn)}`).join(', ') + '.' : ''} Nothing is deleted; old records stay and are labelled.</p>`, false); })()}
-      ${here.length ? acc('ex-here', 'On the street here', here.length + ' items', ['friction', 'life', 'fixed'].filter(g => hereTags[g]).map(g => `<div>${tagChip(g)}<p class="small ink2" style="margin-top:2px">${hereTags[g].join(' · ')}</p></div>`).join(''), false) : ''}
+      ${acc('ex-measures', 'Indicators', `${s.n ? s.blocked + '/' + s.n + ' obstructed' : '—'} · ${s.width == null ? 'width n/a' : s.width.toFixed(1) + ' m'}`, `<div><div class="stat"><span>Obstructed</span><b>${s.n ? `${s.blocked} of ${s.n} walks` : '—'}</b></div><div class="stat"><span>Clear walkway</span><b>${s.width == null ? 'not measurable' : s.width.toFixed(1) + ' m'}</b></div><div class="stat"><span>Path deviations</span><b>${s.sw}</b></div><div class="stat"><span>Horn incidents</span><b>${s.hk}</b></div></div>`)}
+      ${acc('ex-causes', 'Causes of obstruction', causes.length ? causes.reduce((a, c) => a + c[1], 0) + ' instances' : 'clear', causeHtml)}
+      ${(() => { const rc = relCounts(C.W, S.sel), near = PL.filter(p => p.changedOn && S.sel * 10 + 5 >= p.from - 50 && S.sel * 10 + 5 <= p.to + 50); return acc('ex-rel', 'Data reliability', Object.keys(rc).length ? Object.entries(rc).sort((a, b) => b[1] - a[1])[0][1] + ' ' + REL[Object.entries(rc).sort((a, b) => b[1] - a[1])[0][0]][0].toLowerCase() : '—', `<div class="row" style="flex-wrap:wrap;gap:6px">${relHtml(rc)}${S.light === 'night' || S.dir === 'r' ? ' ' + relChip('mix') : ''}</div><p class="small ink2">${['cur', 'age', 'sup', 'unr'].filter(k => rc[k]).map(k => `${REL[k][0]}: ${REL[k][1]}.`).join(' ')}${near.length ? ' Nearby change: ' + near.map(p => `${esc(p.name)} on ${fmtDate(p.changedOn)}`).join(', ') + '.' : ''} Nothing is deleted; old records stay and are labelled.</p>`, false); })()}
+      ${here.length ? acc('ex-here', 'Street inventory here', here.length + ' items', ['friction', 'life', 'fixed'].filter(g => hereTags[g]).map(g => `<div>${tagChip(g)}<p class="small ink2" style="margin-top:2px">${hereTags[g].join(' · ')}</p></div>`).join(''), false) : ''}
     </div></div>
-    <div class="small ink3" style="margin-top:10px">${p ? `Worst photo: ${esc(p.src)}. Green = walkable ground traced from the photo; boxes = what is in the way.` : 'No photo for this filter.'}</div>
-    <div style="margin-top:12px"><button class="btn" id="tryFix">Try a fix here in the sandbox →</button></div>`;
+    <div class="small ink3" style="margin-top:10px">${p ? `Worst photo: ${esc(p.src)}. Green = walkable surface traced from the photo; boxes = obstructions.` : 'No photo for this filter.'}</div>
+    <div style="margin-top:12px"><button class="btn" id="tryFix">Test interventions here →</button></div>`;
   const ranked = C.st.filter(x => x.share != null).sort((a, b) => b.share - a.share).slice(0, 5);
-  $('#exSummary').innerHTML = `<div class="lbl">For these walks</div><div class="row" style="align-items:baseline;gap:10px;margin:6px 0 2px"><span class="big">${C.mostly}</span><span class="ink2">of 22 stretches blocked on most walks</span></div><p class="small ink2">${C.W.length} walks · ${S.light === 'night' ? 'all night walks went B → A' : S.light === 'day' ? 'daylight only' : 'daylight and night'}</p>
-    <div class="accs">${acc('ex-worst', 'Worst stretches', 'top 5', `<div class="causes">${ranked.map(x => `<button class="cause" data-go="${x.i}" style="border:0;background:none;padding:4px 0;cursor:pointer;text-align:left;grid-template-columns:78px 1fr 40px"><b class="num">${sname(x.i)}</b><span class="meter"><i style="width:${Math.round(x.share * 100)}%"></i></span><span class="num">${Math.round(x.share * 100)}%</span></button>`).join('')}</div>`)}${acc('ex-places', 'Places on the route', PL.length + ' tagged', placesHtml(), S.edit)}${acc('ex-irc', 'IRC:103 width screening', `${C.irc.ok}/${C.irc.of} stretches`, `<p class="small ink2">${C.irc.ok} of ${C.irc.of} measurable stretches have at least 1.8 m clear (the residential minimum). This is screening from uncalibrated camera estimates, not a legal score.</p>`, false)}</div>
+  $('#exSummary').innerHTML = `<div class="lbl">Selected surveys</div><div class="row" style="align-items:baseline;gap:10px;margin:6px 0 2px"><span class="big">${C.mostly}</span><span class="ink2">of 22 segments obstructed on most walks</span></div><p class="small ink2">${C.W.length} walks · ${S.light === 'night' ? 'all night walks went B → A' : S.light === 'day' ? 'daylight only' : 'daylight and night'}</p>
+    <div class="accs">${acc('ex-worst', 'Most obstructed segments', 'top 5', `<div class="causes">${ranked.map(x => `<button class="cause" data-go="${x.i}" style="border:0;background:none;padding:4px 0;cursor:pointer;text-align:left;grid-template-columns:78px 1fr 40px"><b class="num">${sname(x.i)}</b><span class="meter"><i style="width:${Math.round(x.share * 100)}%"></i></span><span class="num">${Math.round(x.share * 100)}%</span></button>`).join('')}</div>`)}${acc('ex-places', 'Landmarks and infrastructure', PL.length + ' tagged', placesHtml(), S.edit)}${acc('ex-irc', 'IRC:103 width screening', `${C.irc.ok}/${C.irc.of} segments`, `<p class="small ink2">${C.irc.ok} of ${C.irc.of} measurable segments have at least 1.8 m clear (the residential minimum). This is screening from uncalibrated camera estimates, not a legal score.</p>`, false)}</div>
     ${S.light === 'night' || S.dir === 'r' ? `<p class="small" style="margin-top:14px;padding:10px;border-radius:10px;background:var(--accent-soft);color:var(--accent-ink)">All 4 night walks went B → A, so night and direction are mixed up in this view.</p>` : ''}`;
 }
 function placesHtml() {
   const srt = PL.slice().sort((a, b) => a.from - b.from);
-  if (!S.edit) return `<div class="causes">${srt.map(p => `<button class="cause" data-go="${Math.min(NB - 1, Math.floor((p.from + p.to) / 20))}" style="border:0;background:none;padding:4px 0;cursor:pointer;text-align:left;grid-template-columns:1fr auto"><span><b>${esc(p.name || PLT[p.type])}</b><span class="small ink3"> · ${PLT[p.type]}${p.changedOn ? ' · changed ' + fmtDate(p.changedOn) : ''}</span></span><span class="num small">${p.to > p.from ? `${p.from}–${p.to}` : p.from} m</span></button>`).join('')}</div><p class="small ink3">Places that can change a stretch. Give one a “changed on” date to compare before and after; tap “Edit what is there” to edit.</p>`;
-  return `<div class="pled">${srt.map(p => `<div class="row" data-pl="${p.id}"><input class="nm" data-f="name" value="${esc(p.name || '')}" aria-label="Name"><select data-f="type" aria-label="Type">${Object.entries(PLT).map(([k, t]) => `<option value="${k}" ${k === p.type ? 'selected' : ''}>${t}</option>`).join('')}</select><input type="number" data-f="from" value="${p.from}" min="0" max="${L}" aria-label="From (m)"><span class="small">to</span><input type="number" data-f="to" value="${p.to}" min="0" max="${L}" aria-label="To (m)"><span class="small">m · changed on</span><input type="date" data-f="changedOn" value="${p.changedOn || ''}" aria-label="Changed on"><button type="button" class="btn ghost" data-pldel="${p.id}" style="font-size:13px;padding:6px 10px">Delete</button></div>`).join('')}<div><button type="button" class="btn ghost" data-pladd="1" style="font-size:13px;padding:7px 10px">Add a place</button></div></div>`;
+  if (!S.edit) return `<div class="causes">${srt.map(p => `<button class="cause" data-go="${Math.min(NB - 1, Math.floor((p.from + p.to) / 20))}" style="border:0;background:none;padding:4px 0;cursor:pointer;text-align:left;grid-template-columns:1fr auto"><span><b>${esc(p.name || PLT[p.type])}</b><span class="small ink3"> · ${PLT[p.type]}${p.changedOn ? ' · changed ' + fmtDate(p.changedOn) : ''}</span></span><span class="num small">${p.to > p.from ? `${p.from}–${p.to}` : p.from} m</span></button>`).join('')}</div><p class="small ink3">Landmarks and infrastructure that can change a segment. Give one a “changed on” date to compare before and after; use “Edit street inventory” to edit.</p>`;
+  return `<div class="pled">${srt.map(p => `<div class="row" data-pl="${p.id}"><input class="nm" data-f="name" value="${esc(p.name || '')}" aria-label="Name"><select data-f="type" aria-label="Type">${Object.entries(PLT).map(([k, t]) => `<option value="${k}" ${k === p.type ? 'selected' : ''}>${t}</option>`).join('')}</select><input type="number" data-f="from" value="${p.from}" min="0" max="${L}" aria-label="From (m)"><span class="small">to</span><input type="number" data-f="to" value="${p.to}" min="0" max="${L}" aria-label="To (m)"><span class="small">m · changed on</span><input type="date" data-f="changedOn" value="${p.changedOn || ''}" aria-label="Changed on"><button type="button" class="btn ghost" data-pldel="${p.id}" style="font-size:13px;padding:6px 10px">Delete</button></div>`).join('')}<div><button type="button" class="btn ghost" data-pladd="1" style="font-size:13px;padding:7px 10px">Add a landmark or facility</button></div></div>`;
 }
 function renderInvPanel() {
   const P = $('#invPanel'), o = INV.find(x => x.id === selInvEx);
@@ -828,7 +832,7 @@ function renderInvPanel() {
   const fixes = INVT[o.type][3];
   P.innerHTML = `<div class="row" style="align-items:flex-start"><div class="grow"><b>${INVT[o.type][0]}</b> ${tagChip(INV_TAG[o.type])}<p class="small ink2">${ZONE[zoneOf(o.d)] || ''} · ${SRC[o.src] || 'added on this page'}. Positions from photos are approximate to a few metres until checked on site.</p></div>${S.edit ? `<button class="btn ghost" data-invdel="${o.id}" style="font-size:13px;padding:7px 10px">Delete</button>` : ''}<button class="btn ghost" data-invclose="1" style="font-size:13px;padding:7px 10px">Close</button></div>
     ${S.edit ? `<div class="flds">${numField('g-m', 'Position', +o.m.toFixed(1), 0, L, .5, 'm')}${numField('g-d', 'From building line', +o.d.toFixed(2), -XS.BLD, DR, .1, 'm')}${numField('g-len', 'Length along street', o.len, .1, 60, .1, 'm')}${numField('g-wid', 'Width across', o.wid, .05, 10, .1, 'm')}${numField('g-rot', 'Rotation', o.rot || 0, -180, 180, 15, '°')}<label class="fld"><span>&nbsp;</span><button type="button" class="btn ghost" data-rot90="inv" style="padding:7px 10px;font-size:13px">Rotate 90°</button></label></div>` : `<p class="small num">${esc(invLine(o))}</p>`}
-    <p class="small ink2">${fixes.length ? 'Removed in the sandbox by: ' + fixes.map(id => TOOL[id].name).join(', ') + '.' : 'Stays in place in the sandbox.'}</p>`;
+    <p class="small ink2">${fixes.length ? 'Removed in Test interventions by: ' + fixes.map(id => TOOL[id].name).join(', ') + '.' : 'Stays in place when testing interventions.'}</p>`;
 }
 function addInv(type, m, d) {
   const o = { id: 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), type, m: Math.max(0, Math.min(L, +m.toFixed(1))), d: +d.toFixed(2), len: INVT[type][1], wid: INVT[type][2], src: 'site' };
@@ -845,57 +849,57 @@ const save = () => store.set('items2', ITEMS);
 function effectLine(it, base, after) {
   const t = TOOL[it.t], [a, b] = span(it), idx = []; for (let i = 0; i < NB; i++) if (b > i * 10 && a < i * 10 + 10) idx.push(i);
   const gone = INV.filter(o => invGone(o, [it])).length;
-  if (t.fixes.length) { const n = idx.reduce((s, i) => s + base.st[i].n, 0); return (n ? `${Math.round(a)}–${Math.round(b)} m · blocked walks ${idx.reduce((s, i) => s + base.st[i].blocked, 0)} → ${idx.reduce((s, i) => s + after.st[i].blocked, 0)} of ${n}` : 'no recorded walks here') + (gone ? ` · removes ${gone} item${gone > 1 ? 's' : ''} on the street` : ''); }
+  if (t.fixes.length) { const n = idx.reduce((s, i) => s + base.st[i].n, 0); return (n ? `${Math.round(a)}–${Math.round(b)} m · obstructed walks ${idx.reduce((s, i) => s + base.st[i].blocked, 0)} → ${idx.reduce((s, i) => s + after.st[i].blocked, 0)} of ${n}` : 'no recorded walks here') + (gone ? ` · removes ${gone} item${gone > 1 ? 's' : ''} on the street` : ''); }
   if (t.cross) return t.id === 'fob' ? 'crossing with stairs (detour)' : 'crossing point';
   if (t.seat) return 'seating'; if (t.shade) return `shade over ${Math.round(t.len ? it.len : it.reach * 2)} m`; if (t.amen) return t.amen + (t.measured === 'none' ? ' · not measured' : '');
   return t.what + (gone ? ` · removes ${gone} item${gone > 1 ? 's' : ''}` : '');
 }
-const WALKERS = [['Everyone', 'everyone'], ['Wheelchair', 'wheel'], ['Child with parent', 'child'], ['Elderly', 'elder']];
+const WALKERS = [['All pedestrians', 'everyone'], ['Wheelchair users', 'wheel'], ['Children with carers', 'child'], ['Older adults', 'elder']];
 // what each fix adds for each kind of walker: the layout with and without that fix
 function contributions(after) { const out = {}; for (const it of ITEMS) { const w = compute(S.light, 'both', ITEMS.filter(x => x.id !== it.id)); out[it.id] = Object.fromEntries(WALKERS.map(([, k]) => [k, after.pass[k] - w.pass[k]])); out[it.id].irc = after.irc.ok - w.irc.ok; out[it.id].mostly = w.mostly - after.mostly; } return out; }
 let fxPrev = null, fxSig = null, fxTimer = null;
 function showFx(a, b) {
   const host = sb.host; let el = host.querySelector('.fx'); if (!el) { el = document.createElement('div'); el.className = 'fx'; el.setAttribute('role', 'status'); host.appendChild(el); }
   const pct = c => c.irc.of ? Math.round(c.irc.ok / c.irc.of * 100) : 0;
-  const rows = [['Blocked stretches', a.mostly, b.mostly, true], ['IRC:103 width ≥ 1.8 m', pct(a) + '%', pct(b) + '%', false, pct(b) - pct(a)], ['Wheelchair', a.pass.wheel + '/22', b.pass.wheel + '/22', false, b.pass.wheel - a.pass.wheel], ['Child with parent', a.pass.child + '/22', b.pass.child + '/22', false, b.pass.child - a.pass.child], ['Elderly', a.pass.elder + '/22', b.pass.elder + '/22', false, b.pass.elder - a.pass.elder]];
-  el.innerHTML = '<div class="h">Just changed</div>' + rows.map(([n, x, y, inv, dv]) => { const d = dv != null ? dv : y - x; const cls = !d ? 'ink3' : (inv ? d < 0 : d > 0) ? 'up' : 'dn'; return `<div class="ln"><span style="font-family:var(--f-ui)">${n}</span><span class="${cls}">${x} → ${y}</span></div>`; }).join('');
+  const rows = [['Obstructed segments', a.mostly, b.mostly, true], ['IRC:103 width ≥ 1.8 m', pct(a) + '%', pct(b) + '%', false, pct(b) - pct(a)], ['Wheelchair users', a.pass.wheel + '/22', b.pass.wheel + '/22', false, b.pass.wheel - a.pass.wheel], ['Children with carers', a.pass.child + '/22', b.pass.child + '/22', false, b.pass.child - a.pass.child], ['Older adults', a.pass.elder + '/22', b.pass.elder + '/22', false, b.pass.elder - a.pass.elder]];
+  el.innerHTML = '<div class="h">Last change</div>' + rows.map(([n, x, y, inv, dv]) => { const d = dv != null ? dv : y - x; const cls = !d ? 'ink3' : (inv ? d < 0 : d > 0) ? 'up' : 'dn'; return `<div class="ln"><span style="font-family:var(--f-ui)">${n}</span><span class="${cls}">${x} → ${y}</span></div>`; }).join('');
   el.style.opacity = 1; clearTimeout(fxTimer); fxTimer = setTimeout(() => { el.style.opacity = 0; }, 4500);
 }
 function renderSandbox(keepPanel) {
   const ly = LAYERS.blocked, base = compute(S.light, 'both', []), after = compute(S.light, 'both', ITEMS), Cc = S.view === 'after' ? after : base;
   const sig = JSON.stringify(ITEMS) + S.light; const changed = fxSig != null && sig !== fxSig; if (changed && fxPrev) showFx(fxPrev, after); if (sig !== fxSig) { fxPrev = after; fxSig = sig; }
   const CON = contributions(after);
-  const conLine = id => { const c = CON[id]; if (!c) return ''; const parts = WALKERS.filter(([, k]) => c[k]).map(([n, k]) => `${n} ${c[k] > 0 ? '+' : ''}${c[k]}`); if (c.irc) parts.push(`IRC width ${c.irc > 0 ? '+' : ''}${c.irc}`); return parts.length ? `<br><span class="contrib">${parts.join(' · ')} stretches</span>` : ''; };
+  const conLine = id => { const c = CON[id]; if (!c) return ''; const parts = WALKERS.filter(([, k]) => c[k]).map(([n, k]) => `${n} ${c[k] > 0 ? '+' : ''}${c[k]}`); if (c.irc) parts.push(`IRC width ${c.irc > 0 ? '+' : ''}${c.irc}`); return parts.length ? `<br><span class="contrib">${parts.join(' · ')} segments</span>` : ''; };
   $('#sbLegend').innerHTML = legendHtml(ly);
   sb.render(Cc.st, ly, null, S.view === 'after' ? ITEMS : [], selItem, selInvSb, INV);
-  $('#chg').innerHTML = ITEMS.length ? `<div class="lbl" style="background:none;padding:0;display:block">Changes on the street</div>` + ITEMS.slice().sort((a, b) => a.m - b.m).map(it => { const t = TOOL[it.t]; return `<div data-pick="${it.id}" style="cursor:pointer${it.id === selItem ? ';outline:2px solid var(--accent)' : ''}">${icon(t.id, 26)}<span><b>${t.name}</b> at ${Math.round(it.m)} m${t.len ? ` · ${it.len} m long` : ''} · ${ZONE[it.lane === 'road' ? 'road' : it.lane] || ''}<br><span class="ink2">${effectLine(it, base, after)}</span>${conLine(it.id)}</span><button data-del="${it.id}" aria-label="Remove ${t.name}">×</button></div>`; }).join('') : `<p class="small ink2">Nothing placed yet. Tap something on the street, such as a parked two-wheeler or a stall, to see the fixes that suit it, or drag a fix from the left.</p>`;
+  $('#chg').innerHTML = ITEMS.length ? `<div class="lbl" style="background:none;padding:0;display:block">Proposed interventions</div>` + ITEMS.slice().sort((a, b) => a.m - b.m).map(it => { const t = TOOL[it.t]; return `<div data-pick="${it.id}" style="cursor:pointer${it.id === selItem ? ';outline:2px solid var(--accent)' : ''}">${icon(t.id, 26)}<span><b>${t.name}</b> at ${Math.round(it.m)} m${t.len ? ` · ${it.len} m long` : ''} · ${ZONE[it.lane === 'road' ? 'road' : it.lane] || ''}<br><span class="ink2">${effectLine(it, base, after)}</span>${conLine(it.id)}</span><button data-del="${it.id}" aria-label="Remove ${t.name}">×</button></div>`; }).join('') : `<p class="small ink2">No interventions yet. Select an element on the street, such as a parked two-wheeler or a stall, to see suitable interventions, or drag one from the list.</p>`;
   if (!keepPanel) renderPanel();
   const d = (x, y, inv) => { const v = +(y - x).toFixed(1); if (!v) return '<span class="delta ink3">±0</span>'; const good = inv ? v < 0 : v > 0; return `<span class="delta ${good ? 'up' : 'dn'}">${v > 0 ? '+' : ''}${v}</span>`; };
-  const P = [['Everyone', 'everyone', 'not blocked on most walks'], ['Wheelchair user', 'wheel', '≥ 0.9 m clear, not blocked'], ['Child with parent', 'child', '≥ 1.2 m clear, not blocked'], ['Elderly person', 'elder', 'rarely blocked, seat within 50 m']];
+  const P = [['All pedestrians', 'everyone', 'not obstructed on most walks'], ['Wheelchair users', 'wheel', '≥ 0.9 m clear walkway, not obstructed'], ['Children with carers', 'child', '≥ 1.2 m clear walkway, not obstructed'], ['Older adults', 'elder', 'rarely obstructed, seating within 50 m']];
   const amen = Object.entries(after.amen), removed = INV.filter(o => invGone(o, ITEMS));
   const pctI = c => c.irc.of ? Math.round(c.irc.ok / c.irc.of * 100) : 0;
   const topFor = k => { const best = ITEMS.map(it => [it, CON[it.id] ? CON[it.id][k] : 0]).filter(x => x[1] > 0).sort((a, b) => b[1] - a[1])[0]; return best ? `<div class="contrib">most from ${TOOL[best[0].t].name} at ${Math.round(best[0].m)} m (+${best[1]})</div>` : ''; };
   const remTags = {}; removed.forEach(o => { const g = INV_TAG[o.type]; remTags[g] = remTags[g] || {}; const n = INVT[o.type][0]; remTags[g][n] = (remTags[g][n] || 0) + 1; });
-  $('#impact').innerHTML = `<div class="lbl">Impact on ${after.W.length} recorded walks</div>
-    <div class="row${changed ? ' bump' : ''}" style="align-items:baseline;gap:10px;margin-top:6px"><span class="big">${base.mostly} → ${after.mostly}</span></div><p class="small ink2">stretches blocked on most walks ${d(base.mostly, after.mostly, true)}</p>
-    <div class="row${changed ? ' bump' : ''}" style="align-items:baseline;gap:10px;margin-top:10px"><span class="big" style="font-size:26px">${pctI(base)}% → ${pctI(after)}%</span></div><p class="small ink2">IRC:103 width screening: measurable stretches with ≥ 1.8 m clear ${d(pctI(base), pctI(after))}</p>
+  $('#impact').innerHTML = `<div class="lbl">Impact on ${after.W.length} surveyed walks</div>
+    <div class="row${changed ? ' bump' : ''}" style="align-items:baseline;gap:10px;margin-top:6px"><span class="big">${base.mostly} → ${after.mostly}</span></div><p class="small ink2">segments obstructed on most walks ${d(base.mostly, after.mostly, true)}</p>
+    <div class="row${changed ? ' bump' : ''}" style="align-items:baseline;gap:10px;margin-top:10px"><span class="big" style="font-size:26px">${pctI(base)}% → ${pctI(after)}%</span></div><p class="small ink2">IRC:103 width screening: measurable segments with ≥ 1.8 m clear ${d(pctI(base), pctI(after))}</p>
     <div class="accs">
-    ${acc('sb-walkers', 'Who it works for', `wheelchair ${after.pass.wheel}/22`, `<div class="persona">${P.map(([n, k, r]) => `<span>${n}<br><span class="small ink3">${r}</span>${topFor(k)}</span><span class="num">${after.pass[k]}/22 ${d(base.pass[k], after.pass[k])}</span>`).join('')}</div>`)}
-    ${acc('sb-kpis', 'Key numbers', `${Math.round(after.avg * 100)}% avg blocked`, `<div class="kpis">
-      <div class="kpi"><div class="v">${Math.round(base.avg * 100)}→${Math.round(after.avg * 100)}%</div><div class="k">average stretch blocked</div></div>
+    ${acc('sb-walkers', 'Accessibility by user group', `wheelchair users ${after.pass.wheel}/22`, `<div class="persona">${P.map(([n, k, r]) => `<span>${n}<br><span class="small ink3">${r}</span>${topFor(k)}</span><span class="num">${after.pass[k]}/22 ${d(base.pass[k], after.pass[k])}</span>`).join('')}</div>`)}
+    ${acc('sb-kpis', 'Key indicators', `${Math.round(after.avg * 100)}% average obstruction`, `<div class="kpis">
+      <div class="kpi"><div class="v">${Math.round(base.avg * 100)}→${Math.round(after.avg * 100)}%</div><div class="k">average segment obstruction</div></div>
       <div class="kpi"><div class="v">${after.minW == null ? '—' : after.minW.toFixed(1) + ' m'}</div><div class="k">narrowest measured width</div></div>
-      <div class="kpi"><div class="v">${base.horns.toFixed(0)}→${after.horns.toFixed(0)}</div><div class="k">horns per walk</div></div>
-      <div class="kpi"><div class="v">${after.gapCross} m</div><div class="k">longest stretch without a crossing</div></div>
+      <div class="kpi"><div class="v">${base.horns.toFixed(0)}→${after.horns.toFixed(0)}</div><div class="k">horn incidents per walk</div></div>
+      <div class="kpi"><div class="v">${after.gapCross} m</div><div class="k">longest segment without a crossing</div></div>
       <div class="kpi"><div class="v">${after.gapSeat} m</div><div class="k">longest walk without a seat</div></div>
       <div class="kpi"><div class="v">${Math.round(after.shade * 100)}% · ${Math.round(after.lit * 100)}%</div><div class="k">route shaded · newly lit</div></div></div>`, false)}
-    ${acc('sb-removed', 'Taken off the street', removed.length + ' items', removed.length ? ['friction', 'life', 'fixed'].filter(g => remTags[g]).map(g => `<div>${tagChip(g)}<p class="small ink2" style="margin-top:2px">${Object.entries(remTags[g]).map(([k, n]) => `${k}${n > 1 ? ' × ' + n : ''}`).join(' · ')}${g === 'life' ? ' (moved into an organised zone, not removed)' : ''}</p></div>`).join('') : '<p class="small ink2">Nothing yet.</p>', false)}
+    ${acc('sb-removed', 'Encroachments removed', removed.length + ' items', removed.length ? ['friction', 'life', 'fixed'].filter(g => remTags[g]).map(g => `<div>${tagChip(g)}<p class="small ink2" style="margin-top:2px">${Object.entries(remTags[g]).map(([k, n]) => `${k}${n > 1 ? ' × ' + n : ''}`).join(' · ')}${g === 'life' ? ' (moved into an organised zone, not removed)' : ''}</p></div>`).join('') : '<p class="small ink2">Nothing yet.</p>', false)}
     ${acc('sb-amen', 'Amenities added', amen.length + '', `<p class="small ink2">${amen.length ? amen.map(([k, n]) => `${k}${n > 1 ? ' × ' + n : ''}`).join(' · ') : 'None yet. No seating, water, toilets, ramps or tactile paving were recorded on the street.'}</p>`, false)}
-    ${acc('sb-cost', 'Cost and trade-offs', ITEMS.length ? ITEMS.length + ' changes' : '—', `<p class="small ink2">${ITEMS.length ? Object.entries(after.cost).map(([k, n]) => `${n} × ${k.toLowerCase()} cost`).join(' · ') : 'No changes yet.'}${after.parking ? ` · about ${after.parking} parking space${after.parking > 1 ? 's' : ''} used` : ''}</p>`, false)}
+    ${acc('sb-cost', 'Cost and trade-offs', ITEMS.length ? ITEMS.length + ' interventions' : '—', `<p class="small ink2">${ITEMS.length ? Object.entries(after.cost).map(([k, n]) => `${n} × ${k.toLowerCase()} cost`).join(' · ') : 'No interventions yet.'}${after.parking ? ` · about ${after.parking} parking space${after.parking > 1 ? 's' : ''} used` : ''}</p>`, false)}
     ${acc('sb-opts', 'Options', OPTS.filter(Boolean).length + ' saved', `<div class="opt">${OPTS.map((o, k) => `<button class="btn ${o ? '' : 'ghost'}" data-opt="${k}" style="justify-content:center;padding:8px 6px;font-size:13px">${o ? 'Load ' : 'Save '}${'ABC'[k]}</button>`).join('')}</div>
-    ${OPTS.some(Boolean) ? `<table class="cmp"><tr><th></th>${OPTS.map((o, k) => o ? `<th>${'ABC'[k]}</th>` : '').join('')}</tr>${[['Blocked stretches', c => c.mostly], ['IRC width ≥ 1.8 m', c => pctI(c) + '%'], ['Wheelchair', c => c.pass.wheel + '/22'], ['Horns per walk', c => c.horns.toFixed(0)], ['Changes', (c, o) => o.length]].map(([n, f]) => `<tr><td>${n}</td>${OPTS.map(o => o ? `<td class="num">${f(compute(S.light, 'both', o), o)}</td>` : '').join('')}</tr>`).join('')}</table><button class="btn ghost" id="clearOpts" style="font-size:12px;padding:6px 10px">Clear saved options</button>` : '<p class="small ink3">Save up to three layouts to compare them.</p>'}`, false)}
+    ${OPTS.some(Boolean) ? `<table class="cmp"><tr><th></th>${OPTS.map((o, k) => o ? `<th>${'ABC'[k]}</th>` : '').join('')}</tr>${[['Obstructed segments', c => c.mostly], ['IRC width ≥ 1.8 m', c => pctI(c) + '%'], ['Wheelchair users', c => c.pass.wheel + '/22'], ['Horns per walk', c => c.horns.toFixed(0)], ['Changes', (c, o) => o.length]].map(([n, f]) => `<tr><td>${n}</td>${OPTS.map(o => o ? `<td class="num">${f(compute(S.light, 'both', o), o)}</td>` : '').join('')}</tr>`).join('')}</table><button class="btn ghost" id="clearOpts" style="font-size:12px;padding:6px 10px">Clear saved options</button>` : '<p class="small ink3">Save up to three design options to compare them.</p>'}`, false)}
     </div>
-    <div class="row" style="margin-top:16px"><button class="btn ghost" id="reset">Reset street</button></div>
-    <p class="small ink3" style="margin-top:12px">A fix clears a blocked walk when it removes the main thing in that walk's worst photo; the path then takes the width of the clear walks there. Horn and swerve changes are rule-of-thumb factors, not traffic or crowd simulations.</p>`;
+    <div class="row" style="margin-top:16px"><button class="btn ghost" id="reset">Clear all interventions</button></div>
+    <p class="small ink3" style="margin-top:12px">An intervention clears an obstructed walk when it removes the main obstruction in that walk's worst photo; the walkway then takes the width recorded on unobstructed walks there. Changes to horn incidents and path deviations are rule-of-thumb factors, not traffic or crowd simulations.</p>`;
 }
 function renderPanel() {
   const P = $('#selPanel');
@@ -909,14 +913,14 @@ function renderPanel() {
   } else if (selInvSb) {
     const o = INV.find(x => x.id === selInvSb); if (!o) { selInvSb = null; P.innerHTML = ''; return; } const fx = INVT[o.type][3];
     P.innerHTML = `<div class="row" style="align-items:flex-start"><div class="grow"><b>${INVT[o.type][0]}</b> ${tagChip(INV_TAG[o.type])}<p class="small ink2 num">${esc(invLine(o))} · ${SRC[o.src] || ''}</p></div><button class="btn ghost" data-unsel="1" style="font-size:13px;padding:7px 10px">Close</button></div>
-      ${fx.length ? `<div class="lbl">Fixes that take it off the walking path · tap to place here</div><div class="sugg">${fx.map(id => `<button type="button" class="tool" data-place="${id}" data-inv="${o.id}">${icon(id, 32)}<div><b>${TOOL[id].name}</b><span>${TOOL[id].cost.toLowerCase()} cost</span></div></button>`).join('')}</div>` : '<p class="small ink2">This stays where it is. Plan around it, for example by widening the footpath beside it.</p>'}`;
+      ${fx.length ? `<div class="lbl">Interventions that clear it from the walkway · tap to place here</div><div class="sugg">${fx.map(id => `<button type="button" class="tool" data-place="${id}" data-inv="${o.id}">${icon(id, 32)}<div><b>${TOOL[id].name}</b><span>${TOOL[id].cost.toLowerCase()} cost</span></div></button>`).join('')}</div>` : '<p class="small ink2">This stays where it is. Plan around it, for example by widening the walkway beside it.</p>'}`;
   } else P.innerHTML = '';
 }
 function placeOver(id, o) { const t = TOOL[id], lane = t.lane === 'road' ? 'road' : t.lane === 'lane' || zoneOf(o.d) === 'lane' ? 'lane' : 'path'; const it = normItem({ id: 'x' + (uid++), t: id, m: o.m, lane }); if (t.len) it.len = Math.max(t.len[1], Math.min(t.len[2], Math.ceil(o.len + 2))); it.d = fitD(t, lane, lane === 'path' ? (id === 'bollards' || id === 'planters' || id === 'railing' ? XS.FW - .25 : o.d) : DK + XS.LANE / 2); ITEMS.push(it); selItem = it.id; selInvSb = null; save(); if (S.view !== 'after') { S.view = 'after'; syncSegs(); } renderSandbox(); }
 function addItem(id, m, d) { const t = TOOL[id], zone = zoneOf(d); if (!okZone(t, zone)) return false; const lane = t.lane === 'road' ? 'road' : zone === 'road' ? 'lane' : zone; const it = normItem({ id: 'x' + (uid++), t: id, m: Math.max(0, Math.min(L, Math.round(m * 2) / 2)), lane }); it.d = fitD(t, lane, d); ITEMS.push(it); selItem = it.id; selInvSb = null; save(); renderSandbox(); return true; }
 function paletteHtml(q) {
   q = (q || '').trim().toLowerCase();
-  return CATS.map(([c, name, col], ci) => { const list = TOOLS.filter(t => t.cat === c && (!q || (t.name + ' ' + t.what + ' ' + t.note).toLowerCase().includes(q))); if (!list.length) return ''; return `<details class="cat" ${q || ci === 0 ? 'open' : ''}><summary><i class="sw" style="background:${PAL[col][0]}"></i>${name}<span class="ink3 num">${list.length}</span></summary><div class="catlist">${list.map(t => `<div class="tool" data-tool="${t.id}" tabindex="0" role="button" aria-label="Drag ${t.name} onto the street">${icon(t.id, 40)}<div><b>${t.name}</b><span>${t.fixes.length ? 'fixes ' + t.what : t.what} · ${t.cost.toLowerCase()} cost${t.measured === 'none' ? ' · not measured' : ''}</span></div></div>`).join('')}</div></details>`; }).join('') || '<p class="small ink2">No fix matches that search.</p>';
+  return CATS.map(([c, name, col], ci) => { const list = TOOLS.filter(t => t.cat === c && (!q || (t.name + ' ' + t.what + ' ' + t.note).toLowerCase().includes(q))); if (!list.length) return ''; return `<details class="cat" ${q || ci === 0 ? 'open' : ''}><summary><i class="sw" style="background:${PAL[col][0]}"></i>${name}<span class="ink3 num">${list.length}</span></summary><div class="catlist">${list.map(t => `<div class="tool" data-tool="${t.id}" tabindex="0" role="button" aria-label="Drag ${t.name} onto the street">${icon(t.id, 40)}<div><b>${t.name}</b><span>${t.fixes.length ? 'addresses ' + t.what : t.what} · ${t.cost.toLowerCase()} cost${t.measured === 'none' ? ' · not measured' : ''}</span></div></div>`).join('')}</div></details>`; }).join('') || '<p class="small ink2">No intervention matches that search.</p>';
 }
 // drag something from a palette onto a street; drop(m, d) receives street coordinates
 function paletteDrag(e, glyph, street, drop) {
@@ -933,7 +937,7 @@ function dragMove(street, e, get, apply, done) {
   host.addEventListener('pointermove', mv); host.addEventListener('pointerup', up);
 }
 function initSandbox() {
-  $('#palette').innerHTML = `<div class="lbl">Fixes · drag onto the street</div><input id="q" class="search" type="search" placeholder="Search ${TOOLS.length} fixes" aria-label="Search fixes"><div id="cats">${paletteHtml('')}</div><p class="small ink3" style="margin-top:4px">Keyboard: focus a fix and press Enter to place it in the middle of the view.</p>`;
+  $('#palette').innerHTML = `<div class="lbl">Interventions · drag onto the street</div><input id="q" class="search" type="search" placeholder="Search ${TOOLS.length} interventions" aria-label="Search fixes"><div id="cats">${paletteHtml('')}</div><p class="small ink3" style="margin-top:4px">Keyboard: focus an intervention and press Enter to place it in the middle of the view.</p>`;
   $('#q').addEventListener('input', e => { $('#cats').innerHTML = paletteHtml(e.target.value); });
   sb = Street($('#sbStreet'), $('#sbMini'), { sightings: () => S.sight === 'on', places: () => PL,
     onItemDown(id, e) { const it = ITEMS.find(x => x.id === id); if (!it) return; const t = TOOL[it.t]; selItem = id; selInvSb = null; renderSandbox();
