@@ -147,7 +147,25 @@ for e in existing:
         e["u"] = [round(q(.25), 2), round(q(.5), 2), round(q(.75), 2)]
     else:
         e["u"] = {"barrier": [-.3, -.15, 0], "bins": [.85, .95, 1.05]}.get(e["kind"], [.4, .5, .6])
-out = {"corridor": m["corridor"], "walks": walks, "photos": photos, "existing": existing, "dets": dets}
+# Night lighting, relative: median brightness of the walking surface (lower 45% of each night frame), divided by
+# that walk's median over the whole route so phone exposure differences between walks cancel out; then the median
+# across night walks for each 10 m segment. 1.0 = as bright as the route's typical night frame. Phones raise
+# exposure in the dark, so this ranks segments against each other; it is not a lux reading.
+lum = {}
+for d in m["days"]:
+    for key in ("forward", "return"):
+        w = d.get(key)
+        if not w or w.get("lighting") != "night":
+            continue
+        vals = {}
+        for n in w["nodes"]:
+            im = np.asarray(Image.open(os.path.join(ROOT, w["folder"], n["file"])).convert("L"), dtype=float)
+            vals.setdefault(min(NB - 1, int(float(n["meter"]) // 10)), []).append(float(im[int(im.shape[0] * .55):].mean()))
+        ref = float(np.median([v for vs in vals.values() for v in vs]))
+        for i, vs in vals.items():
+            lum.setdefault(i, []).append(float(np.median(vs)) / ref)
+lit = [{"r": round(float(np.median(lum[i])), 2), "w": len(lum[i])} if i in lum else None for i in range(NB)]
+out = {"corridor": m["corridor"], "walks": walks, "photos": photos, "existing": existing, "dets": dets, "lit": lit}
 with open(os.path.join(HERE, "data.js"), "w") as f:
     f.write("window.LAB=" + json.dumps(out, separators=(",", ":")) + ";\n")
 print(len(walks), "walks", sum(len(v) for v in photos.values()), "photos")
