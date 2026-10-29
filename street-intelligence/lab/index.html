@@ -231,6 +231,8 @@ select.sel, .pled input, .pled select { font: 600 13px var(--f-ui); padding: 6px
     <div class="row"><span class="lbl">Street inventory</span><div class="seg" data-k="inv"><button data-v="on">Show</button><button data-v="off">Hide</button></div></div>
     <div class="row"><span class="lbl">Obstructions seen in photos</span><div class="seg" data-k="sight"><button data-v="on">Show</button><button data-v="off">Hide</button></div></div>
     <div class="row"><span class="lbl">Landmarks and infrastructure</span><div class="seg" data-k="pl"><button data-v="on">Show</button><button data-v="off">Hide</button></div></div>
+    <div class="row"><span class="lbl">Width standard</span><div class="seg" data-k="std"><button data-v="bmc">BMC footpath policy</button><button data-v="irc">IRC:103</button><button data-v="itdp">ITDP</button></div></div>
+    <div class="row"><span class="lbl">Street type</span><div class="seg" data-k="use"><button data-v="commercial">Commercial</button><button data-v="residential">Residential</button></div></div>
     <button class="btn ghost" id="editInv" type="button">Edit street inventory</button>
     <button class="btn ghost" id="cmpBtn" type="button">Compare survey groups</button>
     <button class="btn ghost" id="sheetBtn" type="button">Evidence sheet</button>
@@ -257,6 +259,8 @@ select.sel, .pled input, .pled select { font: 600 13px var(--f-ui); padding: 6px
     <div class="row"><span class="lbl">Time of survey</span><div class="seg" data-k="light"><button data-v="any">All · 15</button><button data-v="day">Day</button><button data-v="night">Night</button></div></div>
     <div class="row"><span class="lbl">Obstructions seen in photos</span><div class="seg" data-k="sight"><button data-v="on">Show</button><button data-v="off">Hide</button></div></div>
     <div class="row"><span class="lbl">Scenario</span><div class="seg" data-k="view"><button data-v="after">Proposed</button><button data-v="before">Existing</button></div></div>
+    <div class="row"><span class="lbl">Width standard</span><div class="seg" data-k="std"><button data-v="bmc">BMC footpath policy</button><button data-v="irc">IRC:103</button><button data-v="itdp">ITDP</button></div></div>
+    <div class="row"><span class="lbl">Street type</span><div class="seg" data-k="use"><button data-v="commercial">Commercial</button><button data-v="residential">Residential</button></div></div>
     <span class="small ink2">Drag an intervention from the list onto any point of the street. Drag a placed intervention to move it; select it to resize or remove it.</span>
   </div>
   <div class="sbx">
@@ -540,10 +544,10 @@ function loadUnderpass() {
 function note(msg) { const n = $('#note'); n.textContent = msg; n.hidden = false; clearTimeout(note.t); note.t = setTimeout(() => n.hidden = true, 4000); }
 
 /* ---------- state ---------- */
-const S = Object.assign({ light: 'any', dir: 'both', layer: 'blocked', view: 'after', sel: 8, inv: 'on', sight: 'on', pl: 'on', edit: false, cmpOn: false, cmp: { by: 'light', from: 150, to: 200, place: '' }, sheetOn: false, sheetOnly: true }, store.get('ui2', {}));
+const S = Object.assign({ light: 'any', dir: 'both', layer: 'blocked', view: 'after', sel: 8, inv: 'on', sight: 'on', pl: 'on', edit: false, cmpOn: false, cmp: { by: 'light', from: 150, to: 200, place: '' }, sheetOn: false, sheetOnly: true, std: 'bmc', use: 'commercial' }, store.get('ui2', {}));
 let ITEMS = [];
 let OPTS = [null, null, null];
-const saveUi = () => store.set('ui2', { light: S.light, dir: S.dir, layer: S.layer, view: S.view, sel: S.sel, inv: S.inv, sight: S.sight, pl: S.pl, cmpOn: S.cmpOn, cmp: S.cmp, sheetOn: S.sheetOn, sheetOnly: S.sheetOnly });
+const saveUi = () => store.set('ui2', { light: S.light, dir: S.dir, layer: S.layer, view: S.view, sel: S.sel, inv: S.inv, sight: S.sight, pl: S.pl, cmpOn: S.cmpOn, cmp: S.cmp, sheetOn: S.sheetOn, sheetOnly: S.sheetOnly, std: S.std, use: S.use });
 
 /* ---------- model ---------- */
 const walksFor = (light, dir = 'both') => D.walks.filter(w => (light === 'any' || (light === 'night') === w.night) && (dir === 'both' || w.dir[0] === dir));
@@ -594,7 +598,7 @@ function compute(light, dir, items) {
     elder: st.filter(s => s.share != null && s.share < .4 && seatNear(s.i)).length
   };
   const ws = st.filter(s => s.width != null).map(s => s.width);
-  const irc = { ok: ws.filter(w => w >= 1.8).length, of: ws.length };
+  const mn = stdMin(), irc = { ok: ws.filter(w => w >= mn).length, of: ws.length, pinch: STDS[S.std].reduced ? ws.filter(w => w >= STDS[S.std].reduced && w < mn).length : 0 };
   const amen = {}; items.forEach(it => { const a = TOOL[it.t].amen; if (a) amen[a] = (amen[a] || 0) + 1; });
   return { st, W, irc, mostly: st.filter(s => s.share > .5).length, avg: st.filter(s => s.share != null).reduce((a, s) => a + s.share, 0) / Math.max(1, st.filter(s => s.share != null).length), pass, minW: ws.length ? Math.min(...ws) : null, gapSeat: gapOf(seats), gapCross: gapOf(crossings), shade: metres(t => t.shade) / L, lit: metres(t => t.lit) / L, cross: crossings.length, horns: st.reduce((a, s) => a + s.hk, 0) / Math.max(1, W.length), amen, cost: items.reduce((a, it) => (a[TOOL[it.t].cost] = (a[TOOL[it.t].cost] || 0) + 1, a), {}), parking: items.filter(it => it.lane === 'lane').reduce((a, it) => a + Math.max(1, Math.round((it.len || 2) / 5)), 0) };
 }
@@ -799,6 +803,17 @@ function photoHtml(p) {
 const groupsFor = (light, dir) => ['df', 'dr', 'nr'].filter(g => (light === 'any' || (light === 'night') === (g[0] === 'n')) && (dir === 'both' || g[1] === dir));
 function worstPhoto(i, light, dir) { let best = null; for (const g of groupsFor(light, dir)) { const p = (D.photos[g] || {})[i]; if (p && (!best || REC[p.id].o > REC[best.id].o)) best = p; } return best; }
 
+/* ---------- width standards: which rule the clear walkway is screened against ---------- */
+// Figures are from published summaries of each document (the documents themselves were not reachable when this
+// was built); check them against the source before formal use.
+const STDS = {
+  irc: { name: 'IRC:103', long: 'IRC:103 (Indian Roads Congress)', min: { commercial: 2.5, residential: 1.8 }, src: 'IRC:103-2012, clause 6.1.5.2: clear walkway at least 1.8 m on residential streets and 2.5 m on commercial streets. ULB guidelines build on it.' },
+  bmc: { name: 'BMC footpath policy', long: 'BMC Universal Footpath Policy (Mumbai)', min: { commercial: 1.5, residential: 1.5 }, reduced: 1.2, src: 'BMC Universal Footpath Policy (2023), as reported: pedestrian zone at least 1.5 m, reducible to 1.2 m only at pinch points or around obstacles; kerbs no higher than 150 mm; 2.2 m vertical clearance. The same minimum applies on every street type.' },
+  itdp: { name: 'ITDP', long: 'ITDP India footpath design guide', min: { commercial: 2.5, residential: 1.8 }, src: 'ITDP India, Footpath design (2013, based on IRC:103-2012): pedestrian zone at least 1.8 m (two wheelchair users passing) on residential streets and 2.5 m on commercial streets, plus a 0.5–1.0 m frontage zone, with poles, trees and utility boxes kept in a furniture zone outside the walking zone.' }
+};
+const stdMin = () => STDS[S.std].min[S.use];
+const stdLabel = () => `${STDS[S.std].name} ${S.std === 'bmc' ? '' : S.use + ' '}minimum of ${stdMin()} m`;
+
 /* ---------- night lighting and evidence cards ---------- */
 // LIT: per segment, night-photo brightness relative to the route's typical night frame (prep.py). Ranks segments; not lux.
 const LIT = D.lit || [], RECW = {}; D.walks.forEach(w => w.s.forEach(r => { if (r) RECW[r.id] = w; }));
@@ -808,7 +823,7 @@ function finding(i, s) {
   const parts = [], act = [], top = Object.entries(s.causes).sort((a, b) => b[1] - a[1])[0];
   parts.push(s.n ? `Obstructed on ${s.blocked} of ${s.n} walks` : 'No walks recorded here');
   if (s.share > .5) act.push('obstruction');
-  if (s.width != null) { parts.push(`clear walkway about ${s.width.toFixed(1)} m${s.width < 1.8 ? ', below the 1.8 m IRC:103 minimum' : ''}`); if (s.width < 1.8) act.push('width'); }
+  if (s.width != null) { const mn = stdMin(), rd = STDS[S.std].reduced; parts.push(`clear walkway about ${s.width.toFixed(1)} m${s.width >= mn ? `, meets the ${stdLabel()}` : rd && s.width >= rd ? `, below the ${stdLabel()} (${rd} m is allowed only at a pinch point)` : `, below the ${stdLabel()}`}`); if (s.width < mn) act.push('width'); }
   else parts.push('clear walkway not measurable from the photos');
   if (top) parts.push(`main cause: ${CAUSE[top[0]][1].toLowerCase()} (${top[1]})`);
   if (LIT[i]) { parts.push(`night lighting ${litTxt(LIT[i].r)} the route's typical night frame`); if (LIT[i].r < .85) act.push('lighting'); }
@@ -816,7 +831,7 @@ function finding(i, s) {
 }
 function evidenceMeta(p, i, s, bare) {
   const w = p && RECW[p.id], f = finding(i, s);
-  return `<dl class="emeta"><dt>Chainage</dt><dd class="num">${sname(i)}${lmOf(i) ? ' · ' + esc(lmOf(i)) : ''}</dd>${w ? `<dt>Photo</dt><dd>Day ${w.day} · ${fmtDate(w.date)} · ${w.dir[0] === 'f' ? 'A → B' : 'B → A'} · ${w.night ? 'night' : 'daytime'} · ${esc(p.src.split(' · ')[1] || '')}</dd>` : '<dt>Photo</dt><dd>None for the walks selected</dd>'}<dt>Finding</dt><dd>${esc(f.text)}</dd>${f.act.length ? `<dt>Needs action</dt><dd><b>${f.act.map(a => ACT[a]).join(' · ')}</b></dd>` : ''}</dl>${bare ? '' : '<p class="small ink3">Worst photo for the walks selected. Green = walkable surface traced from the photo; boxes = obstructions. Width is screened against IRC:103 from camera estimates, not a legal score; lighting is relative brightness in night photos, not lux.</p>'}`;
+  return `<dl class="emeta"><dt>Chainage</dt><dd class="num">${sname(i)}${lmOf(i) ? ' · ' + esc(lmOf(i)) : ''}</dd>${w ? `<dt>Photo</dt><dd>Day ${w.day} · ${fmtDate(w.date)} · ${w.dir[0] === 'f' ? 'A → B' : 'B → A'} · ${w.night ? 'night' : 'daytime'} · ${esc(p.src.split(' · ')[1] || '')}</dd>` : '<dt>Photo</dt><dd>None for the walks selected</dd>'}<dt>Finding</dt><dd>${esc(f.text)}</dd>${f.act.length ? `<dt>Needs action</dt><dd><b>${f.act.map(a => ACT[a]).join(' · ')}</b></dd>` : ''}</dl>${bare ? '' : `<p class="small ink3">Worst photo for the walks selected. Green = walkable surface traced from the photo; boxes = obstructions. Width is screened against the ${STDS[S.std].long} from camera estimates, not a legal score; lighting is relative brightness in night photos, not lux.</p>`}`;
 }
 const filterText = () => `${S.light === 'night' ? 'night walks' : S.light === 'day' ? 'daytime walks' : 'all walks'}, ${S.dir === 'f' ? 'A → B' : S.dir === 'r' ? 'B → A' : 'both directions'}`;
 function sheetCards() { const C = compute(S.light, S.dir, []); return C.st.map(s => ({ s, p: worstPhoto(s.i, S.light, S.dir), f: finding(s.i, s) })).filter(x => !S.sheetOnly || x.f.act.length); }
@@ -834,7 +849,7 @@ async function downloadSheet() {
   await Promise.all(cards.filter(x => x.p).map(async x => { try { const b = await (await fetch(`ph/${x.p.id}.jpg`)).blob(); img[x.p.id] = await new Promise((ok, no) => { const fr = new FileReader(); fr.onload = () => ok(fr.result); fr.onerror = no; fr.readAsDataURL(b); }); } catch (e) {} }));
   const body = cards.map(x => `<article>${photoHtml(x.p).replace(' loading="lazy"', '').replace(/src="ph\/([^"]+)\.jpg"/, (m, id) => `src="${img[id] || ''}"`)}<div>${evidenceMeta(x.p, x.s.i, x.s, true)}</div></article>`).join('');
   const css = 'body{font:14px/1.45 system-ui,sans-serif;color:#1d232b;margin:24px;max-width:1000px}h1{font-size:22px;margin:0 0 4px}header p{margin:4px 0;color:#4a5462}main{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}article{display:grid;grid-template-columns:130px 1fr;gap:12px;border:1px solid #d6dbe1;border-radius:10px;padding:10px;break-inside:avoid}.photo{position:relative;width:130px;aspect-ratio:240/427;border-radius:8px;overflow:hidden;background:#eef0f3}.photo img,.photo svg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:3px 10px}dt{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#6b7480;font-weight:700;padding-top:2px}dd{margin:0}@media print{body{margin:10mm}main{gap:8px}}@media (max-width:700px){main{grid-template-columns:1fr}}';
-  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Walkway evidence sheet</title><style>${css}</style></head><body><header><h1>Walkway evidence sheet</h1><p>Old Nagardas Rd to the highway underpass, Andheri East · 220 m corridor · ${filterText()} · ${cards.length} segments${S.sheetOnly ? ' needing action' : ''} · prepared ${fmtDate(new Date().toISOString().slice(0, 10))}</p><p>Each card shows the worst photo recorded in a 10 m segment and the finding from ${D.walks.length} walk surveys. Widths are screened against the IRC:103 minimum of 1.8 m from uncalibrated camera estimates; lighting is brightness in night photos relative to the rest of the route, not a lux reading. Both indicate where to measure on site.</p></header><main>${body}</main></body></html>`;
+  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Walkway evidence sheet</title><style>${css}</style></head><body><header><h1>Walkway evidence sheet</h1><p>Old Nagardas Rd to the highway underpass, Andheri East · 220 m corridor · ${filterText()} · ${cards.length} segments${S.sheetOnly ? ' needing action' : ''} · prepared ${fmtDate(new Date().toISOString().slice(0, 10))}</p><p>Each card shows the worst photo recorded in a 10 m segment and the finding from ${D.walks.length} walk surveys. Widths are screened against the ${STDS[S.std].long}, ${stdLabel()}, from uncalibrated camera estimates (${esc(STDS[S.std].src)}); lighting is brightness in night photos relative to the rest of the route, not a lux reading. Both indicate where to measure on site.</p></header><main>${body}</main></body></html>`;
   try { await DLS.save({ filename: `walkway-evidence-sheet-${new Date().toISOString().slice(0, 10)}.html`, data: html }); note('Evidence sheet saved. Open it in a browser and print or save as PDF.'); }
   catch (e) { note(e && e.code === 'declined' ? 'Download cancelled.' : e && e.code === 'rate_limited' ? 'A download is already waiting for your answer.' : 'The sheet could not be downloaded here.'); }
 }
@@ -875,7 +890,7 @@ function renderExplore(keepPanel) {
     <div style="margin-top:12px"><button class="btn" id="tryFix">Test interventions here →</button></div>`;
   const ranked = C.st.filter(x => x.share != null).sort((a, b) => b.share - a.share).slice(0, 5);
   $('#exSummary').innerHTML = `<div class="lbl">Selected surveys</div><div class="row" style="align-items:baseline;gap:10px;margin:6px 0 2px"><span class="big">${C.mostly}</span><span class="ink2">of 22 segments obstructed on most walks</span></div><p class="small ink2">${C.W.length} walks · ${S.light === 'night' ? 'all night walks went B → A' : S.light === 'day' ? 'daylight only' : 'daylight and night'}</p>
-    <div class="accs">${acc('ex-worst', 'Most obstructed segments', 'top 5', `<div class="causes">${ranked.map(x => `<button class="cause" data-go="${x.i}" style="border:0;background:none;padding:4px 0;cursor:pointer;text-align:left;grid-template-columns:78px 1fr 40px"><b class="num">${sname(x.i)}</b><span class="meter"><i style="width:${Math.round(x.share * 100)}%"></i></span><span class="num">${Math.round(x.share * 100)}%</span></button>`).join('')}</div>`)}${acc('ex-places', 'Landmarks and infrastructure', PL.length + ' tagged', placesHtml(), S.edit)}${acc('ex-irc', 'IRC:103 width screening', `${C.irc.ok}/${C.irc.of} segments`, `<p class="small ink2">${C.irc.ok} of ${C.irc.of} measurable segments have at least 1.8 m clear (the residential minimum). This is screening from uncalibrated camera estimates, not a legal score.</p>`, false)}</div>
+    <div class="accs">${acc('ex-worst', 'Most obstructed segments', 'top 5', `<div class="causes">${ranked.map(x => `<button class="cause" data-go="${x.i}" style="border:0;background:none;padding:4px 0;cursor:pointer;text-align:left;grid-template-columns:78px 1fr 40px"><b class="num">${sname(x.i)}</b><span class="meter"><i style="width:${Math.round(x.share * 100)}%"></i></span><span class="num">${Math.round(x.share * 100)}%</span></button>`).join('')}</div>`)}${acc('ex-places', 'Landmarks and infrastructure', PL.length + ' tagged', placesHtml(), S.edit)}${acc('ex-irc', `${STDS[S.std].name} width screening`, `${C.irc.ok}/${C.irc.of} segments`, `<p class="small ink2">${C.irc.ok} of ${C.irc.of} measurable segments have a clear walkway of at least ${stdMin()} m (${stdLabel()})${C.irc.pinch ? `; ${C.irc.pinch} more reach ${STDS[S.std].reduced} m, allowed only at pinch points` : ''}. This is screening from uncalibrated camera estimates, not a legal score.</p><p class="small ink3">${esc(STDS[S.std].src)}</p>`, false)}</div>
     ${S.light === 'night' || S.dir === 'r' ? `<p class="small" style="margin-top:14px;padding:10px;border-radius:10px;background:var(--accent-soft);color:var(--accent-ink)">All 4 night walks went B → A, so night and direction are mixed up in this view.</p>` : ''}`;
 }
 function placesHtml() {
@@ -918,7 +933,7 @@ let fxPrev = null, fxSig = null, fxTimer = null;
 function showFx(a, b) {
   const host = sb.host; let el = host.querySelector('.fx'); if (!el) { el = document.createElement('div'); el.className = 'fx'; el.setAttribute('role', 'status'); host.appendChild(el); }
   const pct = c => c.irc.of ? Math.round(c.irc.ok / c.irc.of * 100) : 0;
-  const rows = [['Obstructed segments', a.mostly, b.mostly, true], ['IRC:103 width ≥ 1.8 m', pct(a) + '%', pct(b) + '%', false, pct(b) - pct(a)], ['Wheelchair users', a.pass.wheel + '/22', b.pass.wheel + '/22', false, b.pass.wheel - a.pass.wheel], ['Children with carers', a.pass.child + '/22', b.pass.child + '/22', false, b.pass.child - a.pass.child], ['Older adults', a.pass.elder + '/22', b.pass.elder + '/22', false, b.pass.elder - a.pass.elder]];
+  const rows = [['Obstructed segments', a.mostly, b.mostly, true], [`${STDS[S.std].name} width ≥ ${stdMin()} m`, pct(a) + '%', pct(b) + '%', false, pct(b) - pct(a)], ['Wheelchair users', a.pass.wheel + '/22', b.pass.wheel + '/22', false, b.pass.wheel - a.pass.wheel], ['Children with carers', a.pass.child + '/22', b.pass.child + '/22', false, b.pass.child - a.pass.child], ['Older adults', a.pass.elder + '/22', b.pass.elder + '/22', false, b.pass.elder - a.pass.elder]];
   el.innerHTML = '<div class="h">Last change</div>' + rows.map(([n, x, y, inv, dv]) => { const d = dv != null ? dv : y - x; const cls = !d ? 'ink3' : (inv ? d < 0 : d > 0) ? 'up' : 'dn'; return `<div class="ln"><span style="font-family:var(--f-ui)">${n}</span><span class="${cls}">${x} → ${y}</span></div>`; }).join('');
   el.style.opacity = 1; clearTimeout(fxTimer); fxTimer = setTimeout(() => { el.style.opacity = 0; }, 4500);
 }
@@ -926,7 +941,7 @@ function renderSandbox(keepPanel) {
   const ly = LAYERS.blocked, base = compute(S.light, 'both', []), after = compute(S.light, 'both', ITEMS), Cc = S.view === 'after' ? after : base;
   const sig = JSON.stringify(ITEMS) + S.light; const changed = fxSig != null && sig !== fxSig; if (changed && fxPrev) showFx(fxPrev, after); if (sig !== fxSig) { fxPrev = after; fxSig = sig; }
   const CON = contributions(after);
-  const conLine = id => { const c = CON[id]; if (!c) return ''; const parts = WALKERS.filter(([, k]) => c[k]).map(([n, k]) => `${n} ${c[k] > 0 ? '+' : ''}${c[k]}`); if (c.irc) parts.push(`IRC width ${c.irc > 0 ? '+' : ''}${c.irc}`); return parts.length ? `<br><span class="contrib">${parts.join(' · ')} segments</span>` : ''; };
+  const conLine = id => { const c = CON[id]; if (!c) return ''; const parts = WALKERS.filter(([, k]) => c[k]).map(([n, k]) => `${n} ${c[k] > 0 ? '+' : ''}${c[k]}`); if (c.irc) parts.push(`width standard ${c.irc > 0 ? '+' : ''}${c.irc}`); return parts.length ? `<br><span class="contrib">${parts.join(' · ')} segments</span>` : ''; };
   $('#sbLegend').innerHTML = legendHtml(ly);
   sb.render(Cc.st, ly, null, S.view === 'after' ? ITEMS : [], selItem, selInvSb, INV);
   $('#chg').innerHTML = ITEMS.length ? `<div class="lbl" style="background:none;padding:0;display:block">Proposed interventions</div>` + ITEMS.slice().sort((a, b) => a.m - b.m).map(it => { const t = TOOL[it.t]; return `<div data-pick="${it.id}" style="cursor:pointer${it.id === selItem ? ';outline:2px solid var(--accent)' : ''}">${icon(t.id, 26)}<span><b>${t.name}</b> at ${Math.round(it.m)} m${t.len ? ` · ${it.len} m long` : ''} · ${ZONE[it.lane === 'road' ? 'road' : it.lane] || ''}<br><span class="ink2">${effectLine(it, base, after)}</span>${conLine(it.id)}</span><button data-del="${it.id}" aria-label="Remove ${t.name}">×</button></div>`; }).join('') : `<p class="small ink2">No interventions yet. Select an element on the street, such as a parked two-wheeler or a stall, to see suitable interventions, or drag one from the list.</p>`;
@@ -939,7 +954,7 @@ function renderSandbox(keepPanel) {
   const remTags = {}; removed.forEach(o => { const g = INV_TAG[o.type]; remTags[g] = remTags[g] || {}; const n = INVT[o.type][0]; remTags[g][n] = (remTags[g][n] || 0) + 1; });
   $('#impact').innerHTML = `<div class="lbl">Impact on ${after.W.length} surveyed walks</div>
     <div class="row${changed ? ' bump' : ''}" style="align-items:baseline;gap:10px;margin-top:6px"><span class="big">${base.mostly} → ${after.mostly}</span></div><p class="small ink2">segments obstructed on most walks ${d(base.mostly, after.mostly, true)}</p>
-    <div class="row${changed ? ' bump' : ''}" style="align-items:baseline;gap:10px;margin-top:10px"><span class="big" style="font-size:26px">${pctI(base)}% → ${pctI(after)}%</span></div><p class="small ink2">IRC:103 width screening: measurable segments with ≥ 1.8 m clear ${d(pctI(base), pctI(after))}</p>
+    <div class="row${changed ? ' bump' : ''}" style="align-items:baseline;gap:10px;margin-top:10px"><span class="big" style="font-size:26px">${pctI(base)}% → ${pctI(after)}%</span></div><p class="small ink2">${STDS[S.std].name} width screening: measurable segments with ≥ ${stdMin()} m clear walkway ${d(pctI(base), pctI(after))}</p>
     <div class="accs">
     ${acc('sb-walkers', 'Accessibility by user group', `wheelchair users ${after.pass.wheel}/22`, `<div class="persona">${P.map(([n, k, r]) => `<span>${n}<br><span class="small ink3">${r}</span>${topFor(k)}</span><span class="num">${after.pass[k]}/22 ${d(base.pass[k], after.pass[k])}</span>`).join('')}</div>`)}
     ${acc('sb-kpis', 'Key indicators', `${Math.round(after.avg * 100)}% average obstruction`, `<div class="kpis">
@@ -953,7 +968,7 @@ function renderSandbox(keepPanel) {
     ${acc('sb-amen', 'Amenities added', amen.length + '', `<p class="small ink2">${amen.length ? amen.map(([k, n]) => `${k}${n > 1 ? ' × ' + n : ''}`).join(' · ') : 'None yet. No seating, water, toilets, ramps or tactile paving were recorded on the street.'}</p>`, false)}
     ${acc('sb-cost', 'Cost and trade-offs', ITEMS.length ? ITEMS.length + ' interventions' : '—', `<p class="small ink2">${ITEMS.length ? Object.entries(after.cost).map(([k, n]) => `${n} × ${k.toLowerCase()} cost`).join(' · ') : 'No interventions yet.'}${after.parking ? ` · about ${after.parking} parking space${after.parking > 1 ? 's' : ''} used` : ''}</p>`, false)}
     ${acc('sb-opts', 'Options', OPTS.filter(Boolean).length + ' saved', `<div class="opt">${OPTS.map((o, k) => `<button class="btn ${o ? '' : 'ghost'}" data-opt="${k}" style="justify-content:center;padding:8px 6px;font-size:13px">${o ? 'Load ' : 'Save '}${'ABC'[k]}</button>`).join('')}</div>
-    ${OPTS.some(Boolean) ? `<table class="cmp"><tr><th></th>${OPTS.map((o, k) => o ? `<th>${'ABC'[k]}</th>` : '').join('')}</tr>${[['Obstructed segments', c => c.mostly], ['IRC width ≥ 1.8 m', c => pctI(c) + '%'], ['Wheelchair users', c => c.pass.wheel + '/22'], ['Horns per walk', c => c.horns.toFixed(0)], ['Changes', (c, o) => o.length]].map(([n, f]) => `<tr><td>${n}</td>${OPTS.map(o => o ? `<td class="num">${f(compute(S.light, 'both', o), o)}</td>` : '').join('')}</tr>`).join('')}</table><button class="btn ghost" id="clearOpts" style="font-size:12px;padding:6px 10px">Clear saved options</button>` : '<p class="small ink3">Save up to three design options to compare them.</p>'}`, false)}
+    ${OPTS.some(Boolean) ? `<table class="cmp"><tr><th></th>${OPTS.map((o, k) => o ? `<th>${'ABC'[k]}</th>` : '').join('')}</tr>${[['Obstructed segments', c => c.mostly], [`${STDS[S.std].name} width ≥ ${stdMin()} m`, c => pctI(c) + '%'], ['Wheelchair users', c => c.pass.wheel + '/22'], ['Horns per walk', c => c.horns.toFixed(0)], ['Changes', (c, o) => o.length]].map(([n, f]) => `<tr><td>${n}</td>${OPTS.map(o => o ? `<td class="num">${f(compute(S.light, 'both', o), o)}</td>` : '').join('')}</tr>`).join('')}</table><button class="btn ghost" id="clearOpts" style="font-size:12px;padding:6px 10px">Clear saved options</button>` : '<p class="small ink3">Save up to three design options to compare them.</p>'}`, false)}
     </div>
     <div class="row" style="margin-top:16px"><button class="btn ghost" id="reset">Clear all interventions</button></div>
     <p class="small ink3" style="margin-top:12px">An intervention clears an obstructed walk when it removes the main obstruction in that walk's worst photo; the walkway then takes the width recorded on unobstructed walks there. Changes to horn incidents and path deviations are rule-of-thumb factors, not traffic or crowd simulations.</p>`;
