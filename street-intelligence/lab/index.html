@@ -84,10 +84,27 @@ p { margin: 0 }
 .street.mono .inv.lever { opacity: 1; filter: grayscale(1) brightness(.8) }
 .street.mono .inv.lever:hover { filter: none }
 .street .inv.ghost { opacity: .22 !important }
-.one { display: grid; grid-template-columns: 250px minmax(0, 1fr) 340px; grid-template-areas: "pal main side"; gap: 16px; align-items: start }
-.one > .palette { grid-area: pal; position: sticky; top: 84px; max-height: calc(100vh - 100px); overflow: auto } .one > .onemain { grid-area: main } .one > .oneside { grid-area: side; display: grid; gap: 16px; min-width: 0 }
-@media (max-width: 1250px) { .one { grid-template-columns: 230px minmax(0, 1fr); grid-template-areas: "pal main" "side side" } .one > .oneside { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); align-items: start } }
-@media (max-width: 800px) { .one { grid-template-columns: minmax(0, 1fr); grid-template-areas: "main" "pal" "side" } .one > .palette { position: static; max-height: none } .one > .oneside { grid-template-columns: minmax(0, 1fr) } }
+.one { display: grid; grid-template-columns: minmax(0, 1fr) 340px; grid-template-areas: "main side"; gap: 16px; align-items: start }
+.one > .onemain { grid-area: main; display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr) } .one > .oneside { grid-area: side; display: grid; gap: 12px; min-width: 0; position: sticky; top: 84px }
+@media (max-width: 1000px) { .one { grid-template-columns: minmax(0, 1fr); grid-template-areas: "main" "side" } .one > .oneside { position: static } }
+.mainhead { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px } .mainhead #wbTime { flex: 1 1 360px; min-width: 0 } .mainhead .legend { flex: 0 1 auto }
+.tslider { display: flex; background: var(--sunken); border-radius: 99px; padding: 3px; gap: 2px; overflow-x: auto }
+.tslider button { flex: 1 0 auto; border: 0; background: none; border-radius: 99px; padding: 6px 10px; font: 600 12.5px var(--f-ui); color: var(--ink2); cursor: pointer; white-space: nowrap }
+.tslider button.on { background: var(--ink); color: var(--surface) } .tslider button:disabled { color: var(--ink3); opacity: .45; cursor: not-allowed; text-decoration: line-through }
+.ticker { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; align-items: baseline } .tk { display: inline-flex; gap: 6px; align-items: baseline } .tk b { font-size: 18px } .tk.ok > b, .tk.ok > b ~ b { color: var(--ok) } .tk.bad b { color: var(--bad) }
+.drawer { position: fixed; left: 12px; top: 84px; bottom: 12px; width: 290px; z-index: 30; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); box-shadow: 0 12px 40px rgba(0,0,0,.18); padding: 12px; overflow: auto; display: grid; gap: 8px; align-content: start }
+@media (max-width: 640px) { .drawer { left: 8px; right: 8px; top: auto; width: auto; max-height: 60vh } }
+.pop { position: relative } .pop > summary { list-style: none } .pop > summary::-webkit-details-marker { display: none }
+.popb { position: absolute; z-index: 25; top: calc(100% + 6px); left: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.15); padding: 12px; display: grid; gap: 10px; width: max-content; max-width: min(92vw, 420px) }
+.btn.icon { padding: 7px 11px; font-size: 16px }
+.insp { display: grid; gap: 10px } .insp-h { display: flex; gap: 6px; align-items: center } .insp-h .grow { display: grid } .insp-h .chain { font-size: 12px; color: var(--ink3) } .insp-h b { font-size: 17px }
+.clear { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px } .clear .lbl { width: 100% } .clear > b { font-size: 34px; line-height: 1 }
+.pill { font: 700 12px var(--f-ui); padding: 3px 9px; border-radius: 99px; background: var(--sunken); color: var(--ink2) } .pill.ok { background: color-mix(in srgb, var(--ok) 16%, transparent); color: var(--ok) } .pill.warn { background: color-mix(in srgb, var(--warn) 18%, transparent); color: var(--warn) } .pill.bad { background: color-mix(in srgb, var(--bad) 15%, transparent); color: var(--bad) }
+.istats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; text-align: center; font-size: 11px; color: var(--ink3) } .istats span { display: grid; gap: 1px; padding: 6px 2px; border-radius: 10px; background: var(--sunken) } .istats i { font-style: normal; font-size: 15px } .istats b { font-size: 15px; color: var(--ink) }
+.chips { display: flex; flex-wrap: wrap; gap: 5px } .cchip { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; padding: 3px 8px 3px 4px; border-radius: 99px; background: var(--sunken) } .cchip svg { width: 16px; height: 16px }
+.acc0 > summary { cursor: pointer; font-weight: 700; list-style-position: inside } .acc0[open] > summary { margin-bottom: 10px }
+dialog#method { max-width: 680px; width: calc(100% - 32px); border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); color: var(--ink); padding: 18px } dialog#method::backdrop { background: rgba(0,0,0,.35) }
+.mlist { display: grid; gap: 8px; padding-left: 18px; font-size: 14px; line-height: 1.5 }
 .oneside .detail { grid-template-columns: minmax(0, 1fr) } .oneside .detail > .photo { display: none } .oneside .acc, .oneside .accs { min-width: 0 }
 .bench { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 16px; align-items: start }
 @media (max-width: 1000px) { .bench { grid-template-columns: minmax(0, 1fr) } }
@@ -259,44 +276,56 @@ select.sel, .pled input, .pled select { font: 600 13px var(--f-ui); padding: 6px
 <main class="wrap">
 <section class="view" id="v-one">
   <div class="bar">
-    <div class="row"><span class="lbl">Indicator</span><div class="seg" data-k="layer"><button data-v="friction">Friction</button><button data-v="blocked">Obstruction</button><button data-v="width">Clear walkway width</button><button data-v="swerves">Path deviations</button><button data-v="honks">Horn incidents</button><button data-v="light">Night lighting</button></div></div>
-    <div class="row"><span class="lbl">Walking direction</span><div class="seg" data-k="dir"><button data-v="both">Both</button><button data-v="f">A → B</button><button data-v="r">B → A</button></div></div>
-    <div class="row"><span class="lbl">Width standard</span><div class="seg" data-k="std"><button data-v="bmc">BMC footpath policy</button><button data-v="irc">IRC:103</button><button data-v="itdp">ITDP</button></div></div>
-    <div class="row"><span class="lbl">Street type</span><div class="seg" data-k="use"><button data-v="commercial">Commercial</button><button data-v="residential">Residential</button></div></div>
-    <div class="row"><span class="lbl">Scenario</span><div class="seg" data-k="view"><button data-v="after">With changes</button><button data-v="before">As surveyed</button></div></div>
-    <div class="row"><span class="lbl">Street inventory</span><div class="seg" data-k="inv"><button data-v="on">Show</button><button data-v="off">Hide</button></div></div>
-    <div class="row"><span class="lbl">Obstructions seen in photos</span><div class="seg" data-k="sight"><button data-v="on">Show</button><button data-v="off">Hide</button></div></div>
-    <div class="row"><span class="lbl">Landmarks and infrastructure</span><div class="seg" data-k="pl"><button data-v="on">Show</button><button data-v="off">Hide</button></div></div>
-    <button class="btn ghost" id="editInv" type="button">Edit street inventory</button>
-    <button class="btn ghost" id="cmpBtn" type="button">Compare survey groups</button>
-    <button class="btn ghost" id="sheetBtn" type="button">Ward review sheet</button>
+    <div class="seg" data-k="layer" aria-label="Indicator"><button data-v="friction">Friction</button><button data-v="blocked">Obstruction</button><button data-v="width">Clear width</button><button data-v="swerves">Swerves</button><button data-v="honks">Horns</button><button data-v="light">Night light</button></div>
+    <div class="seg" data-k="view" aria-label="Scenario"><button data-v="after">With changes</button><button data-v="before">As surveyed</button></div>
+    <div class="seg" data-k="std" aria-label="Width standard"><button data-v="bmc">BMC</button><button data-v="irc">IRC:103</button><button data-v="itdp">ITDP</button></div>
+    <details class="pop"><summary class="btn ghost">Layers ▾</summary><div class="popb">
+      <div class="row"><span class="lbl">Direction</span><div class="seg" data-k="dir"><button data-v="both">Both</button><button data-v="f">A → B</button><button data-v="r">B → A</button></div></div>
+      <div class="row"><span class="lbl">Street type</span><div class="seg" data-k="use"><button data-v="commercial">Commercial</button><button data-v="residential">Residential</button></div></div>
+      <div class="row"><span class="lbl">Inventory</span><div class="seg" data-k="inv"><button data-v="on">Show</button><button data-v="off">Hide</button></div></div>
+      <div class="row"><span class="lbl">Photo detections</span><div class="seg" data-k="sight"><button data-v="on">Show</button><button data-v="off">Hide</button></div></div>
+      <div class="row"><span class="lbl">Landmarks</span><div class="seg" data-k="pl"><button data-v="on">Show</button><button data-v="off">Hide</button></div></div>
+    </div></details>
+    <span class="grow"></span>
+    <button class="btn ghost" id="editInv" type="button">Edit inventory</button>
+    <button class="btn ghost" id="cmpBtn" type="button">Compare</button>
+    <button class="btn ghost" id="sheetBtn" type="button">Ward sheet</button>
+    <button class="btn ghost icon" id="methodBtn" type="button" aria-label="How it's measured" title="How it's measured">ⓘ</button>
   </div>
   <div class="card pad" id="cmp" style="display:grid;gap:12px;grid-template-columns:minmax(0,1fr)" hidden></div>
   <div class="card pad" id="sheet" style="display:grid;gap:12px;grid-template-columns:minmax(0,1fr)" hidden></div>
   <div class="one">
-    <aside class="palette" id="palette"></aside>
-    <div class="card pad onemain" style="display:grid;gap:12px;grid-template-columns:minmax(0,1fr)">
-      <div class="row" style="flex-wrap:wrap;gap:10px"><h2 class="grow" id="exTitle">Street</h2><div class="legend" id="exLegend"></div></div>
-      <div class="kpis3" id="wbKpi"></div>
+    <div class="card pad onemain">
+      <div class="mainhead"><button class="btn" type="button" id="palBtn">＋ Interventions</button><div id="wbTime"></div><div class="legend" id="exLegend"></div></div>
+      <div class="ticker" id="wbKpi"></div>
       <div class="street" id="exStreet"></div>
-      <div class="mini" id="exMini"></div>
+      <div id="wbProfile"></div>
+      <div class="mini" id="exMini" hidden></div>
       <div id="invPal" class="invpalwrap" hidden></div>
       <div class="selpanel" id="invPanel"></div>
       <div class="selpanel" id="selPanel"></div>
-      <div><div class="row" style="flex-wrap:wrap;gap:4px 10px"><span class="lbl grow" style="white-space:nowrap">Free-gap width per 10 m · live</span><span class="small ink3" id="wbPkey"></span></div><div id="wbProfile"></div></div>
-      <div><div class="lbl" style="margin-bottom:4px">Time of survey</div><div id="wbTime"></div></div>
       <div class="chg" id="chg"></div>
-      <p class="small ink3 streetkey"><b class="ink2">Coloured band:</b> the clear walkway, the full width people could actually walk on this side of the road, measured from the walk photos and drawn to scale. <b class="ink2">Above it:</b> buildings and frontage. <b class="ink2">Below it:</b> the roadside edge up to the parking lane, taken up by parked vehicles, poles, bins or uneven ground. <b class="ink2">Zigzags:</b> 5 m stretches where at least a third of the walks shown swerved, with the number of walks; from the phone's direction changes, not a traced path. <b class="ink2">Figures and vehicles:</b> obstructions seen at the same spot on at least two separate daytime walks, placed where they touch the ground; they follow the walking-direction filter.</p>
-      <p class="small ink3">Drag an intervention from the list onto the street, or drag and tap the informal uses (parked vehicles, stalls, spill-over, counter crowds, bins, hidden bus posts) to move or clear them. Buildings, kerb, chainage and the walk photos are locked. Free gap after a change = surveyed width, adjusted by the interventions, plus the width that moved or cleared informal uses took up on the walkway, minus the width they take up in their new place. Step-off points are estimated where the free gap is under 0.9 m; counted step-offs need the capture tool. Walkers' own paths were not traced.</p>
     </div>
     <div class="oneside">
-      <div class="card pad" id="wbSide"></div>
-      <div class="card pad"><div id="exDetail"></div></div>
-      <div class="card pad impact" id="impact"></div>
-      <div class="card pad" id="exSummary"></div>
-      <div class="card pad map"><div class="row" style="margin-bottom:10px"><h3 class="grow">Corridor map</h3><span class="small ink3">select a segment</span></div><div id="exMap"></div></div>
+      <div class="card pad insp" id="wbSide"></div>
+      <details class="card pad acc0"><summary>Simulation results</summary><div class="impact" id="impact"></div></details>
+      <details class="card pad acc0"><summary>Corridor overview</summary><div id="exSummary"></div><div id="exMap" style="margin-top:12px"></div></details>
     </div>
   </div>
+  <aside class="drawer" id="palette" hidden></aside>
+  <div id="exDetail" hidden></div><h2 id="exTitle" hidden></h2>
+  <dialog id="method"><div class="row"><h2 class="grow">How it's measured</h2><button class="btn ghost" type="button" data-close="1">Close</button></div><ul class="mlist">
+    <li><b>Walkway band:</b> <b class="ink2">Coloured band:</b> the clear walkway, the full width people could actually walk on this side of the road, measured from the walk photos and drawn to scale. <b class="ink2">Above it:</b> buildings and frontage. <b class="ink2">Below it:</b> the roadside edge up to the parking lane, taken up by parked vehicles, poles, bins or uneven ground. <b class="ink2">Zigzags:</b> 5 m stretches where at least a third of the walks shown swerved, with the number of walks; from the phone's direction changes, not a traced path. <b class="ink2">Figures and vehicles:</b> obstructions seen at the same spot on at least two separate daytime walks, placed where they touch the ground; they follow the walking-direction filter.</li>
+    <li><b>Clearance (free gap):</b> daytime median clear width in each 10 m, traced from the walk photos (camera estimates, not tape-measured). After a change: surveyed width, adjusted by interventions, plus the width that moved or cleared informal uses took up on the walkway, minus the width they take up in their new place. Item positions from photos are accurate to a few metres.</li>
+    <li><b>Standards:</b> screening against the chosen minimum (BMC Universal Footpath Policy 1.5 m; IRC:103 and ITDP 2.5 m commercial, 1.8 m residential, from published summaries). Not a legal score.</li>
+    <li><b>Step-off points:</b> estimated where clearance is under 0.9 m. Counted step-offs need the capture tool's tap.</li>
+    <li><b>Friction shading:</b> how often a segment was obstructed combined with how far its clearance falls short of the standard; deeper = critical pinch point.</li>
+    <li><b>Swerves:</b> 5 m stretches where at least a third of the walks shown changed direction by 12° or more (phone sensors). Walkers' own paths were not traced.</li>
+    <li><b>Night light:</b> brightness of the walking surface in night photos relative to the route's typical night frame. Phones adjust exposure, so it ranks segments; it is not lux.</li>
+    <li><b>Time of survey:</b> walks record date and day or night, not clock time, so AM peak, off-peak and PM peak stay empty until timed walks are captured.</li>
+    <li><b>Interventions:</b> an intervention clears an obstructed walk when it removes the main obstruction in that walk's worst photo; horn and swerve changes are rule-of-thumb factors, not simulations.</li>
+    <li><b>Reliability:</b> no walk is deleted; records are labelled current, ageing, superseded or unreliable (night scores are unreliable in low light).</li>
+  </ul></dialog>
 </section>
 </main>
 
@@ -552,7 +581,7 @@ function renderCompare() {
       ${rows.map(r => `<tr${r.i === S.sel ? ' class="on"' : ''}><td><button class="lnk num" data-go="${r.i}">${sname(r.i)}</button><div class="small ink3">${esc(PL.filter(p => p.to >= r.i * 10 && p.from < r.i * 10 + 10).map(p => p.name).join(' · '))}</div></td><td>${cmpCell(Object.assign({ i: r.i }, r.A), G.a)}</td><td>${cmpCell(Object.assign({ i: r.i }, r.B), G.b)}</td><td class="num"><b>${r.d == null ? '—' : (r.d > 0 ? '+' : '') + r.d + ' pts'}</b></td><td>${relHtml(relCounts(G.a.concat(G.b), r.i))}</td></tr>`).join('')}</tbody></table></div>
       ${acc('cmp-checks', 'Automatic checks', `${checks.filter(x => !x[0]).length} to watch`, `<ul class="checks">${checks.map(([ok, t]) => `<li class="${ok ? 'ok' : ''}">${esc(t)}</li>`).join('')}</ul><p class="small ink3">Obstructed = the walk photo shows the walkway obstructed (score 1.4 or more). No walk is ever deleted: old or unreadable records stay and are labelled.</p>`)}`;
   }
-  P.innerHTML = `<div class="row" style="flex-wrap:wrap;gap:10px;align-items:flex-start"><div class="grow"><h2>Compare survey groups</h2><p class="small ink2">The same segments, two groups of walk surveys, both walking directions shown.</p></div><button class="btn" type="button" data-scn="underpass">Example: the underpass at night</button><button class="btn ghost" type="button" data-cmpclose="1">Close</button></div>
+  P.innerHTML = `<div class="row" style="flex-wrap:wrap;gap:10px;align-items:flex-start"><div class="grow"><h2>Compare survey groups</h2></div><button class="btn" type="button" data-scn="underpass">Example: the underpass at night</button><button class="btn ghost" type="button" data-cmpclose="1">Close</button></div>
     <div class="row" style="flex-wrap:wrap;gap:12px 18px"><div class="row"><span class="lbl">Compare</span><div class="seg" data-c="by">${[['light', 'Daylight vs night'], ['dir', 'A → B vs B → A'], ['date', 'Before vs after a change']].map(([v, t]) => `<button type="button" data-v="${v}" aria-pressed="${c.by === v}">${t}</button>`).join('')}</div></div>
     ${c.by === 'date' && dated.length ? `<label class="row"><span class="lbl">Place</span><select class="sel" data-c="place">${dated.map(p => `<option value="${p.id}" ${p.id === c.place ? 'selected' : ''}>${esc(p.name)} · ${fmtDate(p.changedOn)}</option>`).join('')}</select></label>` : ''}
     <label class="row"><span class="lbl">From</span><select class="sel" data-c="from">${opt(c.from, 0, L - 10)}</select></label><label class="row"><span class="lbl">To</span><select class="sel" data-c="to">${opt(c.to, 10, L)}</select></label></div>
@@ -869,7 +898,7 @@ let DLS = null;
 function renderSheet() {
   const P = $('#sheet'); P.hidden = !S.sheetOn; $('#sheetBtn').classList.toggle('ghost', !S.sheetOn); if (!S.sheetOn) return;
   const cards = sheetCards();
-  P.innerHTML = `<div class="row" style="flex-wrap:wrap;gap:10px;align-items:flex-start"><div class="grow"><h2>Ward review sheet</h2><p class="small ink2">One card per 10 m segment: the worst photo, when and where it was taken, and the finding. For ${filterText()}. Municipal reviews work mainly from photos, widths and lighting; this sheet puts those three side by side.</p></div>${DLS ? '<button class="btn" type="button" id="dlSheet">Download sheet (HTML, printable)</button>' : ''}<button class="btn ghost" type="button" data-sheetclose="1">Close</button></div>
+  P.innerHTML = `<div class="row" style="flex-wrap:wrap;gap:10px;align-items:flex-start"><div class="grow"><h2>Ward review sheet</h2><p class="small ink2">${filterText()}</p></div>${DLS ? '<button class="btn" type="button" id="dlSheet">Download sheet (HTML, printable)</button>' : ''}<button class="btn ghost" type="button" data-sheetclose="1">Close</button></div>
     <div class="row"><span class="lbl">Segments</span><div class="seg" data-sh="only"><button type="button" data-v="1" aria-pressed="${!!S.sheetOnly}">Needing action</button><button type="button" data-v="0" aria-pressed="${!S.sheetOnly}">All 22</button></div><span class="small ink3">${cards.length} cards</span></div>
     ${DLS ? '' : '<p class="small ink3">To download the sheet, open this page on claude.ai while signed in.</p>'}
     <div class="ecards">${cards.map(x => `<article class="ecard">${photoHtml(x.p)}<div style="min-width:0">${evidenceMeta(x.p, x.s.i, x.s, true)}<button class="lnk small" type="button" data-go="${x.s.i}">Show on the street</button></div></article>`).join('') || '<p class="small ink2">No segment needs action for these walks.</p>'}</div>`;
@@ -912,7 +941,8 @@ function occ(list, i) { let mx = 0; for (let m = i * 10 + .25; m < i * 10 + 10; 
 function wbStats() {
   const light = S.light, after0 = S.view === 'after', C = compute(light, S.dir, after0 ? ITEMS : []), B0 = compute(light, S.dir, []);
   const orig = INV.filter(o => LEVER.includes(o.type) && !invGone(o, ITEMS)), now = wbInv().filter(o => LEVER.includes(o.type) && !o.ghost && !invGone(o, ITEMS)), mn = stdMin(), rd = STDS[S.std].reduced || 1.2;
-  const rows = C.st.map(s => { const base = B0.st[s.i].width, w = s.width, after = w == null ? null : !after0 ? w : Math.max(0, Math.min(XS.FW + 2.5, +(w + occ(orig, s.i) - occ(now, s.i)).toFixed(2)));
+  const takes = i => ITEMS.some(it => TOOL[it.t].foot && it.lane === 'path' && covers(it, i));
+  const rows = C.st.map(s => { const base = B0.st[s.i].width, w = s.width != null && base != null && s.width < base && !takes(s.i) ? base : s.width, after = w == null ? null : !after0 ? w : Math.max(0, Math.min(XS.FW + 2.5, +(w + occ(orig, s.i) - occ(now, s.i)).toFixed(2)));
     const cat = g => g == null ? 'none' : g >= mn ? 'ok' : g >= rd ? 'warn' : 'bad';
     return { i: s.i, base, after, cb: cat(base), ca: cat(after), share: s.share, n: s.n, stepB: base != null && base < .9, stepA: after != null && after < .9 }; });
   const sev = r => Math.max(r.share || 0, r.after == null ? 0 : Math.max(0, Math.min(1, (mn - r.after) / mn)));
@@ -923,30 +953,34 @@ const MONO = { title: 'Friction: deeper = critical pinch point', val: s => s.sev
 LAYERS.friction = MONO;
 const monoLegend = () => '<span class="monolegend">clear<i style="background:var(--m0)"></i><i style="background:var(--m1)"></i><i style="background:var(--m2)"></i><i style="background:var(--m3)"></i><i style="background:var(--m4)"></i>critical pinch point</span>';
 function profileSvg(rows) {
-  const W = 880, H = 150, bw = W / NB, top = 16, base = 112, sc = (base - top) / XS.FW, mn = stdMin(), y = g => base - g * sc;
+  const W = 880, H = 96, bw = W / NB, top = 14, base = 74, sc = (base - top) / XS.FW, mn = stdMin(), y = g => base - g * sc;
   let h = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Free-gap width for each 10 m segment, before and after the changes"><line x1="0" x2="${W}" y1="${y(mn)}" y2="${y(mn)}" stroke="var(--ink)" stroke-dasharray="5 4" stroke-width="1"/>`;
   for (const r of rows) { const x = r.i * bw + 3, w = bw - 6;
     if (r.after == null) { h += `<text x="${x + w / 2}" y="${base - 6}" text-anchor="middle" font-size="10" fill="var(--ink3)">n/a</text>`; }
-    else { h += `<rect x="${x}" y="${y(r.after)}" width="${w}" height="${r.after * sc}" rx="3" fill="var(--${r.ca})" class="pbar"/>`; if (Math.abs(r.after - r.base) > .01) h += `<rect x="${x - 1}" y="${y(r.base)}" width="${w + 2}" height="2.5" fill="var(--ink)"/>`; h += `<text x="${x + w / 2}" y="${y(r.after) - 4}" text-anchor="middle" font-size="10" font-weight="700" fill="var(--ink)" font-family="IBM Plex Mono">${r.after.toFixed(1)}</text>`; }
-    if (r.stepA) h += `<path d="M${x + w / 2 - 6} ${base + 14}l6 -9l6 9z" fill="var(--bad)"/>`;
+    else { h += `<rect x="${x}" y="${y(r.after)}" width="${w}" height="${r.after * sc}" rx="3" fill="var(--${r.ca})" class="pbar"/>`; if (Math.abs(r.after - r.base) > .01) h += `<rect x="${x - 1}" y="${y(r.base)}" width="${w + 2}" height="2.5" fill="var(--ink)"/>`; if (r.i === S.sel || Math.abs(r.after - r.base) > .01) h += `<text x="${x + w / 2}" y="${y(r.after) - 4}" text-anchor="middle" font-size="10" font-weight="700" fill="var(--ink)" font-family="IBM Plex Mono">${r.after.toFixed(1)}</text>`; }
+    if (r.stepA) h += `<path d="M${x + w / 2 - 5} ${base + 11}l5 -8l5 8z" fill="var(--bad)"/>`;
     h += `<rect x="${r.i * bw}" y="0" width="${bw}" height="${H}" fill="${r.i === S.sel ? 'var(--accent)' : 'transparent'}" opacity="${r.i === S.sel ? .1 : 0}" data-pi="${r.i}" style="cursor:pointer"/>`;
-    if (r.i % 2 === 0) h += `<text x="${r.i * bw + 2}" y="${H - 4}" font-size="9.5" fill="var(--ink3)" font-family="IBM Plex Mono">${chain(r.i * 10)}</text>`; }
+    if (r.i % 4 === 0) h += `<text x="${r.i * bw + 2}" y="${H - 3}" font-size="9.5" fill="var(--ink3)" font-family="IBM Plex Mono">${chain(r.i * 10)}</text>`; }
   return h + `<line x1="0" x2="${W}" y1="${base}" y2="${base}" stroke="var(--line)"/></svg>`;
 }
 function benchPanels(W0) {
-  const { rows } = W0, r = rows[S.sel], inv = wbInv(), mn = stdMin();
+  const { rows, C } = W0, r = rows[S.sel], s = C.st[S.sel], inv = wbInv(), mn = stdMin();
   $('#wbProfile').innerHTML = profileSvg(rows);
-  $('#wbPkey').textContent = `bar = after changes · black tick = surveyed · dashed line = ${stdLabel()} · ▲ = step-off point (estimated)`;
-  const tot = k => rows.filter(x => x[k]).length, okB = rows.filter(x => x.cb === 'ok').length, okA = rows.filter(x => x.ca === 'ok').length, meas = rows.filter(x => x.after != null).length;
-  $('#wbKpi').innerHTML = `<div class="kpi"><span class="lbl">Meet ${esc(stdLabel())}</span><b class="num">${okB} → ${okA}</b><span class="small ink3">of ${meas} measurable segments</span></div><div class="kpi"><span class="lbl">Step-off points (estimated)</span><b class="num">${tot('stepB')} → ${tot('stepA')}</b><span class="small ink3">segments under 0.9 m, where walkers have to use the road</span></div><div class="kpi"><span class="lbl">Changes</span><b class="num">${Object.keys(WB.mv).length + WB.clr.length}</b><span class="small ink3">${WB.clr.length} cleared · ${Object.keys(WB.mv).length} moved</span></div>`;
+  const okB = rows.filter(x => x.cb === 'ok').length, okA = rows.filter(x => x.ca === 'ok').length, meas = rows.filter(x => x.after != null).length, stB = rows.filter(x => x.stepB).length, stA = rows.filter(x => x.stepA).length, nch = Object.keys(WB.mv).length + WB.clr.length + ITEMS.length;
+  const arrow = (a, b) => a === b ? `<b class="num">${b}</b>` : `<span class="ink3 num">${a}</span> → <b class="num">${b}</b>`;
+  $('#wbKpi').innerHTML = `<span class="tk ${okA >= meas / 2 ? 'ok' : 'bad'}" title="Segments meeting ${esc(stdLabel())}">✓ ${arrow(okB, okA)}<span class="ink3">/${meas} meet ${STDS[S.std].name.replace(' footpath policy', '')} ${mn} m</span></span><span class="tk ${stA ? 'bad' : 'ok'}" title="Segments under 0.9 m, where walkers have to use the road (estimated)">⚠ ${arrow(stB, stA)}<span class="ink3">step-off points</span></span>${nch ? `<span class="tk">✎ <b class="num">${nch}</b><span class="ink3">change${nch === 1 ? '' : 's'}</span><button type="button" class="lnk" id="wbReset">reset</button></span>` : ''}`;
   const slotOk = k => k === 'day' || k === 'night' || k === 'any';
-  $('#wbTime').innerHTML = `<div class="tl">${SLOTS.map(([k, t]) => `<button type="button" class="tstop${S.light === k ? ' on' : ''}" data-slot="${k}" ${slotOk(k) ? '' : 'disabled'}><i></i><b>${t}</b><span>${k === 'any' ? '15 walks' : k === 'day' ? '11 walks · clock time not recorded' : k === 'night' ? '4 walks · all B → A' : 'no timed walks yet'}</span></button>`).join('')}</div>`;
+  $('#wbTime').innerHTML = `<div class="tslider" role="group" aria-label="Time of survey">${SLOTS.map(([k, t]) => `<button type="button" data-slot="${k}" class="${S.light === k ? 'on' : ''}" ${slotOk(k) ? '' : 'disabled title="No timed walks yet"'}>${t}</button>`).join('')}</div>`;
   const pd = (D.photos.df || {})[S.sel] || (D.photos.dr || {})[S.sel], pn = (D.photos.nr || {})[S.sel], o = inv.find(x => x.id === selWbInv);
-  $('#wbSide').innerHTML = `<div class="lbl">${chain(S.sel * 10)} to ${chain(S.sel * 10 + 10)}</div><h2 class="num" style="font-size:20px">${esc(lmOf(S.sel) || 'Segment ' + (S.sel + 1))}</h2>
-    <div class="gapbig"><span class="lbl">Free-gap width</span><b class="num" style="color:var(--${r.ca === 'none' ? 'ink3' : r.ca})">${r.after == null ? 'not measurable' : r.after.toFixed(1) + ' m'}</b>${r.base != null && Math.abs(r.after - r.base) > .01 ? `<span class="small ink2">was ${r.base.toFixed(1)} m</span>` : ''}<span class="small ink3">${r.after == null ? '' : r.after >= mn ? 'meets ' + esc(stdLabel()) : 'below ' + esc(stdLabel())}${r.stepA ? ' · walkers step onto the road here (estimated)' : ''}</span></div>
-    <div class="lbl" style="margin-top:6px">Photo proof · same segment, day and night</div><div class="pair"><figure>${photoHtml(pd)}<figcaption>Daytime</figcaption></figure><figure>${photoHtml(pn)}<figcaption>Night</figcaption></figure></div>
-    ${o ? `<div class="selpanel"><b>${esc(INVT[o.type][0])}</b><span class="small ink2">${chain(o.m)} · ${o.d.toFixed(1)} m from the building line</span>${LEVER.includes(o.type) ? `<div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn" type="button" data-wbclr="${o.id}">${o.ghost ? 'Restore' : 'Clear it'}</button>${WB.mv[o.id] ? `<button class="btn ghost" type="button" data-wbback="${o.id}">Back to surveyed position</button>` : ''}</div><span class="small ink3">Drag it on the street to move it.</span>` : '<span class="small ink3">Locked: surveyed ground truth.</span>'}</div>` : '<p class="small ink2">Drag a parked vehicle, stall, spill-over or counter crowd off the walkway, or tap it to clear it. The free-gap profile below the street updates as you go.</p>'}
-    <button class="btn ghost" type="button" id="wbReset" style="margin-top:8px">Back to surveyed street</button>`;
+  const causes = Object.entries(s.causes).sort((a, b) => b[1] - a[1]), rc = relCounts(C.W, S.sel), lit = LIT[S.sel];
+  const state = r.after == null ? `<b class="num ink3">n/a</b><span class="pill">not measurable</span>` : `<b class="num" style="color:var(--${r.ca})">${r.after.toFixed(1)} m</b><span class="pill ${r.ca}">${r.after >= mn ? '✓' : '✕'} ${STDS[S.std].name.replace(' footpath policy', '')} ${mn} m</span>${r.base != null && Math.abs(r.after - r.base) > .01 ? `<span class="ink3 num small">was ${r.base.toFixed(1)}</span>` : ''}`;
+  $('#wbSide').innerHTML = `<div class="insp-h"><div class="grow"><span class="chain num">${chain(S.sel * 10)} – ${chain(S.sel * 10 + 10).slice(3)}</span><b>${esc(lmOf(S.sel) || 'Segment ' + (S.sel + 1))}</b></div><button class="btn ghost" data-step="-1" aria-label="Previous segment">‹</button><button class="btn ghost" data-step="1" aria-label="Next segment">›</button></div>
+    <div class="clear"><span class="lbl">Clearance</span>${state}${r.stepA ? '<span class="pill bad">⚠ step-off</span>' : ''}</div>
+    <div class="pair"><figure>${photoHtml(pd)}<figcaption>Day</figcaption></figure><figure>${photoHtml(pn)}<figcaption>Night</figcaption></figure></div>
+    <div class="istats"><span title="Obstructed walks"><i>⛔</i><b class="num">${s.n ? s.blocked + '/' + s.n : '—'}</b>obstructed</span><span title="Path deviations"><i>↯</i><b class="num">${s.sw}</b>swerves</span><span title="Horn incidents"><i>📯</i><b class="num">${s.hk}</b>horns</span><span title="Night brightness relative to the route"><i>💡</i><b class="num">${lit ? (lit.r >= 1 ? '+' : '−') + Math.round(Math.abs(lit.r - 1) * 100) + '%' : '—'}</b>night light</span></div>
+    ${causes.length ? `<div class="chips">${causes.map(([k, n]) => `<span class="cchip" title="${CAUSE[k][1]}">${icon(CAUSE[k][0], 16)}${CAUSE[k][1].split(/[,(]/)[0]} <b class="num">${n}</b></span>`).join('')}</div>` : ''}
+    <div class="chips">${relHtml(rc)}</div>
+    ${o ? `<div class="selpanel"><b>${esc(INVT[o.type][0])}</b><span class="small ink2 num">${chain(o.m)} · ${o.d.toFixed(1)} m from building line</span>${LEVER.includes(o.type) ? `<div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn" type="button" data-wbclr="${o.id}">${o.ghost ? 'Restore' : 'Clear'}</button>${WB.mv[o.id] ? `<button class="btn ghost" type="button" data-wbback="${o.id}">Reset position</button>` : ''}</div>` : '<span class="small ink3">🔒 surveyed</span>'}</div>` : ''}`;
 }
 function initBench() {
   $('#v-one').addEventListener('click', e => {
@@ -963,7 +997,7 @@ function explorePanels(keepPanel) {
   const ly = LAYERS[S.layer], C = compute(S.light, S.dir, []), s = C.st[S.sel];
   $('#exTitle').textContent = ly.title; $('#exLegend').innerHTML = S.layer === 'friction' ? monoLegend() : legendHtml(ly);
   renderCompare(); renderSheet(); $('#cmpBtn').classList.toggle('ghost', !S.cmpOn);
-  $('#editInv').textContent = S.edit ? 'Done editing' : 'Edit street inventory';
+  $('#editInv').textContent = S.edit ? 'Done editing' : 'Edit inventory';
   $('#editInv').classList.toggle('ghost', !S.edit);
   $('#invPal').hidden = !S.edit;
   if (S.edit && !$('#invPal').innerHTML) $('#invPal').innerHTML = `<div class="lbl">Drag onto the street to add what you see on site</div><div class="invpal">${INVGROUPS.map(([g, ts]) => `<div><div class="small ink3" style="margin-bottom:4px">${g}</div><div class="row" style="flex-wrap:wrap;gap:6px">${ts.map(tp => `<button type="button" class="chip" data-inv="${tp}">${INVT[tp][0]}</button>`).join('')}</div></div>`).join('')}</div>`;
@@ -972,7 +1006,7 @@ function explorePanels(keepPanel) {
   const p = worstPhoto(S.sel, S.light, S.dir), causes = Object.entries(s.causes).sort((a, b) => b[1] - a[1]);
   const here = INV.filter(o => o.m >= S.sel * 10 && o.m < S.sel * 10 + 10);
   const byTag = {}; causes.forEach(([k, n]) => (byTag[CAUSE_TAG[k]] = byTag[CAUSE_TAG[k]] || []).push([k, n]));
-  const causeHtml = causes.length ? ['friction', 'access', 'life', 'fixed'].filter(g => byTag[g]).map(g => `<div>${tagChip(g)}<div class="causes" style="margin-top:4px">${byTag[g].map(([k, n]) => `<div class="cause">${icon(CAUSE[k][0], 22)}<span>${CAUSE[k][1]}</span><b class="num">${n}</b></div>`).join('')}</div></div>`).join('') + (byTag.life ? '<p class="small ink3">Street activity is part of a working street: plan space for it rather than remove it.</p>' : '') : '<span class="small ink2">Nothing: this segment was clear on every walk shown.</span>';
+  const causeHtml = causes.length ? ['friction', 'access', 'life', 'fixed'].filter(g => byTag[g]).map(g => `<div>${tagChip(g)}<div class="causes" style="margin-top:4px">${byTag[g].map(([k, n]) => `<div class="cause">${icon(CAUSE[k][0], 22)}<span>${CAUSE[k][1]}</span><b class="num">${n}</b></div>`).join('')}</div></div>`).join('')  : '<span class="small ink2">Nothing: this segment was clear on every walk shown.</span>';
   const hereTags = {}; here.forEach(o => (hereTags[INV_TAG[o.type]] = hereTags[INV_TAG[o.type]] || []).push(INVT[o.type][0]));
   $('#exDetail').innerHTML = `<div class="row" style="margin-bottom:12px;align-items:flex-start"><div class="grow"><div class="lbl">Segment ${S.sel + 1} of 22</div><h2 class="num" style="font-size:22px">${sname(S.sel)}</h2><div class="small ink2">${esc(lmOf(S.sel) || 'Along the route')}</div></div><div class="row" style="gap:6px"><button class="btn ghost" data-step="-1" aria-label="Previous segment">‹</button><button class="btn ghost" data-step="1" aria-label="Next segment">›</button></div></div>
     <div class="detail">${photoHtml(p)}<div style="min-width:0" class="accs">
@@ -1063,8 +1097,7 @@ function sandboxPanels(keepPanel) {
     ${acc('sb-opts', 'Options', OPTS.filter(Boolean).length + ' saved', `<div class="opt">${OPTS.map((o, k) => `<button class="btn ${o ? '' : 'ghost'}" data-opt="${k}" style="justify-content:center;padding:8px 6px;font-size:13px">${o ? 'Load ' : 'Save '}${'ABC'[k]}</button>`).join('')}</div>
     ${OPTS.some(Boolean) ? `<table class="cmp"><tr><th></th>${OPTS.map((o, k) => o ? `<th>${'ABC'[k]}</th>` : '').join('')}</tr>${[['Obstructed segments', c => c.mostly], [`${STDS[S.std].name} width ≥ ${stdMin()} m`, c => pctI(c) + '%'], ['Wheelchair users', c => c.pass.wheel + '/22'], ['Horns per walk', c => c.horns.toFixed(0)], ['Changes', (c, o) => o.length]].map(([n, f]) => `<tr><td>${n}</td>${OPTS.map(o => o ? `<td class="num">${f(compute(S.light, 'both', o), o)}</td>` : '').join('')}</tr>`).join('')}</table><button class="btn ghost" id="clearOpts" style="font-size:12px;padding:6px 10px">Clear saved options</button>` : '<p class="small ink3">Save up to three design options to compare them.</p>'}`, false)}
     </div>
-    <div class="row" style="margin-top:16px"><button class="btn ghost" id="reset">Clear all interventions</button></div>
-    <p class="small ink3" style="margin-top:12px">An intervention clears an obstructed walk when it removes the main obstruction in that walk's worst photo; the walkway then takes the width recorded on unobstructed walks there. Changes to horn incidents and path deviations are rule-of-thumb factors, not traffic or crowd simulations.</p>`;
+    <div class="row" style="margin-top:16px"><button class="btn ghost" id="reset">Clear all interventions</button></div>`;
 }
 function renderPanel() {
   const P = $('#selPanel');
@@ -1085,7 +1118,7 @@ function placeOver(id, o) { const t = TOOL[id], lane = t.lane === 'road' ? 'road
 function addItem(id, m, d) { const t = TOOL[id], zone = zoneOf(d); if (!okZone(t, zone)) return false; const lane = t.lane === 'road' ? 'road' : zone === 'road' ? 'lane' : zone; const it = normItem({ id: 'x' + (uid++), t: id, m: Math.max(0, Math.min(L, Math.round(m * 2) / 2)), lane }); it.d = fitD(t, lane, d); ITEMS.push(it); selItem = it.id; selInvSb = null; save(); renderSandbox(); return true; }
 function paletteHtml(q) {
   q = (q || '').trim().toLowerCase();
-  return CATS.map(([c, name, col], ci) => { const list = TOOLS.filter(t => t.cat === c && (!q || (t.name + ' ' + t.what + ' ' + t.note).toLowerCase().includes(q))); if (!list.length) return ''; return `<details class="cat" ${q || ci === 0 ? 'open' : ''}><summary><i class="sw" style="background:${PAL[col][0]}"></i>${name}<span class="ink3 num">${list.length}</span></summary><div class="catlist">${list.map(t => `<div class="tool" data-tool="${t.id}" tabindex="0" role="button" aria-label="Drag ${t.name} onto the street">${icon(t.id, 40)}<div><b>${t.name}</b><span>${t.fixes.length ? 'addresses ' + t.what : t.what} · ${t.cost.toLowerCase()} cost${t.measured === 'none' ? ' · not measured' : ''}</span></div></div>`).join('')}</div></details>`; }).join('') || '<p class="small ink2">No intervention matches that search.</p>';
+  return CATS.map(([c, name, col], ci) => { const list = TOOLS.filter(t => t.cat === c && (!q || (t.name + ' ' + t.what + ' ' + t.note).toLowerCase().includes(q))); if (!list.length) return ''; return `<details class="cat" ${q ? 'open' : ''}><summary><i class="sw" style="background:${PAL[col][0]}"></i>${name}<span class="ink3 num">${list.length}</span></summary><div class="catlist">${list.map(t => `<div class="tool" data-tool="${t.id}" tabindex="0" role="button" aria-label="Drag ${t.name} onto the street">${icon(t.id, 40)}<div><b>${t.name}</b><span>${t.fixes.length ? 'addresses ' + t.what : t.what} · ${t.cost.toLowerCase()} cost${t.measured === 'none' ? ' · not measured' : ''}</span></div></div>`).join('')}</div></details>`; }).join('') || '<p class="small ink2">No intervention matches that search.</p>';
 }
 // drag something from a palette onto a street; drop(m, d) receives street coordinates
 function paletteDrag(e, glyph, street, drop) {
@@ -1102,7 +1135,11 @@ function dragMove(street, e, get, apply, done) {
   host.addEventListener('pointermove', mv); host.addEventListener('pointerup', up);
 }
 function initSandbox() {
-  $('#palette').innerHTML = `<div class="lbl">Interventions · drag onto the street</div><input id="q" class="search" type="search" placeholder="Search ${TOOLS.length} interventions" aria-label="Search fixes"><div id="cats">${paletteHtml('')}</div><p class="small ink3" style="margin-top:4px">Keyboard: focus an intervention and press Enter to place it in the middle of the view.</p>`;
+  $('#palette').innerHTML = `<div class="row"><b class="grow">Interventions</b><button class="btn ghost" type="button" id="palClose" aria-label="Close">✕</button></div><input id="q" class="search" type="search" placeholder="Search ${TOOLS.length}" aria-label="Search interventions"><div id="cats">${paletteHtml('')}</div>`;
+  $('#palBtn').addEventListener('click', () => { const d = $('#palette'); d.hidden = !d.hidden; $('#palBtn').classList.toggle('ghost', d.hidden); });
+  $('#palette').addEventListener('click', e => { if (e.target.closest('#palClose')) { $('#palette').hidden = true; $('#palBtn').classList.add('ghost'); } });
+  $('#methodBtn').addEventListener('click', () => { const d = $('#method'); if (d.showModal) d.showModal(); else d.setAttribute('open', ''); });
+  $('#method').addEventListener('click', e => { if (e.target.closest('[data-close]') || e.target === $('#method')) $('#method').close ? $('#method').close() : $('#method').removeAttribute('open'); });
   $('#q').addEventListener('input', e => { $('#cats').innerHTML = paletteHtml(e.target.value); });
   $('#palette').addEventListener('pointerdown', e => { const el = e.target.closest('.tool'); if (!el) return; const t = el.dataset.tool; paletteDrag(e, icon(t, 44), sb, (m, d) => { if (S.view !== 'after') { S.view = 'after'; syncSegs(); } addItem(t, m, d); }); });
   $('#palette').addEventListener('keydown', e => { const el = e.target.closest('.tool'); if (el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); const r = sb.host.getBoundingClientRect(); addItem(el.dataset.tool, sb.toM(r.left + r.width / 2), TOOL[el.dataset.tool].lane === 'lane' ? DK + 1.2 : XS.FW / 2); } });
@@ -1193,7 +1230,7 @@ function renderAll(keep) {
   ex.host.classList.toggle('mono', S.layer === 'friction');
   ex.render(W0.C.st, ly, S.sel, after ? ITEMS : [], selItem, selInvEx, S.inv === 'on' ? (after ? wbInv() : INV) : []);
   explorePanels(keep); sandboxPanels(keep); benchPanels(W0);
-  $('#invPanel').hidden = !S.edit; $('#selPanel').hidden = S.edit;
+  $('#invPanel').hidden = !S.edit || !selInvEx; $('#selPanel').hidden = S.edit || !$('#selPanel').innerHTML.trim();
 }
 function renderExplore(keep) { renderAll(keep); }
 function renderSandbox(keep) { renderAll(keep); }
