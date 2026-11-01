@@ -78,6 +78,31 @@ p { margin: 0 }
 .map svg { width: 100%; height: auto; display: block; border-radius: 10px; cursor: pointer }
 .detail { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 16px }
 @media (max-width: 460px) { .detail { grid-template-columns: 1fr } }
+:root { --m0: #E7E9EC; --m1: #B9BEC6; --m2: #858C97; --m3: #4F5661; --m4: #15181D }
+.street.mono svg .base > :not(.inv):not(g[pointer-events]) { filter: grayscale(1) }
+.street.mono .inv { filter: grayscale(1) contrast(1.05); opacity: .5 }
+.street.mono .inv.lever { opacity: 1; filter: grayscale(1) brightness(.8) }
+.street.mono .inv.lever:hover { filter: none }
+.street .inv.ghost { opacity: .22 !important }
+.bench { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 16px; align-items: start }
+@media (max-width: 1000px) { .bench { grid-template-columns: minmax(0, 1fr) } }
+.kpis3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px }
+@media (max-width: 640px) { .kpis3 { grid-template-columns: minmax(0, 1fr) } }
+.kpis3 .kpi { display: grid; gap: 2px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px }
+.kpis3 .kpi b { font-size: 22px }
+#wbProfile svg { width: 100%; height: auto; display: block }
+.pbar { transition: y .15s, height .15s, fill .2s }
+.tl { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); position: relative; padding-top: 6px }
+.tl::before { content: ''; position: absolute; left: 10%; right: 10%; top: 13px; height: 3px; background: var(--line); border-radius: 2px }
+.tstop { border: 0; background: none; display: grid; justify-items: center; gap: 3px; cursor: pointer; font: inherit; color: var(--ink); position: relative; padding: 0 2px }
+.tstop i { width: 16px; height: 16px; border-radius: 50%; background: var(--surface); border: 3px solid var(--ink3) }
+.tstop.on i { background: var(--accent); border-color: var(--accent) }
+.tstop b { font-size: 13px } .tstop span { font-size: 11px; color: var(--ink3); text-align: center }
+.tstop:disabled { cursor: not-allowed; opacity: .45 }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px }
+.pair figure { margin: 0; display: grid; gap: 4px } .pair .photo { width: 100% } .pair figcaption { font-size: 12px; color: var(--ink2) }
+.gapbig { display: grid; gap: 2px; padding: 10px 0 } .gapbig b { font-size: 28px }
+.monolegend { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink2) } .monolegend i { width: 22px; height: 10px; border-radius: 3px; display: inline-block }
 .ecards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 430px), 1fr)); gap: 12px }
 .ecard { min-width: 0; display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 12px; border: 1px solid var(--line); border-radius: 12px; padding: 10px; background: var(--surface) }
 .ecard .photo { width: 120px }
@@ -221,11 +246,30 @@ select.sel, .pled input, .pled select { font: 600 13px var(--f-ui); padding: 6px
 <header class="top"><div class="wrap">
   <div class="brand"><svg viewBox="0 0 30 30" aria-hidden="true"><rect x="1" y="3" width="28" height="26" rx="8" fill="#1A8E88"/><rect x="1" y="1" width="28" height="26" rx="8" fill="#2BC0B8"/><path d="M8 20c4-1 5-9 9-9s4 5 6 5" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="8" cy="20" r="2.6" fill="#fff"/><circle cx="23" cy="16" r="2.6" fill="#fff"/></svg>
     <div>Street Lab<small>Old Nagardas Rd to the highway underpass · Andheri East · 220 m corridor · 15 walk surveys</small></div></div>
-  <nav class="tabs" aria-label="Views"><a href="#explore">Existing conditions</a><a href="#sandbox">Design studio</a></nav>
+  <nav class="tabs" aria-label="Views"><a href="#bench">Workbench</a><a href="#explore">Existing conditions</a><a href="#sandbox">Design studio</a></nav>
 </div></header>
 
 <div id="note" class="note" role="status" hidden></div>
 <main class="wrap">
+<section class="view" id="v-bench" hidden>
+  <div class="bar">
+    <div class="row"><span class="lbl">Width standard</span><div class="seg" data-k="std"><button data-v="bmc">BMC footpath policy</button><button data-v="irc">IRC:103</button><button data-v="itdp">ITDP</button></div></div>
+    <div class="row"><span class="lbl">Street type</span><div class="seg" data-k="use"><button data-v="commercial">Commercial</button><button data-v="residential">Residential</button></div></div>
+    <span class="small ink2">Drag or tap the informal uses (parked vehicles, stalls, spill-over, counter crowds, bins, hidden bus posts). Buildings, kerb, chainage and the walk photos are locked.</span>
+  </div>
+  <div class="bench">
+    <div class="card pad" style="display:grid;gap:12px;grid-template-columns:minmax(0,1fr)">
+      <div class="row" style="flex-wrap:wrap;gap:10px"><h2 class="grow">Street workbench</h2><span class="monolegend">clear<i style="background:var(--m0)"></i><i style="background:var(--m1)"></i><i style="background:var(--m2)"></i><i style="background:var(--m3)"></i><i style="background:var(--m4)"></i>critical pinch point</span></div>
+      <div class="kpis3" id="wbKpi"></div>
+      <div class="street" id="wbStreet"></div>
+      <div class="mini" id="wbMini"></div>
+      <div><div class="row" style="flex-wrap:wrap;gap:4px 10px"><span class="lbl grow" style="white-space:nowrap">Free-gap width per 10 m · live</span><span class="small ink3" id="wbPkey"></span></div><div id="wbProfile"></div></div>
+      <div><div class="lbl" style="margin-bottom:4px">Time of day</div><div id="wbTime"></div></div>
+      <p class="small ink3">Band intensity combines how often the segment was obstructed with how far its free gap falls short of the chosen standard. Free gap after a change = surveyed width + the width the moved or cleared items took up in the walking zone − the width they take up in their new place; positions from photos are approximate to a few metres. Step-off points are estimated where the free gap is under 0.9 m; counted step-offs need the capture tool. Zigzags mark where walkers swerved; walkers' own paths were not traced.</p>
+    </div>
+    <div class="card pad" id="wbSide"></div>
+  </div>
+</section>
 <section class="view" id="v-explore" hidden>
   <div class="bar">
     <div class="row"><span class="lbl">Time of survey</span><div class="seg" data-k="light"><button data-v="any">All · 15</button><button data-v="day">Day · 11</button><button data-v="night">Night · 4</button></div></div>
@@ -548,10 +592,10 @@ function loadUnderpass() {
 function note(msg) { const n = $('#note'); n.textContent = msg; n.hidden = false; clearTimeout(note.t); note.t = setTimeout(() => n.hidden = true, 4000); }
 
 /* ---------- state ---------- */
-const S = Object.assign({ light: 'any', dir: 'both', layer: 'blocked', view: 'after', sel: 8, inv: 'on', sight: 'on', pl: 'on', edit: false, cmpOn: false, cmp: { by: 'light', from: 150, to: 200, place: '' }, sheetOn: false, sheetOnly: true, std: 'bmc', use: 'commercial' }, store.get('ui2', {}));
+const S = Object.assign({ light: 'any', dir: 'both', layer: 'blocked', view: 'after', sel: 8, inv: 'on', sight: 'on', pl: 'on', edit: false, cmpOn: false, cmp: { by: 'light', from: 150, to: 200, place: '' }, sheetOn: false, sheetOnly: true, std: 'bmc', use: 'commercial', slot: 'day' }, store.get('ui2', {}));
 let ITEMS = [];
 let OPTS = [null, null, null];
-const saveUi = () => store.set('ui2', { light: S.light, dir: S.dir, layer: S.layer, view: S.view, sel: S.sel, inv: S.inv, sight: S.sight, pl: S.pl, cmpOn: S.cmpOn, cmp: S.cmp, sheetOn: S.sheetOn, sheetOnly: S.sheetOnly, std: S.std, use: S.use });
+const saveUi = () => store.set('ui2', { light: S.light, dir: S.dir, layer: S.layer, view: S.view, sel: S.sel, inv: S.inv, sight: S.sight, pl: S.pl, cmpOn: S.cmpOn, cmp: S.cmp, sheetOn: S.sheetOn, sheetOnly: S.sheetOnly, std: S.std, use: S.use, slot: S.slot });
 
 /* ---------- model ---------- */
 const walksFor = (light, dir = 'both') => D.walks.filter(w => (light === 'any' || (light === 'night') === w.night) && (dir === 'both' || w.dir[0] === dir));
@@ -677,6 +721,7 @@ function Street(host, mini, opts) {
   const v = { k: 30, tx: 0, w: 800 }, RH = 26;
   const X = m => m * v.k, Y = d => (d + XS.BLD) * v.k, HH = () => (XS.BLD + DR) * v.k;
   const clamp = () => { const min = Math.min(0, v.w - L * v.k - 30); v.tx = Math.max(min, Math.min(30, v.tx)); };
+  if (opts.mono) host.classList.add('mono');
   function size() { v.w = host.clientWidth || 800; const H = HH() + RH; svg.setAttribute('viewBox', `0 0 ${v.w} ${H}`); svg.setAttribute('width', v.w); svg.setAttribute('height', H); clamp(); const sb = host.querySelector('.scalebar'); sb.style.width = (5 * v.k) + 'px'; sb.textContent = '5 m'; }
   function place() { pan.setAttribute('transform', `translate(${v.tx} 0)`); drawMini(); }
   function drawBase(stats, ly, sel, selInv, items, inv) {
@@ -712,10 +757,11 @@ function Street(host, mini, opts) {
         h += `<g opacity="1" pointer-events="none"><title>${c.kd === 'people' ? 'People' : CAUSE[c.kd] ? CAUSE[c.kd][1] : 'Obstruction'} seen here on ${c.walks.size} walks (${c.f} sightings going A → B, ${c.r} going B → A)</title>${body}</g>`; }
     }
     // inventory, at real size; fixes that remove an item hide it in the "with changes" view
-    for (const o of inv) { if (invGone(o, items)) continue; const on = selInv === o.id; h += `<g class="inv" data-id="${o.id}" style="cursor:${opts.onInvDown ? 'grab' : 'pointer'}" transform="rotate(${o.rot || 0} ${X(o.m).toFixed(1)} ${Y(o.d).toFixed(1)})">${invShape(o, X, Y, k)}${on ? R(X(o.m - o.len / 2) - 3, Y(o.d) - o.wid * k / 2 - 3, o.len * k + 6, o.wid * k + 6, 'none', 'stroke="var(--accent)" stroke-width="2.5" rx="5"') : ''}</g>`; }
+    for (const o of inv) { if (invGone(o, items)) continue; const on = selInv === o.id; h += `<g class="inv${o.ghost ? ' ghost' : ''}${opts.chain && LEVER.includes(o.type) ? ' lever' : ''}" data-id="${o.id}" style="cursor:${opts.chain ? (LEVER.includes(o.type) && !o.ghost ? 'grab' : 'pointer') : opts.onInvDown ? 'grab' : 'pointer'}" transform="rotate(${o.rot || 0} ${X(o.m).toFixed(1)} ${Y(o.d).toFixed(1)})">${invShape(o, X, Y, k)}${on ? R(X(o.m - o.len / 2) - 3, Y(o.d) - o.wid * k / 2 - 3, o.len * k + 6, o.wid * k + 6, 'none', 'stroke="var(--accent)" stroke-width="2.5" rx="5"') : ''}</g>`; }
     // path deviations: places where at least two separate walks swerved (phone direction change of 12 degrees or more)
     for (const c of (opts.swerves ? opts.swerves() : [])) { const px = X(c.m), py = YU(ease(c.m, q => (q.rl + q.rr) / 2)), a = Math.max(4, .16 * k), d = `M${(px - 2 * a).toFixed(1)} ${py.toFixed(1)}l${a} ${-a}l${2 * a} ${2 * a}l${a} ${-a}`;
       h += `<g pointer-events="none"><path d="${d}" stroke="#111827" stroke-width="${a * .9}" fill="none" stroke-linejoin="round" stroke-linecap="round"/><path d="${d}" stroke="#fff" stroke-width="${a * .4}" fill="none" stroke-linejoin="round" stroke-linecap="round"/>${c.n > 2 ? `<text x="${px.toFixed(1)}" y="${(py - a * 1.6).toFixed(1)}" text-anchor="middle" font-size="${Math.max(9, a * 1.3)}" font-weight="800" fill="#111827" stroke="#fff" stroke-width="3" paint-order="stroke" font-family="Figtree">${c.n}</text>` : ''}</g>`; }
+    if (opts.lockKerb) h += R(x0, Y(XS.FW) - 1.5, xw, 3, 'var(--ink)', 'pointer-events="none"') + `<text x="${X(Math.max(1, -v.tx / k + 1))}" y="${Y(XS.FW) + 13}" font-size="11" font-weight="700" fill="var(--mark)" font-family="Figtree" pointer-events="none">🔒 kerb line · fixed</text>`;
     // places on the route, and the compare window
     (opts.places ? opts.places() : []).forEach((p, j) => {
       const lab = esc(p.name || PLT[p.type]) + (p.changedOn ? ` · changed ${fmtDate(p.changedOn)}` : ''), ty = Math.max(13, Y(-XS.BLD) + 14) + (j % 2) * 16;
@@ -726,7 +772,7 @@ function Street(host, mini, opts) {
     h += `<text x="${X(0) + 4}" y="${Y(-XS.BLD) + 14}" font-size="12" font-weight="800" fill="var(--ink)" font-family="Figtree">A</text><text x="${X(L) - 4}" y="${Y(-XS.BLD) + 14}" text-anchor="end" font-size="12" font-weight="800" fill="var(--ink)" font-family="Figtree">B</text>`;
     if (sel != null) { h += R(X(sel * 10) - 3, Y(0) - 5, 10 * k + 6, XS.FW * k + 10, 'none', 'stroke="var(--surface)" stroke-width="6" rx="8" pointer-events="none"') + R(X(sel * 10), Y(0) - 2, 10 * k, XS.FW * k + 4, 'none', 'stroke="var(--ink)" stroke-width="3" rx="6" pointer-events="none"'); const lw = 74, lx = X(sel * 10 + 5) - lw / 2, ly = Y(0) - 30; h += R(lx, ly, lw, 22, 'var(--ink)', 'rx="11" pointer-events="none"') + `<text x="${X(sel * 10 + 5)}" y="${ly + 15.5}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--surface)" font-family="IBM Plex Mono" pointer-events="none">${sel * 10}–${sel * 10 + 10} m</text>`; }
     h += R(x0, HH(), xw, RH, 'var(--surface)');
-    for (let m = 0; m <= L; m += 5) h += R(X(m) - .5, HH(), 1, m % 50 ? (m % 10 ? 3 : 5) : 9, 'var(--ink3)') + (m % (k < 6 ? 20 : 10) === 0 ? `<text x="${X(m)}" y="${HH() + 21}" text-anchor="middle" font-size="11" fill="var(--ink2)" font-family="IBM Plex Mono">${m} m</text>` : '');
+    for (let m = 0; m <= L; m += 5) h += R(X(m) - .5, HH(), 1, m % 50 ? (m % 10 ? 3 : 5) : 9, 'var(--ink3)') + (m % (k < 6 ? 20 : 10) === 0 ? `<text x="${X(m)}" y="${HH() + 21}" text-anchor="middle" font-size="11" fill="var(--ink2)" font-family="IBM Plex Mono">${opts.chain ? chain(m) : m + ' m'}</text>` : '');
     base.innerHTML = h;
   }
   function drawTop(items, selId) {
@@ -877,6 +923,71 @@ function swerveClusters(W) {
   const bins = {}; W.forEach((w, j) => w.swerves.forEach(m => { const b = bins[Math.floor(m / 5)] = bins[Math.floor(m / 5)] || { ms: [], w: new Set() }; b.ms.push(m); b.w.add(j); }));
   const need = Math.max(2, Math.ceil(W.length / 3));
   return Object.values(bins).filter(b => b.w.size >= need).map(b => ({ m: b.ms.reduce((x, y) => x + y, 0) / b.ms.length, n: b.w.size }));
+}
+/* ---------- Workbench: one screen, ground truth and interventions together ---------- */
+// Levers are the informal, movable uses; everything else (kerb, chainage, buildings, poles, trees, the walk photos) is locked ground truth.
+const LEVER = ['spill', 'stall', 'tapri', 'kiosk', 'counter', 'twowheeler', 'car', 'auto', 'buspost', 'bins'];
+const chain = m => `CH 0+${String(Math.round(m)).padStart(3, '0')}`;
+const SLOTS = [['am', 'AM peak'], ['off', 'Off-peak'], ['pm', 'PM peak'], ['day', 'Daytime'], ['night', 'Night']];
+let WB = Object.assign({ mv: {}, clr: [] }, store.get('wb1', {})), wb = null, selWbInv = null;
+const saveWb = () => store.set('wb1', WB);
+const wbInv = () => INV.map(o => { const mv = WB.mv[o.id]; return Object.assign({}, o, mv || {}, WB.clr.includes(o.id) ? { ghost: true } : {}); });
+// How much of the walking zone (building line to kerb) an item takes up, across the street.
+function intrude(o) { const q = Math.abs(((o.rot || 0) % 180 + 180) % 180 - 90) < 45, wid = q ? o.len : o.wid, len = q ? o.wid : o.len; return { a: o.m - len / 2, b: o.m + len / 2, w: Math.max(0, Math.min(XS.FW, o.d + wid / 2) - Math.max(0, o.d - wid / 2)) }; }
+// Largest total intrusion at any 0.5 m slice of a segment: the pinch point.
+function occ(list, i) { let mx = 0; for (let m = i * 10 + .25; m < i * 10 + 10; m += .5) { let s = 0; for (const o of list) { const r = intrude(o); if (r.w && m >= r.a && m <= r.b) s += r.w; } mx = Math.max(mx, s); } return mx; }
+function wbStats() {
+  const light = S.slot === 'night' ? 'night' : S.slot === 'day' ? 'day' : 'any', C = compute(light, 'both', []);
+  const orig = INV.filter(o => LEVER.includes(o.type)), now = wbInv().filter(o => LEVER.includes(o.type) && !o.ghost), mn = stdMin(), rd = STDS[S.std].reduced || 1.2;
+  const rows = C.st.map(s => { const base = s.width, after = base == null ? null : Math.max(0, Math.min(XS.FW, +(base + occ(orig, s.i) - occ(now, s.i)).toFixed(2)));
+    const cat = g => g == null ? 'none' : g >= mn ? 'ok' : g >= rd ? 'warn' : 'bad';
+    return { i: s.i, base, after, cb: cat(base), ca: cat(after), share: s.share, n: s.n, stepB: base != null && base < .9, stepA: after != null && after < .9 }; });
+  const sev = r => Math.max(r.share || 0, r.after == null ? 0 : Math.max(0, Math.min(1, (mn - r.after) / mn)));
+  C.st.forEach((s, j) => { s.sev = sev(rows[j]); });
+  return { C, rows, light };
+}
+const MONO = { title: 'Friction intensity: deeper = critical pinch point', val: s => s.sev, cat: v => v == null ? 'm0' : v < .2 ? 'm0' : v < .4 ? 'm1' : v < .6 ? 'm2' : v < .8 ? 'm3' : 'm4', fmt: () => '', legend: [] };
+function profileSvg(rows) {
+  const W = 880, H = 150, bw = W / NB, top = 16, base = 112, sc = (base - top) / XS.FW, mn = stdMin(), y = g => base - g * sc;
+  let h = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Free-gap width for each 10 m segment, before and after the changes"><line x1="0" x2="${W}" y1="${y(mn)}" y2="${y(mn)}" stroke="var(--ink)" stroke-dasharray="5 4" stroke-width="1"/>`;
+  for (const r of rows) { const x = r.i * bw + 3, w = bw - 6;
+    if (r.after == null) { h += `<text x="${x + w / 2}" y="${base - 6}" text-anchor="middle" font-size="10" fill="var(--ink3)">n/a</text>`; }
+    else { h += `<rect x="${x}" y="${y(r.after)}" width="${w}" height="${r.after * sc}" rx="3" fill="var(--${r.ca})" class="pbar"/>`; if (Math.abs(r.after - r.base) > .01) h += `<rect x="${x - 1}" y="${y(r.base)}" width="${w + 2}" height="2.5" fill="var(--ink)"/>`; h += `<text x="${x + w / 2}" y="${y(r.after) - 4}" text-anchor="middle" font-size="10" font-weight="700" fill="var(--ink)" font-family="IBM Plex Mono">${r.after.toFixed(1)}</text>`; }
+    if (r.stepA) h += `<path d="M${x + w / 2 - 6} ${base + 14}l6 -9l6 9z" fill="var(--bad)"/>`;
+    h += `<rect x="${r.i * bw}" y="0" width="${bw}" height="${H}" fill="${r.i === S.sel ? 'var(--accent)' : 'transparent'}" opacity="${r.i === S.sel ? .1 : 0}" data-pi="${r.i}" style="cursor:pointer"/>`;
+    if (r.i % 2 === 0) h += `<text x="${r.i * bw + 2}" y="${H - 4}" font-size="9.5" fill="var(--ink3)" font-family="IBM Plex Mono">${chain(r.i * 10)}</text>`; }
+  return h + `<line x1="0" x2="${W}" y1="${base}" y2="${base}" stroke="var(--line)"/></svg>`;
+}
+function renderBench() {
+  const { C, rows } = wbStats(), r = rows[S.sel], inv = wbInv(), mn = stdMin();
+  wb.render(C.st, MONO, S.sel, [], null, selWbInv, inv);
+  $('#wbProfile').innerHTML = profileSvg(rows);
+  $('#wbPkey').textContent = `bar = after changes · black tick = surveyed · dashed line = ${stdLabel()} · ▲ = step-off point (estimated)`;
+  const tot = k => rows.filter(x => x[k]).length, okB = rows.filter(x => x.cb === 'ok').length, okA = rows.filter(x => x.ca === 'ok').length, meas = rows.filter(x => x.after != null).length;
+  $('#wbKpi').innerHTML = `<div class="kpi"><span class="lbl">Meet ${esc(stdLabel())}</span><b class="num">${okB} → ${okA}</b><span class="small ink3">of ${meas} measurable segments</span></div><div class="kpi"><span class="lbl">Step-off points (estimated)</span><b class="num">${tot('stepB')} → ${tot('stepA')}</b><span class="small ink3">segments under 0.9 m, where walkers have to use the road</span></div><div class="kpi"><span class="lbl">Changes</span><b class="num">${Object.keys(WB.mv).length + WB.clr.length}</b><span class="small ink3">${WB.clr.length} cleared · ${Object.keys(WB.mv).length} moved</span></div>`;
+  const slotOk = k => k === 'day' || k === 'night';
+  $('#wbTime').innerHTML = `<div class="tl">${SLOTS.map(([k, t]) => `<button type="button" class="tstop${S.slot === k ? ' on' : ''}" data-slot="${k}" ${slotOk(k) ? '' : 'disabled'}><i></i><b>${t}</b><span>${k === 'day' ? '11 walks · clock time not recorded' : k === 'night' ? '4 walks · all B → A' : 'no timed walks yet'}</span></button>`).join('')}</div>`;
+  const pd = (D.photos.df || {})[S.sel] || (D.photos.dr || {})[S.sel], pn = (D.photos.nr || {})[S.sel], o = inv.find(x => x.id === selWbInv);
+  $('#wbSide').innerHTML = `<div class="lbl">${chain(S.sel * 10)} to ${chain(S.sel * 10 + 10)}</div><h2 class="num" style="font-size:20px">${esc(lmOf(S.sel) || 'Segment ' + (S.sel + 1))}</h2>
+    <div class="gapbig"><span class="lbl">Free-gap width</span><b class="num" style="color:var(--${r.ca === 'none' ? 'ink3' : r.ca})">${r.after == null ? 'not measurable' : r.after.toFixed(1) + ' m'}</b>${r.base != null && Math.abs(r.after - r.base) > .01 ? `<span class="small ink2">was ${r.base.toFixed(1)} m</span>` : ''}<span class="small ink3">${r.after == null ? '' : r.after >= mn ? 'meets ' + esc(stdLabel()) : 'below ' + esc(stdLabel())}${r.stepA ? ' · walkers step onto the road here (estimated)' : ''}</span></div>
+    <div class="lbl" style="margin-top:6px">Photo proof · same segment, day and night</div><div class="pair"><figure>${photoHtml(pd)}<figcaption>Daytime</figcaption></figure><figure>${photoHtml(pn)}<figcaption>Night</figcaption></figure></div>
+    ${o ? `<div class="selpanel"><b>${esc(INVT[o.type][0])}</b><span class="small ink2">${chain(o.m)} · ${o.d.toFixed(1)} m from the building line</span>${LEVER.includes(o.type) ? `<div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn" type="button" data-wbclr="${o.id}">${o.ghost ? 'Restore' : 'Clear it'}</button>${WB.mv[o.id] ? `<button class="btn ghost" type="button" data-wbback="${o.id}">Back to surveyed position</button>` : ''}</div><span class="small ink3">Drag it on the street to move it.</span>` : '<span class="small ink3">Locked: surveyed ground truth.</span>'}</div>` : '<p class="small ink2">Drag a parked vehicle, stall, spill-over or counter crowd off the walkway, or tap it to clear it. The free-gap profile below the street updates as you go.</p>'}
+    <button class="btn ghost" type="button" id="wbReset" style="margin-top:8px">Back to surveyed street</button>`;
+}
+function initBench() {
+  wb = Street($('#wbStreet'), $('#wbMini'), { sightings: () => false, places: () => PL, chain: true, lockKerb: true, mono: true, swerves: () => swerveClusters(walksFor(S.slot === 'night' ? 'night' : S.slot === 'day' ? 'day' : 'any', 'both')),
+    onSelect(i) { S.sel = i; saveUi(); renderBench(); },
+    onInv(id) { selWbInv = id; renderBench(); },
+    onInvDown(id, e) { const o = wbInv().find(x => x.id === id); selWbInv = id; if (!o || !LEVER.includes(o.type) || o.ghost) { renderBench(); return; }
+      dragMove(wb, e, () => ({ m: o.m, d: o.d }), (m, d) => { WB.mv[id] = { m: Math.max(0, Math.min(L, +m.toFixed(1))), d: Math.max(-XS.BLD, Math.min(DR, +d.toFixed(2))) }; renderBench(); }, moved => { if (!moved) { WB.clr = WB.clr.includes(id) ? WB.clr : WB.clr.concat(id); } saveWb(); renderBench(); }); },
+    onBlank() { selWbInv = null; renderBench(); } });
+  $('#v-bench').addEventListener('click', e => {
+    const s = e.target.closest('[data-slot]'); if (s && !s.disabled) { S.slot = s.dataset.slot; saveUi(); renderBench(); return; }
+    const pi = e.target.closest('[data-pi]'); if (pi) { S.sel = +pi.dataset.pi; saveUi(); renderBench(); wb.centerOn(S.sel * 10 + 5); return; }
+    const c = e.target.closest('[data-wbclr]'); if (c) { const id = c.dataset.wbclr; WB.clr = WB.clr.includes(id) ? WB.clr.filter(x => x !== id) : WB.clr.concat(id); saveWb(); renderBench(); return; }
+    const bk = e.target.closest('[data-wbback]'); if (bk) { delete WB.mv[bk.dataset.wbback]; saveWb(); renderBench(); return; }
+    if (e.target.closest('#wbReset')) { WB = { mv: {}, clr: [] }; selWbInv = null; saveWb(); renderBench(); }
+  });
 }
 /* ---------- Explore ---------- */
 let ex = null, selInvEx = null;
@@ -1119,14 +1230,15 @@ document.addEventListener('click', e => {
   const poly = e.target.closest('#exMap polygon[data-i]'); if (poly) { S.sel = +poly.dataset.i; saveUi(); renderExplore(); ex.centerOn(S.sel * 10 + 5); }
 });
 function route(keepPanel) {
-  const v = (location.hash || '#explore').slice(1), name = ['explore', 'sandbox'].includes(v) ? v : 'explore';
+  const v = (location.hash || '#bench').slice(1), name = ['bench', 'explore', 'sandbox'].includes(v) ? v : 'bench';
   document.querySelectorAll('.view').forEach(s => s.hidden = s.id !== 'v-' + name);
   document.querySelectorAll('nav.tabs a').forEach(a => { if (a.getAttribute('href') === '#' + name) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  if (name === 'bench') renderBench();
   if (name === 'explore') renderExplore(keepPanel); if (name === 'sandbox') renderSandbox(keepPanel);
 }
-initExplore(); initSandbox(); syncSegs();
+initBench(); initExplore(); initSandbox(); syncSegs();
 window.addEventListener('hashchange', () => route()); route();
-setTimeout(() => { ex.centerOn(S.sel * 10 + 5); }, 50);
+setTimeout(() => { ex.centerOn(S.sel * 10 + 5); wb.centerOn(S.sel * 10 + 5); }, 50);
 // Downloads let the viewer save the evidence sheet; the button stays hidden without them.
 (async () => { try { DLS = window.claude && window.claude.use ? await window.claude.use('downloads') : null; } catch (e) { DLS = null; } if (DLS && S.sheetOn) renderExplore(true); })();
 // Street inventory lives in the page's shared database; the page works without it.
