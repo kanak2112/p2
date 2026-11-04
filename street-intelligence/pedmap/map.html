@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Old Nagardas Road on foot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap">
+<style>
+/* Layout: the street fills the screen; a mode panel floats left, the stretch card right, scale and overview along the bottom */
+:root{
+  --ground:#E4E7E1; --paper:#F3F4F0; --card:#FFFFFF; --ink:#141414; --ink2:#4E534C; --ink3:#868C83; --hair:#C6CCC2;
+  --bldg:#D3D7CE; --bldg2:#C3C8BE; --road:#B4B9B1; --kerb:#8D928A; --taken:#3A3D39; --walk:#FAFBF7;
+  --mus:#966C00; --yel:#F2B800; --red:#C2402D; --amb:#D6921B; --teal:#12867E; --navy:#1E2A45;
+  --fix:#3657C9; --veh:#D9622B; --ppl:#D7A511; --tree:#5E7A57;
+  --serif:"Playfair Display",Georgia,serif; --sans:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+  --shadow:0 1px 0 rgba(0,0,0,.04),0 12px 32px -14px rgba(20,30,20,.35);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--ground);color:var(--ink);font:14px/1.45 var(--sans);-webkit-font-smoothing:antialiased;overflow:hidden}
+button,select,input{font:inherit;color:inherit}
+.app{position:relative;height:100%;width:100%}
+#map{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab;background:var(--ground)}
+#map.drag{cursor:grabbing}
+#map text{font-family:var(--sans)}
+[hidden]{display:none!important}
+/* top bar */
+.top{position:absolute;left:0;right:0;top:0;display:flex;gap:12px;align-items:center;padding:14px max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));pointer-events:none;z-index:5}
+.top>*{pointer-events:auto}
+.brand{background:var(--card);box-shadow:var(--shadow);border-radius:6px;padding:9px 14px;display:flex;gap:12px;align-items:baseline}
+.brand b{font:400 19px var(--serif)}
+.brand span{font:400 11px var(--mono);color:var(--ink3);letter-spacing:.06em}
+.search{position:relative;flex:0 1 320px}
+.search input{width:100%;border:0;background:var(--card);box-shadow:var(--shadow);border-radius:6px;padding:11px 14px;font-size:14px}
+.search input:focus{outline:2px solid var(--yel)}
+.sugg{position:absolute;left:0;right:0;top:calc(100% + 4px);background:var(--card);box-shadow:var(--shadow);border-radius:6px;overflow:hidden}
+.sugg button{display:flex;justify-content:space-between;width:100%;border:0;background:none;padding:9px 14px;text-align:left;cursor:pointer}
+.sugg button:hover,.sugg button.on{background:var(--paper)}
+.sugg small{font:400 11px var(--mono);color:var(--ink3)}
+.grow{flex:1}
+.links{display:flex;gap:6px}
+.links a{background:var(--card);box-shadow:var(--shadow);border-radius:6px;padding:9px 12px;text-decoration:none;font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+.links a:hover{background:var(--paper)}
+/* panel */
+.panel{position:absolute;left:max(16px,env(safe-area-inset-left,0px));top:70px;bottom:96px;width:320px;background:var(--card);box-shadow:var(--shadow);border-radius:8px;display:flex;flex-direction:column;overflow:hidden;z-index:4}
+.panel .ph{padding:16px 18px 10px;border-bottom:1px solid var(--hair)}
+.lab{font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+.mode{border:1px solid var(--hair);background:var(--paper);border-radius:5px;padding:8px 10px;text-align:left;cursor:pointer;display:grid;gap:1px}
+.mode b{font:500 13px var(--sans)}
+.mode span{font:400 11px var(--sans);color:var(--ink3)}
+.mode[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
+.mode[aria-pressed=true] span{color:#cfd3cb}
+.pbody{overflow:auto;padding:14px 18px 18px;display:grid;gap:16px;align-content:start}
+.q{font:400 21px/1.2 var(--serif);margin:0;text-wrap:balance}
+.sum{display:grid;gap:6px}
+.srow{display:grid;grid-template-columns:62px 1fr auto;gap:10px;align-items:center;border:0;background:none;padding:6px 0;border-bottom:1px solid var(--hair);text-align:left;cursor:pointer}
+.srow:hover{background:var(--paper)}
+.srow .ch{font:400 11px var(--mono);color:var(--ink3)}
+.srow .v{font:500 14px var(--mono)}
+.srow em{font-style:normal;font-size:12.5px;color:var(--ink2)}
+.big3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.big3 div{background:var(--paper);border-radius:5px;padding:9px 10px}
+.big3 b{display:block;font:500 24px var(--mono)}
+.big3 span{font:400 11px var(--sans);color:var(--ink2)}
+.layers{display:grid;gap:4px}
+.layers label{display:flex;gap:10px;align-items:center;cursor:pointer;padding:3px 0;font-size:13px}
+.layers input{accent-color:var(--ink);width:15px;height:15px}
+.layers i{width:18px;height:10px;border-radius:2px;display:inline-block;margin-left:auto}
+.legend{display:grid;gap:5px;font-size:12px;color:var(--ink2)}
+.legend div{display:flex;gap:9px;align-items:center}
+.legend i{width:18px;height:10px;border-radius:2px;display:inline-block;flex:none}
+.slider{display:flex;gap:10px;align-items:center}
+.slider input{flex:1;accent-color:var(--ink)}
+.slider b{font:500 15px var(--mono)}
+select.walk{width:100%;border:1px solid var(--hair);background:var(--paper);border-radius:5px;padding:7px 8px;font-size:12.5px}
+.note{font:400 11px var(--mono);color:var(--ink3);line-height:1.6}
+/* card */
+.card{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:70px;bottom:96px;width:340px;background:var(--card);box-shadow:var(--shadow);border-radius:8px;overflow:auto;z-index:4;padding:18px 20px}
+.card .x{display:flex;justify-content:space-between;align-items:center}
+.card .ch{font:400 11px var(--mono);letter-spacing:.1em;color:var(--ink3);text-transform:uppercase}
+.card .nav{display:flex;gap:4px}
+.card .nav button{border:1px solid var(--hair);background:var(--paper);border-radius:4px;width:28px;height:28px;cursor:pointer}
+.card h2{font:400 26px/1.15 var(--serif);margin:6px 0 10px}
+.wbig{display:flex;align-items:baseline;gap:8px}
+.wbig b{font:500 48px/1 var(--mono);letter-spacing:-.03em}
+.wbig span{font:400 12px var(--mono);color:var(--ink3)}
+.verdict{display:inline-block;margin:10px 0 14px;font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:5px 9px;border-radius:3px}
+.v-bad{background:#F4DCD7;color:var(--red)}.v-warn{background:#F5E6C7;color:#8F5E07}.v-ok{background:#D3EAE6;color:var(--teal)}.v-na{background:var(--paper);color:var(--ink2)}
+.pics{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pic{margin:0}.pic .im{position:relative;aspect-ratio:240/427;max-width:100%;border-radius:4px;overflow:hidden;background:var(--paper)}
+.pic img{width:100%;height:100%;object-fit:cover;display:block}.pic svg{position:absolute;inset:0;width:100%;height:100%}
+.pic figcaption{font:400 10px var(--mono);color:var(--ink3);margin-top:4px;letter-spacing:.04em}
+.stats{display:grid;grid-template-columns:1fr 1fr;margin-top:14px;border-top:1px solid var(--hair)}
+.stat{padding:10px 0 8px;border-bottom:1px solid var(--hair)}
+.stat:nth-child(odd){padding-right:10px;border-right:1px solid var(--hair)}.stat:nth-child(even){padding-left:12px}
+.stat b{display:block;font:500 20px var(--mono)}.stat span{font:400 11px var(--sans);color:var(--ink3)}
+.who{margin-top:14px;padding:12px;background:var(--paper);border-radius:5px;font-size:13px;color:var(--ink2)}
+.who b{color:var(--ink);font-weight:500}
+.bars{display:grid;gap:6px;margin-top:12px}
+.bar{display:grid;grid-template-columns:92px 1fr 34px;gap:8px;align-items:center;font-size:12px;color:var(--ink2)}
+.bar .tr{height:4px;background:var(--paper);border-radius:2px;overflow:hidden}.bar .tr i{display:block;height:100%}
+.bar em{font:400 11px var(--mono);font-style:normal;text-align:right}
+.acts{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap}
+.btn{border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:4px;padding:8px 12px;cursor:pointer;font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.btn.ghost{background:none;color:var(--ink)}
+/* bottom */
+.bottom{position:absolute;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;align-items:stretch;z-index:4;pointer-events:none}
+.bottom>*{pointer-events:auto}
+.ov{flex:1;background:var(--card);box-shadow:var(--shadow);border-radius:8px;padding:8px 12px 6px;min-width:0}
+.ov svg{width:100%;height:44px;display:block;cursor:pointer}
+.ctl{background:var(--card);box-shadow:var(--shadow);border-radius:8px;display:flex;align-items:center;gap:2px;padding:4px}
+.ctl button{border:0;background:none;width:38px;height:38px;border-radius:5px;cursor:pointer;font:500 15px var(--mono)}
+.ctl button:hover{background:var(--paper)}
+.ctl button[aria-pressed=true]{background:var(--ink);color:#fff}
+.scale{background:var(--card);box-shadow:var(--shadow);border-radius:8px;padding:10px 14px;display:grid;gap:4px;align-content:center;min-width:150px}
+.scale .sb{height:6px;border:2px solid var(--ink);border-top:0}
+.scale span{font:400 11px var(--mono);color:var(--ink2)}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:#fff;font:400 12px var(--mono);padding:7px 10px;border-radius:4px;white-space:nowrap;transform:translate(-50%,-120%);opacity:0;transition:opacity .1s;z-index:6}
+.tip b{color:var(--yel);font-weight:500}
+.toast{position:absolute;left:50%;bottom:calc(110px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;font:400 12px var(--mono);padding:9px 14px;border-radius:4px;z-index:7}
+.sheet-t{display:none}
+:focus-visible{outline:2px solid var(--yel);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media(max-width:980px){
+  .brand span,.links a.atlas-hide{display:none}
+  .panel{top:auto;bottom:calc(150px + env(safe-area-inset-bottom,0px));left:max(10px,env(safe-area-inset-left,0px));right:max(10px,env(safe-area-inset-right,0px));width:auto;max-height:46%}
+  .panel.closed .pbody{display:none}
+  .card{top:auto;left:max(10px,env(safe-area-inset-left,0px));right:max(10px,env(safe-area-inset-right,0px));width:auto;bottom:calc(150px + env(safe-area-inset-bottom,0px));max-height:52%}
+  
+  .bottom{flex-wrap:wrap}.ov{flex-basis:100%}
+  .sheet-t{display:block;border:0;background:none;font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);cursor:pointer;padding:0}
+  .search{flex:1 1 auto}
+}
+@media(max-width:760px){
+  .top{flex-wrap:wrap;gap:8px;padding-top:10px}
+  .brand{padding:7px 11px}.brand b{font-size:16px}
+  .links a{padding:7px 9px;font-size:10px}.links a:not(.keep){display:none}
+  .search{order:3;flex:1 1 100%}
+  .scale{display:none}
+  .panel{bottom:calc(152px + env(safe-area-inset-bottom,0px));max-height:52%}
+  .card{bottom:calc(152px + env(safe-area-inset-bottom,0px));max-height:58%;padding:14px 16px}
+  .wbig b{font-size:38px}.card h2{font-size:22px}
+  .pics{grid-template-columns:1fr 1fr;max-width:260px}
+}
+.card .close{display:none;border:1px solid var(--hair);background:var(--paper);border-radius:4px;height:28px;padding:0 9px;cursor:pointer;font:500 11px var(--mono)}
+@media(max-width:980px){.card .close{display:inline-block}}
+</style>
+</head>
+<body>
+<div class="app">
+  <svg id="map" aria-label="Map of Old Nagardas Road footpath"></svg>
+  <div class="tip" id="tip"></div>
+  <header class="top">
+    <div class="brand"><b>Old Nagardas Road</b><span>ANDHERI EAST · 220 M · 15 WALKS · OCT 2026</span></div>
+    <div class="search"><input id="q" type="search" placeholder="Search a place or a metre, e.g. bins, 120 m" autocomplete="off"><div class="sugg" id="sugg" hidden></div></div>
+    <div class="grow"></div>
+    <nav class="links"><a href="index.html" class="atlas-hide">Atlas of views</a><a href="index.html#make">Make</a><a href="index.html#connect">Data</a><a href="index.html#uses" class="keep">Uses</a></nav>
+  </header>
+  <aside class="panel" id="panel">
+    <div class="ph"><div style="display:flex;justify-content:space-between;align-items:center"><span class="lab">Use the map for</span><button class="sheet-t" id="sheetT">Hide</button></div><div class="modes" id="modes"></div></div>
+    <div class="pbody" id="pbody"></div>
+  </aside>
+  <aside class="card" id="card"></aside>
+  <div class="bottom">
+    <div class="scale"><div class="sb" id="sb"></div><span id="sbl">10 m</span></div>
+    <div class="ov"><svg id="ov" aria-label="Overview of the whole street"></svg></div>
+    <div class="ctl"><button id="zin" title="Zoom in">+</button><button id="zout" title="Zoom out">−</button><button id="fit" title="Whole street">⤢</button><button id="d2" aria-pressed="true" title="Plan">2D</button><button id="d3" aria-pressed="false" title="Three-dimensional">3D</button></div>
+  </div>
+</div>
+<script src="../lab/data.js"></script>
+<script>
+'use strict';
+const D = window.LAB, NB = 22, L = 220, OBS = 1.4, NA = i => i >= 16 && i <= 18, U = 10;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const C = Object.fromEntries(['ink','ink2','ink3','hair','paper','ground','bldg','bldg2','road','kerb','taken','walk','mus','yel','red','amb','teal','navy','fix','veh','ppl','tree'].map(k => [k, css('--' + k)]));
+const med = a => { const s = a.slice().sort((x, y) => x - y), n = s.length; return n ? (n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2) : null; };
+const walks = D.walks.map((w, k) => ({ ...w, k }));
+const wlabel = w => `Day ${w.day} · ${w.dir === 'forward' ? 'A→B' : 'B→A'}${w.night ? ' · night' : ''}`;
+const topOf = e => { if (!e) return .5; const a = e[0], b = 1 - e[1]; return a + b > .02 ? a / (a + b) : .5; };
+const edges = c => { const gg = Math.min(3, c.g), a1 = (3 - gg) * c.top; return [a1, a1 + gg]; };
+const PLACES = [['R.K. Chouhan Communications', 2, 'start · A'], ['Shopfronts', 45, 'crowded stretch'], ['Green bins', 85, 'narrowest point'], ['Turn onto highway service road', 104, 'junction'], ['Underpass walkway', 176, 'not measured inside'], ['Amratlal G. Vasani', 216, 'end · B']];
+const placeOf = m => (m < 40 ? 'Near R.K. Chouhan Communications' : m < 76 ? 'Shopfronts' : m < 95 ? 'Green bins' : m < 115 ? 'Turn to the service road' : m < 160 ? 'Towards the underpass' : m < 191 ? 'Underpass walkway' : 'Near Amratlal G. Vasani');
+const state = { mode: 'walk', sel: 8, d3: false, thr: .9, src: 'day', vb: null, layers: {} };
+
+/* ---------- data ---------- */
+function W() { return state.src === 'day' ? walks.filter(w => !w.night) : state.src === 'all' ? walks : walks.filter(w => w.k === +state.src); }
+function stats() {
+  const all = state.src === 'day' || state.src === 'all' ? walks : W(), day = all.filter(w => !w.night), night = walks.filter(w => w.night);
+  return Array.from({ length: NB }, (_, i) => {
+    const dr = day.map(w => w.s[i]).filter(Boolean), nr = night.map(w => w.s[i]).filter(Boolean), ar = all.map(w => w.s[i]).filter(Boolean);
+    const gs = dr.filter(r => r.g > 0).map(r => r.g), ngs = nr.filter(r => r.g > 0).map(r => r.g), es = dr.filter(r => r.e).map(r => r.e);
+    const share = k => dr.length ? dr.filter(r => r.ks.includes(k)).length / dr.length : 0;
+    const sh = { fixed: Math.max(share('pole'), share('plants'), share('barrier')), vehicle: share('vehicle'), people: share('people') };
+    return { i, g: NA(i) || !gs.length ? null : med(gs), gN: gs.length, ok: gs.filter(g => g >= state.thr).length,
+      ng: NA(i) || ngs.length < 2 ? null : med(ngs), top: es.length ? topOf([med(es.map(e => e[0])), med(es.map(e => e[1]))]) : .5,
+      b: ar.filter(r => r.o >= OBS).length, n: ar.length, sw: all.filter(w => w.swerves.some(m => m >= i * 10 && m < i * 10 + 10)).length,
+      hk: all.reduce((s, w) => s + w.honks.filter(m => m >= i * 10 && m < i * 10 + 10).length, 0), lit: D.lit[i] ? D.lit[i].r : null, sh,
+      pers: { vehicle: sh.vehicle >= .6, people: sh.people >= .9 }, fixedOn: sh.fixed >= .4 || i === 8 };
+  });
+}
+function dets(S) { const ws = W().filter(w => !w.night);
+  return D.dets.filter(d => ws.some(w => w.day === d[4] && (w.dir === 'forward') === (d[3] === 'f'))).map(d => { const i = Math.min(21, Math.floor(d[0] / 10)), s = S[i], [e1, e2] = s.g != null ? edges(s) : [0, 3];
+    const owner = ['pole', 'plants', 'barrier'].includes(d[2]) ? 'fixed' : (d[2] === 'vehicle' ? s.pers.vehicle : s.pers.people) ? 'persistent' : 'dynamic';
+    return { m: d[0], a: Math.max(.15, Math.min(3.7, e1 + d[1] * (e2 - e1))), k: d[2], owner }; }); }
+const access = s => { if (NA(s.i) || !s.gN) return null; const r = s.ok / s.gN; return r >= .75 ? 'usually' : r >= .5 ? 'sometimes' : 'rarely'; };
+const ACC = { usually: C.teal, sometimes: C.amb, rarely: C.red };
+const wcol = g => g == null ? null : g >= 1.5 ? C.teal : g >= .9 ? C.amb : C.red;
+const KCOL = { people: C.ppl, vehicle: C.veh, pole: C.fix, barrier: C.fix, plants: C.tree };
+const OCOL = { fixed: C.fix, persistent: C.veh, dynamic: C.ppl };
+
+/* ---------- modes ---------- */
+const MODES = {
+  walk: { n: 'Walking', s: 'where it is hard to walk', q: 'Where is it hard to walk?', L: { width: 'class', obst: 'kind', swerve: 1, horn: 0, night: 0, chain: 1, places: 1 },
+    sum(S) { const t = S.filter(s => s.g != null).sort((a, b) => a.g - b.g).slice(0, 5); return rows(t, s => `${s.g.toFixed(1)} m`, s => s.g < .9 ? 'you step into the road' : `blocked on ${s.b} of ${s.n} walks`) + `<p class="note">Narrowest stretches first · clear width is the daytime median</p>`; } },
+  access: { n: 'Wheelchair & pram', s: 'can I get through?', q: 'Can I get through?', L: { width: 'access', obst: 'kind', swerve: 0, horn: 0, night: 0, chain: 1, places: 1 },
+    sum(S) { const c = { usually: 0, sometimes: 0, rarely: 0 }; S.forEach(s => { const a = access(s); if (a) c[a]++; });
+      return `<div class="slider"><span class="lab">Needs</span><input id="thr" type="range" min="0.6" max="1.8" step="0.1" value="${state.thr}"><b>${state.thr.toFixed(1)} m</b></div>
+      <div class="big3"><div><b style="color:var(--teal)">${c.usually}</b><span>usually through</span></div><div><b style="color:var(--amb)">${c.sometimes}</b><span>sometimes</span></div><div><b style="color:var(--red)">${c.rarely}</b><span>rarely</span></div></div>
+      ${rows(S.filter(s => access(s) === 'rarely' || access(s) === 'sometimes').sort((a, b) => a.ok / a.gN - b.ok / b.gN).slice(0, 4), s => `${s.ok}/${s.gN}`, s => `walks with ${state.thr.toFixed(1)} m clear`)}
+      <p class="note">Each 10 m counts the daytime walks with at least the width you need. 0.9 m is an assumed minimum, to confirm with users.</p>`; } },
+  night: { n: 'After dark', s: 'is it safe at night?', q: 'Is it safe after dark?', L: { width: 'night', obst: 0, swerve: 0, horn: 0, night: 1, chain: 1, places: 1 },
+    sum(S) { const t = S.filter(s => s.lit != null && s.lit < .9).sort((a, b) => a.lit - b.lit).slice(0, 5); return rows(t, s => `−${Math.round((1 - s.lit) * 100)}%`, s => s.ng != null ? `${s.ng.toFixed(1)} m clear at night` : 'night width not measured') + `<p class="note">Brightness of the walking surface in night photos against the route’s usual night. Phones adjust exposure, so this ranks stretches; it is not lux. 4 night walks.</p>`; } },
+  act: { n: 'Who must act', s: 'whose problem each stretch is', q: 'Whose problem is each stretch?', L: { width: 'plain', obst: 'owner', swerve: 0, horn: 0, night: 0, chain: 1, places: 1 },
+    sum(S) { const need = S.filter(s => s.g != null && s.g < 1.5); const grp = { works: [], enforce: [], parking: [] };
+      need.forEach(s => { if (s.fixedOn) grp.works.push(s); if (s.pers.people || s.sh.people >= .7) grp.enforce.push(s); if (s.pers.vehicle || s.sh.vehicle >= .5) grp.parking.push(s); });
+      const blk = (t, k, d) => `<div><div class="lab" style="margin-bottom:4px">${t}</div>${grp[k].length ? rows(grp[k].slice(0, 4), s => `${s.g.toFixed(1)} m`, () => d) : '<p class="note">None below 1.5 m</p>'}</div>`;
+      return blk('Civil works · fixed things', 'works', 'poles, trees, walls or bins') + blk('Enforcement · stalls and crowds', 'enforce', 'stalls or crowds on most walks') + blk('Traffic & parking · vehicles', 'parking', 'vehicles stopping or parked') + `<p class="note">Stretches under BMC 1.5 m. Department names are indicative; confirm with the ward.</p>`; } },
+  vend: { n: 'Vending', s: 'where stalls can fit', q: 'Where can stalls fit?', L: { width: 'plain', obst: 'people', swerve: 0, horn: 0, night: 0, chain: 1, places: 1 },
+    sum(S) { const room = S.filter(s => s.g != null && s.g >= 2), clash = S.filter(s => s.g != null && s.g < 1.5 && s.sh.people >= .6);
+      return `<div class="lab">Room beside the walking path · 2 m or more</div>${rows(room, s => `${s.g.toFixed(1)} m`, () => 'space for a stall zone')}<div class="lab">Stalls and crowds where it is already tight</div>${rows(clash.slice(0, 5), s => `${s.g.toFixed(1)} m`, s => `people or stalls on ${Math.round(s.sh.people * 100)}% of walks`)}<p class="note">For town vending committees under the Street Vendors Act, 2014. Measured on one side of the road only.</p>`; } },
+  stress: { n: 'Noise & stress', s: 'horns and swerves', q: 'Where is walking stressful?', L: { width: 'plain', obst: 0, swerve: 1, horn: 1, night: 0, chain: 1, places: 1 },
+    sum(S) { const t = S.slice().sort((a, b) => (b.hk + b.sw * 2) - (a.hk + a.sw * 2)).slice(0, 5); return rows(t, s => `${s.hk}`, s => `horns · ${s.sw} walks swerved`) + `<p class="note">Horns heard and direction changes recorded by the phone on every walk.</p>`; } }
+};
+const rows = (list, v, d) => `<div class="sum">${list.map(s => `<button class="srow" data-go="${s.i}"><span class="ch">${s.i * 10}–${s.i * 10 + 10} m</span><em>${d(s)}</em><span class="v">${v(s)}</span></button>`).join('')}</div>`;
+const LAYERS = [['width', 'Walkable width', C.walk], ['obst', 'Obstructions', C.ppl], ['swerve', 'Swerves', C.mus], ['horn', 'Horns', C.red], ['night', 'Night light', C.navy], ['chain', 'Chainage', C.ink3], ['places', 'Places', C.ink]];
+
+/* ---------- drawing ---------- */
+const NS = 'http://www.w3.org/2000/svg', svg = document.getElementById('map'), ov = document.getElementById('ov');
+function el(tag, at, p = svg) { const e = document.createElementNS(NS, tag); for (const k in at) e.setAttribute(k, at[k]); p.appendChild(e); return e; }
+function tx(s, x, y, at = {}, p) { const t = el('text', { x, y, ...at }, p); t.textContent = s; return t; }
+const plan = (m, a) => [m * U, a * U];
+const iso = (m, a, z = 0) => [(m - a) * .866 * U, (m + a) * .5 * U - z * U];
+const P = (m, a, z = 0) => state.d3 ? iso(m, a, z) : plan(m, a);
+const pts = q => q.map(p => p.map(v => v.toFixed(2)).join(',')).join(' ');
+function poly(q, fill, at = {}, p) { return el('polygon', { points: pts(q), fill, ...at }, p); }
+function quad(m0, m1, a0, a1, fill, at, p, z = 0) { return poly([P(m0, a0, z), P(m1, a0, z), P(m1, a1, z), P(m0, a1, z)], fill, at, p); }
+function curve(ptsA, cmd = 'M') { let d = cmd + ptsA[0][0].toFixed(2) + ' ' + ptsA[0][1].toFixed(2);
+  for (let i = 0; i < ptsA.length - 1; i++) { const p0 = ptsA[i - 1] || ptsA[i], p1 = ptsA[i], p2 = ptsA[i + 1], p3 = ptsA[i + 2] || p2, t = .18;
+    d += ` C${(p1[0] + (p2[0] - p0[0]) * t).toFixed(2)} ${(p1[1] + (p2[1] - p0[1]) * t).toFixed(2)} ${(p2[0] - (p3[0] - p1[0]) * t).toFixed(2)} ${(p2[1] - (p3[1] - p1[1]) * t).toFixed(2)} ${p2[0].toFixed(2)} ${p2[1].toFixed(2)}`; } return d; }
+const ribbon = (T, B) => curve(T) + ' ' + curve(B.slice().reverse(), 'L') + ' Z';
+function runs(v) { const r = []; let c = null; v.forEach((x, i) => { if (x != null) { if (!c) r.push(c = [i, i]); else c[1] = i; } else c = null; }); return r; }
+function channelPath(cells) { const out = []; runs(cells).forEach(([a, b]) => { const T = [], B = [], ms = [[a, a * 10 + .1]]; for (let i = a; i <= b; i++) ms.push([i, i * 10 + 5]); ms.push([b, b * 10 + 9.9]);
+  ms.forEach(([i, m]) => { const [e1, e2] = edges(cells[i]); T.push(P(m, e1)); B.push(P(m, e2)); }); out.push(ribbon(T, B)); }); return out; }
+let K = 1; // svg units per screen pixel
+function draw() {
+  const S = stats(), Lr = state.layers, ds = Lr.obst ? dets(S) : [];
+  svg.innerHTML = '';
+  const defs = el('defs', {}); const hp = el('pattern', { id: 'hatch', width: 8, height: 8, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' }, defs); el('rect', { width: 8, height: 8, fill: C.paper }, hp); el('line', { x1: 0, y1: 0, x2: 0, y2: 8, stroke: C.hair, 'stroke-width': 2 }, hp);
+  const fs = px => (px * K).toFixed(2);
+  const g = el('g', {});
+  // ground beyond, buildings, road
+  quad(-30, 250, -40, 40, C.ground, {}, g);
+  quad(-30, 250, 11, 40, C.paper, {}, g); quad(-30, 250, 11, 40, 'url(#hatch)', { opacity: .7 }, g);
+  quad(-30, 250, 3.15, 11, C.road, {}, g);
+  for (let m = -30; m < 250; m += 6) quad(m, m + 3, 6.95, 7.15, '#EEF0EA', {}, g);
+  quad(-30, 250, 3, 3.15, C.kerb, {}, g);
+  // footpath: taken, then the walkable channel
+  quad(0, L, 0, 3, C.taken, {}, g); quad(-30, 0, 0, 3, '#9A9F96', {}, g); quad(L, 250, 0, 3, '#9A9F96', {}, g);
+  const cells = S.map(s => s.g != null ? { g: s.g, top: s.top } : null), ncells = S.map(s => s.ng != null ? { g: s.ng, top: s.top } : null);
+  if (Lr.width) {
+    if (Lr.width === 'night') { channelPath(cells).forEach(d => el('path', { d, fill: 'none', stroke: C.walk, 'stroke-width': fs(1.2), 'stroke-dasharray': `${fs(4)} ${fs(3)}`, opacity: .7 }, g)); channelPath(ncells).forEach(d => el('path', { d, fill: '#DCE3F2' }, g)); }
+    else channelPath(cells).forEach(d => el('path', { d, fill: C.walk }, g));
+    if (Lr.width === 'class' || Lr.width === 'access') S.forEach(s => { const c = Lr.width === 'class' ? wcol(s.g) : ACC[access(s)]; if (!c) return; const [e1, e2] = edges(s); quad(s.i * 10, s.i * 10 + 10, e1, e2, c, { opacity: .3 }, g); quad(s.i * 10 + .2, s.i * 10 + 9.8, 3.18, 3.6, c, {}, g); });
+  }
+  quad(160, 190, 0, 3, 'url(#hatch)', {}, g);
+  // night light
+  if (Lr.night) S.forEach(s => { if (s.lit == null) return; const d = Math.max(0, 1 - s.lit); quad(s.i * 10, s.i * 10 + 10, -12, 11, C.navy, { opacity: Math.min(.6, .04 + d * 1.6) }, g); });
+  // buildings: frontage blocks, heights not surveyed
+  for (let m = 0; m < L; m += 10) { if (m >= 160 && m < 190) { quad(m, m + 10, -1.4, -.2, C.bldg2, { stroke: C.hair, 'stroke-width': fs(.6) }, g); continue; }
+    if (state.d3) { const h = 6 + ((m * 7) % 3) * .7; poly([P(m, 0, 0), P(m + 10, 0, 0), P(m + 10, 0, h), P(m, 0, h)], C.bldg2, {}, g); poly([P(m + 10, -12, 0), P(m + 10, 0, 0), P(m + 10, 0, h), P(m + 10, -12, h)], '#B5BAB0', {}, g); poly([P(m, -12, h), P(m + 10, -12, h), P(m + 10, 0, h), P(m, 0, h)], C.bldg, { stroke: C.hair, 'stroke-width': fs(.6) }, g); }
+    else quad(m, m + 10, -12, 0, C.bldg, { stroke: C.hair, 'stroke-width': fs(.8) }, g); }
+  // horns along the kerb, swerves in the walking line
+  if (Lr.horn) W().forEach((w, k) => w.honks.forEach(m => { const [x, y] = P(m, 3.8 + (k % 6) * .45); el('circle', { cx: x, cy: y, r: (.22 * U).toFixed(2), fill: C.red, opacity: .65 }, g); }));
+  if (Lr.swerve) W().forEach((w, k) => w.swerves.forEach(m => { const s = S[Math.min(21, Math.floor(m / 10))]; const [e1, e2] = s.g != null ? edges(s) : [1, 2], a = (e1 + e2) / 2 + ((k % 5) - 2) * .15; const p0 = P(m - .6, a - .35), p1 = P(m, a + .2), p2 = P(m + .6, a - .35);
+    el('polyline', { points: pts([p0, p1, p2]), fill: 'none', stroke: C.mus, 'stroke-width': fs(1.6), 'stroke-linecap': 'round', opacity: .9 }, g); }));
+  // obstructions
+  ds.filter(o => Lr.obst !== 'people' || o.k === 'people').sort((p, q) => (p.m + p.a) - (q.m + q.a)).forEach(o => {
+    const c = Lr.obst === 'owner' ? OCOL[o.owner] : KCOL[o.k] || C.ink3;
+    if (state.d3) { const box = (m0, m1, a0, a1, h, f) => { poly([P(m0, a1, 0), P(m1, a1, 0), P(m1, a1, h), P(m0, a1, h)], shade(f, -.18), {}, g); poly([P(m1, a0, 0), P(m1, a1, 0), P(m1, a1, h), P(m1, a0, h)], shade(f, -.32), {}, g); poly([P(m0, a0, h), P(m1, a0, h), P(m1, a1, h), P(m0, a1, h)], f, {}, g); };
+      if (o.k === 'vehicle') box(o.m - .9, o.m + .9, o.a - .35, o.a + .35, 1.05, c); else if (o.k === 'people') box(o.m - .2, o.m + .2, o.a - .2, o.a + .2, 1.7, c); else if (o.k === 'plants') { box(o.m - .1, o.m + .1, o.a - .1, o.a + .1, 2.2, '#6B5E4E'); const q = P(o.m, o.a, 3); el('ellipse', { cx: q[0], cy: q[1], rx: 1.1 * U, ry: .75 * U, fill: C.tree, opacity: .85 }, g); } else if (o.k === 'barrier') box(o.m - .5, o.m + .5, o.a - .12, o.a + .12, .9, c); else box(o.m - .08, o.m + .08, o.a - .08, o.a + .08, 3.6, c); return; }
+    const [x, y] = P(o.m, o.a);
+    if (o.k === 'vehicle') el('rect', { x: x - .9 * U, y: y - .35 * U, width: 1.8 * U, height: .7 * U, rx: .3 * U, fill: c, opacity: .78, stroke: '#fff', 'stroke-width': fs(.6) }, g);
+    else if (o.k === 'plants') el('circle', { cx: x, cy: y, r: .9 * U, fill: c, opacity: .5 }, g);
+    else if (o.k === 'barrier') el('rect', { x: x - .5 * U, y: y - .12 * U, width: U, height: .24 * U, fill: c, opacity: .85 }, g);
+    else if (o.k === 'pole') el('rect', { x: x - .12 * U, y: y - .12 * U, width: .24 * U, height: .24 * U, fill: c }, g);
+    else el('circle', { cx: x, cy: y, r: .26 * U, fill: c, opacity: .8, stroke: '#fff', 'stroke-width': fs(.5) }, g); });
+  // selected stretch
+  const sp = [P(state.sel * 10, -.15), P(state.sel * 10 + 10, -.15), P(state.sel * 10 + 10, 3.15), P(state.sel * 10, 3.15)]; poly(sp, 'none', { stroke: C.yel, 'stroke-width': fs(3), 'stroke-linejoin': 'round' }, g);
+  // chainage
+  if (Lr.chain) for (let m = 0; m <= L; m += 10) { const big = m % 50 === 0 || m === L, [x, y] = P(m, 3.15), [x2, y2] = P(m, 3.15 + (big ? 1.4 : .8)); el('line', { x1: x, y1: y, x2, y2, stroke: '#fff', 'stroke-width': fs(1.4) }, g);
+    if (big || K < .25) tx(`${m} m`, x2 + 3 * K, y2 + 11 * K, { 'font-family': 'IBM Plex Mono', 'font-size': fs(10), fill: '#fff' }, g); }
+  // street name in the road
+  const sn = K < .6 ? [40, 140] : [110];
+  sn.forEach(m => { const [x, y] = P(m, 7.6); const t = tx('OLD NAGARDAS ROAD', x, y, { 'font-family': 'Playfair Display', 'font-style': 'italic', 'font-size': fs(14), fill: '#F3F4EF', 'letter-spacing': fs(3), 'text-anchor': 'middle' }, g); if (state.d3) t.setAttribute('transform', `rotate(30 ${x} ${y})`); });
+  { const [x, y] = P(110, -6); const t = tx('BUILDINGS · HEIGHTS AND PLOTS NOT SURVEYED', x, y, { 'font-family': 'IBM Plex Mono', 'font-size': fs(9.5), fill: C.ink3, 'text-anchor': 'middle', 'letter-spacing': fs(1) }, g); if (state.d3) t.setAttribute('transform', `rotate(30 ${x} ${y})`); }
+  { const [x, y] = P(110, 13); const t = tx('OTHER SIDE OF THE ROAD · NOT WALKED', x, y, { 'font-family': 'IBM Plex Mono', 'font-size': fs(9.5), fill: C.ink3, 'text-anchor': 'middle', 'letter-spacing': fs(1) }, g); if (state.d3) t.setAttribute('transform', `rotate(30 ${x} ${y})`); }
+  // places
+  if (Lr.places) PLACES.forEach(([n, m]) => { const [x, y] = P(m, -.3), r = 7 * K; const gp = el('g', { style: 'cursor:pointer' }, g);
+    el('path', { d: `M${x} ${y} l${-r * .7} ${-r * 1.6} a${r} ${r} 0 1 1 ${r * 1.4} 0 z`, fill: C.ink }, gp); el('circle', { cx: x, cy: y - r * 2.15, r: r * .38, fill: '#fff' }, gp);
+    const t = tx(n, x + r * 1.3, y - r * 1.9, { 'font-size': fs(12.5), 'font-weight': 500, fill: C.ink, stroke: C.ground, 'stroke-width': fs(3), 'paint-order': 'stroke' }, gp); gp.addEventListener('click', e => { e.stopPropagation(); select(Math.min(21, Math.floor(m / 10)), true); }); });
+  drawOverview(S); drawScale();
+}
+function shade(hex, t) { const p = h => [1, 3, 5].map(j => parseInt(h.slice(j, j + 2), 16)); const a = p(hex); return `rgb(${a.map(v => Math.round(Math.max(0, Math.min(255, v + v * t)))).join(',')})`; }
+
+/* ---------- view box, pan, zoom ---------- */
+function fitBox() { const q = [P(-6, -14), P(226, -14), P(226, 14), P(-6, 14)]; const xs = q.map(p => p[0]), ys = q.map(p => p[1]); let x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys) - (state.d3 ? 9 * U : 0), y1 = Math.max(...ys);
+  const r = svg.clientHeight / svg.clientWidth, w = x1 - x0, h = y1 - y0; if (h / w < r) { const nh = w * r; y0 -= (nh - h) / 2; return pad([x0, y0, w, nh]); } const nw = h / r; x0 -= (nw - w) / 2; return pad([x0, y0, nw, h]); }
+function pad(b) { const p = .06; return [b[0] - b[2] * p, b[1] - b[3] * p, b[2] * (1 + 2 * p), b[3] * (1 + 2 * p)]; }
+function setVB(b, redraw) { state.vb = b; svg.setAttribute('viewBox', b.map(v => v.toFixed(2)).join(' ')); const nk = b[2] / Math.max(1, svg.clientWidth); if (redraw || Math.abs(nk / K - 1) > .02) { K = nk; schedule(); } else drawOverviewBox(); }
+let raf = 0; function schedule() { cancelAnimationFrame(raf); raf = requestAnimationFrame(draw); }
+function visArea() { const W = svg.clientWidth, H = svg.clientHeight; if (innerWidth <= 980) return { l: 0, r: W, t: 70, b: H * .45 }; return { l: 352, r: W - 372, t: 70, b: H - 96 }; }
+function focusBox(m, wm = 60) { const [cx, cy] = P(m, 1.5), W = svg.clientWidth, H = svg.clientHeight, v = visArea(), vw = Math.max(200, v.r - v.l), vh = Math.max(150, v.b - v.t);
+  const w = wm * U * (state.d3 ? 1.1 : 1) * W / vw, k = w / W, h = H * k, ox = ((v.l + v.r) / 2 - W / 2) * k, oy = ((v.t + v.b) / 2 - H / 2) * k; return [cx - w / 2 - ox, cy - h / 2 - oy, w, h]; }
+function fly(to, ms = 650) { const from = state.vb.slice(), t0 = performance.now(), e = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const step = now => { const t = Math.min(1, (now - t0) / ms); setVB(from.map((v, j) => v + (to[j] - v) * e(t))); if (t < 1) requestAnimationFrame(step); else setVB(to, true); }; requestAnimationFrame(step); }
+const toWorld = (cx, cy) => { const p = svg.createSVGPoint(); p.x = cx; p.y = cy; const q = p.matrixTransform(svg.getScreenCTM().inverse()); if (!state.d3) return [q.x / U, q.y / U]; const u = q.x / (.866 * U), v = q.y / (.5 * U); return [(u + v) / 2, (v - u) / 2]; };
+function zoomAt(k, cx, cy) { const vb = state.vb, f = state.d3 ? fitBox() : fitBox(), w = Math.max(25 * U, Math.min(f[2] * 1.6, vb[2] * k)), h = vb[3] * w / vb[2]; const p = svg.createSVGPoint(); p.x = cx; p.y = cy; const q = p.matrixTransform(svg.getScreenCTM().inverse());
+  setVB([q.x - (q.x - vb[0]) * w / vb[2], q.y - (q.y - vb[1]) * h / vb[3], w, h]); }
+(() => { const ptrs = new Map(); let start = null, moved = false, pinch = null;
+  svg.addEventListener('wheel', e => { e.preventDefault(); zoomAt(Math.exp(e.deltaY * .0016), e.clientX, e.clientY); }, { passive: false });
+  svg.addEventListener('pointerdown', e => { svg.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, [e.clientX, e.clientY]); if (ptrs.size === 1) { start = { x: e.clientX, y: e.clientY, vb: state.vb.slice() }; moved = false; svg.classList.add('drag'); } else if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), vb: state.vb.slice() }; } });
+  svg.addEventListener('pointermove', e => { if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, [e.clientX, e.clientY]);
+    if (ptrs.size === 2 && pinch) { const [a, b] = [...ptrs.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]); state.vb = pinch.vb.slice(); zoomAt(pinch.d / d, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2); moved = true; return; }
+    if (start) { const s = start.vb[2] / svg.clientWidth, dx = (e.clientX - start.x) * s, dy = (e.clientY - start.y) * s; if (Math.abs(e.clientX - start.x) + Math.abs(e.clientY - start.y) > 4) moved = true; setVB([start.vb[0] - dx, start.vb[1] - dy, start.vb[2], start.vb[3]]); hideTip(); return; }
+    hover(e); });
+  const end = e => { ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch = null; if (ptrs.size === 0) { svg.classList.remove('drag'); if (start && !moved) { const [m, a] = toWorld(e.clientX, e.clientY); if (m >= 0 && m < L && a > -2 && a < 5) select(Math.floor(m / 10), false); } start = null; } };
+  svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', end); svg.addEventListener('pointerleave', hideTip);
+  svg.addEventListener('dblclick', e => zoomAt(.5, e.clientX, e.clientY)); })();
+const tip = document.getElementById('tip');
+function hover(e) { const [m, a] = toWorld(e.clientX, e.clientY); if (m < 0 || m >= L || a < -1 || a > 4.5) return hideTip(); const s = STATS[Math.floor(m / 10)];
+  tip.style.left = e.clientX + 'px'; tip.style.top = e.clientY + 'px'; tip.style.opacity = 1; tip.innerHTML = `${Math.round(m)} m · <b>${s.g == null ? 'not measured' : s.g.toFixed(1) + ' m clear'}</b> · blocked ${s.b}/${s.n}`; }
+function hideTip() { tip.style.opacity = 0; }
+
+/* ---------- overview, scale ---------- */
+function drawOverview(S) { ov.innerHTML = ''; ov.setAttribute('viewBox', '0 0 1100 44'); ov.setAttribute('preserveAspectRatio', 'none'); const k = 1100 / L;
+  S.forEach(s => { const c = wcol(s.g); el('rect', { x: s.i * 10 * k, y: 14, width: 10 * k - 1, height: 12, fill: c || C.hair, opacity: c ? .9 : .6 }, ov); });
+  PLACES.forEach(([n, m]) => el('circle', { cx: m * k, cy: 33, r: 2.2, fill: C.ink }, ov));
+  el('rect', { id: 'ovbox', x: 0, y: 8, width: 10, height: 24, fill: 'none', stroke: C.ink, 'stroke-width': 2, rx: 2 }, ov);
+  el('rect', { x: state.sel * 10 * k, y: 10, width: 10 * k - 1, height: 3, fill: C.mus }, ov); drawOverviewBox(); }
+function drawOverviewBox() { const b = document.getElementById('ovbox'); if (!b || !state.vb) return; const k = 1100 / L; const [m0] = toWorldVB(state.vb[0], state.vb[1] + state.vb[3] / 2), [m1] = toWorldVB(state.vb[0] + state.vb[2], state.vb[1] + state.vb[3] / 2);
+  const a = Math.max(0, Math.min(L, m0)), z = Math.max(0, Math.min(L, m1)); b.setAttribute('x', (a * k).toFixed(1)); b.setAttribute('width', Math.max(4, (z - a) * k).toFixed(1)); }
+function toWorldVB(x, y) { if (!state.d3) return [x / U, y / U]; const u = x / (.866 * U), v = y / (.5 * U); return [(u + v) / 2 - 1.5, 0]; }
+ov.addEventListener('click', e => { const r = ov.getBoundingClientRect(), m = (e.clientX - r.left) / r.width * L; fly(focusBox(m, state.vb[2] / U / (state.d3 ? 1.1 : 1))); });
+function drawScale() { const mpp = K / U, nice = [1, 2, 5, 10, 20, 50, 100], target = 110 * mpp, v = nice.find(n => n >= target) || 100; document.getElementById('sb').style.width = (v / mpp).toFixed(0) + 'px'; document.getElementById('sbl').textContent = `${v} m${state.d3 ? ' · along the street' : ''}`; }
+
+/* ---------- panel, card ---------- */
+let STATS = stats();
+function setMode(k) { state.mode = k; state.layers = { ...MODES[k].L }; renderPanel(); draw(); }
+function renderPanel() { STATS = stats(); const M = MODES[state.mode];
+  document.getElementById('modes').innerHTML = Object.entries(MODES).map(([k, m]) => `<button class="mode" data-m="${k}" aria-pressed="${k === state.mode}"><b>${m.n}</b><span>${m.s}</span></button>`).join('');
+  const legend = { walk: [[C.teal, '1.5 m or more · meets BMC'], [C.amb, '0.9–1.5 m · tight'], [C.red, 'under 0.9 m · you step into the road'], [C.taken, 'taken'], [C.mus, 'swerve']], access: [[C.teal, 'usually through'], [C.amb, 'sometimes'], [C.red, 'rarely'], [C.taken, 'taken']],
+    night: [[C.navy, 'darker at night'], ['#DCE3F2', 'night walkable width'], [C.walk, 'day width (dashed)']], act: [[C.fix, 'fixed · civil works'], [C.veh, 'on most walks · enforcement'], [C.ppl, 'on some walks · time-based']],
+    vend: [[C.ppl, 'people & stalls'], [C.walk, 'walkable'], [C.taken, 'taken']], stress: [[C.red, 'horn heard'], [C.mus, 'swerve'], [C.taken, 'taken']] }[state.mode];
+  const objLeg = state.layers.obst === 'kind' ? [[C.ppl, 'people & stalls'], [C.veh, 'vehicles'], [C.fix, 'poles & barriers'], [C.tree, 'trees']] : [];
+  document.getElementById('pbody').innerHTML = `<h3 class="q">${M.q}</h3>${M.sum(STATS)}
+    <div><div class="lab" style="margin-bottom:6px">Legend</div><div class="legend">${[...legend, ...objLeg, ['url', 'not measured · underpass']].map(([c, l]) => `<div><i style="background:${c === 'url' ? 'repeating-linear-gradient(45deg,var(--paper) 0 3px,var(--hair) 3px 5px)' : c};${c === C.walk ? 'border:1px solid var(--hair)' : ''}"></i>${l}</div>`).join('')}</div></div>
+    <div><div class="lab" style="margin-bottom:6px">Layers</div><div class="layers">${LAYERS.map(([k, l, c]) => `<label><input type="checkbox" data-l="${k}" ${state.layers[k] ? 'checked' : ''}>${l}<i style="background:${c};${k === 'width' ? 'border:1px solid var(--hair)' : ''}"></i></label>`).join('')}</div></div>
+    <div><div class="lab" style="margin-bottom:6px">Walks shown</div><select class="walk" id="src"><option value="day" ${state.src === 'day' ? 'selected' : ''}>All 11 daytime walks</option><option value="all" ${state.src === 'all' ? 'selected' : ''}>All 15 walks, day and night</option>${walks.map(w => `<option value="${w.k}" ${String(state.src) === String(w.k) ? 'selected' : ''}>One walk · ${wlabel(w)}</option>`).join('')}</select></div>
+    <p class="note">Walked on one side of the road · widths are camera estimates from walk photos, not tape-measured · Oct 2026.</p>`;
+  renderCard(); }
+function renderCard() { const i = state.sel, s = STATS[i], Pp = D.photos, dp = Pp.df[i] || Pp.dr[i], np = Pp.nr[i];
+  const v = NA(i) ? ['v-na', 'not measurable here'] : s.g == null ? ['v-na', 'no reading'] : s.g >= 1.5 ? ['v-ok', 'meets BMC 1.5 m'] : s.g >= .9 ? ['v-warn', 'tight'] : ['v-bad', 'you step into the road'];
+  const pic = (p, cap) => `<figure class="pic"><div class="im">${p ? `<img src="../lab/ph/${p.id}.jpg" alt="${cap} photo of this stretch" onerror="this.remove()">${p.path && p.path.length > 5 ? `<svg viewBox="0 0 1 1" preserveAspectRatio="none"><polygon points="${p.path.map(q => q.join(',')).join(' ')}" fill="rgba(242,184,0,.28)" stroke="#F2B800" stroke-width=".006"/></svg>` : ''}` : ''}</div><figcaption>${cap}</figcaption></figure>`;
+  const bar = (l, x, c) => `<div class="bar"><span>${l}</span><span class="tr"><i style="width:${Math.round(x * 100)}%;background:${c}"></i></span><em>${Math.round(x * 100)}%</em></div>`;
+  const owners = []; if (s.fixedOn) owners.push('civil works for fixed things'); if (s.pers.people || s.sh.people >= .7) owners.push('enforcement for stalls and crowds'); if (s.pers.vehicle || s.sh.vehicle >= .5) owners.push('traffic and parking for vehicles');
+  const acc = access(s), lit = s.lit == null ? '—' : s.lit < 1 ? `−${Math.round((1 - s.lit) * 100)}%` : `+${Math.round((s.lit - 1) * 100)}%`;
+  document.getElementById('card').innerHTML = `<div class="x"><span class="ch">${i * 10}–${i * 10 + 10} m</span><span class="nav"><button data-step="-1" aria-label="Previous stretch">‹</button><button data-step="1" aria-label="Next stretch">›</button><button class="close" data-close="1">Close</button></span></div>
+    <h2>${placeOf(i * 10 + 5)}</h2><div class="wbig"><b>${s.g == null ? '—' : s.g.toFixed(1)}</b><span>${s.g == null ? '' : 'm clear · daytime median'}</span></div><span class="verdict ${v[0]}">${v[1]}</span>
+    <div class="pics">${pic(dp, 'WORST DAY PHOTO · GROUND TRACED')}${pic(np, 'NIGHT')}</div>
+    <div class="stats"><div class="stat"><b>${s.b}<small style="font-size:12px;color:var(--ink3)">/${s.n}</small></b><span>walks blocked</span></div><div class="stat"><b>${acc ? s.ok + '/' + s.gN : '—'}</b><span>walks with ${state.thr.toFixed(1)} m for a wheelchair</span></div>
+    <div class="stat"><b>${s.sw}</b><span>walks swerved</span></div><div class="stat"><b>${s.hk}</b><span>horns heard</span></div>
+    <div class="stat"><b>${s.ng == null ? '—' : s.ng.toFixed(1)}</b><span>m clear at night</span></div><div class="stat"><b>${lit}</b><span>light vs route at night</span></div></div>
+    <div class="bars"><div class="lab">Seen here on daytime walks</div>${bar('Fixed things', s.sh.fixed, C.fix)}${bar('Vehicles', s.sh.vehicle, C.veh)}${bar('People & stalls', s.sh.people, C.ppl)}</div>
+    ${s.g != null && s.g < 1.5 && owners.length ? `<div class="who">Under BMC 1.5 m. Likely needs <b>${owners.join(', ')}</b>.</div>` : ''}
+    <div class="acts"><button class="btn" data-ev="1">Save evidence sheet</button><button class="btn ghost" data-zoom="1">Zoom here</button></div>`; }
+function select(i, flyTo) { state.sel = Math.max(0, Math.min(21, i)); renderCard(); document.getElementById('card').hidden = false; if (innerWidth <= 980) document.getElementById('panel').hidden = true; draw(); if (flyTo) fly(focusBox(state.sel * 10 + 5, 50)); }
+document.getElementById('modes').addEventListener('click', e => { const b = e.target.closest('[data-m]'); if (b) setMode(b.dataset.m); });
+document.getElementById('pbody').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b) select(+b.dataset.go, true); });
+document.getElementById('pbody').addEventListener('change', e => { if (e.target.dataset.l) { const k = e.target.dataset.l; state.layers[k] = e.target.checked ? (MODES[state.mode].L[k] || (k === 'obst' ? 'kind' : k === 'width' ? 'plain' : 1)) : 0; renderPanel(); draw(); } if (e.target.id === 'src') { state.src = e.target.value; renderPanel(); draw(); } });
+document.getElementById('pbody').addEventListener('input', e => { if (e.target.id === 'thr') { state.thr = +e.target.value; const b = e.target.parentNode.querySelector('b'); b.textContent = state.thr.toFixed(1) + ' m'; clearTimeout(renderPanel.t); renderPanel.t = setTimeout(() => { renderPanel(); draw(); const t = document.getElementById('thr'); t && t.focus(); }, 120); } });
+document.getElementById('card').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.step) select(state.sel + +b.dataset.step, true); if (b.dataset.zoom) fly(focusBox(state.sel * 10 + 5, 30)); if (b.dataset.ev) saveEvidence(); if (b.dataset.close) { document.getElementById('card').hidden = true; document.getElementById('panel').hidden = false; } });
+document.getElementById('sheetT').addEventListener('click', e => { const p = document.getElementById('panel'); p.classList.toggle('closed'); e.target.textContent = p.classList.contains('closed') ? 'Show' : 'Hide'; });
+document.getElementById('zin').onclick = () => zoomAt(.6, innerWidth / 2, innerHeight / 2);
+document.getElementById('zout').onclick = () => zoomAt(1.6, innerWidth / 2, innerHeight / 2);
+document.getElementById('fit').onclick = () => fly(fitBox());
+const set3 = on => { const m = state.vb ? toWorld(innerWidth / 2, innerHeight / 2)[0] : 110, w = state.vb ? state.vb[2] / U : 230; state.d3 = on; document.getElementById('d2').setAttribute('aria-pressed', !on); document.getElementById('d3').setAttribute('aria-pressed', on); draw(); const f = fitBox(); setVB(w > 180 ? f : focusBox(Math.max(0, Math.min(L, m)), Math.min(w, 200)), true); };
+document.getElementById('d2').onclick = () => set3(false); document.getElementById('d3').onclick = () => set3(true);
+addEventListener('keydown', e => { if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return; if (e.key === 'ArrowRight') select(state.sel + 1, true); if (e.key === 'ArrowLeft') select(state.sel - 1, true); if (e.key === '+' || e.key === '=') zoomAt(.7, innerWidth / 2, innerHeight / 2); if (e.key === '-') zoomAt(1.4, innerWidth / 2, innerHeight / 2); });
+addEventListener('resize', () => { if (state.vb) setVB(state.vb, true); });
+
+/* ---------- search ---------- */
+const q = document.getElementById('q'), sugg = document.getElementById('sugg');
+function matches(v) { v = v.trim().toLowerCase(); if (!v) return PLACES.map(p => [p[0], p[1], p[2]]); const num = v.match(/^(\d{1,3})\s*m?$/); const out = [];
+  if (num && +num[1] <= L) out.push([`${num[1]} m along the street`, +num[1], placeOf(+num[1]).toLowerCase()]);
+  PLACES.forEach(p => { if (p[0].toLowerCase().includes(v) || p[2].includes(v)) out.push(p); });
+  if ('bin bins dustbin'.includes(v)) out.push(PLACES[2]); return [...new Map(out.map(o => [o[0], o])).values()].slice(0, 6); }
+function showSugg() { const list = matches(q.value); sugg.hidden = !list.length; sugg.innerHTML = list.map((p, j) => `<button data-m="${p[1]}" class="${j === 0 ? 'on' : ''}">${p[0]}<small>${p[2]}</small></button>`).join(''); }
+q.addEventListener('focus', showSugg); q.addEventListener('input', showSugg);
+q.addEventListener('keydown', e => { if (e.key === 'Enter') { const b = sugg.querySelector('button'); if (b) { b.click(); } } if (e.key === 'Escape') { sugg.hidden = true; q.blur(); } });
+sugg.addEventListener('mousedown', e => { const b = e.target.closest('button'); if (!b) return; e.preventDefault(); const m = +b.dataset.m; q.value = b.firstChild.textContent; sugg.hidden = true; q.blur(); select(Math.min(21, Math.floor(m / 10)), true); });
+sugg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; const m = +b.dataset.m; q.value = b.firstChild.textContent; sugg.hidden = true; q.blur(); select(Math.min(21, Math.floor(m / 10)), true); });
+q.addEventListener('blur', () => setTimeout(() => sugg.hidden = true, 150));
+
+/* ---------- evidence sheet ---------- */
+function toast(msg) { let t = document.querySelector('.toast'); if (!t) { t = document.createElement('div'); t.className = 'toast'; document.querySelector('.app').appendChild(t); } t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 3000); }
+async function saveFile(name, data, type) { const dl = window.claude && window.claude.use ? await window.claude.use('downloads').catch(() => null) : null;
+  if (dl) { try { await dl.save({ filename: name, data }); } catch (e) { if (!e || e.code !== 'declined') toast('Could not save the file.'); } return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([data], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
+function saveEvidence() { const i = state.sel, s = STATS[i], esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const lines = [['Location', `Old Nagardas Road, Andheri East (K/East ward) · ${i * 10}–${i * 10 + 10} m from R.K. Chouhan Communications`], ['Clear walkway', s.g == null ? 'not measurable here' : `${s.g.toFixed(1)} m (median of ${s.gN} daytime photos) · BMC Universal Footpath Policy minimum 1.5 m`], ['Blocked', `${s.b} of ${s.n} walks`], ['Walkers swerved', `${s.sw} walks`], ['Horns heard', `${s.hk}`], ['Seen on daytime walks', `fixed things ${Math.round(s.sh.fixed * 100)}% · vehicles ${Math.round(s.sh.vehicle * 100)}% · people and stalls ${Math.round(s.sh.people * 100)}%`], ['At night', s.ng == null ? 'width not measured' : `${s.ng.toFixed(1)} m clear`], ['Method', 'Walks recorded in Oct 2026 on one side of the road; widths are camera estimates from walk photos, not tape-measured.']];
+  const svgTxt = `<svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="148mm" viewBox="0 0 210 148"><rect width="210" height="148" fill="#fff"/><text x="12" y="18" font-family="Georgia" font-size="9">Footpath evidence · ${esc(placeOf(i * 10 + 5))}</text>${lines.map((l, j) => `<text x="12" y="${32 + j * 13}" font-family="Arial" font-size="3.4" fill="#777">${esc(l[0].toUpperCase())}</text><text x="12" y="${37 + j * 13}" font-family="Arial" font-size="4.2">${esc(l[1])}</text>`).join('')}</svg>`;
+  saveFile(`footpath-evidence-${i * 10}-${i * 10 + 10}m.svg`, svgTxt, 'image/svg+xml'); }
+
+/* ---------- start ---------- */
+state.layers = { ...MODES.walk.L };
+renderPanel();
+if (innerWidth <= 980) { document.getElementById('card').hidden = true; document.getElementById('panel').classList.add('closed'); document.getElementById('sheetT').textContent = 'Show'; } K = 1; draw(); setVB(fitBox(), true);
+setTimeout(() => fly(focusBox(85, window.innerWidth < 760 ? 40 : 90), 900), 500);
+document.fonts && document.fonts.ready.then(() => draw());
+</script>
+</body>
+</html>
