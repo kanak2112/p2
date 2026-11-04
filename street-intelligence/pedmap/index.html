@@ -8,8 +8,8 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap">
 <style>
 :root{
-  --paper:#F4F1E9; --paper2:#ECE7DB; --ink:#141414; --ink2:#55524B; --ink3:#8F897C; --hair:#D3CCBC;
-  --mass:#171717; --void:#FBF9F3; --mus:#966C00; --yel:#F2B800;
+  --paper:#E9ECE6; --paper2:#DDE2DA; --ink:#141414; --ink2:#4E534C; --ink3:#868C83; --hair:#C6CCC2;
+  --mass:#171717; --void:#F8F9F5; --mus:#966C00; --yel:#F2B800;
   --red:#C2402D; --amb:#D6921B; --teal:#12867E; --navy:#1E2A45; --nvoid:#D6DDEA;
   --fix:#3657C9; --veh:#D9622B; --ppl:#D7A511;
   --serif:"Playfair Display",Georgia,serif; --sans:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
@@ -418,7 +418,7 @@ function edgesAt(cells, m) { const c = Math.max(0, Math.min(21, (m - 5) / 10)), 
 function mix(h1, h2, t) { const p = h => [1, 3, 5].map(j => parseInt(h.slice(j, j + 2), 16)); const a = p(h1), b = p(h2); return `rgb(${a.map((v, j) => Math.round(v + (b[j] - v) * t)).join(',')})`; }
 let camL = 1.5;
 function drawEye() {
-  const S = eyeS, cells = eyeCells(S), dets = eyeDets(), Wc = eyeCv.width, Hc = eyeCv.height, F = Wc * .42, EYE = 1.6, HOR = Hc * .44, FAR = 60, PAPER = '#F4F1E9';
+  const S = eyeS, cells = eyeCells(S), dets = eyeDets(), Wc = eyeCv.width, Hc = eyeCv.height, F = Wc * .42, EYE = 1.6, HOR = Hc * .44, FAR = 60, PAPER = '#E9ECE6';
   const here = edgesAt(cells, state.pos + 2) || [1, 2]; camL += ((here[0] + here[1]) / 2 - camL) * .35;
   const pr = (d, l, h) => [Wc / 2 + F * (l - camL) / d, HOR - F * (h - EYE) / d];
   const fog = (hex, d) => mix(hex, PAPER, Math.min(.9, Math.pow(d / FAR, .75)));
