@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Old Nagardas Road data</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap">
+<style>
+/* Layout: a data report; headline numbers, then one chart per question, each with its own table and exports */
+:root{
+  --ground:#E4E7E1; --paper:#F3F4F0; --card:#FFFFFF; --ink:#141414; --ink2:#4E534C; --ink3:#868C83; --hair:#D2D7CE; --grid:#E7EAE3;
+  --mus:#966C00; --yel:#F2B800; --red:#C2402D; --amb:#D6921B; --teal:#12867E; --navy:#1E2A45;
+  --fix:#3657C9; --veh:#D9622B; --ppl:#D7A511;
+  --serif:"Playfair Display",Georgia,serif; --sans:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--ground);color:var(--ink);font:15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+button,select{font:inherit;color:inherit}
+.wrap{max-width:1320px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+header{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:end;justify-content:space-between;padding-block:28px 18px}
+.eyebrow{font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mus)}
+h1{font:400 42px/1.05 var(--serif);margin:6px 0 6px;text-wrap:balance}
+.sub{color:var(--ink2);font-weight:300;max-width:68ch;margin:0}
+nav.links{display:flex;gap:6px;flex-wrap:wrap}
+nav.links a{background:var(--card);border-radius:5px;padding:8px 12px;text-decoration:none;font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink);box-shadow:0 1px 0 var(--hair)}
+nav.links a[aria-current=page]{background:var(--ink);color:#fff}
+.bar{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;background:var(--card);border-radius:8px;padding:12px 16px;box-shadow:0 1px 0 var(--hair);margin-bottom:16px}
+.lab{font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+.seg{display:inline-flex;background:var(--paper);border-radius:6px;padding:3px;gap:2px}
+.seg button{border:0;background:none;padding:6px 11px;border-radius:5px;cursor:pointer;font-size:13px;color:var(--ink2)}
+.seg button[aria-pressed=true]{background:var(--ink);color:#fff}
+.btn{border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:4px;padding:8px 12px;cursor:pointer;font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.btn.ghost{background:none;color:var(--ink)}
+.btn:disabled{opacity:.5;cursor:wait}
+.grow{flex:1}
+.exports{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-bottom:22px}
+.ex{background:var(--card);border-radius:8px;padding:14px 16px;box-shadow:0 1px 0 var(--hair);display:grid;gap:6px;align-content:start}
+.ex h3{margin:0;font:400 18px var(--serif)}
+.ex p{margin:0;color:var(--ink2);font-size:13px;font-weight:300}
+.ex .fmt{font:400 11px var(--mono);color:var(--mus);letter-spacing:.06em}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-bottom:22px}
+.tile{background:var(--card);border-radius:8px;padding:14px 16px;box-shadow:0 1px 0 var(--hair)}
+.tile b{display:block;font:500 34px/1.1 var(--mono);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tile span{font-size:13px;color:var(--ink2)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media(max-width:980px){.grid{grid-template-columns:minmax(0,1fr)}}
+.chart{background:var(--card);border-radius:8px;padding:18px 20px 14px;box-shadow:0 1px 0 var(--hair);min-width:0}
+.chart.wide{grid-column:1/-1}
+.chart h2{font:400 22px/1.2 var(--serif);margin:0 0 4px;text-wrap:balance}
+.chart .take{margin:0 0 10px;color:var(--ink2);font-size:14px;font-weight:300;max-width:80ch}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--ink2);margin:0 0 6px}
+.legend span{display:inline-flex;gap:7px;align-items:center}
+.legend i{width:14px;height:10px;border-radius:2px;display:inline-block}
+.plot{position:relative;overflow-x:auto}
+.plot svg{display:block;width:100%;height:auto;min-width:560px}
+.plot svg text{font-family:var(--sans)}
+.foot{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px;border-top:1px solid var(--grid);padding-top:10px}
+.foot .src{font:400 11px var(--mono);color:var(--ink3);margin-right:auto}
+.foot button{border:1px solid var(--hair);background:var(--paper);border-radius:4px;padding:5px 9px;cursor:pointer;font:500 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.foot button:hover{border-color:var(--ink)}
+.tbl{overflow-x:auto;margin-top:8px;max-height:320px;overflow-y:auto}
+.tbl table{border-collapse:collapse;font:400 12px var(--mono);font-variant-numeric:tabular-nums;width:100%}
+.tbl th,.tbl td{padding:5px 8px;border-bottom:1px solid var(--grid);text-align:right;white-space:nowrap}
+.tbl th{position:sticky;top:0;background:var(--card);color:var(--ink3);font-weight:500;text-align:right}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tip{position:fixed;pointer-events:none;background:var(--ink);color:#fff;font:400 12px var(--mono);padding:7px 10px;border-radius:4px;white-space:nowrap;transform:translate(-50%,calc(-100% - 10px));opacity:0;transition:opacity .1s;z-index:9}
+.tip b{color:var(--yel);font-weight:500}
+.note{font:400 11.5px var(--mono);color:var(--ink3);line-height:1.6;margin-top:20px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;font:400 12px var(--mono);padding:9px 14px;border-radius:4px;z-index:10}
+:focus-visible{outline:2px solid var(--yel);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div><div class="eyebrow">Pedestrian map · data</div><h1>Old Nagardas Road, in numbers</h1>
+      <p class="sub">Fifteen walks along 220 m in Andheri East, October 2026. Every chart below can be saved for a report, a spreadsheet, a slide or a design file.</p></div>
+    <nav class="links"><a href="map.html">Map</a><a href="index.html">Atlas</a><a href="data.html" aria-current="page">Data</a></nav>
+  </header>
+  <div class="bar"><span class="lab">Walks</span><div class="seg" id="dir"><button data-v="both">Both directions</button><button data-v="f">A → B</button><button data-v="r">B → A</button></div>
+    <span class="lab">Standard</span><div class="seg" id="std"><button data-v="1.5">BMC 1.5 m</button><button data-v="2.5">IRC / ITDP 2.5 m</button></div><span class="grow"></span><span class="lab" id="nwalks"></span></div>
+  <div class="exports" id="exports"></div>
+  <div class="tiles" id="tiles"></div>
+  <div class="grid" id="charts"></div>
+  <p class="note">Method · clear width is the free walkway traced in each 10 m from walk photos, as camera estimates, not tape measures; a stretch’s width is the median of the daytime walks that could measure it · blocked means the worst photo in the stretch scored obstruction 1.4 or higher · night light compares the walking surface in night photos with the route’s usual night frame; phones adjust exposure, so it ranks stretches and is not lux · one side of the road was walked · the underpass walkway (160–190 m) cannot be measured from photos.</p>
+</div>
+<div class="tip" id="tip"></div>
+<script src="../lab/data.js"></script>
+<script>
+'use strict';
+const D = window.LAB, NB = 22, L = 220, OBS = 1.4, NA = i => i >= 16 && i <= 18;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const C = Object.fromEntries(['ink','ink2','ink3','hair','grid','paper','mus','red','amb','teal','navy','fix','veh','ppl'].map(k => [k, css('--' + k)]));
+const med = a => { const s = a.slice().sort((x, y) => x - y), n = s.length; return n ? (n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2) : null; };
+const pct = (a, p) => { const s = a.slice().sort((x, y) => x - y); if (!s.length) return null; const i = (s.length - 1) * p, lo = Math.floor(i); return s[lo] + (s[Math.ceil(i)] - s[lo]) * (i - lo); };
+const r2 = v => v == null ? null : Math.round(v * 100) / 100;
+const walks = D.walks.map((w, k) => ({ ...w, k, label: `Day ${w.day} ${w.dir === 'forward' ? 'A→B' : 'B→A'}${w.night ? ' night' : ''}` }));
+const state = { dir: 'both', std: 1.5 };
+const PLACE = m => m < 40 ? 'R.K. Chouhan end' : m < 76 ? 'Shopfronts' : m < 95 ? 'Green bins' : m < 115 ? 'Service road turn' : m < 160 ? 'Towards underpass' : m < 191 ? 'Underpass walkway' : 'Amratlal G. Vasani end';
+const W = () => walks.filter(w => state.dir === 'both' || (state.dir === 'f') === (w.dir === 'forward'));
+function stats() { const all = W(), day = all.filter(w => !w.night), night = all.filter(w => w.night);
+  return Array.from({ length: NB }, (_, i) => { const dr = day.map(w => w.s[i]).filter(Boolean), ar = all.map(w => w.s[i]).filter(Boolean), gs = dr.filter(r => r.g > 0).map(r => r.g), ngs = night.map(w => w.s[i]).filter(r => r && r.g > 0).map(r => r.g);
+    const share = k => dr.length ? dr.filter(r => r.ks.includes(k)).length / dr.length : 0;
+    return { i, from: i * 10, to: i * 10 + 10, place: PLACE(i * 10 + 5), g: NA(i) || !gs.length ? null : med(gs), q1: NA(i) ? null : pct(gs, .25), q3: NA(i) ? null : pct(gs, .75), gN: gs.length,
+      ng: NA(i) || ngs.length < 2 ? null : med(ngs), ngN: ngs.length, b: ar.filter(r => r.o >= OBS).length, n: ar.length,
+      sw: all.filter(w => w.swerves.some(m => m >= i * 10 && m < i * 10 + 10)).length, hk: all.reduce((s, w) => s + w.honks.filter(m => m >= i * 10 && m < i * 10 + 10).length, 0),
+      lit: D.lit[i] ? D.lit[i].r : null, fixed: Math.max(share('pole'), share('plants'), share('barrier')), vehicle: share('vehicle'), people: share('people') }; }); }
+const status = g => g == null ? null : g >= state.std ? C.teal : g >= .9 ? C.amb : C.red;
+const statusLabel = g => g == null ? 'not measured' : g >= state.std ? `meets ${state.std} m` : g >= .9 ? 'tight' : 'you step into the road';
+
+/* ---------- svg kit ---------- */
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, at, p) { const e = document.createElementNS(NS, tag); for (const k in at) e.setAttribute(k, at[k]); if (p) p.appendChild(e); return e; }
+function tx(s, x, y, at, p) { const t = el('text', { x, y, 'font-size': 11, fill: C.ink3, 'font-family': 'IBM Plex Sans, Arial, sans-serif', ...at }, p); t.textContent = s; return t; }
+const tip = document.getElementById('tip');
+function hov(node, html) { node.style.cursor = 'default'; node.addEventListener('pointermove', e => { tip.innerHTML = html; tip.style.left = e.clientX + 'px'; tip.style.top = e.clientY + 'px'; tip.style.opacity = 1; }); node.addEventListener('pointerleave', () => tip.style.opacity = 0); }
+function frame(W_, H_, m) { const s = el('svg', { viewBox: `0 0 ${W_} ${H_}`, xmlns: NS, role: 'img' }); el('rect', { width: W_, height: H_, fill: '#FFFFFF' }, s); return { s, x0: m.l, x1: W_ - m.r, y0: m.t, y1: H_ - m.b }; }
+function yAxis(f, max, step, fmt) { for (let v = 0; v <= max + 1e-9; v += step) { const y = f.y1 - v / max * (f.y1 - f.y0); el('line', { x1: f.x0, x2: f.x1, y1: y, y2: y, stroke: v ? C.grid : C.hair, 'stroke-width': 1 }, f.s); tx(fmt(v), f.x0 - 8, y + 4, { 'text-anchor': 'end' }, f.s); } }
+function xStretches(f, every = 50) { const bw = (f.x1 - f.x0) / NB; for (let m = 0; m <= L; m += 10) { const x = f.x0 + m / 10 * bw; if (m % every === 0 || m === L) tx(m + ' m', x, f.y1 + 16, { 'text-anchor': m === 0 ? 'start' : m === L ? 'end' : 'middle' }, f.s); } return bw; }
+function hatchDef(s) { const d = el('defs', {}, s), p = el('pattern', { id: 'h' + s.__id, width: 6, height: 6, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' }, d); el('rect', { width: 6, height: 6, fill: C.paper }, p); el('line', { x1: 0, y1: 0, x2: 0, y2: 6, stroke: C.hair, 'stroke-width': 1.5 }, p); return `url(#h${s.__id})`; }
+let uid = 0;
+function bar(s, x, y, w, h, fill) { const r = Math.min(4, w / 2, h); return el('path', { d: `M${x} ${y + h}V${y + r}Q${x} ${y} ${x + r} ${y}H${x + w - r}Q${x + w} ${y} ${x + w} ${y + r}V${y + h}Z`, fill }, s); }
+
+/* ---------- charts ---------- */
+const CHARTS = [];
+function addChart(o) { CHARTS.push(o); }
+addChart({ id: 'width', wide: true, title: 'Clear width along the street', take: S => { const m = S.filter(s => s.g != null), meet = m.filter(s => s.g >= state.std).length, w = m.reduce((a, b) => b.g < a.g ? b : a); return `${meet} of ${m.length} measured stretches meet ${state.std} m. The narrowest is ${w.from}–${w.to} m (${w.place}) at ${w.g.toFixed(1)} m.`; },
+  legend: () => [[C.teal, `meets ${state.std} m`], [C.amb, `0.9–${state.std} m · tight`], [C.red, 'under 0.9 m · you step into the road'], ['hatch', 'not measured'], ['line', 'middle half of walks (25th–75th)']],
+  draw(S) { const f = frame(1100, 340, { l: 52, r: 16, t: 18, b: 30 }); f.s.__id = ++uid; const hatch = hatchDef(f.s), max = 3, Y = v => f.y1 - Math.min(v, max) / max * (f.y1 - f.y0); yAxis(f, max, .5, v => v.toFixed(1) + ' m'); const bw = xStretches(f);
+    S.forEach(s => { const x = f.x0 + s.i * bw + 2, w = bw - 4; if (s.g == null) { el('rect', { x, y: f.y0, width: w, height: f.y1 - f.y0, fill: hatch }, f.s); return; }
+      const b_ = bar(f.s, x, Y(s.g), w, f.y1 - Y(s.g), status(s.g)); if (s.q1 != null) el('line', { x1: x + w / 2, x2: x + w / 2, y1: Y(s.q1), y2: Y(s.q3), stroke: C.ink, 'stroke-width': 2, 'stroke-linecap': 'round' }, f.s);
+      const hit = el('rect', { x: x - 2, y: f.y0, width: bw, height: f.y1 - f.y0, fill: 'transparent' }, f.s); hov(hit, `${s.from}–${s.to} m · ${s.place}<br><b>${s.g.toFixed(2)} m</b> median · ${statusLabel(s.g)}<br>middle half ${s.q1.toFixed(1)}–${s.q3.toFixed(1)} m · ${s.gN} photos`); });
+    [[1.5, 'BMC 1.5 m'], [2.5, 'IRC / ITDP 2.5 m'], [.9, 'step-off 0.9 m']].forEach(([v, l]) => { el('line', { x1: f.x0, x2: f.x1, y1: Y(v), y2: Y(v), stroke: v === state.std ? C.ink : C.ink3, 'stroke-dasharray': '5 4', 'stroke-width': v === state.std ? 1.5 : 1 }, f.s); tx(l, f.x1 - 4, Y(v) - 5, { 'text-anchor': 'end', fill: v === state.std ? C.ink : C.ink3, 'font-size': 11 }, f.s); });
+    return f.s; },
+  rows: S => S.map(s => ({ from_m: s.from, to_m: s.to, place: s.place, clear_width_m_median: r2(s.g), p25: r2(s.q1), p75: r2(s.q3), photos_measured: s.gN, status: statusLabel(s.g) })) });
+addChart({ id: 'matrix', wide: true, title: 'Every walk, every 10 m', take: () => { const day = W().filter(w => !w.night), r = day.flatMap(w => w.s.filter((x, i) => x && x.g > 0 && !NA(i))), u = r.filter(x => x.g < .9).length; return `${u} of ${r.length} daytime readings (${Math.round(u / r.length * 100)}%) were under 0.9 m. The same stretches stay pale across days: the problem repeats.`; },
+  legend: () => [['ramp', 'clear width 0 → 3 m'], ['dot', 'blocked on that walk'], ['hatch', 'not measured']],
+  draw() { const ws = W().slice().sort((a, b) => a.night - b.night || (a.dir > b.dir ? 1 : -1) || a.day - b.day), rh = 20, f = frame(1100, 12 + ws.length * rh + 30, { l: 120, r: 16, t: 12, b: 30 }); f.s.__id = ++uid; const hatch = hatchDef(f.s), bw = xStretches(f);
+    const ramp = g => { const t = Math.min(1, g / 3), a = [235, 244, 241], b = [8, 84, 78]; return `rgb(${a.map((v, j) => Math.round(v + (b[j] - v) * t)).join(',')})`; };
+    ws.forEach((w, r) => { const y = f.y0 + r * rh; tx(w.label, f.x0 - 8, y + rh * .7, { 'text-anchor': 'end', fill: w.night ? C.navy : C.ink2 }, f.s);
+      w.s.forEach((x, i) => { const cx = f.x0 + i * bw; const ok = x && x.g > 0 && !NA(i); const c = el('rect', { x: cx + 1, y: y + 1, width: bw - 2, height: rh - 2, rx: 2, fill: ok ? ramp(x.g) : hatch }, f.s);
+        if (x && x.o >= OBS) el('circle', { cx: cx + bw / 2, cy: y + rh / 2, r: 2.6, fill: C.ink }, f.s);
+        hov(c, `${w.label} · ${i * 10}–${i * 10 + 10} m<br><b>${ok ? x.g.toFixed(2) + ' m clear' : 'not measured'}</b>${x && x.o >= OBS ? ' · blocked' : ''}${x && x.ks.length ? '<br>seen: ' + x.ks.join(', ') : ''}`); }); });
+    const gy = f.y1 + 14; for (let j = 0; j <= 6; j++) { el('rect', { x: f.x0 + j * 40, y: gy + 22, width: 40, height: 8, fill: ramp(j / 2) }, f.s); } tx('0 m', f.x0, gy + 44, { 'font-size': 10 }, f.s); tx('3 m', f.x0 + 280, gy + 44, { 'font-size': 10, 'text-anchor': 'end' }, f.s);
+    f.s.setAttribute('viewBox', `0 0 1100 ${gy + 52}`); return f.s; },
+  rows: () => W().flatMap(w => w.s.map((x, i) => ({ walk: w.label, day: w.day, direction: w.dir === 'forward' ? 'A→B' : 'B→A', night: w.night ? 'yes' : 'no', from_m: i * 10, to_m: i * 10 + 10, clear_width_m: x && x.g > 0 && !NA(i) ? r2(x.g) : null, blocked: x ? (x.o >= OBS ? 'yes' : 'no') : null, seen: x ? x.ks.join(' ') : null }))) });
+addChart({ id: 'causes', title: 'What takes the footpath', take: S => { const tops = ['fixed', 'vehicle', 'people'].map(k => [k, S.filter(s => !NA(s.i)).reduce((a, s) => a + s[k], 0) / S.filter(s => !NA(s.i)).length]); const t = tops.sort((a, b) => b[1] - a[1])[0]; return `People and stalls appear in most stretches on most walks; vehicles cluster after the service road turn. Overall, ${({ fixed: 'fixed things', vehicle: 'vehicles', people: 'people and stalls' })[t[0]]} are seen most often (${Math.round(t[1] * 100)}% of stretch-walks).`; },
+  legend: () => [[C.fix, 'fixed things · poles, trees, walls'], [C.veh, 'vehicles'], [C.ppl, 'people & stalls']],
+  draw(S) { const f = frame(540, 330, { l: 44, r: 10, t: 12, b: 30 }); f.s.__id = ++uid; const hatch = hatchDef(f.s), bw = xStretches(f, 100), rows = [['fixed', C.fix, 'Fixed'], ['vehicle', C.veh, 'Vehicles'], ['people', C.ppl, 'People']], rh = (f.y1 - f.y0) / 3;
+    rows.forEach(([k, c, l], r) => { const top = f.y0 + r * rh, base = top + rh - 10; el('line', { x1: f.x0, x2: f.x1, y1: base, y2: base, stroke: C.hair }, f.s); tx(l, f.x0 - 6, base - 2, { 'text-anchor': 'end', fill: C.ink2, 'font-size': 10.5 }, f.s); tx('100%', f.x0 - 6, top + 10, { 'text-anchor': 'end', 'font-size': 9 }, f.s);
+      S.forEach(s => { const x = f.x0 + s.i * bw + 1.5, w = bw - 3; if (NA(s.i)) { el('rect', { x, y: top + 4, width: w, height: base - top - 4, fill: hatch }, f.s); return; } const h = (base - top - 6) * s[k]; if (h > .5) { const b_ = bar(f.s, x, base - h, w, h, c); hov(b_, `${s.from}–${s.to} m · ${l}<br><b>${Math.round(s[k] * 100)}%</b> of daytime walks`); } }); });
+    return f.s; },
+  rows: S => S.map(s => ({ from_m: s.from, to_m: s.to, place: s.place, fixed_share: r2(s.fixed), vehicles_share: r2(s.vehicle), people_share: r2(s.people) })) });
+addChart({ id: 'daynight', title: 'Day and night', take: S => { const p = S.filter(s => s.g != null && s.ng != null), down = p.filter(s => s.ng < s.g); return `In ${down.length} of ${p.length} stretches with night readings, the walkable width is narrower after dark. Night has 4 walks, so read it as a direction, not a measurement.`; },
+  legend: () => [[C.mus, 'day · median of daytime walks'], [C.navy, 'night · median of night walks (2 or more photos)']],
+  draw(S) { const f = frame(540, 330, { l: 44, r: 10, t: 14, b: 30 }); const max = 3, Y = v => f.y1 - Math.min(v, max) / max * (f.y1 - f.y0); yAxis(f, max, 1, v => v + ' m'); const bw = xStretches(f, 100);
+    S.forEach(s => { const x = f.x0 + s.i * bw + bw / 2; if (s.g == null) return; if (s.ng != null) el('line', { x1: x, x2: x, y1: Y(s.g), y2: Y(s.ng), stroke: C.hair, 'stroke-width': 2 }, f.s);
+      const d = el('circle', { cx: x, cy: Y(s.g), r: 4.5, fill: C.mus, stroke: '#fff', 'stroke-width': 2 }, f.s); hov(d, `${s.from}–${s.to} m · day<br><b>${s.g.toFixed(2)} m</b>`);
+      if (s.ng != null) { const n = el('circle', { cx: x, cy: Y(s.ng), r: 4.5, fill: C.navy, stroke: '#fff', 'stroke-width': 2 }, f.s); hov(n, `${s.from}–${s.to} m · night<br><b>${s.ng.toFixed(2)} m</b> · ${s.ngN} photos`); } });
+    return f.s; },
+  rows: S => S.map(s => ({ from_m: s.from, to_m: s.to, day_clear_width_m: r2(s.g), night_clear_width_m: r2(s.ng), night_photos: s.ngN, night_light_vs_route: r2(s.lit) })) });
+addChart({ id: 'horns', title: 'Horns heard', take: S => { const t = S.reduce((a, b) => b.hk > a.hk ? b : a), tot = S.reduce((a, s) => a + s.hk, 0); return `${tot} horns on ${W().length} walks; the most at ${t.from}–${t.to} m (${t.hk}).`; },
+  legend: () => [], draw(S) { const f = frame(540, 220, { l: 44, r: 10, t: 12, b: 30 }); const max = Math.ceil(Math.max(...S.map(s => s.hk)) / 5) * 5, Y = v => f.y1 - v / max * (f.y1 - f.y0); yAxis(f, max, 5, v => v); const bw = xStretches(f, 100);
+    S.forEach(s => { const x = f.x0 + s.i * bw + 1.5, w = bw - 3, h = f.y1 - Y(s.hk); if (h > 0) hov(bar(f.s, x, Y(s.hk), w, h, C.red), `${s.from}–${s.to} m<br><b>${s.hk}</b> horns`); }); return f.s; },
+  rows: S => S.map(s => ({ from_m: s.from, to_m: s.to, horns: s.hk })) });
+addChart({ id: 'swerves', title: 'Walks that swerved', take: S => { const t = S.reduce((a, b) => b.sw > a.sw ? b : a); return `Swerving peaks at ${t.from}–${t.to} m, where ${t.sw} of ${W().length} walks turned aside.`; },
+  legend: () => [], draw(S) { const f = frame(540, 220, { l: 44, r: 10, t: 12, b: 30 }); const max = W().length, Y = v => f.y1 - v / max * (f.y1 - f.y0); yAxis(f, max, 5, v => v); const bw = xStretches(f, 100);
+    S.forEach(s => { const x = f.x0 + s.i * bw + 1.5, w = bw - 3, h = f.y1 - Y(s.sw); if (h > 0) hov(bar(f.s, x, Y(s.sw), w, h, C.mus), `${s.from}–${s.to} m<br><b>${s.sw}</b> of ${max} walks swerved`); }); return f.s; },
+  rows: S => S.map(s => ({ from_m: s.from, to_m: s.to, walks_swerved: s.sw, walks: W().length })) });
+addChart({ id: 'dist', wide: true, title: 'How much width people actually get', take: () => { const v = W().filter(w => !w.night).flatMap(w => w.s.filter((x, i) => x && x.g > 0 && !NA(i)).map(x => x.g)), m = med(v); return `Across ${v.length} daytime readings the median clear width is ${m.toFixed(2)} m; ${Math.round(v.filter(g => g >= state.std).length / v.length * 100)}% reach ${state.std} m. Readings at 3 m are capped: the photo could see 3 m or more.`; },
+  legend: () => [[C.teal, `${state.std} m or more`], [C.amb, `0.9–${state.std} m`], [C.red, 'under 0.9 m']],
+  draw() { const v = W().filter(w => !w.night).flatMap(w => w.s.filter((x, i) => x && x.g > 0 && !NA(i)).map(x => Math.min(2.99, x.g))), bins = Array(12).fill(0); v.forEach(g => bins[Math.min(11, Math.floor(g / .25))]++);
+    const f = frame(1100, 240, { l: 44, r: 16, t: 14, b: 30 }), max = Math.ceil(Math.max(...bins) / 10) * 10, Y = c => f.y1 - c / max * (f.y1 - f.y0), bw = (f.x1 - f.x0) / 12; yAxis(f, max, 10, c => c);
+    bins.forEach((c, j) => { const lo = j * .25, x = f.x0 + j * bw + 2, h = f.y1 - Y(c); tx(lo.toFixed(2), f.x0 + j * bw, f.y1 + 16, { 'text-anchor': 'middle' }, f.s); if (h > 0) hov(bar(f.s, x, Y(c), bw - 4, h, lo + .25 <= .9 ? C.red : lo >= state.std ? C.teal : C.amb), `${lo.toFixed(2)}–${(lo + .25).toFixed(2)} m<br><b>${c}</b> readings`); });
+    tx('3 m', f.x1, f.y1 + 16, { 'text-anchor': 'end' }, f.s); return f.s; },
+  rows: () => { const v = W().filter(w => !w.night).flatMap(w => w.s.filter((x, i) => x && x.g > 0 && !NA(i)).map(x => Math.min(2.99, x.g))), out = []; for (let j = 0; j < 12; j++) out.push({ from_m: j * .25, to_m: (j + 1) * .25, readings: v.filter(g => Math.floor(g / .25) === j).length }); return out; } });
+
+/* ---------- render ---------- */
+const svgs = {};
+function render() { const S = stats();
+  document.querySelectorAll('#dir button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === state.dir)); document.querySelectorAll('#std button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.v === state.std));
+  const ws = W(); document.getElementById('nwalks').textContent = `${ws.length} walks · ${ws.filter(w => !w.night).length} by day · ${ws.filter(w => w.night).length} at night`;
+  const m = S.filter(s => s.g != null), meet = m.filter(s => s.g >= state.std).length, worst = m.reduce((a, b) => b.g < a.g ? b : a), B = S.reduce((a, s) => a + s.b, 0), N = S.reduce((a, s) => a + s.n, 0), hk = ws.reduce((a, w) => a + w.honks.length, 0), sw = ws.reduce((a, w) => a + w.swerves.length, 0);
+  document.getElementById('tiles').innerHTML = [[`${meet}/${m.length}`, `stretches meet ${state.std} m`], [`${worst.g.toFixed(1)} m`, `narrowest · ${worst.place}, ${worst.from}–${worst.to} m`], [`${Math.round(B / N * 100)}%`, 'of stretch-walks blocked'], [hk, `horns heard on ${ws.length} walks`], [sw, 'swerves recorded']].map(([b, s]) => `<div class="tile"><b>${b}</b><span>${s}</span></div>`).join('');
+  const host = document.getElementById('charts'); const open = {}; host.querySelectorAll('.chart').forEach(c => open[c.dataset.id] = !c.querySelector('.tbl').hidden); host.innerHTML = '';
+  CHARTS.forEach(c => { const card = document.createElement('section'); card.className = 'chart' + (c.wide ? ' wide' : ''); card.dataset.id = c.id;
+    const leg = c.legend(); card.innerHTML = `<h2>${c.title}</h2><p class="take">${c.take(S)}</p>${leg.length ? `<div class="legend">${leg.map(([col, l]) => `<span><i style="${col === 'hatch' ? 'background:repeating-linear-gradient(45deg,var(--paper) 0 3px,var(--hair) 3px 5px)' : col === 'line' ? 'width:3px;height:12px;background:var(--ink)' : col === 'dot' ? 'width:8px;height:8px;border-radius:50%;background:var(--ink)' : col === 'ramp' ? 'width:40px;background:linear-gradient(90deg,rgb(235,244,241),rgb(8,84,78))' : 'background:' + col}"></i>${l}</span>`).join('')}</div>` : ''}<div class="plot"></div>
+      <div class="foot"><span class="src">Source · 15 walks, Oct 2026</span><button data-a="table">${open[c.id] ? 'Hide table' : 'Table'}</button><button data-a="svg">SVG</button><button data-a="png">PNG</button><button data-a="csv">CSV</button></div><div class="tbl" ${open[c.id] ? '' : 'hidden'}></div>`;
+    host.appendChild(card); const s = c.draw(S); s.setAttribute('aria-label', c.title); card.querySelector('.plot').appendChild(s); svgs[c.id] = s;
+    if (open[c.id]) card.querySelector('.tbl').innerHTML = table(c.rows(S)); });
+}
+const table = rows => `<table><thead><tr>${Object.keys(rows[0]).map(k => `<th>${k.replace(/_/g, ' ')}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${Object.values(r).map(v => `<td>${v == null ? '—' : v}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+const toCSV = rows => { const k = Object.keys(rows[0]); return [k.join(','), ...rows.map(r => k.map(x => r[x] == null ? '' : typeof r[x] === 'string' ? `"${String(r[x]).replace(/"/g, '""')}"` : r[x]).join(','))].join('\n'); };
+
+/* ---------- exports ---------- */
+function toast(msg) { let t = document.querySelector('.toast'); if (!t) { t = document.createElement('div'); t.className = 'toast'; document.body.appendChild(t); } t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 3200); }
+let dl = null; const dlReady = (async () => { try { dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null; } catch (e) { dl = null; } })();
+async function save(name, data, type) { await dlReady; if (dl) { try { await dl.save({ filename: name, data }); } catch (e) { if (!e || e.code !== 'declined') toast('Could not save the file' + (e && e.message ? ': ' + e.message : '.')); } return; }
+  if (window.claude) { toast('Saving files is not available in this view.'); return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(data instanceof Blob ? data : new Blob([data], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
+const svgText = s => new XMLSerializer().serializeToString(s);
+function svgToPng(s, scale = 2) { return new Promise((res, rej) => { const vb = s.getAttribute('viewBox').split(' ').map(Number), img = new Image(); img.onload = () => { const c = document.createElement('canvas'); c.width = vb[2] * scale; c.height = vb[3] * scale; const g = c.getContext('2d'); g.drawImage(img, 0, 0, c.width, c.height); c.toBlob(b => b ? res({ blob: b, url: c.toDataURL('image/png'), jpg: c.toDataURL('image/jpeg', .88), w: vb[2], h: vb[3] }) : rej(), 'image/png'); }; img.onerror = rej; img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgText(s)); }); }
+function zip(files) { const enc = new TextEncoder(), parts = [], cd = []; let off = 0; const crc = d => { let c = -1; for (let i = 0; i < d.length; i++) { c ^= d[i]; for (let k = 0; k < 8; k++) c = (c >>> 1) ^ (0xEDB88320 & -(c & 1)); } return (c ^ -1) >>> 0; };
+  const u16 = (v, o, dv) => dv.setUint16(o, v, true), u32 = (v, o, dv) => dv.setUint32(o, v, true);
+  files.forEach(([name, text]) => { const d = enc.encode(text), n = enc.encode(name), c = crc(d), h = new DataView(new ArrayBuffer(30)); u32(0x04034b50, 0, h); u16(20, 4, h); u32(c, 14, h); u32(d.length, 18, h); u32(d.length, 22, h); u16(n.length, 26, h); parts.push(h.buffer, n, d);
+    const e = new DataView(new ArrayBuffer(46)); u32(0x02014b50, 0, e); u16(20, 4, e); u16(20, 6, e); u32(c, 16, e); u32(d.length, 20, e); u32(d.length, 24, e); u16(n.length, 28, e); u32(off, 42, e); cd.push(e.buffer, n); off += 30 + n.length + d.length; });
+  const cdLen = cd.reduce((a, b) => a + (b.byteLength ?? b.length), 0), end = new DataView(new ArrayBuffer(22)); u32(0x06054b50, 0, end); u16(files.length, 8, end); u16(files.length, 10, end); u32(cdLen, 12, end); u32(off, 16, end); return new Blob([...parts, ...cd, end.buffer], { type: 'application/zip' }); }
+const sheets = () => { const S = stats(); return {
+  Stretches: S.map(s => ({ from_m: s.from, to_m: s.to, place: s.place, clear_width_m_median: r2(s.g), p25: r2(s.q1), p75: r2(s.q3), photos_measured: s.gN, status: statusLabel(s.g), walks_blocked: s.b, walks: s.n, walks_swerved: s.sw, horns: s.hk, night_clear_width_m: r2(s.ng), night_light_vs_route: r2(s.lit), share_fixed: r2(s.fixed), share_vehicles: r2(s.vehicle), share_people: r2(s.people) })),
+  'Walk x stretch': CHARTS[1].rows(S),
+  Obstructions: D.dets.filter(d => W().some(w => !w.night && w.day === d[4] && (w.dir === 'forward') === (d[3] === 'f'))).map(d => ({ along_m: d[0], across_path: d[1], kind: d[2], direction: d[3] === 'f' ? 'A→B' : 'B→A', day: d[4] })),
+  Horns: W().flatMap(w => w.honks.map(m => ({ walk: w.label, at_m: m }))), Swerves: W().flatMap(w => w.swerves.map(m => ({ walk: w.label, at_m: m }))),
+  Method: [{ note: 'Old Nagardas Road, Andheri East (K/East ward), 220 m from R.K. Chouhan Communications to Amratlal G. Vasani. 15 walks in Oct 2026, one side of the road.' }, { note: 'Clear width: free walkway traced in walk photos per 10 m; camera estimates, not tape-measured; stretch value = median of daytime walks that could measure it.' }, { note: 'Blocked: the worst photo in the stretch scored obstruction 1.4 or higher.' }, { note: 'Night light: walking-surface brightness in night photos relative to the route’s usual night frame; ranks stretches, not lux.' }, { note: 'Underpass walkway 160–190 m is not measurable from photos.' }] }; };
+const EXPORTS = [
+  ['Ward office', 'PDF report', 'A printable report: headline numbers and every chart, one per page.', 'pdf'],
+  ['Analysts', 'Excel workbook', 'Six sheets: stretches, every walk by stretch, obstructions, horns, swerves and the method.', 'xlsx'],
+  ['Open data', 'CSV files · ZIP', 'The same six tables as plain CSV, for any tool or a city data portal.', 'csvzip'],
+  ['Developers', 'JSON', 'Every number on this page and the raw walk readings, in one file.', 'json']];
+document.getElementById('exports').innerHTML = EXPORTS.map(([who, t, d, k]) => `<div class="ex"><span class="fmt">${who.toUpperCase()}</span><h3>${t}</h3><p>${d}</p><div><button class="btn" data-x="${k}">Save ${t.split(' ·')[0]}</button></div></div>`).join('') + `<div class="ex"><span class="fmt">DESIGNERS & SLIDES</span><h3>Each chart</h3><p>SVG under any chart opens as editable vectors in Figma or Illustrator; PNG goes straight into slides.</p></div>`;
+document.getElementById('exports').addEventListener('click', async e => { const b = e.target.closest('[data-x]'); if (!b) return; b.disabled = true; try { const k = b.dataset.x, sh = sheets();
+  if (k === 'xlsx') { if (!window.XLSX) throw new Error('The spreadsheet library did not load.'); const wb = XLSX.utils.book_new(); Object.entries(sh).forEach(([n, rows]) => XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), n)); const out = XLSX.write(wb, { bookType: 'xlsx', type: 'array' }); await save('old-nagardas-road-footpath.xlsx', new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })); }
+  if (k === 'csvzip') await save('old-nagardas-road-footpath-csv.zip', zip(Object.entries(sh).map(([n, rows]) => [n.toLowerCase().replace(/\W+/g, '-') + '.csv', toCSV(rows)])));
+  if (k === 'json') await save('old-nagardas-road-footpath.json', JSON.stringify({ corridor: D.corridor, filters: { direction: state.dir, standard_m: state.std }, ...sh }, null, 1), 'application/json');
+  if (k === 'pdf') await pdf(); } catch (err) { toast(err.message || 'Could not build the file.'); } b.disabled = false; });
+async function pdf() { if (!window.jspdf) throw new Error('The PDF library did not load.'); const { jsPDF } = window.jspdf, doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' }), S = stats();
+  doc.setFont('times', 'normal'); doc.setFontSize(24); doc.text('Old Nagardas Road, in numbers', 16, 24); doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(80);
+  doc.text(doc.splitTextToSize('Footpath along 220 m in Andheri East (K/East ward), from 15 walks in October 2026. Clear width is traced from walk photos (camera estimates). One side of the road was walked.', 260), 16, 32);
+  document.querySelectorAll('.tile').forEach((t, j) => { const x = 16 + j * 54; doc.setTextColor(20); doc.setFontSize(20); doc.text(t.querySelector('b').textContent, x, 56); doc.setFontSize(8.5); doc.setTextColor(90); doc.text(doc.splitTextToSize(t.querySelector('span').textContent, 48), x, 62); });
+  doc.setFontSize(8); doc.setTextColor(120); doc.text(doc.splitTextToSize(document.querySelector('.note').textContent, 265), 16, 182);
+  for (const c of CHARTS) { const p = await svgToPng(svgs[c.id], 2); doc.addPage(); doc.setTextColor(20); doc.setFont('times', 'normal'); doc.setFontSize(18); doc.text(c.title, 16, 20); doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(80); doc.text(doc.splitTextToSize(c.take(S), 265), 16, 28);
+    const maxW = 265, maxH = 150, k = Math.min(maxW / p.w, maxH / p.h); doc.addImage(p.jpg, 'JPEG', 16, 40, p.w * k, p.h * k); doc.setFontSize(8); doc.setTextColor(130); doc.text('Source: 15 walks on Old Nagardas Road, Oct 2026.', 16, 200); }
+  await save('old-nagardas-road-footpath-report.pdf', doc.output('blob')); }
+document.getElementById('charts').addEventListener('click', async e => { const b = e.target.closest('[data-a]'); if (!b) return; const card = b.closest('.chart'), c = CHARTS.find(x => x.id === card.dataset.id), S = stats(), base = `old-nagardas-${c.id}`;
+  if (b.dataset.a === 'table') { const t = card.querySelector('.tbl'); t.hidden = !t.hidden; if (!t.hidden) t.innerHTML = table(c.rows(S)); b.textContent = t.hidden ? 'Table' : 'Hide table'; }
+  if (b.dataset.a === 'svg') save(base + '.svg', svgText(svgs[c.id]), 'image/svg+xml');
+  if (b.dataset.a === 'csv') save(base + '.csv', toCSV(c.rows(S)), 'text/csv');
+  if (b.dataset.a === 'png') { try { const p = await svgToPng(svgs[c.id], 2); save(base + '.png', p.blob, 'image/png'); } catch (err) { toast('Could not draw the PNG.'); } } });
+document.getElementById('dir').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.dir = b.dataset.v; render(); } });
+document.getElementById('std').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.std = +b.dataset.v; render(); } });
+render();
+</script>
+</body>
+</html>
