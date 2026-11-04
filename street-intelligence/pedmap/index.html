@@ -17,6 +17,7 @@
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit}
+a{color:inherit}
 .wrap{max-width:1560px;margin:0 auto;padding:0 40px}
 .mast{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px 48px;align-items:end;padding:36px 0 22px;border-bottom:1px solid var(--hair)}
 .eyebrow{font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mus)}
@@ -36,13 +37,20 @@ h1 em{font-style:italic;color:var(--ink2)}
 .cell:not(.none):hover{transform:scale(1.12)}
 .wtools{display:flex;gap:14px;font:400 11.5px var(--mono);color:var(--ink3)}
 .wtools button{border:0;background:none;padding:0;cursor:pointer;color:var(--ink3);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--hair)}
-nav{display:flex;gap:30px;overflow-x:auto;border-bottom:1px solid var(--hair)}
-nav button{border:0;background:none;padding:16px 0 13px;cursor:pointer;display:flex;gap:9px;align-items:baseline;white-space:nowrap;border-bottom:2px solid transparent;color:var(--ink3)}
-nav button span{font:400 11px var(--mono)}
-nav button b{font:400 16px var(--serif)}
-nav button[aria-current=true]{color:var(--ink);border-color:var(--ink)}
-nav button:hover{color:var(--ink)}
-.body{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:40px;padding:28px 0 40px;align-items:start}
+/* navigation */
+nav.top{display:flex;gap:34px;overflow-x:auto;border-bottom:1px solid var(--hair)}
+nav.top button{border:0;background:none;padding:16px 0 13px;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;color:var(--ink3);font:400 18px var(--serif)}
+nav.top button[aria-current=true]{color:var(--ink);border-color:var(--ink)}
+nav.top button:hover{color:var(--ink)}
+nav.sub{display:flex;gap:6px 24px;flex-wrap:wrap;padding:14px 0 0}
+nav.sub[hidden]{display:none}
+nav.sub button{border:0;background:none;padding:2px 0;cursor:pointer;color:var(--ink3);font:400 13px var(--sans);display:flex;gap:7px;align-items:baseline}
+nav.sub button span{font:400 10.5px var(--mono)}
+nav.sub button[aria-current=true]{color:var(--ink);text-decoration:underline;text-underline-offset:6px;text-decoration-color:var(--mus);text-decoration-thickness:2px}
+/* body */
+.body{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:40px;padding:26px 0 40px;align-items:start}
+.body.full{grid-template-columns:minmax(0,1fr)}
+.body.full .insp{display:none}
 @media(max-width:1180px){.body{grid-template-columns:minmax(0,1fr)}}
 .vhead{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 40px;align-items:end;margin-bottom:14px}
 .vhead h2{font:400 30px/1.1 var(--serif);margin:0 0 6px}
@@ -50,16 +58,24 @@ nav button:hover{color:var(--ink)}
 .legend{display:flex;flex-wrap:wrap;gap:8px 18px;font:400 11.5px var(--mono);color:var(--ink2);justify-content:flex-end;max-width:380px}
 .legend span{display:inline-flex;gap:7px;align-items:center}
 .legend i{width:16px;height:10px;display:inline-block;border-radius:2px}
+.ctrl{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:center;font:400 12px var(--mono);color:var(--ink2);margin:0 0 12px}
+.ctrl:empty{display:none}
+.ctrl input[type=range]{accent-color:var(--ink);width:240px}
+.ctrl b{font:500 20px var(--mono);color:var(--ink)}
+.btn{border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:8px 14px;border-radius:2px;cursor:pointer;font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.btn.ghost{background:none;color:var(--ink)}
+.btn:hover{opacity:.85}
 .stage{position:relative;background:var(--void);border:1px solid var(--hair);border-radius:3px;padding:20px 20px 10px}
 #map{width:100%;height:auto;display:block;overflow:visible}
 #map text{font-family:var(--sans)}
+#eye[hidden],.hud[hidden],#map[hidden]{display:none}
+#eye{width:100%;display:block;border-radius:2px;background:var(--paper)}
+.hud{position:absolute;left:34px;top:30px;font:400 12px var(--mono);color:var(--ink2);background:rgba(251,249,243,.85);padding:8px 10px;border-radius:2px;pointer-events:none}
+.hud b{font:500 26px var(--mono);color:var(--ink);display:block}
 .tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--paper);font:400 12px var(--mono);padding:7px 10px;border-radius:3px;white-space:nowrap;transform:translate(-50%,-100%);opacity:0;transition:opacity .12s}
 .tip b{color:var(--yel);font-weight:500}
-.slider[hidden]{display:none}
-.slider{display:flex;gap:14px;align-items:center;font:400 12px var(--mono);color:var(--ink2);margin:0 0 12px}
-.slider input{accent-color:var(--ink);width:220px}
-.slider b{font:500 20px var(--mono);color:var(--ink)}
 .foot{font:400 11.5px var(--mono);color:var(--ink3);margin-top:12px;line-height:1.6}
+/* inspector */
 .insp{position:sticky;top:20px;background:#fff;border-radius:4px;box-shadow:0 1px 0 var(--hair),0 18px 40px -24px rgba(40,30,10,.35);padding:22px}
 .insp .ch{font:400 11px var(--mono);letter-spacing:.12em;color:var(--ink3);text-transform:uppercase}
 .insp .place{font:400 22px var(--serif);margin:4px 0 14px}
@@ -86,6 +102,36 @@ nav button:hover{color:var(--ink)}
 .bar .tr{height:4px;background:var(--paper2);border-radius:2px;overflow:hidden}.bar .tr i{display:block;height:100%}
 .bar em{font:400 11px var(--mono);font-style:normal;text-align:right}
 .hint{font:400 11px var(--mono);color:var(--ink3);margin-top:14px}
+/* pages: make / connect / uses */
+.page h2{font:400 34px/1.1 var(--serif);margin:0 0 8px}
+.page .lede{color:var(--ink2);font-weight:300;font-size:16px;max-width:70ch;margin:0 0 26px}
+.item{display:grid;grid-template-columns:56px minmax(0,1fr) minmax(0,1.1fr);gap:8px 32px;padding:26px 0;border-top:1px solid var(--hair)}
+.item:last-child{border-bottom:1px solid var(--hair)}
+.item .n{font:400 12px var(--mono);color:var(--mus);padding-top:6px}
+.item h3{font:400 23px/1.2 var(--serif);margin:0 0 6px}
+.item p{margin:0 0 8px;color:var(--ink2);font-size:14.5px;font-weight:300}
+.item .spec{font:400 11.5px var(--mono);color:var(--ink3);line-height:1.7}
+.item .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.prev{background:var(--void);border:1px solid var(--hair);border-radius:2px;padding:12px;align-self:start}
+.prev svg{width:100%;height:auto;display:block}
+.row{display:grid;grid-template-columns:200px minmax(0,1fr) auto;gap:6px 28px;padding:18px 0;border-top:1px solid var(--hair);align-items:start}
+.row:last-child{border-bottom:1px solid var(--hair)}
+.row h3{font:400 19px var(--serif);margin:0}
+.row .fmt{font:400 11px var(--mono);color:var(--mus);letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+.row p{margin:0;color:var(--ink2);font-weight:300;font-size:14px}
+.row textarea,.row input[type=text]{width:100%;font:400 12px var(--mono);border:1px solid var(--hair);background:var(--void);padding:8px;border-radius:2px;color:var(--ink)}
+.row textarea{height:120px;margin-top:8px}
+.coords{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.grp{font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin:34px 0 0;padding-bottom:10px}
+.use{display:grid;grid-template-columns:56px minmax(0,1.2fr) minmax(0,1fr) 180px;gap:6px 28px;padding:20px 0;border-top:1px solid var(--hair);align-items:baseline}
+.use .n{font:400 12px var(--mono);color:var(--mus)}
+.use h3{font:400 21px/1.25 var(--serif);margin:0}
+.use .who{font:400 12px var(--mono);color:var(--ink3);margin-top:4px}
+.use p{margin:0;color:var(--ink2);font-weight:300;font-size:14px}
+.use .go{display:flex;flex-wrap:wrap;gap:6px 12px;justify-content:flex-end}
+.use .go button{border:0;background:none;padding:0;cursor:pointer;font:400 12px var(--mono);color:var(--ink);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--mus)}
+.tag{font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
+@media(max-width:900px){.item,.use,.row{grid-template-columns:1fr}.use .go{justify-content:flex-start}}
 .fade{animation:fade .35s ease}
 @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 @media(max-width:760px){.wrap{padding:0 16px}.mast{grid-template-columns:1fr}.walks{justify-items:start}h1{font-size:38px}.vhead{grid-template-columns:1fr}.legend{justify-content:flex-start}}
@@ -105,14 +151,16 @@ nav button:hover{color:var(--ink)}
       <div class="wtools"><span>Direction</span><button data-d="both">both</button><button data-d="f">A→B</button><button data-d="r">B→A</button><span>·</span><button data-a="all">all</button><button data-a="day">day only</button></div>
     </div>
   </header>
-  <nav id="nav"></nav>
-  <div class="body">
-    <section>
+  <nav class="top" id="top"></nav>
+  <nav class="sub" id="sub"></nav>
+  <div class="body" id="body">
+    <section id="mapsec">
       <div class="vhead"><div><h2 id="vt"></h2><p id="vn"></p></div><div class="legend" id="legend"></div></div>
-      <div class="slider" id="slider" hidden><span>NEEDS AT LEAST</span><input id="thr" type="range" min="0.6" max="1.8" step="0.1" value="0.9"><b id="thrV">0.9 m</b><span>clear width</span></div>
-      <div class="stage"><svg id="map"></svg><div class="tip" id="tip"></div></div>
+      <div class="ctrl" id="ctrl"></div>
+      <div class="stage" id="stage"><svg id="map"></svg><canvas id="eye" width="1600" height="680" hidden></canvas><div class="hud" id="hud" hidden></div><div class="tip" id="tip"></div></div>
       <div class="foot">Widths are camera estimates traced from walk photos, not tape-measured · night widths are less reliable · one side of the street walked · vertical scale exaggerated so the footpath can be read.</div>
     </section>
+    <section id="page" class="page" hidden></section>
     <aside class="insp" id="insp"></aside>
   </div>
 </div>
@@ -127,9 +175,11 @@ const LM = [[80,'Green bins'],[104,'Turn onto service road'],[176.5,'Underpass w
 const X0 = 2, PX = 5.6, W10 = 10 * PX, XW = X0 + L * PX;
 const med = a => { const s = a.slice().sort((x, y) => x - y), n = s.length; return n ? (n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2) : null; };
 const walks = D.walks.map((w, k) => ({ ...w, k }));
-const state = { view: 'nolli', dir: 'both', on: new Set(walks.map(w => w.k)), thr: .9, sel: 8 };
+const state = { view: 'nolli', dir: 'both', on: new Set(walks.map(w => w.k)), thr: .9, sel: 8, pos: 60 };
 const topOf = e => { if (!e) return .5; const a = e[0], b = 1 - e[1]; return a + b > .02 ? a / (a + b) : .5; };
 const placeOf = m => PLACES.filter(p => p[0] <= m + 5).pop()[1];
+const wlabel = w => `Day ${w.day} ${w.dir === 'forward' ? 'A→B' : 'B→A'}${w.night ? ' night' : ''}`;
+const kindCol = k => k === 'people' ? C.ppl : k === 'vehicle' ? C.veh : ['pole', 'plants', 'barrier'].includes(k) ? C.fix : C.ink3;
 
 function sel() { return walks.filter(w => state.on.has(w.k) && (state.dir === 'both' || (state.dir === 'f') === (w.dir === 'forward'))); }
 function stats() {
@@ -148,6 +198,7 @@ function stats() {
       sh: { fixed: Math.max(share('pole'), share('plants'), share('barrier')), vehicle: share('vehicle'), people: share('people') } };
   });
 }
+function selDets() { const W = sel().filter(w => !w.night); return D.dets.filter(d => W.some(w => w.day === d[4] && (w.dir === 'forward') === (d[3] === 'f'))); }
 
 /* ---------- svg kit ---------- */
 const NS = 'http://www.w3.org/2000/svg', svg = document.getElementById('map');
@@ -160,26 +211,23 @@ function defs() {
   const p = el('pattern', { id: 'hatch', width: 6, height: 6, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' }, d);
   el('rect', { width: 6, height: 6, fill: C.paper2 }, p); el('line', { x1: 0, y1: 0, x2: 0, y2: 6, stroke: C.hair, 'stroke-width': 1.4 }, p);
   const g = el('linearGradient', { id: 'nightfade', x1: 0, x2: 0, y1: 0, y2: 1 }, d); el('stop', { offset: 0, 'stop-color': C.navy }, g); el('stop', { offset: 1, 'stop-color': '#2C3A5C' }, g);
+  return d;
 }
-// smooth curve through points (Catmull-Rom as cubic Bezier)
 function curve(pts, cmd = 'M') {
   let d = cmd + pts[0][0].toFixed(1) + ' ' + pts[0][1].toFixed(1);
-  for (let i = 0; i < pts.length - 1; i++) {
-    const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2, t = .18;
-    d += ` C${(p1[0] + (p2[0] - p0[0]) * t).toFixed(1)} ${(p1[1] + (p2[1] - p0[1]) * t).toFixed(1)} ${(p2[0] - (p3[0] - p1[0]) * t).toFixed(1)} ${(p2[1] - (p3[1] - p1[1]) * t).toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
-  }
+  for (let i = 0; i < pts.length - 1; i++) { const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2, t = .18;
+    d += ` C${(p1[0] + (p2[0] - p0[0]) * t).toFixed(1)} ${(p1[1] + (p2[1] - p0[1]) * t).toFixed(1)} ${(p2[0] - (p3[0] - p1[0]) * t).toFixed(1)} ${(p2[1] - (p3[1] - p1[1]) * t).toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`; }
   return d;
 }
 const ribbon = (T, B) => curve(T) + ' ' + curve(B.slice().reverse(), 'L') + ' Z';
 function runs(vals) { const r = []; let cur = null; vals.forEach((v, i) => { if (v != null) { if (!cur) r.push(cur = [i, i]); else cur[1] = i; } else cur = null; }); return r; }
-// x positions for a run: left edge, each centre, right edge
 function xsOf(a, b) { const xs = [[a, X0 + a * W10 + .5]]; for (let i = a; i <= b; i++) xs.push([i, X0 + i * W10 + W10 / 2]); xs.push([b, X0 + (b + 1) * W10 - .5]); return xs; }
-// the walkable channel through the mass
-function channel(cells, y, h, fill, opacity = 1) {
+const edges = c => { const gg = Math.min(3, c.g); const a1 = (3 - gg) * c.top; return [a1, a1 + gg]; };   // across the 3 m band: building side 0 → kerb 3
+function channel(cells, y, h, fill, opacity = 1, p = svg) {
   const v = cells.map(c => c && c.g != null ? c : null);
   runs(v).forEach(([a, b]) => { const T = [], B = [];
-    xsOf(a, b).forEach(([i, x]) => { const c = v[i], gg = Math.min(3, c.g), yt = y + (3 - gg) * c.top * h / 3; T.push([x, yt]); B.push([x, yt + gg * h / 3]); });
-    el('path', { d: ribbon(T, B), fill, opacity }); });
+    xsOf(a, b).forEach(([i, x]) => { const [e1, e2] = edges(v[i]); T.push([x, y + e1 * h / 3]); B.push([x, y + e2 * h / 3]); });
+    el('path', { d: ribbon(T, B), fill, opacity }, p); });
 }
 const band = (y, h, fill) => el('rect', { x: X0, y, width: L * PX, height: h, fill, rx: 2 });
 function hatchNA(y, h) { el('rect', { x: X0 + 16 * W10, y, width: 3 * W10, height: h, fill: 'url(#hatch)' }); }
@@ -189,20 +237,21 @@ function axis(y) {
 }
 function marks(y) { LM.forEach(([m, l]) => { el('line', { x1: xm(m), x2: xm(m), y1: y + 5, y2: y + 13, stroke: C.ink }); tx(l.toUpperCase(), xm(m), y, { ...mono, fill: C.ink2, 'text-anchor': 'middle' }); }); }
 function side(y, h) { tx('BUILDINGS', XW + 10, y + 9, mono); tx('KERB', XW + 10, y + h - 1, mono); }
+const medianCells = S => S.map(s => ({ g: s.g, top: s.top }));
 
 /* ---------- views ---------- */
 const V = {};
 V.nolli = { t: 'The Nolli of the footpath', n: 'Black is everything that takes the footpath; the pale channel is the width you can actually walk, measured every 10 m. Buildings run along the top and the kerb along the bottom, so each obstruction sits on the side it was seen.',
   leg: [[C.mass, 'taken'], [C.void, 'walkable', 1], ['url', 'not measurable'], [C.red, 'you step into the road']],
   draw(S) { const W = sel(), y = 30, H = 190;
-    marks(4); band(y, H, C.mass); channel(S.map(s => ({ g: s.g, top: s.top })), y, H, C.void); hatchNA(y, H); side(y, H);
+    marks(4); band(y, H, C.mass); channel(medianCells(S), y, H, C.void); hatchNA(y, H); side(y, H);
     S.forEach(s => { if (s.g != null && s.g < .9) { const cx = X0 + s.i * W10 + W10 / 2; el('line', { x1: cx, x2: cx, y1: y + H, y2: y + H + 14, stroke: C.red }); el('circle', { cx, cy: y + H + 17, r: 3.5, fill: C.red }); tx(`${s.g.toFixed(1)} m clear — you step into the road`, cx + 9, y + H + 21, { 'font-size': 12, fill: C.red, 'font-weight': 500 }); } });
     let wy = y + H + 40; axis(wy); wy += 52;
     tx('Each walk', X0, wy, { 'font-family': 'Playfair Display', 'font-size': 16, fill: C.ink }); tx(`${W.length} SHOWN · RED TICK = BLOCKED ON THAT WALK`, X0 + 82, wy, mono); wy += 14;
     W.forEach(w => { const h = 14; band(wy, h, w.night ? C.navy : C.mass);
       channel(w.s.map((r, i) => r && r.g > 0 && !NA(i) ? { g: r.g, top: r.e ? topOf(r.e) : S[i].top } : null), wy, h, w.night ? C.nvoid : C.void); hatchNA(wy, h);
       w.s.forEach((r, i) => { if (r && r.o >= OBS) el('rect', { x: X0 + i * W10 + W10 / 2 - 1, y: wy - 4, width: 2, height: 4, fill: C.red }); });
-      tx(`D${w.day} ${w.dir === 'forward' ? 'A→B' : 'B→A'}${w.night ? ' ☾' : ''}`, XW + 10, wy + 11, { ...mono, fill: w.night ? C.navy : C.ink3 }); wy += h + 8; });
+      tx(`D${w.day} ${w.dir === 'forward' ? 'A→B' : 'B→A'}${w.night ? ' N' : ''}`, XW + 10, wy + 11, { ...mono, fill: w.night ? C.navy : C.ink3 }); wy += h + 8; });
     return [y, wy]; } };
 V.ghost = { t: 'Ghost Nolli', n: 'Every selected daytime walk is laid over the others as a faint channel. Where the walks agree, the footpath glows; where they drift apart, it blurs. It shows what the footpath reliably is, not one afternoon.',
   leg: [[C.mass, 'taken on every walk'], ['#8d8a83', 'free on some walks'], [C.void, 'free on most walks', 1], ['url', 'not measurable']],
@@ -212,7 +261,7 @@ V.ghost = { t: 'Ghost Nolli', n: 'Every selected daytime walk is laid over the o
 V.daynight = { t: 'Day and night', n: 'The same footpath walked by day and after dark. A night stretch is only drawn when at least two night photos could measure it. The strip beneath shows how much darker each stretch is than the route’s usual night.',
   leg: [[C.mass, 'day · taken'], [C.navy, 'night · taken'], ['url', 'not enough night photos']],
   draw(S) { const y1 = 30, H = 150, y2 = y1 + H + 66; marks(4);
-    band(y1, H, C.mass); channel(S.map(s => ({ g: s.g, top: s.top })), y1, H, C.void); hatchNA(y1, H); tx('DAY', XW + 10, y1 + H / 2 + 3, { ...mono, fill: C.ink });
+    band(y1, H, C.mass); channel(medianCells(S), y1, H, C.void); hatchNA(y1, H); tx('DAY', XW + 10, y1 + H / 2 + 3, { ...mono, fill: C.ink });
     axis(y1 + H + 18);
     band(y2, H, 'url(#nightfade)'); channel(S.map(s => s.ng != null ? { g: s.ng, top: s.top } : null), y2, H, C.nvoid);
     S.forEach(s => { if (s.ng == null) el('rect', { x: X0 + s.i * W10, y: y2, width: W10, height: H, fill: 'url(#hatch)' }); }); tx('NIGHT', XW + 10, y2 + H / 2 + 3, { ...mono, fill: C.navy });
@@ -224,16 +273,16 @@ V.fills = { t: 'What the footpath is lost to', n: 'The mass is coloured by what 
     const parts = s => { const p = [s.sh.fixed + (s.i === 8 ? .35 : 0), s.sh.vehicle, s.sh.people], t = p.reduce((a, q) => a + q, 0) || 1; return p.map(v => v / t); };
     const col = S.map(s => s.g == null ? null : s);
     runs(col).forEach(([a, b]) => [C.fix, C.veh, C.ppl].forEach((c, k) => ['top', 'bot'].forEach(sd => { const T = [], B = [];
-      xsOf(a, b).forEach(([i, x]) => { const s = col[i], gg = Math.min(3, s.g), rest = 3 - gg, ht = rest * s.top * H / 3, hb = rest * (1 - s.top) * H / 3, ps = parts(s), b0 = ps.slice(0, k).reduce((q, v) => q + v, 0), b1 = b0 + ps[k];
+      xsOf(a, b).forEach(([i, x]) => { const s = col[i], [e1, e2] = edges(s), ht = e1 * H / 3, hb = (3 - e2) * H / 3, ps = parts(s), b0 = ps.slice(0, k).reduce((q, v) => q + v, 0), b1 = b0 + ps[k];
         if (sd === 'top') { T.push([x, y + ht * b0]); B.push([x, y + ht * b1]); } else { T.push([x, y + H - hb * b1]); B.push([x, y + H - hb * b0]); } });
       el('path', { d: ribbon(T, B), fill: c, opacity: .92 }); })));
-    channel(S.map(s => ({ g: s.g, top: s.top })), y, H, C.void); hatchNA(y, H); side(y, H); axis(y + H + 18); return [y, y + H]; } };
+    channel(medianCells(S), y, H, C.void); hatchNA(y, H); side(y, H); axis(y + H + 18); return [y, y + H]; } };
 V.layers = { t: 'What a walker meets', n: 'Everything recorded on foot, at the exact metre it happened: every horn heard, every place a walker swerved, the walkable channel, and how dark it gets at night.',
   leg: [[C.red, 'horn'], [C.mus, 'swerve'], [C.mass, 'taken'], [C.navy, 'darker at night']],
-  draw(S) { const W = sel(); let y = 30; marks(4); y += 10;
+  draw(S) { const W = sel(); let y = 40; marks(4);
     tx('HORNS', XW + 10, y + 12, mono); W.forEach((w, k) => w.honks.forEach(m => el('line', { x1: xm(m), x2: xm(m), y1: y + k * 2.6, y2: y + k * 2.6 + 6, stroke: C.red, 'stroke-width': 1.3, opacity: .6 }))); y += W.length * 2.6 + 24;
     tx('SWERVES', XW + 10, y + 12, mono); W.forEach((w, k) => w.swerves.forEach(m => el('circle', { cx: xm(m), cy: y + 3 + k * 2.8, r: 2.3, fill: C.mus, opacity: .85 }))); y += W.length * 2.8 + 24;
-    const H = 150; band(y, H, C.mass); channel(S.map(s => ({ g: s.g, top: s.top })), y, H, C.void); hatchNA(y, H); tx('WALKABLE', XW + 10, y + H / 2 + 3, mono); y += H + 12;
+    const H = 150; band(y, H, C.mass); channel(medianCells(S), y, H, C.void); hatchNA(y, H); tx('WALKABLE', XW + 10, y + H / 2 + 3, mono); y += H + 12;
     S.forEach(s => { if (s.lit == null) return; el('rect', { x: X0 + s.i * W10, y, width: W10, height: 14, fill: C.navy, opacity: Math.min(1, .05 + Math.max(0, 1 - s.lit) * 2.4) }); }); tx('NIGHT', XW + 10, y + 11, mono); y += 32;
     axis(y); return [40, y]; } };
 V.line = { t: 'Walk-line', n: 'For anyone about to walk it: the street drawn like a transit line, coloured by how much width you get, with the moments you will notice on foot.',
@@ -242,8 +291,8 @@ V.line = { t: 'Walk-line', n: 'For anyone about to walk it: the street drawn lik
     const m = S.filter(s => s.g != null), worst = m.reduce((a, b) => b.g < a.g ? b : a), widest = m.reduce((a, b) => b.g > a.g ? b : a), swv = S.reduce((a, b) => b.sw > a.sw ? b : a), dark = S.filter(s => s.lit != null).reduce((a, b) => b.lit < a.lit ? b : a);
     const calls = [[worst, worst.g < .9 ? 'You step into the road' : 'Narrowest', `${worst.g.toFixed(1)} m clear · blocked on ${worst.b} of ${worst.n} walks`, worst.g < .9 ? C.red : C.amb],
       [swv, 'Walkers swerve', `${swv.sw} of ${sel().length} walks turned aside`, C.mus], [widest, 'Room to walk', `about ${widest.g.toFixed(1)} m clear`, C.teal], [dark, 'Darkest at night', `${Math.round((1 - dark.lit) * 100)}% darker than the route`, C.navy]].sort((a, b) => a[0].i - b[0].i);
-    calls.forEach(([s, a, b, c], k) => { const cx = X0 + s.i * W10 + W10 / 2, yy = 20 + k * 54; el('line', { x1: cx, x2: cx, y1: yy + 26, y2: Y - 12, stroke: c, 'stroke-width': 1 });
-      tx(a, cx + 8, yy, { 'font-family': 'Playfair Display', 'font-size': 18, fill: c }); tx(b, cx + 8, yy + 18, { 'font-size': 12, fill: C.ink2 }); el('circle', { cx, cy: yy - 5, r: 3, fill: c }); el('line', { x1: cx, x2: cx, y1: yy - 2, y2: yy + 26, stroke: c, 'stroke-width': 1 }); });
+    calls.forEach(([s, a, b, c], k) => { const cx = X0 + s.i * W10 + W10 / 2, yy = 20 + k * 54; el('line', { x1: cx, x2: cx, y1: yy - 2, y2: Y - 12, stroke: c, 'stroke-width': 1 }); el('circle', { cx, cy: yy - 5, r: 3, fill: c });
+      tx(a, cx + 8, yy, { 'font-family': 'Playfair Display', 'font-size': 18, fill: c }); tx(b, cx + 8, yy + 18, { 'font-size': 12, fill: C.ink2 }); });
     S.forEach(s => { const x = X0 + s.i * W10, c = col(s.g); el('rect', { x, y: Y - 7, width: W10 + .5, height: 14, fill: c || 'url(#hatch)' }); });
     [[0, 'Start', 'R.K. Chouhan Communications'], [L, 'End', 'Amratlal G. Vasani']].forEach(([mm, a, b]) => { el('circle', { cx: xm(mm), cy: Y, r: 13, fill: C.ink }); el('circle', { cx: xm(mm), cy: Y, r: 5, fill: C.void }); tx(a.toUpperCase(), xm(mm), Y + 34, { ...mono, fill: C.ink, 'text-anchor': mm ? 'end' : 'start' }); tx(b, xm(mm), Y + 50, { 'font-size': 12, 'text-anchor': mm ? 'end' : 'start' }); });
     [[80, 'Green bins'], [104, 'Service road']].forEach(([mm, l], k) => { el('circle', { cx: xm(mm), cy: Y, r: 8, fill: C.void, stroke: C.ink, 'stroke-width': 3 }); tx(l.toUpperCase(), xm(mm), Y + 34 + k * 16, { ...mono, fill: C.ink, 'text-anchor': 'middle' }); });
@@ -251,6 +300,7 @@ V.line = { t: 'Walk-line', n: 'For anyone about to walk it: the street drawn lik
     return [Y - 14, Y + 14]; } };
 V.through = { t: 'Can I get through?', n: 'For a wheelchair, a pram or a walking frame. Each mark is 10 m of footpath: on how many of the selected daytime walks there was at least the width you need. Drag the slider to change it.',
   leg: [[C.teal, 'usually'], [C.amb, 'sometimes'], [C.red, 'rarely'], ['url', 'not measured']],
+  ctrl: () => `<span>NEEDS AT LEAST</span><input id="thr" type="range" min="0.6" max="1.8" step="0.1" value="${state.thr}"><b id="thrV">${state.thr.toFixed(1)} m</b><span>clear width</span>`,
   draw(S) { const Y = 56, R = 20; let a = 0, b = 0, c = 0; marks(4);
     el('line', { x1: X0, x2: XW, y1: Y, y2: Y, stroke: C.hair, 'stroke-width': 2 });
     S.forEach(s => { const cx = X0 + s.i * W10 + W10 / 2; let col = null, gl = '';
@@ -260,9 +310,124 @@ V.through = { t: 'Can I get through?', n: 'For a wheelchair, a pram or a walking
     axis(Y + R + 34);
     tx(`At ${state.thr.toFixed(1)} m you usually get through ${a} of ${a + b + c} stretches, sometimes ${b}, rarely ${c}.`, X0, Y + R + 100, { 'font-family': 'Playfair Display', 'font-size': 26, fill: C.ink });
     return [Y - R, Y + R]; } };
-const ORDER = [['nolli', 'Nolli'], ['ghost', 'Ghost'], ['daynight', 'Day & night'], ['fills', 'Lost to'], ['layers', 'What a walker meets'], ['line', 'Walk-line'], ['through', 'Can I get through?']];
 
-/* ---------- interaction ---------- */
+/* ---- other ways to see it ---- */
+V.plan = { t: 'Obstruction plan', n: 'A plan of the footpath seen from above. Every obstruction the walk photos picked up is placed where it touched the ground: along the street, and across it relative to the path walkers actually took. Clusters are the places that keep filling up.',
+  leg: [[C.fix, 'poles, trees, walls'], [C.veh, 'vehicles'], [C.ppl, 'people & stalls'], [C.void, 'the path walkers took', 1]],
+  draw(S) { const ds = selDets(), y = 120, H = 300, Y = u => y + (u + .6) / 2.2 * H; marks(4);
+    el('rect', { x: X0, y, width: L * PX, height: H, fill: C.paper2, rx: 2 });
+    el('rect', { x: X0, y: Y(0), width: L * PX, height: Y(1) - Y(0), fill: C.void });
+    [[0, 'PATH · BUILDING SIDE'], [1, 'PATH · KERB SIDE']].forEach(([u, l]) => { el('line', { x1: X0, x2: XW, y1: Y(u), y2: Y(u), stroke: C.hair, 'stroke-dasharray': '4 4' }); tx(l, XW + 10, Y(u) + 3, mono); });
+    tx('TOWARDS BUILDINGS', XW + 10, y + 10, mono); tx('TOWARDS ROAD', XW + 10, y + H - 2, mono); hatchNA(y, H);
+    // density of obstructions inside the walked path, per 5 m
+    const bins = Array(44).fill(0); ds.forEach(d => { if (d[1] >= 0 && d[1] <= 1) bins[Math.min(43, Math.floor(d[0] / 5))]++; }); const mx = Math.max(...bins) || 1;
+    bins.forEach((v, j) => { const h = v / mx * 70; el('rect', { x: xm(j * 5) + 1, y: y - 16 - h, width: 5 * PX - 2, height: h, fill: C.ink, opacity: .85 }); });
+    tx(`OBSTRUCTIONS INSIDE THE PATH · PER 5 M · MAX ${mx}`, XW + 10, y - 20, mono);
+    ds.forEach(d => el('circle', { cx: xm(d[0]), cy: Y(d[1]), r: 2.6, fill: kindCol(d[2]), opacity: .62 }));
+    axis(y + H + 18); tx(`${ds.length} obstructions from ${sel().filter(w => !w.night).length} daytime walks`, X0, y + H + 62, { 'font-size': 12, fill: C.ink2 });
+    return [y - 90, y + H]; } };
+V.block = { t: 'Space-time block', n: 'The walks stacked on top of each other, oldest at the bottom, drawn as an axonometric. Each layer is one walk: dark is taken, pale is walkable. Where pale space lines up through the stack, the footpath is reliably free; where it breaks, it depends on the day.',
+  leg: [[C.mass, 'taken'], [C.void, 'walkable', 1], [C.navy, 'night walk'], ['url', 'not measured']],
+  draw(S) { const W = sel().slice().sort((a, b) => a.day - b.day || (a.dir > b.dir ? 1 : -1)), PB = 4.6, AX = 24, AY = 18, DZ = 26, base = 90 + W.length * DZ + 3 * AY;
+    const P = (m, a, k) => [X0 + m * PB + (3 - a) * AX, base - k * DZ - (3 - a) * AY];
+    const poly = pts => pts.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ');
+    W.forEach((w, k) => {
+      el('polygon', { points: poly([P(0, 3, k), P(L, 3, k), [P(L, 3, k)[0], P(L, 3, k)[1] + 4], [P(0, 3, k)[0], P(0, 3, k)[1] + 4]]), fill: w.night ? '#0f1729' : '#000' });
+      el('polygon', { points: poly([P(0, 0, k), P(L, 0, k), P(L, 3, k), P(0, 3, k)]), fill: w.night ? C.navy : C.mass, stroke: C.void, 'stroke-width': .6 });
+      const cells = w.s.map((r, i) => r && r.g > 0 && !NA(i) ? { g: r.g, top: r.e ? topOf(r.e) : S[i].top } : null);
+      for (let i = 16; i <= 18; i++) el('polygon', { points: poly([P(i * 10, 0, k), P(i * 10 + 10, 0, k), P(i * 10 + 10, 3, k), P(i * 10, 3, k)]), fill: 'url(#hatch)', opacity: .9 });
+      runs(cells).forEach(([a, b]) => { const T = [], B = []; const ms = [[a, a * 10 + .2]]; for (let i = a; i <= b; i++) ms.push([i, i * 10 + 5]); ms.push([b, b * 10 + 9.8]);
+        ms.forEach(([i, m]) => { const [e1, e2] = edges(cells[i]); T.push(P(m, e1, k)); B.push(P(m, e2, k)); });
+        el('path', { d: ribbon(T, B), fill: w.night ? C.nvoid : C.void }); });
+      const [lx, ly] = P(L, 0, k); tx(`D${w.day} ${w.dir === 'forward' ? 'A→B' : 'B→A'}${w.night ? ' N' : ''}`, lx + 8, ly + 4, { ...mono, fill: w.night ? C.navy : C.ink3 });
+    });
+    LM.forEach(([m, l]) => { const [x, y] = P(m, 3, 0); el('line', { x1: x, x2: x, y1: y + 8, y2: y + 18, stroke: C.ink }); tx(l.toUpperCase(), x, y + 30, { ...mono, 'text-anchor': 'middle', fill: C.ink2 }); });
+    const [ax, ay] = P(0, 3, 0), [bx, by] = P(L, 3, 0); tx('A · 0 m', ax, ay + 50, mono); tx('B · 220 m', bx, by + 50, { ...mono, 'text-anchor': 'end' });
+    const [tx0, ty0] = P(0, 0, W.length - 1); tx('BUILDING SIDE', tx0, ty0 - 10, mono); tx('↑ LATER WALKS', 0, ty0 + 30, mono);
+    return null; } };
+V.eye = { t: 'Walker’s eye', n: 'The footpath at eye height, built from the measured walkable width and where the obstructions sat. Drag along the street or press play to walk it. Dark blocks are what took the footpath; the pale floor is what was left.',
+  leg: [[C.mass, 'taken'], [C.void, 'walkable', 1], ['#5b6370', 'road']],
+  ctrl: () => `<button class="btn" id="play">Play the walk</button><span>POSITION</span><input id="pos" type="range" min="0" max="212" step="0.5" value="${state.pos}"><b id="posV">${Math.round(state.pos)} m</b>`,
+  canvas: true };
+V.collage = { t: 'Ground collage', n: 'Only the ground people actually had. For every 10 m, the worst daytime photo is cut down to the walkable ground traced in it, and the pieces are laid end to end along the street. Everything else is faded out.',
+  leg: [[C.yel, 'traced walkable ground'], [C.paper2, 'rest of the photo']],
+  draw(S) { const d = el('defs', {}), P = D.photos, TW = W10, TH = TW * 427 / 240; let y = 40; marks(4);
+    [['df', 'A→B · DAY'], ['dr', 'B→A · DAY'], ['nr', 'B→A · NIGHT']].forEach(([g, lab]) => {
+      for (let i = 0; i < NB; i++) { const p = P[g][i]; if (!p) continue; const x = X0 + i * W10;
+        el('image', { href: `../lab/ph/${p.id}.jpg`, x, y, width: TW, height: TH, preserveAspectRatio: 'none', opacity: g === 'nr' ? .35 : .16 });
+        if (p.path && p.path.length > 5) { const cp = el('clipPath', { id: `cp-${g}-${i}`, clipPathUnits: 'objectBoundingBox' }, d); el('polygon', { points: p.path.map(q => q.join(',')).join(' ') }, cp);
+          el('image', { href: `../lab/ph/${p.id}.jpg`, x, y, width: TW, height: TH, preserveAspectRatio: 'none', 'clip-path': `url(#cp-${g}-${i})` }); } }
+      el('line', { x1: X0, x2: XW, y1: y + TH + 1, y2: y + TH + 1, stroke: C.hair }); tx(lab, XW + 10, y + TH / 2, mono); y += TH + 16; });
+    axis(y); return [40, y - 16]; } };
+V.sound = { t: 'Listen to the street', n: 'The 220 m played in 22 seconds. A low tone follows the walkable width and tightens as it narrows; every horn heard on the selected walks is a short tick at the metre it was recorded; every swerve is a soft knock. Headphones help.',
+  leg: [[C.red, 'horn'], [C.mus, 'swerve'], [C.mass, 'taken']],
+  ctrl: () => `<button class="btn" id="listen">Play 22 s</button><span id="lstat">TONE = WIDTH · TICK = HORN · KNOCK = SWERVE</span>`,
+  draw(S) { const W = sel(), y = 60, H = 120; marks(4);
+    W.forEach((w, k) => w.honks.forEach(m => el('line', { x1: xm(m), x2: xm(m), y1: y - 30 + k * 1.4, y2: y - 26 + k * 1.4, stroke: C.red, opacity: .6 })));
+    band(y, H, C.mass); channel(medianCells(S), y, H, C.void); hatchNA(y, H);
+    W.forEach((w, k) => w.swerves.forEach(m => el('circle', { cx: xm(m), cy: y + H + 12 + k * 1.6, r: 1.8, fill: C.mus, opacity: .8 })));
+    el('line', { id: 'playhead', x1: X0, x2: X0, y1: y - 34, y2: y + H + 40, stroke: C.yel, 'stroke-width': 2, opacity: 0 });
+    axis(y + H + 44); return [y, y + H]; } };
+
+/* ---------- walker's eye renderer ---------- */
+const eyeCv = document.getElementById('eye'), ex = eyeCv.getContext('2d');
+let eyeS = null, playing = false;
+function widthAt(S, m) { const c = Math.max(0, Math.min(21, (m - 5) / 10)), i0 = Math.floor(c), i1 = Math.min(21, i0 + 1), f = c - i0;
+  const val = i => { const s = S[i]; if (s.g == null) return null; const [a, b] = edges(s); return [a, b]; };
+  const A = val(i0), B = val(i1); if (!A && !B) return null; if (!A) return B; if (!B) return A; return [A[0] + (B[0] - A[0]) * f, A[1] + (B[1] - A[1]) * f]; }
+function mix(h1, h2, t) { const p = h => [1, 3, 5].map(j => parseInt(h.slice(j, j + 2), 16)); const a = p(h1), b = p(h2); return `rgb(${a.map((v, j) => Math.round(v + (b[j] - v) * t)).join(',')})`; }
+function drawEye() {
+  const S = eyeS, Wc = eyeCv.width, Hc = eyeCv.height, F = 620, EYE = 1.55, HOR = Hc * .46;
+  const here = widthAt(S, state.pos) || [1, 2], camL = (here[0] + here[1]) / 2;
+  const pr = (d, l, h) => [Wc / 2 + F * (l - camL) / d, HOR - F * (h - EYE) / d];
+  ex.fillStyle = C.paper; ex.fillRect(0, 0, Wc, Hc);
+  const sky = ex.createLinearGradient(0, 0, 0, HOR); sky.addColorStop(0, '#ECE7DB'); sky.addColorStop(1, '#F4F1E9'); ex.fillStyle = sky; ex.fillRect(0, 0, Wc, HOR);
+  const quad = (pts, col) => { ex.beginPath(); pts.forEach((p, j) => j ? ex.lineTo(p[0], p[1]) : ex.moveTo(p[0], p[1])); ex.closePath(); ex.fillStyle = col; ex.fill(); };
+  const FAR = 45, STEP = .5;
+  for (let d = FAR; d > .9; d -= STEP) {
+    const d0 = d - STEP, m0 = state.pos + d0, m1 = state.pos + d, fog = Math.min(.85, d / FAR * .95);
+    if (m1 > L) continue;
+    const w0 = widthAt(S, m0), w1 = widthAt(S, m1), na = NA(Math.floor(m0 / 10));
+    // road beyond the kerb
+    quad([pr(d1(d0), 3, -.15), pr(d1(d0), 9, -.15), pr(d, 9, -.15), pr(d, 3, -.15)], mix('#5b6370', '#F4F1E9', fog));
+    // building wall
+    quad([pr(d0, 0, 0), pr(d, 0, 0), pr(d, 0, 5), pr(d0, 0, 5)], mix('#d9d2c2', '#F4F1E9', fog));
+    if (!w0 || !w1 || na) { quad([pr(d0, 0, 0), pr(d0, 3, 0), pr(d, 3, 0), pr(d, 0, 0)], mix('#d8d3c6', '#F4F1E9', fog)); continue; }
+    quad([pr(d0, w0[0], 0), pr(d0, w0[1], 0), pr(d, w1[1], 0), pr(d, w1[0], 0)], mix('#FBF9F3', '#F4F1E9', fog * .5));
+    const HB = 1.15, mc = mix('#171717', '#F4F1E9', fog), mt = mix('#2e2e2e', '#F4F1E9', fog);
+    [[0, w0[0], 0, w1[0]], [w0[1], 3, w1[1], 3]].forEach(([a0, b0, a1, b1]) => { if (b0 - a0 < .02) return;
+      quad([pr(d0, a0, HB), pr(d0, b0, HB), pr(d, b1, HB), pr(d, a1, HB)], mt);                     // top
+      quad([pr(d0, a0, 0), pr(d0, b0, 0), pr(d0, b0, HB), pr(d0, a0, HB)], mc);                    // front
+      const inner = a0 === 0 ? [b0, b1] : [a0, a1]; quad([pr(d0, inner[0], 0), pr(d, inner[1], 0), pr(d, inner[1], HB), pr(d0, inner[0], HB)], mix('#0d0d0d', '#F4F1E9', fog)); });
+    if (Math.floor(m1 / 10) !== Math.floor(m0 / 10)) { const [px, py] = pr(d, 3.15, 0), [, qy] = pr(d, 3.15, .9); ex.strokeStyle = mix('#966C00', '#F4F1E9', fog); ex.lineWidth = Math.max(1, 6 / d); ex.beginPath(); ex.moveTo(px, py); ex.lineTo(px, qy); ex.stroke();
+      ex.fillStyle = ex.strokeStyle; ex.font = `${Math.max(9, Math.min(22, 120 / d))}px "IBM Plex Mono"`; ex.fillText(Math.round(m1 / 10) * 10 + ' m', px + 4, qy); }
+  }
+  const s = S[Math.min(21, Math.floor(state.pos / 10))], hud = document.getElementById('hud');
+  hud.innerHTML = `${Math.round(state.pos)} m · ${placeOf(state.pos)}<b>${s.g == null ? '—' : s.g.toFixed(1) + ' m'}</b>${s.g == null ? 'not measured here' : 'clear · daytime median'}`;
+}
+function d1(x) { return x; }
+function eyeLoop(t0) { let last = performance.now(); const step = now => { if (!playing) return; state.pos += (now - last) / 1000 * 1.4 * 5; last = now; if (state.pos >= 212) { state.pos = 212; playing = false; const b = document.getElementById('play'); if (b) b.textContent = 'Play the walk'; }
+  const r = document.getElementById('pos'); if (r) { r.value = state.pos; document.getElementById('posV').textContent = Math.round(state.pos) + ' m'; } state.sel = Math.min(21, Math.floor(state.pos / 10)); drawEye(); inspect(eyeS, state.sel); requestAnimationFrame(step); }; requestAnimationFrame(step); }
+
+/* ---------- sound ---------- */
+let actx = null, playingSound = false;
+function playSound(S) {
+  if (playingSound) return; actx = actx || new (window.AudioContext || window.webkitAudioContext)(); const T = 22, t0 = actx.currentTime + .1, W = sel(); playingSound = true;
+  const master = actx.createGain(); master.gain.value = .7; master.connect(actx.destination);
+  const drone = actx.createOscillator(), dg = actx.createGain(), lp = actx.createBiquadFilter(); drone.type = 'sawtooth'; lp.type = 'lowpass'; lp.frequency.value = 600; dg.gain.value = 0;
+  drone.connect(lp); lp.connect(dg); dg.connect(master); dg.gain.setValueAtTime(0, t0); dg.gain.linearRampToValueAtTime(.05, t0 + .4);
+  S.forEach(s => { const t = t0 + s.i * T / 22, g = s.g == null ? 1.5 : s.g; drone.frequency.linearRampToValueAtTime(70 + (3 - Math.min(3, g)) * 55, t + T / 44); lp.frequency.linearRampToValueAtTime(300 + (3 - Math.min(3, g)) * 500, t + T / 44); });
+  dg.gain.setValueAtTime(.05, t0 + T - .4); dg.gain.linearRampToValueAtTime(0, t0 + T); drone.start(t0); drone.stop(t0 + T + .1);
+  const blip = (t, f, dur, vol, type = 'square') => { const o = actx.createOscillator(), g = actx.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .005); g.gain.exponentialRampToValueAtTime(.0001, t + dur); o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + .02); };
+  const v = .5 / Math.max(4, W.length);
+  W.forEach(w => { w.honks.forEach(m => blip(t0 + m / L * T + Math.random() * .03, 1180 + Math.random() * 160, .07, v)); w.swerves.forEach(m => blip(t0 + m / L * T, 150, .12, v * 1.6, 'sine')); });
+  const ph = document.getElementById('playhead'), st = document.getElementById('lstat');
+  const anim = () => { const p = (actx.currentTime - t0) / T; if (p > 1 || state.view !== 'sound') { playingSound = false; if (ph) ph.setAttribute('opacity', 0); if (st) st.textContent = 'TONE = WIDTH · TICK = HORN · KNOCK = SWERVE'; return; }
+    if (p >= 0 && ph) { const m = p * L; ph.setAttribute('x1', xm(m)); ph.setAttribute('x2', xm(m)); ph.setAttribute('opacity', 1); if (st) st.textContent = `${Math.round(m)} m · ${placeOf(m).toUpperCase()}`; inspect(stats(), Math.min(21, Math.floor(m / 10))); }
+    requestAnimationFrame(anim); }; anim();
+}
+
+/* ---------- interaction & inspector ---------- */
 const tip = document.getElementById('tip');
 function interact(S, y0, y1) {
   el('rect', { x: X0 + state.sel * W10, y: y0 - 6, width: W10, height: y1 - y0 + 12, fill: C.yel, opacity: .13, 'pointer-events': 'none' });
@@ -271,10 +436,10 @@ function interact(S, y0, y1) {
   const pad = el('rect', { x: X0, y: y0 - 10, width: L * PX, height: y1 - y0 + 20, fill: 'transparent', style: 'cursor:crosshair' });
   const toM = e => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const q = p.matrixTransform(svg.getScreenCTM().inverse()); return Math.max(0, Math.min(L - .01, (q.x - X0) / PX)); };
   pad.addEventListener('mousemove', e => { const m = toM(e), i = Math.floor(m / 10), s = S[i]; scan.setAttribute('x1', xm(m)); scan.setAttribute('x2', xm(m)); scan.setAttribute('opacity', 1);
-    const r = document.querySelector('.stage').getBoundingClientRect(); tip.style.left = (e.clientX - r.left) + 'px'; tip.style.top = (e.clientY - r.top - 14) + 'px'; tip.style.opacity = 1;
+    const r = document.getElementById('stage').getBoundingClientRect(); tip.style.left = (e.clientX - r.left) + 'px'; tip.style.top = (e.clientY - r.top - 14) + 'px'; tip.style.opacity = 1;
     tip.innerHTML = `${Math.round(m)} m · <b>${s.g == null ? 'not measured' : s.g.toFixed(1) + ' m clear'}</b> · blocked ${s.b}/${s.n}`; inspect(S, i); });
   pad.addEventListener('mouseleave', () => { scan.setAttribute('opacity', 0); tip.style.opacity = 0; inspect(S, state.sel); });
-  pad.addEventListener('click', e => { state.sel = Math.floor(toM(e) / 10); render(); });
+  pad.addEventListener('click', e => { state.sel = Math.floor(toM(e) / 10); state.pos = Math.min(212, state.sel * 10); render(); });
 }
 function inspect(S, i) {
   const s = S[i], P = D.photos, dp = P.df[i] || P.dr[i], np = P.nr[i];
@@ -292,31 +457,132 @@ function inspect(S, i) {
     <div class="hint">Move across the map to read any stretch · click to pin</div>`;
 }
 
-/* ---------- render ---------- */
+/* ---------- exports ---------- */
+function download(name, text, type) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
+const r2 = v => v == null ? '' : Math.round(v * 100) / 100;
+function rowsOut(S) { return S.map(s => ({ from_m: s.i * 10, to_m: s.i * 10 + 10, place: placeOf(s.i * 10), clear_width_m_day_median: s.g == null ? null : r2(s.g), day_photos_measured: s.gN, walks_blocked: s.b, walks: s.n, walks_swerved: s.sw, horns: s.hk, clear_width_m_night_median: s.ng == null ? null : r2(s.ng), night_light_vs_route: s.lit == null ? null : r2(s.lit), share_fixed: r2(s.sh.fixed), share_vehicles: r2(s.sh.vehicle), share_people: r2(s.sh.people) })); }
+function csv(S) { const R = rowsOut(S), k = Object.keys(R[0]); return [k.join(','), ...R.map(r => k.map(x => r[x] == null ? '' : typeof r[x] === 'string' ? `"${r[x]}"` : r[x]).join(','))].join('\n'); }
+function geojson(S, a, b) { return JSON.stringify({ type: 'FeatureCollection', features: rowsOut(S).map(r => { const f0 = r.from_m / L, f1 = r.to_m / L, P = f => [r2(a[1] + (b[1] - a[1]) * f * 1e4) / 1e4, r2(a[0] + (b[0] - a[0]) * f * 1e4) / 1e4];
+  return { type: 'Feature', geometry: { type: 'LineString', coordinates: [[a[1] + (b[1] - a[1]) * f0, a[0] + (b[0] - a[0]) * f0], [a[1] + (b[1] - a[1]) * f1, a[0] + (b[0] - a[0]) * f1]] }, properties: { ...r, placement: 'straight line between the two points given' } }; }) }, null, 1); }
+function osm(S) { return S.map(s => { if (s.g == null) return `${s.i * 10}–${s.i * 10 + 10} m  (not measured)`; const r = s.gN ? s.ok / s.gN : 0, wc = s.g >= 1.5 && r >= .75 ? 'yes' : r >= .5 ? 'limited' : 'no';
+  return `${String(s.i * 10).padStart(3)}–${String(s.i * 10 + 10).padStart(3)} m  footway=sidewalk  est_width=${s.g.toFixed(1)}  wheelchair=${wc}`; }).join('\n'); }
+function floorSVG(S) { const s7 = S[7], s8 = S[8], s9 = S[9], e = s => edges(s), avg = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], p0 = avg(e(s7), e(s8)), p1 = e(s8), p2 = avg(e(s8), e(s9));
+  const Y = a => a * 1000, path = `M0 ${Y(p0[0])} C2500 ${Y(p0[0])} 2500 ${Y(p1[0])} 5000 ${Y(p1[0])} S7500 ${Y(p2[0])} 10000 ${Y(p2[0])} L10000 ${Y(p2[1])} C7500 ${Y(p2[1])} 7500 ${Y(p1[1])} 5000 ${Y(p1[1])} S2500 ${Y(p0[1])} 0 ${Y(p0[1])} Z`;
+  let ticks = ''; for (let m = 0; m <= 10; m++) ticks += `<line x1="${m * 1000}" y1="2950" x2="${m * 1000}" y2="3000" stroke="#966C00" stroke-width="8"/>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="10000mm" height="3000mm" viewBox="0 0 10000 3000"><rect width="10000" height="3000" fill="#171717"/><path d="${path}" fill="#FBF9F3"/>${ticks}<text x="5000" y="${Y((p1[0] + p1[1]) / 2) + 60}" font-family="IBM Plex Mono, monospace" font-size="180" text-anchor="middle" fill="#C2402D">${s8.g.toFixed(1)} m</text><text x="80" y="160" font-family="IBM Plex Mono, monospace" font-size="70" fill="#FBF9F3">OLD NAGARDAS RD · 80–90 M · GREEN BINS · BUILDINGS THIS SIDE</text><text x="80" y="2900" font-family="IBM Plex Mono, monospace" font-size="70" fill="#FBF9F3">KERB · MEDIAN OF ${s8.gN} DAYTIME WALKS · OCT 2026 · PRINT AT 100%</text></svg>`; }
+function tactileSVG(S) { const W = 380, H = 60, x0 = 20, y0 = 120, k = W / L; let p = ''; const cells = medianCells(S).map(c => c.g == null ? null : c);
+  runs(cells).forEach(([a, b]) => { const T = [], B = []; for (let i = a; i <= b; i++) { const [e1, e2] = edges(cells[i]); [i * 10 + (i === a ? 0 : 5), ...(i === b ? [i * 10 + 10] : [])].forEach(m => { T.push(`${(x0 + m * k).toFixed(1)},${(y0 + e1 * H / 3).toFixed(1)}`); B.unshift(`${(x0 + m * k).toFixed(1)},${(y0 + e2 * H / 3).toFixed(1)}`); }); } p += `<polygon points="${T.join(' ')} ${B.join(' ')}" fill="#fff"/>`; });
+  let ticks = ''; for (let m = 0; m <= L; m += 10) ticks += `<rect x="${(x0 + m * k - .6).toFixed(1)}" y="${y0 + H + 4}" width="1.2" height="${m % 50 ? 4 : 8}" fill="#000"/>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="420mm" height="297mm" viewBox="0 0 420 297"><rect width="420" height="297" fill="#fff"/><rect x="${x0}" y="${y0}" width="${W}" height="${H}" fill="#000"/>${p}<rect x="${x0 + 160 * k}" y="${y0}" width="${30 * k}" height="${H}" fill="#fff" stroke="#000" stroke-width="1.2" stroke-dasharray="3 2"/>${ticks}<circle cx="${x0 + 80 * k}" cy="${y0 - 8}" r="3" fill="#000"/><text x="${x0}" y="${y0 - 14}" font-family="Arial" font-size="9">A</text><text x="${x0 + W - 6}" y="${y0 - 14}" font-family="Arial" font-size="9">B</text><text x="${x0}" y="36" font-family="Arial" font-size="9">Old Nagardas Rd · walkable width of the footpath</text><text x="${x0}" y="50" font-family="Arial" font-size="6.5">black = raised = taken · white = walkable · dot = green bins · dashed = underpass, not measured · ticks every 10 m</text></svg>`; }
+function stl(S) { const sx = 2, sy = 10, base = 2, hb = 6, out = ['solid pedestrian_footpath']; // 1:500 along (2 mm per m), 1:100 across, mm
+  const box = (x0, y0, z0, x1, y1, z1) => { const v = [[x0, y0, z0], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0], [x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]], f = [[0, 2, 1], [0, 3, 2], [4, 5, 6], [4, 6, 7], [0, 1, 5], [0, 5, 4], [1, 2, 6], [1, 6, 5], [2, 3, 7], [2, 7, 6], [3, 0, 4], [3, 4, 7]];
+    f.forEach(t => { out.push(' facet normal 0 0 0', '  outer loop'); t.forEach(j => out.push(`   vertex ${v[j][0].toFixed(2)} ${v[j][1].toFixed(2)} ${v[j][2].toFixed(2)}`)); out.push('  endloop', ' endfacet'); }); };
+  box(0, 0, 0, L * sx, 3 * sy, base);
+  S.forEach(s => { const x0 = s.i * 10 * sx, x1 = x0 + 10 * sx; if (s.g == null) return; const [e1, e2] = edges(s); if (e1 > .01) box(x0, (3 - e1) * sy, base, x1, 3 * sy, base + hb); if (e2 < 2.99) box(x0, 0, base, x1, (3 - e2) * sy, base + hb); });
+  out.push('endsolid pedestrian_footpath'); return out.join('\n'); }
+function currentSVG() { const c = svg.cloneNode(true); c.setAttribute('xmlns', NS); c.querySelectorAll('rect[style]').forEach(r => r.remove()); return c.outerHTML.replaceAll('../lab/ph/', 'ph/'); }
+
+/* ---------- pages ---------- */
+const PAGES = {};
+PAGES.make = S => `<h2>Make it physical</h2><p class="lede">Three objects built from the same measurements, for places where a screen is the wrong medium: a jury room, a ward office, a hand.</p>
+  <div class="item"><div class="n">01</div><div><h3>The bins, at full size</h3><p>The 10 m in front of the green bins, printed on the floor at 1:1. Black is what the walks found taken; the pale strip is the ${S[8].g.toFixed(1)} m that was left. People walk it instead of reading it.</p>
+    <div class="spec">10 000 × 3000 mm · SVG in millimetres · print at 100% on a roll plotter in 914 mm strips, or chalk it on site from the 1 m ticks</div><div class="acts"><button class="btn" data-dl="floor">Download floor print</button></div></div><div class="prev">${floorSVG(S).replace(/width="10000mm" height="3000mm"/, '')}</div></div>
+  <div class="item"><div class="n">02</div><div><h3>A cast of the footpath</h3><p>A small relief of the whole 220 m: the raised blocks are what took the footpath, the carved channel is what walkers had. Holding it, the pinch at the bins is a feeling in the fingers.</p>
+    <div class="spec">STL · 440 × 30 mm · 1:500 along the street, 1:100 across · 2 mm base, 6 mm blocks · prints in about two hours on a desktop printer</div><div class="acts"><button class="btn" data-dl="stl">Download STL</button></div></div><div class="prev">${relief(S)}</div></div>
+  <div class="item"><div class="n">03</div><div><h3>A map you can feel</h3><p>An A3 sheet for swell paper, where black rises when heated. The footpath reads by touch: the taken mass is raised, the walkable channel is flat, the bins are a raised dot, the underpass is a dashed outline.</p>
+    <div class="spec">SVG · A3 landscape · black = raised · add braille labels before printing · check with a blind walker before using it</div><div class="acts"><button class="btn" data-dl="tactile">Download tactile sheet</button></div></div><div class="prev">${tactileSVG(S).replace(/width="420mm" height="297mm"/, '')}</div></div>`;
+function relief(S) { const X = (m, a) => 6 + m * 2 + (3 - a) * 9, Y = (a, z) => 70 - (3 - a) * 9 - z, pt = (m, a, z) => `${X(m, a).toFixed(1)},${Y(a, z).toFixed(1)}`, H = 9;
+  let s = `<svg viewBox="0 0 480 96"><polygon points="${pt(0, 0, 0)} ${pt(L, 0, 0)} ${pt(L, 3, 0)} ${pt(0, 3, 0)}" fill="#FBF9F3" stroke="#D3CCBC"/><polygon points="${pt(0, 3, 0)} ${pt(L, 3, 0)} ${pt(L, 3, -4)} ${pt(0, 3, -4)}" fill="#D3CCBC"/>`;
+  const blocks = []; S.forEach(c => { if (c.g == null) { blocks.push([c.i * 10, c.i * 10 + 10, 0, 3, true]); return; } const [e1, e2] = edges(c); if (e1 > .01) blocks.push([c.i * 10, c.i * 10 + 10, 0, e1]); if (e2 < 2.99) blocks.push([c.i * 10, c.i * 10 + 10, e2, 3]); });
+  blocks.sort((p, q) => p[2] - q[2]).forEach(([m0, m1, a0, a1, na]) => { const z = na ? 0 : H; if (na) { s += `<polygon points="${pt(m0, a0, 0)} ${pt(m1, a0, 0)} ${pt(m1, a1, 0)} ${pt(m0, a1, 0)}" fill="#ECE7DB"/>`; return; }
+    s += `<polygon points="${pt(m0, a1, 0)} ${pt(m1, a1, 0)} ${pt(m1, a1, z)} ${pt(m0, a1, z)}" fill="#0d0d0d"/><polygon points="${pt(m1, a0, 0)} ${pt(m1, a1, 0)} ${pt(m1, a1, z)} ${pt(m1, a0, z)}" fill="#050505"/><polygon points="${pt(m0, a0, z)} ${pt(m1, a0, z)} ${pt(m1, a1, z)} ${pt(m0, a1, z)}" fill="#2b2b2b"/>`; });
+  return s + `<text x="6" y="92" font-family="IBM Plex Mono" font-size="7" fill="#8F897C">A · 0 m</text><text x="446" y="92" font-family="IBM Plex Mono" font-size="7" fill="#8F897C" text-anchor="end">B · 220 m</text></svg>`; }
+PAGES.connect = S => { const base = location.href.split('#')[0];
+  return `<h2>Connect</h2><p class="lede">The same measurements, handed to the tools other people already use. Every export follows the walks you have selected above.</p>
+  <div class="row"><div><h3>Spreadsheet</h3><div class="fmt">CSV · one row per 10 m</div></div><p>For ward offices, advocacy groups and anyone who works in Excel or Google Sheets: clear width, how often blocked, swerves, horns, night light and what took the space.</p><button class="btn" data-dl="csv">Download CSV</button></div>
+  <div class="row"><div><h3>Developers</h3><div class="fmt">JSON · stretches + every walk</div></div><p>The summary per 10 m and the raw per-walk readings, for anyone building on this: a dashboard, a research analysis, another city’s version.</p><button class="btn" data-dl="json">Download JSON</button></div>
+  <div class="row"><div><h3>GIS and web maps</h3><div class="fmt">GeoJSON · QGIS, Google My Maps, Mapbox</div></div><div><p>The walks were recorded along the street, not with GPS. Give the coordinates of the two ends and each 10 m stretch is placed on a straight line between them.</p>
+    <div class="coords"><input type="text" id="ga" placeholder="A: lat, lng  (R.K. Chouhan Communications)"><input type="text" id="gb" placeholder="B: lat, lng  (Amratlal G. Vasani)"></div></div><button class="btn" data-dl="geo">Download GeoJSON</button></div>
+  <div class="row"><div><h3>Navigation apps</h3><div class="fmt">OpenStreetMap tags</div></div><div><p>Wheelchair and walking routers such as those built on OpenStreetMap read footway width. These are suggested tags per stretch, using <code>est_width</code> because the widths are estimates. Check them on the ground before adding them to the map.</p><textarea readonly id="osmtx">${osm(S)}</textarea></div><button class="btn ghost" data-copy="osmtx">Copy</button></div>
+  <div class="row"><div><h3>Design tools</h3><div class="fmt">SVG · Figma, Illustrator</div></div><p>The map you last looked at, as editable vectors, for boards, posters and the presentation deck.</p><button class="btn" data-dl="svg">Download ${(V[state.lastMap] || V.nolli).t}</button></div>
+  <div class="row"><div><h3>Websites</h3><div class="fmt">Embed</div></div><div><p>Put the live map on a ward page, a news story or an advocacy site.</p><textarea readonly id="embed" style="height:60px">&lt;iframe src="${base}#v=${state.lastMap || 'nolli'}" width="100%" height="760" style="border:0" title="Pedestrian map of Old Nagardas Road"&gt;&lt;/iframe&gt;</textarea></div><button class="btn ghost" data-copy="embed">Copy</button></div>
+  <div class="row"><div><h3>Share a view</h3><div class="fmt">Link</div></div><div><p>A link that opens the map on the view you were looking at.</p><input type="text" readonly id="share" value="${base}#v=${state.lastMap || 'nolli'}&d=${state.dir}"></div><button class="btn ghost" data-copy="share">Copy</button></div>`; };
+const USES = [
+  ['now', 'Can a wheelchair get through?', 'Wheelchair users, carers with prams, older people', 'Where the footpath is wide enough on most days, and where you will be forced into the road.', [['through', 'Can I get through?'], ['line', 'Walk-line']]],
+  ['now', 'Who has to act on each stretch', 'Ward office: encroachment, works and parking teams', 'Fixed things need works, persistent stalls need enforcement, parked vehicles need parking control. The map sorts the footpath by owner.', [['fills', 'Lost to'], ['plan', 'Obstruction plan']]],
+  ['now', 'Proof for a complaint or a petition', 'Residents, advocacy groups, lawyers', 'Dated, repeated and photographed: blocked on 13 of 15 walks, not “the footpath is bad”.', [['nolli', 'Nolli'], ['collage', 'Ground collage']]],
+  ['now', 'Where street vending can fit', 'Town vending committees under the Street Vendors Act, 2014', 'Where stalls already sit and where they leave the walking path free, so vending zones do not take the footpath.', [['plan', 'Obstruction plan'], ['ghost', 'Ghost']]],
+  ['now', 'Is it safe after dark?', 'Women’s safety audits, residents walking home', 'Which stretches get darker and narrower at night.', [['daynight', 'Day & night']]],
+  ['now', 'Did the cleanup work?', 'Ward office, residents', 'Walk again after a drive or a repair and compare the same stretch, measured the same way.', [['ghost', 'Ghost'], ['block', 'Space-time block']]],
+  ['next', 'Accessible routing in map apps', 'Navigation apps, wheelchair routers', 'Footway widths fed to OpenStreetMap so routes can avoid stretches under 0.9 m.', [['connect', 'Connect']]],
+  ['next', 'Delivery robots and e-scooters', 'Operators, transport planners', 'How much footpath is really there before machines are allowed on it.', [['plan', 'Obstruction plan']]],
+  ['next', 'Crowd safety near stations', 'Railway police, station managers', 'Footpath capacity at the peak, where a pinch point can become dangerous.', [['eye', 'Walker’s eye']], 'needs timed walks at peak hours'],
+  ['next', 'Ward report cards', 'Corporators, citizens, journalists', 'How many stretches in each ward are walkable, updated as walks come in.', [['line', 'Walk-line']], 'needs many streets per ward'],
+  ['next', 'Monsoon, heat and shade', 'Disaster management, urban designers', 'The same method on rainy days and at midday: waterlogged and unshaded stretches.', [['layers', 'What a walker meets']], 'needs walks in other seasons'],
+  ['next', 'A city map made by walkers', 'Anyone with a phone', 'Every walk recorded adds to the map; the same pipeline, at the scale of the city.', [['block', 'Space-time block']], 'needs the capture tool in more hands']];
+PAGES.uses = () => `<h2>Uses</h2><p class="lede">What a pedestrian map is for, beyond this jury. The first group works with the 15 walks already recorded; the second needs more walks or new kinds of data.</p>
+  <div class="grp">Possible now, with these walks</div>${USES.filter(u => u[0] === 'now').map((u, k) => useRow(u, k)).join('')}
+  <div class="grp">Next, with more walks</div>${USES.filter(u => u[0] === 'next').map((u, k) => useRow(u, k + 6)).join('')}`;
+const useRow = (u, k) => `<div class="use"><div class="n">${String(k + 1).padStart(2, '0')}</div><div><h3>${u[1]}</h3><div class="who">${u[2]}</div></div><div><p>${u[3]}</p>${u[5] ? `<div class="tag" style="margin-top:6px">${u[5]}</div>` : ''}</div><div class="go">${u[4].map(([v, l]) => `<button data-go="${v}">${l} →</button>`).join('')}</div></div>`;
+
+/* ---------- navigation & render ---------- */
+const GROUPS = [['read', 'Read the street', [['nolli', 'Nolli'], ['ghost', 'Ghost'], ['daynight', 'Day & night'], ['fills', 'Lost to'], ['layers', 'What a walker meets'], ['line', 'Walk-line'], ['through', 'Can I get through?']]],
+  ['see', 'Other ways to see it', [['plan', 'Obstruction plan'], ['block', 'Space-time block'], ['eye', 'Walker’s eye'], ['collage', 'Ground collage'], ['sound', 'Listen']]],
+  ['make', 'Make it physical'], ['connect', 'Connect'], ['uses', 'Uses']];
+const groupOf = v => (GROUPS.find(g => g[0] === v || (g[2] && g[2].some(x => x[0] === v))) || GROUPS[0]);
 function render() {
-  const S = stats(), v = V[state.view];
-  svg.innerHTML = ''; defs();
-  const [y0, y1] = v.draw(S); interact(S, y0, y1);
-  const bb = svg.getBBox(); svg.setAttribute('viewBox', `0 ${Math.floor(bb.y - 4)} ${XW + 74} ${Math.ceil(bb.height + 10)}`);
-  document.getElementById('vt').textContent = v.t; document.getElementById('vn').textContent = v.n;
-  document.getElementById('legend').innerHTML = v.leg.map(([c, l, b]) => `<span><i style="background:${c === 'url' ? 'repeating-linear-gradient(45deg,var(--paper2) 0 3px,var(--hair) 3px 4px)' : c};${b ? 'border:1px solid var(--hair)' : ''}"></i>${l}</span>`).join('');
-  document.getElementById('slider').hidden = state.view !== 'through';
-  document.querySelectorAll('#nav button').forEach(b => b.setAttribute('aria-current', b.dataset.v === state.view));
+  const S = stats(), g = groupOf(state.view), isPage = !!PAGES[state.view];
+  document.getElementById('top').innerHTML = GROUPS.map(G => `<button data-g="${G[0]}" aria-current="${G[0] === g[0]}">${G[1]}</button>`).join('');
+  const sub = document.getElementById('sub'); sub.hidden = !g[2]; sub.innerHTML = g[2] ? g[2].map(([k, l], i) => `<button data-v="${k}" aria-current="${k === state.view}"><span>0${i + 1}</span>${l}</button>`).join('') : '';
+  document.getElementById('mapsec').hidden = isPage; const page = document.getElementById('page'); page.hidden = !isPage; document.getElementById('body').classList.toggle('full', isPage);
   document.querySelectorAll('.cell[data-k]').forEach(c => c.classList.toggle('on', state.on.has(+c.dataset.k)));
   document.querySelectorAll('.wtools [data-d]').forEach(b => b.style.color = b.dataset.d === state.dir ? 'var(--ink)' : '');
+  history.replaceState(null, '', `#v=${state.view}&d=${state.dir}`);
+  if (isPage) { page.innerHTML = PAGES[state.view](S); page.classList.remove('fade'); void page.offsetWidth; page.classList.add('fade'); return; }
+  state.lastMap = state.view;
+  const v = V[state.view];
+  document.getElementById('vt').textContent = v.t; document.getElementById('vn').textContent = v.n;
+  document.getElementById('legend').innerHTML = v.leg.map(([c, l, b]) => `<span><i style="background:${c === 'url' ? 'repeating-linear-gradient(45deg,var(--paper2) 0 3px,var(--hair) 3px 4px)' : c};${b ? 'border:1px solid var(--hair)' : ''}"></i>${l}</span>`).join('');
+  document.getElementById('ctrl').innerHTML = v.ctrl ? v.ctrl() : '';
+  svg.hidden = !!v.canvas; eyeCv.hidden = !v.canvas; document.getElementById('hud').hidden = !v.canvas;
+  if (v.canvas) { eyeS = S; drawEye(); inspect(S, state.sel); return; }
+  playing = false; svg.innerHTML = ''; defs();
+  const r = v.draw(S); if (r) interact(S, r[0], r[1]);
+  const bb = svg.getBBox(); svg.setAttribute('viewBox', `${Math.min(0, Math.floor(bb.x - 4))} ${Math.floor(bb.y - 4)} ${Math.max(XW + 74, Math.ceil(bb.width + 10))} ${Math.ceil(bb.height + 10)}`);
   svg.classList.remove('fade'); void svg.offsetWidth; svg.classList.add('fade');
   inspect(S, state.sel);
 }
-document.getElementById('nav').innerHTML = ORDER.map(([k, l], i) => `<button data-v="${k}"><span>0${i + 1}</span><b>${l}</b></button>`).join('');
-document.getElementById('nav').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.view = b.dataset.v; render(); } });
-const rows = [['A→B', w => w.dir === 'forward' && !w.night], ['B→A', w => w.dir === 'return' && !w.night], ['B→A ☾', w => w.night]];
+document.getElementById('top').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; const G = GROUPS.find(x => x[0] === b.dataset.g); state.view = G[2] ? G[2][0][0] : G[0]; render(); });
+document.getElementById('sub').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.view = b.dataset.v; render(); } });
+document.getElementById('ctrl').addEventListener('input', e => {
+  if (e.target.id === 'thr') { state.thr = +e.target.value; render(); }
+  if (e.target.id === 'pos') { state.pos = +e.target.value; document.getElementById('posV').textContent = Math.round(state.pos) + ' m'; state.sel = Math.min(21, Math.floor(state.pos / 10)); drawEye(); inspect(eyeS, state.sel); } });
+document.getElementById('ctrl').addEventListener('click', e => {
+  if (e.target.id === 'play') { playing = !playing; e.target.textContent = playing ? 'Pause' : 'Play the walk'; if (playing) { if (state.pos >= 211) state.pos = 0; eyeLoop(); } }
+  if (e.target.id === 'listen') playSound(stats()); });
+document.getElementById('page').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; const S = stats();
+  if (b.dataset.go) { state.view = b.dataset.go; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  if (b.dataset.copy) { const t = document.getElementById(b.dataset.copy); navigator.clipboard && navigator.clipboard.writeText(t.value); b.textContent = 'Copied'; setTimeout(() => b.textContent = 'Copy', 1400); return; }
+  const k = b.dataset.dl;
+  if (k === 'floor') download('old-nagardas-80-90m-floor-1to1.svg', floorSVG(S), 'image/svg+xml');
+  if (k === 'stl') download('old-nagardas-footpath-cast.stl', stl(S), 'model/stl');
+  if (k === 'tactile') download('old-nagardas-tactile-A3.svg', tactileSVG(S), 'image/svg+xml');
+  if (k === 'csv') download('old-nagardas-footpath.csv', csv(S), 'text/csv');
+  if (k === 'json') download('old-nagardas-footpath.json', JSON.stringify({ corridor: D.corridor, method: 'Widths are camera estimates from walk photos; daytime median of walks where the photo could measure width.', stretches: rowsOut(S), walks: sel().map(w => ({ day: w.day, date: w.date, direction: w.dir, night: w.night, horns_m: w.honks, swerves_m: w.swerves, stretches: w.s })) }, null, 1), 'application/json');
+  if (k === 'geo') { const pa = v => (v || '').split(',').map(Number); const a = pa(document.getElementById('ga').value), c = pa(document.getElementById('gb').value);
+    if (a.length !== 2 || c.length !== 2 || a.some(isNaN) || c.some(isNaN)) { b.textContent = 'Add both ends first'; setTimeout(() => b.textContent = 'Download GeoJSON', 1800); return; } download('old-nagardas-footpath.geojson', geojson(S, a, c), 'application/geo+json'); }
+  if (k === 'svg') { const prev = state.view; state.view = state.lastMap || 'nolli'; render(); const out = currentSVG(); state.view = prev; render(); download(`pedestrian-map-${state.lastMap || 'nolli'}.svg`, out, 'image/svg+xml'); } });
+// walk matrix
+const rows = [['A→B', w => w.dir === 'forward' && !w.night], ['B→A', w => w.dir === 'return' && !w.night], ['B→A night', w => w.night]];
 let mx = '<span></span>' + Array.from({ length: 8 }, (_, d) => `<span class="cl">${d + 1}</span>`).join('');
 rows.forEach(([lab, f]) => { mx += `<span class="rl">${lab}</span>`; for (let d = 1; d <= 8; d++) { const w = walks.find(x => x.day === d && f(x)); mx += w ? `<button class="cell${w.night ? ' night' : ''}" data-k="${w.k}" title="Day ${d} · ${lab} · ${w.date}"></button>` : '<span class="cell none"></span>'; } });
 document.getElementById('matrix').innerHTML = mx;
 document.getElementById('matrix').addEventListener('click', e => { const b = e.target.closest('.cell[data-k]'); if (!b) return; const k = +b.dataset.k; state.on.has(k) ? state.on.delete(k) : state.on.add(k); if (!state.on.size) state.on.add(k); render(); });
 document.querySelector('.wtools').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.d) state.dir = b.dataset.d; if (b.dataset.a) state.on = new Set(walks.filter(w => b.dataset.a === 'all' || !w.night).map(w => w.k)); render(); });
-document.getElementById('thr').addEventListener('input', e => { state.thr = +e.target.value; document.getElementById('thrV').textContent = state.thr.toFixed(1) + ' m'; render(); });
-document.fonts && document.fonts.ready.then(render);
+// open on a shared view
+const h = new URLSearchParams(location.hash.slice(1)); if (h.get('v') && (V[h.get('v')] || PAGES[h.get('v')])) state.view = h.get('v'); if (['both', 'f', 'r'].includes(h.get('d'))) state.dir = h.get('d');
+window.addEventListener('hashchange', () => { const q = new URLSearchParams(location.hash.slice(1)), v = q.get('v'); if (v && v !== state.view && (V[v] || PAGES[v])) { state.view = v; render(); } });
+document.fonts && document.fonts.ready.then(() => { if (!PAGES[state.view]) render(); });
 render();
 </script>
 </body>
