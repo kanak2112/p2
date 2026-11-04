@@ -68,7 +68,10 @@ nav.sub button[aria-current=true]{color:var(--ink);text-decoration:underline;tex
 .stage{position:relative;background:var(--void);border:1px solid var(--hair);border-radius:3px;padding:20px 20px 10px}
 #map{width:100%;height:auto;display:block;overflow:visible}
 #map text{font-family:var(--sans)}
-#eye[hidden],.hud[hidden],#map[hidden]{display:none}
+#eye[hidden],.hud[hidden],#map[hidden],#mini[hidden]{display:none}
+#mini{width:100%;display:block;margin-top:10px;cursor:ew-resize;touch-action:none}
+.sel{font:400 12px var(--mono);border:1px solid var(--hair);background:var(--void);padding:6px 8px;border-radius:2px;color:var(--ink)}
+#map.isoon{cursor:grab;touch-action:none}
 #eye{width:100%;display:block;border-radius:2px;background:var(--paper)}
 .hud{position:absolute;left:34px;top:30px;font:400 12px var(--mono);color:var(--ink2);background:rgba(251,249,243,.85);padding:8px 10px;border-radius:2px;pointer-events:none}
 .hud b{font:500 26px var(--mono);color:var(--ink);display:block}
@@ -157,7 +160,7 @@ nav.sub button[aria-current=true]{color:var(--ink);text-decoration:underline;tex
     <section id="mapsec">
       <div class="vhead"><div><h2 id="vt"></h2><p id="vn"></p></div><div class="legend" id="legend"></div></div>
       <div class="ctrl" id="ctrl"></div>
-      <div class="stage" id="stage"><svg id="map"></svg><canvas id="eye" width="1600" height="680" hidden></canvas><div class="hud" id="hud" hidden></div><div class="tip" id="tip"></div></div>
+      <div class="stage" id="stage"><svg id="map"></svg><canvas id="eye" width="1600" height="720" hidden></canvas><svg id="mini" hidden></svg><div class="hud" id="hud" hidden></div><div class="tip" id="tip"></div></div>
       <div class="foot">Widths are camera estimates traced from walk photos, not tape-measured · night widths are less reliable · one side of the street walked · vertical scale exaggerated so the footpath can be read.</div>
     </section>
     <section id="page" class="page" hidden></section>
@@ -175,7 +178,7 @@ const LM = [[80,'Green bins'],[104,'Turn onto service road'],[176.5,'Underpass w
 const X0 = 2, PX = 5.6, W10 = 10 * PX, XW = X0 + L * PX;
 const med = a => { const s = a.slice().sort((x, y) => x - y), n = s.length; return n ? (n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2) : null; };
 const walks = D.walks.map((w, k) => ({ ...w, k }));
-const state = { view: 'nolli', dir: 'both', on: new Set(walks.map(w => w.k)), thr: .9, sel: 8, pos: 60 };
+const state = { view: 'nolli', dir: 'both', on: new Set(walks.map(w => w.k)), thr: .9, sel: 8, pos: 60, eyeW: 4, iso: null };
 const topOf = e => { if (!e) return .5; const a = e[0], b = 1 - e[1]; return a + b > .02 ? a / (a + b) : .5; };
 const placeOf = m => PLACES.filter(p => p[0] <= m + 5).pop()[1];
 const wlabel = w => `Day ${w.day} ${w.dir === 'forward' ? 'A→B' : 'B→A'}${w.night ? ' night' : ''}`;
@@ -206,8 +209,8 @@ function el(tag, at, p = svg) { const e = document.createElementNS(NS, tag); for
 function tx(s, x, y, at = {}, p = svg) { const t = el('text', { x, y, 'font-size': 11, fill: C.ink2, ...at }, p); t.textContent = s; return t; }
 const mono = { 'font-family': 'IBM Plex Mono', 'font-size': 10, fill: C.ink3, 'letter-spacing': '.06em' };
 const xm = m => X0 + m * PX;
-function defs() {
-  const d = el('defs', {});
+function defs(root = svg) {
+  const d = el('defs', {}, root);
   const p = el('pattern', { id: 'hatch', width: 6, height: 6, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' }, d);
   el('rect', { width: 6, height: 6, fill: C.paper2 }, p); el('line', { x1: 0, y1: 0, x2: 0, y2: 6, stroke: C.hair, 'stroke-width': 1.4 }, p);
   const g = el('linearGradient', { id: 'nightfade', x1: 0, x2: 0, y1: 0, y2: 1 }, d); el('stop', { offset: 0, 'stop-color': C.navy }, g); el('stop', { offset: 1, 'stop-color': '#2C3A5C' }, g);
@@ -345,10 +348,47 @@ V.block = { t: 'Space-time block', n: 'The walks stacked on top of each other, o
     const [ax, ay] = P(0, 3, 0), [bx, by] = P(L, 3, 0); tx('A · 0 m', ax, ay + 50, mono); tx('B · 220 m', bx, by + 50, { ...mono, 'text-anchor': 'end' });
     const [tx0, ty0] = P(0, 0, W.length - 1); tx('BUILDING SIDE', tx0, ty0 - 10, mono); tx('↑ LATER WALKS', 0, ty0 + 30, mono);
     return null; } };
-V.eye = { t: 'Walker’s eye', n: 'The footpath at eye height, built from the measured walkable width and where the obstructions sat. Drag along the street or press play to walk it. Dark blocks are what took the footpath; the pale floor is what was left.',
-  leg: [[C.mass, 'taken'], [C.void, 'walkable', 1], ['#5b6370', 'road']],
-  ctrl: () => `<button class="btn" id="play">Play the walk</button><span>POSITION</span><input id="pos" type="range" min="0" max="212" step="0.5" value="${state.pos}"><b id="posV">${Math.round(state.pos)} m</b>`,
+V.eye = { t: 'Walker’s eye', n: 'The footpath at eye height, as one walk met it. The pale floor is the width that walk measured; the people, two-wheelers, poles, trees and barriers stand where its photos found them. Drag the strip underneath, press play, or use the arrow keys.',
+  leg: [[C.ppl, 'people & stalls'], [C.veh, 'vehicles'], [C.fix, 'poles & barriers'], ['#5E7A57', 'trees'], [C.void, 'walkable floor', 1]],
+  ctrl: () => `<span>WALK</span><select id="ewalk" class="sel">${walks.filter(w => !w.night).map(w => `<option value="${w.k}" ${state.eyeW === w.k ? 'selected' : ''}>${wlabel(w)} · ${w.date}</option>`).join('')}<option value="all" ${state.eyeW === 'all' ? 'selected' : ''}>All daytime walks at once</option></select><button class="btn" id="play">${playing ? 'Pause' : 'Play the walk'}</button><span>POSITION</span><input id="pos" type="range" min="0" max="214" step="0.5" value="${state.pos}"><b id="posV">${Math.round(state.pos)} m</b>`,
   canvas: true };
+V.iso = { t: 'Isometric street', n: 'The street at true scale, in three dimensions. Scroll to zoom, drag to pan, click any stretch to fly to it. People, vehicles, poles, trees and barriers stand where the daytime walk photos found them; building heights were not surveyed and are drawn as a plain block.',
+  leg: [[C.ppl, 'people & stalls'], [C.veh, 'vehicles'], [C.fix, 'poles & barriers'], ['#5E7A57', 'trees'], [C.void, 'walkable', 1], ['#CFC6B4', 'taken']],
+  ctrl: () => `<button class="btn" id="isoFit">Whole street</button><button class="btn ghost" id="isoBins">Fly to the bins</button><button class="btn ghost" id="isoIn">Zoom in</button><button class="btn ghost" id="isoOut">Zoom out</button><span>SCROLL · DRAG · CLICK A STRETCH</span>`,
+  own: true,
+  draw(S) {
+    const K = 10, P = (m, a, z = 0) => [(m - a) * .866 * K, (m + a) * .5 * K - z * K], pts = a => a.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ');
+    const poly = (q, fill, extra = {}) => el('polygon', { points: pts(q), fill, ...extra });
+    const g = el('g', {});
+    // road and lane
+    poly([P(-6, 3.15, -.15), P(226, 3.15, -.15), P(226, 12, -.15), P(-6, 12, -.15)], '#7A7F86');
+    for (let m = -6; m < 226; m += 6) poly([P(m, 7.4, -.15), P(m + 3, 7.4, -.15), P(m + 3, 7.6, -.15), P(m, 7.6, -.15)], '#ECE8DF');
+    poly([P(-6, 3, 0), P(226, 3, 0), P(226, 3.15, 0), P(226, 3.15, -.15), P(-6, 3.15, -.15), P(-6, 3, 0)], '#B9B3A6');
+    // footpath: taken base, walkable channel, underpass
+    poly([P(0, 0), P(L, 0), P(L, 3), P(0, 3)], '#CFC6B4');
+    const cells = medianCells(S).map(c => c.g == null ? null : c);
+    runs(cells).forEach(([a, b]) => { const T = [], B = [], ms = [[a, a * 10 + .1]]; for (let i = a; i <= b; i++) ms.push([i, i * 10 + 5]); ms.push([b, b * 10 + 9.9]);
+      ms.forEach(([i, m]) => { const [e1, e2] = edges(cells[i]); T.push(P(m, e1)); B.push(P(m, e2)); }); el('path', { d: ribbon(T, B), fill: C.void }); });
+    poly([P(160, 0), P(190, 0), P(190, 3), P(160, 3)], 'url(#hatch)');
+    // selected stretch
+    poly([P(state.sel * 10, 0, .02), P(state.sel * 10 + 10, 0, .02), P(state.sel * 10 + 10, 3, .02), P(state.sel * 10, 3, .02)], C.yel, { opacity: .35 });
+    // chainage marks on the kerb
+    for (let m = 0; m <= L; m += 10) { const [x, y] = P(m, 3.2, 0); el('line', { x1: x, x2: x - 6, y1: y, y2: y + 3.5, stroke: C.ink3, 'stroke-width': .6 }); if (m % 50 === 0 || m === L) tx(m + ' m', x - 8, y + 12, { ...mono, 'font-size': 5, 'text-anchor': 'end' }); }
+    // buildings: one block per 10 m, height not surveyed
+    const blk = (m0, m1, a0, a1, h, top, front, end, op = 1) => { poly([P(m0, a1, 0), P(m1, a1, 0), P(m1, a1, h), P(m0, a1, h)], front, { opacity: op }); poly([P(m1, a0, 0), P(m1, a1, 0), P(m1, a1, h), P(m1, a0, h)], end, { opacity: op }); poly([P(m0, a0, h), P(m1, a0, h), P(m1, a1, h), P(m0, a1, h)], top, { opacity: op }); };
+    for (let m = 0; m < L; m += 10) { if (m >= 160 && m < 190) { blk(m, m + 10, -1.2, -.2, 2.2, '#C9C2B2', '#B5AD9C', '#A39B8A'); continue; } blk(m, m + 10, -9, 0, 6 + ((m * 7) % 3) * .6, '#E9E3D6', '#DDD5C5', '#CEC6B5'); }
+    const [lx, ly] = P(80, -9, 9); tx('BUILDING LINE · HEIGHTS NOT SURVEYED', lx, ly - 4, { ...mono, 'font-size': 5.5, fill: C.ink2 });
+    // objects
+    const ds = selDets().map(d => ({ m: d[0], u: d[1], k: d[2] })).map(o => { const i = Math.min(21, Math.floor(o.m / 10)), c = cells[i]; const [e1, e2] = c ? edges(c) : [0, 3]; o.a = Math.max(.2, Math.min(3.6, e1 + o.u * (e2 - e1))); return o; }).sort((p, q) => (p.m + p.a) - (q.m + q.a));
+    ds.forEach(o => { const s = ((o.m * 13.7 + o.u * 7.1) % 1 + 1) % 1;
+      if (o.k === 'people') { blk(o.m - .2, o.m + .2, o.a - .2, o.a + .2, 1.45 + s * .2, '#E2BC4A', '#C99E1F', '#B08915'); blk(o.m - .12, o.m + .12, o.a - .12, o.a + .12, 1.8 + s * .2, '#E8C665', '#D0A83A', '#B8922A'); }
+      else if (o.k === 'vehicle') { blk(o.m - .9, o.m + .9, o.a - .35, o.a + .35, 1.05, '#E07A45', '#C25E2B', '#A84E22'); }
+      else if (o.k === 'pole') { blk(o.m - .08, o.m + .08, o.a - .08, o.a + .08, 3.6, '#5B6FB3', '#3657C9', '#2B47A6'); }
+      else if (o.k === 'plants') { blk(o.m - .1, o.m + .1, o.a - .1, o.a + .1, 2.2, '#7a6a55', '#6B5E4E', '#5a4f41'); const c0 = P(o.m, o.a, 3); el('ellipse', { cx: c0[0], cy: c0[1], rx: 9, ry: 6, fill: '#5E7A57', opacity: .85 }); }
+      else if (o.k === 'barrier') { blk(o.m - .5, o.m + .5, o.a - .12, o.a + .12, .9, '#8E9CC4', '#6E7FA8', '#5D6D94'); } });
+    // landmarks as pins
+    [[80, 'GREEN BINS'], [104, 'TURN ONTO SERVICE ROAD'], [176, 'UNDERPASS WALKWAY'], [0, 'A · R.K. CHOUHAN'], [L, 'B · AMRATLAL G. VASANI']].forEach(([m, l]) => { const [x, y] = P(m, 1.5, 0), [, y2] = P(m, 1.5, 12); el('line', { x1: x, x2: x, y1: y, y2: y2, stroke: C.ink, 'stroke-width': .5 }); el('circle', { cx: x, cy: y2, r: 1.6, fill: C.ink }); tx(l, x + 3, y2 + 2, { ...mono, 'font-size': 6, fill: C.ink }); });
+    return null; } };
 V.collage = { t: 'Ground collage', n: 'Only the ground people actually had. For every 10 m, the worst daytime photo is cut down to the walkable ground traced in it, and the pieces are laid end to end along the street. Everything else is faded out.',
   leg: [[C.yel, 'traced walkable ground'], [C.paper2, 'rest of the photo']],
   draw(S) { const d = el('defs', {}), P = D.photos, TW = W10, TH = TW * 427 / 240; let y = 40; marks(4);
@@ -370,45 +410,99 @@ V.sound = { t: 'Listen to the street', n: 'The 220 m played in 22 seconds. A low
     axis(y + H + 44); return [y, y + H]; } };
 
 /* ---------- walker's eye renderer ---------- */
-const eyeCv = document.getElementById('eye'), ex = eyeCv.getContext('2d');
+const eyeCv = document.getElementById('eye'), ex = eyeCv.getContext('2d'), mini = document.getElementById('mini');
 let eyeS = null, playing = false;
-function widthAt(S, m) { const c = Math.max(0, Math.min(21, (m - 5) / 10)), i0 = Math.floor(c), i1 = Math.min(21, i0 + 1), f = c - i0;
-  const val = i => { const s = S[i]; if (s.g == null) return null; const [a, b] = edges(s); return [a, b]; };
-  const A = val(i0), B = val(i1); if (!A && !B) return null; if (!A) return B; if (!B) return A; return [A[0] + (B[0] - A[0]) * f, A[1] + (B[1] - A[1]) * f]; }
+function eyeCells(S) { const w = state.eyeW === 'all' ? null : walks[state.eyeW]; return S.map((s, i) => { const r = w && w.s[i]; if (r && r.g > 0 && !NA(i)) return { g: r.g, top: r.e ? topOf(r.e) : s.top }; return s.g != null ? { g: s.g, top: s.top } : null; }); }
+function eyeDets() { if (state.eyeW === 'all') return D.dets.filter(d => walks.some(w => !w.night && w.day === d[4] && (w.dir === 'forward') === (d[3] === 'f'))); const w = walks[state.eyeW]; return D.dets.filter(d => d[4] === w.day && (d[3] === 'f') === (w.dir === 'forward')); }
+function edgesAt(cells, m) { const c = Math.max(0, Math.min(21, (m - 5) / 10)), i0 = Math.floor(c), i1 = Math.min(21, i0 + 1), f = c - i0; const A = cells[i0] && edges(cells[i0]), B = cells[i1] && edges(cells[i1]); if (!A && !B) return null; if (!A) return B; if (!B) return A; return [A[0] + (B[0] - A[0]) * f, A[1] + (B[1] - A[1]) * f]; }
 function mix(h1, h2, t) { const p = h => [1, 3, 5].map(j => parseInt(h.slice(j, j + 2), 16)); const a = p(h1), b = p(h2); return `rgb(${a.map((v, j) => Math.round(v + (b[j] - v) * t)).join(',')})`; }
+let camL = 1.5;
 function drawEye() {
-  const S = eyeS, Wc = eyeCv.width, Hc = eyeCv.height, F = 620, EYE = 1.55, HOR = Hc * .46;
-  const here = widthAt(S, state.pos) || [1, 2], camL = (here[0] + here[1]) / 2;
+  const S = eyeS, cells = eyeCells(S), dets = eyeDets(), Wc = eyeCv.width, Hc = eyeCv.height, F = Wc * .42, EYE = 1.6, HOR = Hc * .44, FAR = 60, PAPER = '#F4F1E9';
+  const here = edgesAt(cells, state.pos + 2) || [1, 2]; camL += ((here[0] + here[1]) / 2 - camL) * .35;
   const pr = (d, l, h) => [Wc / 2 + F * (l - camL) / d, HOR - F * (h - EYE) / d];
-  ex.fillStyle = C.paper; ex.fillRect(0, 0, Wc, Hc);
-  const sky = ex.createLinearGradient(0, 0, 0, HOR); sky.addColorStop(0, '#ECE7DB'); sky.addColorStop(1, '#F4F1E9'); ex.fillStyle = sky; ex.fillRect(0, 0, Wc, HOR);
-  const quad = (pts, col) => { ex.beginPath(); pts.forEach((p, j) => j ? ex.lineTo(p[0], p[1]) : ex.moveTo(p[0], p[1])); ex.closePath(); ex.fillStyle = col; ex.fill(); };
-  const FAR = 45, STEP = .5;
-  for (let d = FAR; d > .9; d -= STEP) {
-    const d0 = d - STEP, m0 = state.pos + d0, m1 = state.pos + d, fog = Math.min(.85, d / FAR * .95);
-    if (m1 > L) continue;
-    const w0 = widthAt(S, m0), w1 = widthAt(S, m1), na = NA(Math.floor(m0 / 10));
-    // road beyond the kerb
-    quad([pr(d1(d0), 3, -.15), pr(d1(d0), 9, -.15), pr(d, 9, -.15), pr(d, 3, -.15)], mix('#5b6370', '#F4F1E9', fog));
-    // building wall
-    quad([pr(d0, 0, 0), pr(d, 0, 0), pr(d, 0, 5), pr(d0, 0, 5)], mix('#d9d2c2', '#F4F1E9', fog));
-    if (!w0 || !w1 || na) { quad([pr(d0, 0, 0), pr(d0, 3, 0), pr(d, 3, 0), pr(d, 0, 0)], mix('#d8d3c6', '#F4F1E9', fog)); continue; }
-    quad([pr(d0, w0[0], 0), pr(d0, w0[1], 0), pr(d, w1[1], 0), pr(d, w1[0], 0)], mix('#FBF9F3', '#F4F1E9', fog * .5));
-    const HB = 1.15, mc = mix('#171717', '#F4F1E9', fog), mt = mix('#2e2e2e', '#F4F1E9', fog);
-    [[0, w0[0], 0, w1[0]], [w0[1], 3, w1[1], 3]].forEach(([a0, b0, a1, b1]) => { if (b0 - a0 < .02) return;
-      quad([pr(d0, a0, HB), pr(d0, b0, HB), pr(d, b1, HB), pr(d, a1, HB)], mt);                     // top
-      quad([pr(d0, a0, 0), pr(d0, b0, 0), pr(d0, b0, HB), pr(d0, a0, HB)], mc);                    // front
-      const inner = a0 === 0 ? [b0, b1] : [a0, a1]; quad([pr(d0, inner[0], 0), pr(d, inner[1], 0), pr(d, inner[1], HB), pr(d0, inner[0], HB)], mix('#0d0d0d', '#F4F1E9', fog)); });
-    if (Math.floor(m1 / 10) !== Math.floor(m0 / 10)) { const [px, py] = pr(d, 3.15, 0), [, qy] = pr(d, 3.15, .9); ex.strokeStyle = mix('#966C00', '#F4F1E9', fog); ex.lineWidth = Math.max(1, 6 / d); ex.beginPath(); ex.moveTo(px, py); ex.lineTo(px, qy); ex.stroke();
-      ex.fillStyle = ex.strokeStyle; ex.font = `${Math.max(9, Math.min(22, 120 / d))}px "IBM Plex Mono"`; ex.fillText(Math.round(m1 / 10) * 10 + ' m', px + 4, qy); }
+  const fog = (hex, d) => mix(hex, PAPER, Math.min(.9, Math.pow(d / FAR, .75)));
+  const quad = (q, col) => { ex.beginPath(); q.forEach((p, j) => j ? ex.lineTo(p[0], p[1]) : ex.moveTo(p[0], p[1])); ex.closePath(); ex.fillStyle = col; ex.fill(); ex.strokeStyle = col; ex.lineWidth = 1; ex.stroke(); };
+  const sky = ex.createLinearGradient(0, 0, 0, HOR); sky.addColorStop(0, '#E9E3D4'); sky.addColorStop(1, PAPER); ex.fillStyle = sky; ex.fillRect(0, 0, Wc, HOR + 2);
+  ex.fillStyle = PAPER; ex.fillRect(0, HOR, Wc, Hc - HOR);
+  for (let d = FAR; d > .5; d -= .5) {
+    const d0 = Math.max(.5, d - .5), m0 = state.pos + d0, m1 = state.pos + d; if (m0 > L) continue;
+    const mm = Math.floor(m0), na = NA(Math.min(21, Math.floor(m0 / 10)));
+    // facade with shopfront rhythm and awning band
+    quad([pr(d0, -.02, 0), pr(d, -.02, 0), pr(d, -.02, 7), pr(d0, -.02, 7)], fog(na ? '#BDB5A4' : '#E4DCCC', d));
+    if (!na && mm % 5 !== 0) quad([pr(d0, -.01, .1), pr(d, -.01, .1), pr(d, -.01, 2.6), pr(d0, -.01, 2.6)], fog(mm % 10 < 5 ? '#B7AD99' : '#A79C87', d));
+    if (!na) quad([pr(d0, 0, 2.8), pr(d, 0, 2.8), pr(d, .45, 3.05), pr(d0, .45, 3.05)], fog('#8F7F62', d));
+    // road, lane dashes, kerb
+    quad([pr(d0, 3.15, -.15), pr(d0, 14, -.15), pr(d, 14, -.15), pr(d, 3.15, -.15)], fog('#70757C', d));
+    if (Math.floor(m0 / 3) % 2 === 0) quad([pr(d0, 7.4, -.15), pr(d0, 7.55, -.15), pr(d, 7.55, -.15), pr(d, 7.4, -.15)], fog('#E9E6DE', d));
+    quad([pr(d0, 3.15, 0), pr(d0, 3.15, -.15), pr(d, 3.15, -.15), pr(d, 3.15, 0)], fog('#A9A397', d));
+    // footpath: taken ground, then the walkable floor with paving joints
+    quad([pr(d0, 0, 0), pr(d0, 3.15, 0), pr(d, 3.15, 0), pr(d, 0, 0)], fog(na ? '#D5CFC2' : '#C9BFAB', d));
+    const w0 = edgesAt(cells, m0), w1 = edgesAt(cells, m1);
+    if (!na && w0 && w1) { quad([pr(d0, w0[0], 0), pr(d0, w0[1], 0), pr(d, w1[1], 0), pr(d, w1[0], 0)], fog('#FBF9F3', d * .8));
+      if (mm % 1 === 0 && Math.abs(m0 - mm) < .5) { const a = pr(d0, w0[0], 0), b = pr(d0, w0[1], 0); ex.strokeStyle = fog('#E6DFD0', d); ex.lineWidth = 1; ex.beginPath(); ex.moveTo(a[0], a[1]); ex.lineTo(b[0], b[1]); ex.stroke(); } }
+    // chainage posts every 10 m at the kerb
+    if (Math.floor(m1 / 10) !== Math.floor(m0 / 10)) { const mk = Math.floor(m1 / 10) * 10, [px, py] = pr(d, 3.05, 0), [, qy] = pr(d, 3.05, 1); ex.strokeStyle = fog('#966C00', d); ex.lineWidth = Math.max(1, 10 / d); ex.beginPath(); ex.moveTo(px, py); ex.lineTo(px, qy); ex.stroke();
+      ex.fillStyle = ex.strokeStyle; ex.font = `500 ${Math.max(10, Math.min(30, 160 / d))}px "IBM Plex Mono"`; ex.fillText(mk + ' m', px + 6, qy + 4); }
   }
-  const s = S[Math.min(21, Math.floor(state.pos / 10))], hud = document.getElementById('hud');
-  hud.innerHTML = `${Math.round(state.pos)} m · ${placeOf(state.pos)}<b>${s.g == null ? '—' : s.g.toFixed(1) + ' m'}</b>${s.g == null ? 'not measured here' : 'clear · daytime median'}`;
+  // objects, far to near
+  const alpha = state.eyeW === 'all' ? .5 : 1;
+  const objs = dets.filter(o => o[0] > state.pos + 1.1 && o[0] < state.pos + FAR).map(o => { const d = o[0] - state.pos, e = edgesAt(cells, o[0]) || [0, 3]; return { d, l: Math.max(.15, Math.min(3.7, e[0] + o[1] * (e[1] - e[0]))), k: o[2], s: ((o[0] * 13.7 + o[1] * 7.1) % 1 + 1) % 1 }; }).sort((a, b) => b.d - a.d);
+  ex.globalAlpha = alpha;
+  objs.forEach(o => { const [x, y] = pr(o.d, o.l, 0), sc = F / o.d, f = c => fog(c, o.d);
+    ex.fillStyle = `rgba(20,20,20,${.14 * (1 - o.d / FAR)})`; ex.beginPath(); ex.ellipse(x, y, .4 * sc, .09 * sc, 0, 0, 7); ex.fill();
+    if (o.k === 'people') { const h = 1.55 + o.s * .2, c = ['#B8860B', '#9C7A1E', '#C49A2C', '#8A6A12'][Math.floor(o.s * 4)]; ex.fillStyle = f(c);
+      ex.beginPath(); ex.roundRect(x - .2 * sc, y - (h - .26) * sc, .4 * sc, (h - .3) * sc, .14 * sc); ex.fill(); ex.beginPath(); ex.arc(x, y - (h - .12) * sc, .12 * sc, 0, 7); ex.fill(); }
+    else if (o.k === 'vehicle') { const ls = o.l > camL ? o.l - .35 : o.l + .35;
+      quad([pr(o.d, ls, 0), pr(o.d + 1.8, ls, 0), pr(o.d + 1.8, ls, .95), pr(o.d, ls, .95)], f('#A84E22'));
+      quad([pr(o.d, o.l - .35, .95), pr(o.d, o.l + .35, .95), pr(o.d + 1.8, o.l + .35, .95), pr(o.d + 1.8, o.l - .35, .95)], f('#E07A45'));
+      quad([pr(o.d, o.l - .35, 0), pr(o.d, o.l + .35, 0), pr(o.d, o.l + .35, .95), pr(o.d, o.l - .35, .95)], f('#C25E2B'));
+      ex.fillStyle = f('#2A2A2A'); [o.d + .3, o.d + 1.5].forEach(dd => { const [wx, wy] = pr(dd, ls, .3), r = .3 * F / dd; ex.beginPath(); ex.arc(wx, wy, r, 0, 7); ex.fill(); }); }
+    else if (o.k === 'pole') { ex.fillStyle = f('#2B47A6'); ex.fillRect(x - .07 * sc, y - 3.6 * sc, .14 * sc, 3.6 * sc); ex.fillRect(x - .25 * sc, y - 3.6 * sc, .5 * sc, .12 * sc); }
+    else if (o.k === 'plants') { ex.fillStyle = f('#6B5E4E'); ex.fillRect(x - .11 * sc, y - 2.3 * sc, .22 * sc, 2.3 * sc); ex.fillStyle = f('#5E7A57'); ex.beginPath(); ex.ellipse(x, y - 3 * sc, 1.1 * sc, .9 * sc, 0, 0, 7); ex.fill(); }
+    else if (o.k === 'barrier') { quad([pr(o.d, o.l - .5, 0), pr(o.d, o.l + .5, 0), pr(o.d, o.l + .5, .9), pr(o.d, o.l - .5, .9)], f('#6E7FA8')); quad([pr(o.d, o.l - .5, .9), pr(o.d, o.l + .5, .9), pr(o.d + .25, o.l + .5, .9), pr(o.d + .25, o.l - .5, .9)], f('#8E9CC4')); } });
+  ex.globalAlpha = 1;
+  // hud
+  const i = Math.min(21, Math.floor(state.pos / 10)), c = cells[i], near = dets.filter(o => o[0] >= state.pos && o[0] < state.pos + 10), cnt = k => near.filter(o => k.includes(o[2])).length;
+  const who = state.eyeW === 'all' ? 'all daytime walks' : wlabel(walks[state.eyeW]);
+  document.getElementById('hud').innerHTML = `${Math.round(state.pos)} m · ${placeOf(state.pos)}<b>${c && !NA(i) ? edges(c)[1] - edges(c)[0] > 0 ? Math.min(3, c.g).toFixed(1) + ' m' : '—' : '—'}</b>${c && !NA(i) ? 'clear here · ' + who : 'not measured here'}<br>next 10 m: ${cnt(['people'])} people · ${cnt(['vehicle'])} vehicles · ${cnt(['pole', 'barrier', 'plants'])} fixed`;
+  drawMini(cells, dets);
 }
-function d1(x) { return x; }
-function eyeLoop(t0) { let last = performance.now(); const step = now => { if (!playing) return; state.pos += (now - last) / 1000 * 1.4 * 5; last = now; if (state.pos >= 212) { state.pos = 212; playing = false; const b = document.getElementById('play'); if (b) b.textContent = 'Play the walk'; }
-  const r = document.getElementById('pos'); if (r) { r.value = state.pos; document.getElementById('posV').textContent = Math.round(state.pos) + ' m'; } state.sel = Math.min(21, Math.floor(state.pos / 10)); drawEye(); inspect(eyeS, state.sel); requestAnimationFrame(step); }; requestAnimationFrame(step); }
+function drawMini(cells, dets) {
+  const H = 34, y = 6; mini.innerHTML = ''; defs(mini); mini.setAttribute('viewBox', `0 0 ${XW + 74} ${H + 26}`);
+  el('rect', { x: X0, y, width: L * PX, height: H, fill: C.mass, rx: 2 }, mini);
+  runs(cells).forEach(([a, b]) => { const T = [], B = []; xsOf(a, b).forEach(([i, x]) => { const [e1, e2] = edges(cells[i]); T.push([x, y + e1 * H / 3]); B.push([x, y + e2 * H / 3]); }); el('path', { d: ribbon(T, B), fill: C.void }, mini); });
+  el('rect', { x: X0 + 16 * W10, y, width: 3 * W10, height: H, fill: 'url(#hatch)' }, mini);
+  dets.forEach(d => el('circle', { cx: xm(d[0]), cy: y + Math.max(.1, Math.min(2.9, (d[1] * 1.5 + .75))) * H / 3, r: 1.6, fill: kindCol(d[2]), opacity: .8 }, mini));
+  el('rect', { x: xm(state.pos), y: y - 3, width: 40 * PX, height: H + 6, fill: C.yel, opacity: .25, rx: 2 }, mini);
+  el('rect', { x: xm(state.pos) - 1.5, y: y - 5, width: 3, height: H + 10, fill: C.mus }, mini);
+  tx('YOU ARE HERE · LOOKING 40 M AHEAD · DRAG TO MOVE', xm(state.pos) + 6, y + H + 18, { ...mono, fill: C.mus }, mini);
+}
+function eyeLoop() { let last = performance.now(); const step = now => { if (!playing || state.view !== 'eye') { playing = false; return; } state.pos += (now - last) / 1000 * 1.4 * 4; last = now; if (state.pos >= 214) { state.pos = 214; playing = false; const b = document.getElementById('play'); if (b) b.textContent = 'Play the walk'; }
+  syncPos(); requestAnimationFrame(step); }; requestAnimationFrame(step); }
+function syncPos() { const r = document.getElementById('pos'); if (r) { r.value = state.pos; document.getElementById('posV').textContent = Math.round(state.pos) + ' m'; } state.sel = Math.min(21, Math.floor(state.pos / 10)); drawEye(); inspect(eyeS, state.sel); }
+(() => { let drag = false; const toM = e => { const p = mini.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const q = p.matrixTransform(mini.getScreenCTM().inverse()); return Math.max(0, Math.min(214, (q.x - X0) / PX - 4)); };
+  mini.addEventListener('pointerdown', e => { drag = true; mini.setPointerCapture(e.pointerId); state.pos = toM(e); syncPos(); });
+  mini.addEventListener('pointermove', e => { if (drag) { state.pos = toM(e); syncPos(); } });
+  mini.addEventListener('pointerup', () => drag = false);
+  window.addEventListener('keydown', e => { if (state.view !== 'eye' || !['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'].includes(e.key)) return; e.preventDefault(); state.pos = Math.max(0, Math.min(214, state.pos + (['ArrowRight', 'ArrowUp'].includes(e.key) ? 2 : -2))); syncPos(); }); })();
 
+/* ---------- isometric pan / zoom / fly-to ---------- */
+const ISO = { K: 10 }, isoP = (m, a) => [(m - a) * .866 * ISO.K, (m + a) * .5 * ISO.K];
+function isoFit() { const a = isoP(0, -10), b = isoP(L, 13); const x0 = Math.min(a[0], b[0]) - 40, x1 = Math.max(a[0], b[0]) + 60, y0 = isoP(0, 0)[1] - 160, y1 = isoP(L, 13)[1] + 30; return [x0, y0, x1 - x0, y1 - y0]; }
+function isoSet(vb) { state.iso = vb; if (state.view === 'iso') svg.setAttribute('viewBox', vb.map(v => v.toFixed(1)).join(' ')); }
+function isoFly(to, ms = 700) { const from = (state.iso || isoFit()).slice(), t0 = performance.now(), ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const step = now => { const t = Math.min(1, (now - t0) / ms), e = ease(t); isoSet(from.map((v, j) => v + (to[j] - v) * e)); if (t < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }
+function isoFocus(m, w = 300) { const [cx, cy] = isoP(m, 1.5), r = svg.clientHeight / Math.max(1, svg.clientWidth) || .5, h = w * Math.max(.45, r); return [cx - w / 2, cy - h / 2 - 20, w, h]; }
+(() => { let drag = null, moved = false;
+  const pt = e => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); };
+  svg.addEventListener('wheel', e => { if (state.view !== 'iso') return; e.preventDefault(); const q = pt(e), vb = state.iso, k = Math.exp(e.deltaY * .0015), w = Math.max(60, Math.min(isoFit()[2] * 1.4, vb[2] * k)), h = vb[3] * w / vb[2];
+    isoSet([q.x - (q.x - vb[0]) * w / vb[2], q.y - (q.y - vb[1]) * h / vb[3], w, h]); }, { passive: false });
+  svg.addEventListener('pointerdown', e => { if (state.view !== 'iso') return; drag = { x: e.clientX, y: e.clientY, vb: state.iso.slice() }; moved = false; svg.setPointerCapture(e.pointerId); svg.style.cursor = 'grabbing'; });
+  svg.addEventListener('pointermove', e => { if (!drag) return; const s = drag.vb[2] / svg.clientWidth, dx = (e.clientX - drag.x) * s, dy = (e.clientY - drag.y) * s; if (Math.abs(dx) + Math.abs(dy) > 2 * s) moved = true; isoSet([drag.vb[0] - dx, drag.vb[1] - dy, drag.vb[2], drag.vb[3]]); });
+  svg.addEventListener('pointerup', e => { if (!drag) return; svg.style.cursor = ''; const wasDrag = moved; drag = null; if (wasDrag) return;
+    const q = pt(e), u = q.x / (.866 * ISO.K), v = q.y / (.5 * ISO.K), m = (u + v) / 2, a = (v - u) / 2;
+    if (m >= 0 && m < L && a > -3 && a < 6) { state.sel = Math.floor(m / 10); const vb = state.iso; render(); state.iso = vb; svg.setAttribute('viewBox', vb.join(' ')); isoFly(isoFocus(state.sel * 10 + 5)); } }); })();
 /* ---------- sound ---------- */
 let actx = null, playingSound = false;
 function playSound(S) {
@@ -527,7 +621,7 @@ const useRow = (u, k) => `<div class="use"><div class="n">${String(k + 1).padSta
 
 /* ---------- navigation & render ---------- */
 const GROUPS = [['read', 'Read the street', [['nolli', 'Nolli'], ['ghost', 'Ghost'], ['daynight', 'Day & night'], ['fills', 'Lost to'], ['layers', 'What a walker meets'], ['line', 'Walk-line'], ['through', 'Can I get through?']]],
-  ['see', 'Other ways to see it', [['plan', 'Obstruction plan'], ['block', 'Space-time block'], ['eye', 'Walker’s eye'], ['collage', 'Ground collage'], ['sound', 'Listen']]],
+  ['see', 'Other ways to see it', [['iso', 'Isometric street'], ['plan', 'Obstruction plan'], ['block', 'Space-time block'], ['eye', 'Walker’s eye'], ['collage', 'Ground collage'], ['sound', 'Listen']]],
   ['make', 'Make it physical'], ['connect', 'Connect'], ['uses', 'Uses']];
 const groupOf = v => (GROUPS.find(g => g[0] === v || (g[2] && g[2].some(x => x[0] === v))) || GROUPS[0]);
 function render() {
@@ -544,10 +638,11 @@ function render() {
   document.getElementById('vt').textContent = v.t; document.getElementById('vn').textContent = v.n;
   document.getElementById('legend').innerHTML = v.leg.map(([c, l, b]) => `<span><i style="background:${c === 'url' ? 'repeating-linear-gradient(45deg,var(--paper2) 0 3px,var(--hair) 3px 4px)' : c};${b ? 'border:1px solid var(--hair)' : ''}"></i>${l}</span>`).join('');
   document.getElementById('ctrl').innerHTML = v.ctrl ? v.ctrl() : '';
-  svg.hidden = !!v.canvas; eyeCv.hidden = !v.canvas; document.getElementById('hud').hidden = !v.canvas;
+  svg.toggleAttribute('hidden', !!v.canvas); eyeCv.hidden = !v.canvas; mini.toggleAttribute('hidden', !v.canvas); document.getElementById('hud').hidden = !v.canvas; svg.classList.toggle('isoon', !!v.own);
   if (v.canvas) { eyeS = S; drawEye(); inspect(S, state.sel); return; }
   playing = false; svg.innerHTML = ''; defs();
   const r = v.draw(S); if (r) interact(S, r[0], r[1]);
+  if (v.own) { if (!state.iso) state.iso = isoFit(); svg.setAttribute('viewBox', state.iso.join(' ')); inspect(S, state.sel); return; }
   const bb = svg.getBBox(); svg.setAttribute('viewBox', `${Math.min(0, Math.floor(bb.x - 4))} ${Math.floor(bb.y - 4)} ${Math.max(XW + 74, Math.ceil(bb.width + 10))} ${Math.ceil(bb.height + 10)}`);
   svg.classList.remove('fade'); void svg.offsetWidth; svg.classList.add('fade');
   inspect(S, state.sel);
@@ -556,10 +651,14 @@ document.getElementById('top').addEventListener('click', e => { const b = e.targ
 document.getElementById('sub').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.view = b.dataset.v; render(); } });
 document.getElementById('ctrl').addEventListener('input', e => {
   if (e.target.id === 'thr') { state.thr = +e.target.value; render(); }
-  if (e.target.id === 'pos') { state.pos = +e.target.value; document.getElementById('posV').textContent = Math.round(state.pos) + ' m'; state.sel = Math.min(21, Math.floor(state.pos / 10)); drawEye(); inspect(eyeS, state.sel); } });
+  if (e.target.id === 'pos') { state.pos = +e.target.value; syncPos(); }
+  if (e.target.id === 'ewalk') { state.eyeW = e.target.value === 'all' ? 'all' : +e.target.value; drawEye(); } });
 document.getElementById('ctrl').addEventListener('click', e => {
   if (e.target.id === 'play') { playing = !playing; e.target.textContent = playing ? 'Pause' : 'Play the walk'; if (playing) { if (state.pos >= 211) state.pos = 0; eyeLoop(); } }
-  if (e.target.id === 'listen') playSound(stats()); });
+  if (e.target.id === 'listen') playSound(stats());
+  if (e.target.id === 'isoFit') isoFly(isoFit());
+  if (e.target.id === 'isoBins') { state.sel = 8; render(); isoFly(isoFocus(85, 220)); }
+  if (e.target.id === 'isoIn' || e.target.id === 'isoOut') { const vb = state.iso, k = e.target.id === 'isoIn' ? .6 : 1.6, cx = vb[0] + vb[2] / 2, cy = vb[1] + vb[3] / 2; isoFly([cx - vb[2] * k / 2, cy - vb[3] * k / 2, vb[2] * k, vb[3] * k], 400); } });
 document.getElementById('page').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; const S = stats();
   if (b.dataset.go) { state.view = b.dataset.go; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
   if (b.dataset.copy) { const t = document.getElementById(b.dataset.copy); navigator.clipboard && navigator.clipboard.writeText(t.value); b.textContent = 'Copied'; setTimeout(() => b.textContent = 'Copy', 1400); return; }
