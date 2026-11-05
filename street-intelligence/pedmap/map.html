@@ -185,7 +185,7 @@ select.walk{width:100%;border:1px solid var(--hair);border-radius:6px;padding:7p
 .lay.open{z-index:50}
 .laybg{position:fixed;inset:0;background:rgba(0,0,0,.32);z-index:44}
 .mkey{position:absolute;left:calc(var(--sheetW) + 100px);bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:5;background:rgba(255,255,255,.94);box-shadow:var(--shadow);border-radius:8px;padding:8px 12px;display:flex;gap:14px;align-items:center;font-size:12px;color:var(--ink2);max-width:calc(100% - var(--sheetW) - 220px);flex-wrap:wrap}
-.mkey b{font:500 12px var(--sans);color:var(--ink)}
+.mkey b{font:500 12px var(--sans);color:var(--ink)}.mkey .ex{color:var(--g3);font-size:11.5px}
 .mkey div{display:flex;gap:6px;align-items:center}.mkey i{width:16px;height:9px;border-radius:2px;flex:none}
 .colmode .mkey{left:100px}
 .mtype{display:flex;gap:12px;align-items:center;width:100%;margin-top:12px;border:1px solid var(--hair);border-radius:10px;background:var(--card);padding:8px 10px;text-align:left}
@@ -428,26 +428,26 @@ let STATS = stats();
 
 /* ---------- what the map shows (chips) ---------- */
 const MODES = {
-  walk: { n: 'Walking', ic: 'walk', q: 'Where it is hard to walk', B: 'nolli', L: { line: 1, obst: 'kind', swerve: 1, calls: 1 },
+  walk: { n: 'Walking', ic: 'walk', q: 'Where it is hard to walk', B: 'nolli', L: { prox: 1, photos: 1, sound: 1, view: 1, obst: 'kind', swerve: 1 },
     list: S => S.filter(s => s.g != null).sort((a, b) => a.g - b.g).slice(0, 5).map(s => [s, `${s.g.toFixed(1)} m`, s.g < .9 ? 'You step into the road' : `Blocked on ${s.b} of ${s.n} walks`]), foot: 'Narrowest first · clear width is the daytime median' },
-  access: { n: 'Wheelchair & pram', ic: 'wheel', q: 'Where a wheelchair may not get through', B: 'nolli', L: { through: 1, obst: 'kind' },
+  access: { n: 'Wheelchair & pram', ic: 'wheel', q: 'Where a wheelchair may not get through', B: 'nolli', L: { through: 1, prox: 1, obst: 'kind', photos: 1 },
     list: S => S.filter(s => access(s) === 'rarely' || access(s) === 'sometimes').sort((a, b) => a.ok / a.gN - b.ok / b.gN).slice(0, 5).map(s => [s, `${s.ok}/${s.gN}`, `Walks with ${state.thr.toFixed(1)} m clear`]), foot: '0.9 m is an assumed minimum, to confirm with wheelchair users', thr: 1 },
-  night: { n: 'After dark', ic: 'moon', q: 'Darkest stretches at night', B: 'daynight', L: { night: 1 },
+  night: { n: 'After dark', ic: 'moon', q: 'Darkest stretches at night', B: 'daynight', L: { night: 1, photos: 1 },
     list: S => S.filter(s => s.lit != null && s.lit < .9).sort((a, b) => a.lit - b.lit).slice(0, 5).map(s => [s, `−${Math.round((1 - s.lit) * 100)}%`, s.ng != null ? `${s.ng.toFixed(1)} m clear at night` : 'Night width not measured']), foot: 'Brightness in night photos against the route’s usual night. Ranks stretches; it is not lux. 4 night walks.' },
   act: { n: 'Who must act', ic: 'act', q: 'Who must act on each stretch', B: 'fills', L: { obst: 'owner', line: 1 },
     list: S => S.filter(s => s.g != null && s.g < 1.5).sort((a, b) => a.g - b.g).slice(0, 6).map(s => [s, `${s.g.toFixed(1)} m`, owners(s).join(' · ') || 'Mixed']), foot: 'Stretches under BMC 1.5 m. Departments are indicative; confirm with the ward.' },
-  proof: { n: 'Evidence', ic: 'cam', q: 'Blocked again and again', B: 'nolli', L: { walks: 1, photos: 1, line: 1, calls: 1 },
+  proof: { n: 'Evidence', ic: 'cam', q: 'Blocked again and again', B: 'nolli', L: { walks: 1, photos: 1, view: 1, calls: 1 },
     list: S => S.filter(s => s.n).sort((a, b) => b.b / b.n - a.b / a.n).slice(0, 5).map(s => [s, `${s.b}/${s.n}`, 'walks blocked, each one photographed and dated']), foot: 'Dated, repeated and photographed. Open a stretch to save its evidence sheet.' },
   change: { n: 'Day to day', ic: 'layers', q: 'Where the footpath changes from walk to walk', B: 'ghost', L: { walks: 1 },
     list: S => S.filter(s => s.g != null).map(s => { const gs = W().filter(w => !w.night).map(w => w.s[s.i]).filter(r => r && r.g > 0).map(r => r.g); return [s, gs.length ? Math.max(...gs) - Math.min(...gs) : 0, gs]; }).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([s, , gs]) => [s, `${Math.min(...gs).toFixed(1)}–${Math.max(...gs).toFixed(1)} m`, `clear width across ${gs.length} daytime walks`]), foot: 'Where the ghost blurs, the footpath depends on the day. Walk again after a cleanup and compare.' },
   vend: { n: 'Vending', ic: 'stall', q: 'Where stalls fit and where they clash', B: 'nolli', L: { obst: 'people' },
     list: S => [...S.filter(s => s.g != null && s.g >= 2).map(s => [s, `${s.g.toFixed(1)} m`, 'Room for a stall zone']), ...S.filter(s => s.g != null && s.g < 1.5 && s.sh.people >= .6).slice(0, 4).map(s => [s, `${s.g.toFixed(1)} m`, `Tight, stalls or crowds on ${Math.round(s.sh.people * 100)}% of walks`])], foot: 'For town vending committees under the Street Vendors Act, 2014.' },
-  stress: { n: 'Noise & stress', ic: 'ear', q: 'Most horns and swerves', B: 'nolli', L: { horn: 1, swerve: 1 },
+  stress: { n: 'Noise & stress', ic: 'ear', q: 'Most horns and swerves', B: 'nolli', L: { sound: 1, horn: 1, swerve: 1 },
     list: S => S.slice().sort((a, b) => (b.hk + b.sw * 2) - (a.hk + a.sw * 2)).slice(0, 5).map(s => [s, `${s.hk}`, `Horns heard · ${s.sw} walks swerved`]), foot: 'Horns heard and direction changes recorded by the phone on every walk.' }
 };
 const owners = s => { const o = []; if (s.fixedOn) o.push('Civil works'); if (s.pers.people || s.sh.people >= .7) o.push('Enforcement'); if (s.pers.vehicle || s.sh.vehicle >= .5) o.push('Traffic & parking'); return o; };
 const ALWAYS = { reports: 1, chain: 1, places: 1 };
-const DETAILS = [['line', 'Walk-line', 'road'], ['through', 'Get through?', 'wheel'], ['obst', 'In the way', 'cube'], ['walks', 'Each walk', 'layers'], ['photos', 'Ground photos', 'cam'], ['calls', 'Notes', 'info'], ['swerve', 'Swerves', 'walk'], ['horn', 'Horns', 'ear'], ['night', 'Night light', 'moon'], ['reports', 'Reports', 'flag'], ['chain', 'Metres', 'ruler'], ['places', 'Places', 'pin']];
+const DETAILS = [['prox', 'Side by side', 'people'], ['photos', 'Photos', 'cam'], ['sound', 'Sound', 'sound'], ['view', 'Blocked ahead', 'warn'], ['line', 'Walk-line', 'road'], ['through', 'Get through?', 'wheel'], ['obst', 'In the way', 'cube'], ['walks', 'Each walk', 'layers'], ['calls', 'Notes', 'info'], ['swerve', 'Swerves', 'walk'], ['horn', 'Horns', 'ear'], ['night', 'Night light', 'moon'], ['reports', 'Reports', 'flag'], ['chain', 'Metres', 'ruler'], ['places', 'Places', 'pin']];
 const BASES = { nolli: ['Nolli', 'Figure-ground of the footpath. Black is everything that takes it: buildings, stalls, vehicles, poles. White is the width left to walk, measured every 10 m.'], ghost: ['Ghost', 'Every daytime walk laid over the others. Bright where the walks agree, blurred where it depends on the day.'], daynight: ['Day & night', 'The footpath after dark. Pale is walkable at night; the dashed line is the daytime width.'], fills: ['Lost to', 'What took the footpath: fixed things need civil works, vehicles need parking control, stalls and crowds need enforcement.'], street: ['Street', 'A plain street plan, for finding your way.'] };
 const TH = {
   nolli: { bg: '#D9DCD5', land: '#D9DCD5', b1: '#1C1C1C', b2: '#1C1C1C', bEdge: '#1C1C1C', road: '#AEB2AB', roadEdge: '#9DA19A', hwy: '#969B93', hwyEdge: '#878C84', lane: '#E6E8E3', taken: '#111111', walk: '#FFFFFF', kerb: '#6E726B', hatchBg: '#E6E8E3', hatch: '#BFC3BB', ink: '#202124', halo: '#FFFFFF', roadLab: '#3C4043', poi: '#5F6368', pin: '#202124', pinDot: '#FFFFFF', lab: '#5F6368' },
@@ -531,11 +531,15 @@ const FR = (() => { const p = RPX.map(([x, y]) => [x * SC, y * SC]), d = [];
   let ci = 0, best = 1e9; d.forEach((q, i) => { const e = Math.hypot(q[0] - TURN_PX[0] * SC, q[1] - TURN_PX[1] * SC); if (e < best) { best = e; ci = i; } });
   const Lc = cum[ci], Lt = cum[cum.length - 1], lenOf = m => m <= 104 ? m / 104 * Lc : Lc + (m - 104) / 116 * (Lt - Lc);
   const at = l => { l = clamp(l, 0, Lt); let j = 1; while (j < cum.length - 1 && cum[j] < l) j++; const f = (l - cum[j - 1]) / Math.max(1e-6, cum[j] - cum[j - 1]); return [d[j - 1][0] + (d[j][0] - d[j - 1][0]) * f, d[j - 1][1] + (d[j][1] - d[j - 1][1]) * f]; };
-  const out = []; for (let j = 0; j <= 440; j++) { const m = j / 2, q = at(lenOf(m)), a = at(lenOf(Math.max(0, m - 2.5))), b = at(lenOf(Math.min(L, m + 2.5))), tl = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, tx = (b[0] - a[0]) / tl, ty = (b[1] - a[1]) / tl; out.push([q[0], q[1], tx, ty]); }
+  const out = []; for (let j = 0; j <= 440; j++) { const m = j / 2, q = at(lenOf(m)), a = at(lenOf(Math.max(0, m - 4))), b = at(lenOf(Math.min(L, m + 4))), tl = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, tx = (b[0] - a[0]) / tl, ty = (b[1] - a[1]) / tl; out.push([q[0], q[1], tx, ty]); }
   return out; })();
 function frame(m) { if (m <= 0) { const f = FR[0]; return [f[0] + f[2] * m * U, f[1] + f[3] * m * U, f[2], f[3]]; } if (m >= L) { const f = FR[440]; return [f[0] + f[2] * (m - L) * U, f[1] + f[3] * (m - L) * U, f[2], f[3]]; }
   const j = m * 2, i = Math.floor(j), t = j - i, A = FR[i], B = FR[Math.min(440, i + 1)]; return [A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t, A[2] + (B[2] - A[2]) * t, A[3] + (B[3] - A[3]) * t]; }
-const plan = (m, a) => { const [x, y, tx, ty] = frame(m); return [x - ty * (a - AX) * U, y + tx * (a - AX) * U]; };
+let XG = 1; // how much wider than real the footpath is drawn at this zoom
+const exOf = k => clamp(k / .45, 1, 3);
+const plan = (m, a) => { const [x, y, tx, ty] = frame(m); return [x - ty * (a - AX) * U * XG, y + tx * (a - AX) * U * XG]; };
+// a point beside the footpath, px screen pixels out from its building edge (bands keep their size on screen)
+const PB = (m, px) => { const [x, y, tx, ty] = frame(m), o = (0 - AX) * U * XG - px * K, q = [x - ty * o, y + tx * o]; return state.d3 ? isoXY(q[0], q[1]) : q; };
 const isoXY = (x, y, z = 0) => [(x - y) * .866, (x + y) * .5 - z * U];
 const iso = (m, a, z = 0) => { const [x, y] = plan(m, a); return isoXY(x, y, z); };
 const P = (m, a, z = 0) => state.d3 ? iso(m, a, z) : plan(m, a);
@@ -565,19 +569,25 @@ function calls(S) { const m = S.filter(s => s.g != null); if (!m.length) return 
   const seen = new Set(); return out.filter(c => { if (seen.has(c[0].i)) return false; seen.add(c[0].i); return true; }); }
 const DOT = { clear: ['#1A73E8', '#174EA6'], tight: ['#F9AB00', '#B06000'], road: ['#D93025', '#A50E0E'], stop: ['#D93025', '#A50E0E'], under: ['#9AA0A6', '#5F6368'], nm: ['#9AA0A6', '#5F6368'] };
 function draw() {
-  const S = STATS, Lr = state.layers, B = state.base, T = TH[B], R = state.route, ds = Lr.obst ? dets(S) : [];
+  XG = exOf(K); const S = STATS, Lr = state.layers, B = state.base, T = TH[B], R = state.route, ds = Lr.obst && XG < 2.6 ? dets(S) : [];
   svg.innerHTML = ''; svg.style.background = T.bg;
   const defs = el('defs', {}); const hp = el('pattern', { id: 'hatch', width: 8, height: 8, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' }, defs); el('rect', { width: 8, height: 8, fill: T.hatchBg }, hp); el('line', { x1: 0, y1: 0, x2: 0, y2: 8, stroke: T.hatch, 'stroke-width': 2 }, hp);
   const g = el('g', {}), dark = B === 'daynight', light = !dark;
   // the neighbourhood, traced from the screenshot
-  const cg = el('g', { transform: (state.d3 ? 'matrix(.866 .5 -.866 .5 0 0) ' : '') + `scale(${SC})` }, g), ns = { 'vector-effect': 'non-scaling-stroke' };
+  const cg = el('g', { transform: (state.d3 ? 'matrix(.866 .5 -.866 .5 0 0) ' : '') + `scale(${SC})`, opacity: dark ? .75 : B === 'nolli' || B === 'ghost' ? .5 : .7, style: dark ? '' : 'filter:grayscale(1)' }, g), ns = { 'vector-effect': 'non-scaling-stroke' };
   el('rect', { x: -400, y: -400, width: CTX.W + 800, height: CTX.H + 800, fill: T.land }, cg);
   el('path', { d: CTX.lane, fill: T.lane }, cg);
   el('path', { d: CTX.bgrey, fill: T.b1, stroke: T.bEdge, 'stroke-width': .8, ...ns }, cg);
   el('path', { d: CTX.bbeige, fill: T.b2, stroke: T.bEdge, 'stroke-width': .8, ...ns }, cg);
   el('path', { d: CTX.road, fill: T.road, stroke: T.roadEdge, 'stroke-width': 1, ...ns, 'fill-rule': 'evenodd' }, cg);
   el('path', { d: CTX.hwy, fill: T.hwy, stroke: T.hwyEdge, 'stroke-width': 1, ...ns, 'fill-rule': 'evenodd' }, cg);
-  // the footpath
+  // pale ground under the pedestrian layer, so the car world recedes behind it
+  const bandW = (Lr.photos ? (phone() ? 54 : 78) : 0) + (Lr.sound ? 26 : 0) + (Lr.view ? 14 : 0);
+  if (bandW) { const ms = sampleM(-2, L + 2, 2), q = [...ms.map(m => PB(m, -4)), ...ms.slice().reverse().map(m => PB(m, bandW + 6))]; poly(q, dark ? '#0B1222' : '#FFFFFF', { opacity: .82 }, g); }
+  // the route: the footpath itself lights up, no dots on the carriageway
+  if (R) { const lo = Math.min(R.m0, R.m1), hi = Math.max(R.m0, R.m1); quad(lo, hi, -.15, 3.3, 'none', { stroke: '#1A73E8', 'stroke-width': fs(10), 'stroke-linejoin': 'round', opacity: .28 }, g); quad(lo, hi, -.15, 3.3, 'none', { stroke: '#1A73E8', 'stroke-width': fs(2.5), 'stroke-linejoin': 'round' }, g); }
+  // the footpath, with a halo to lift it off the base map
+  quad(0, L, -.05, 3.23, 'none', { stroke: dark ? '#000' : '#fff', 'stroke-width': fs(4), 'stroke-linejoin': 'round' }, g);
   quad(0, L, 0, 3, T.taken, {}, g); quad(0, L, 3, 3.18, T.kerb, {}, g);
   const cells = S.map(s => s.g != null ? { g: s.g, top: s.top } : null), ncells = S.map(s => s.ng != null ? { g: s.ng, top: s.top } : null);
   if (B === 'fills') { S.forEach(s => { if (NA(s.i)) return; const p = [s.sh.fixed + (s.i === 8 ? .35 : 0), s.sh.vehicle, s.sh.people], t = p.reduce((a, q) => a + q, 0) || 1, ps = p.map(v => v / t), m0 = s.i * 10, m1 = m0 + 10;
@@ -588,10 +598,17 @@ function draw() {
     channelPath(cells).forEach(d => el('path', { d, fill: 'none', stroke: '#fff', 'stroke-width': fs(1.2), 'stroke-dasharray': `${fs(4)} ${fs(3)}`, opacity: .6 }, g)); }
   else channelPath(cells).forEach(d => el('path', { d, fill: T.walk }, g));
   quad(160, 190, 0, 3, 'url(#hatch)', {}, g);
+  if (R) { const lo = Math.min(R.m0, R.m1), hi = Math.max(R.m0, R.m1); if (lo > 0) quad(0, lo, -.1, 3.25, T.land, { opacity: .6 }, g); if (hi < L) quad(hi, L, -.1, 3.25, T.land, { opacity: .6 }, g);
+    R.steps.filter(st => st.t === 'go' && (st.cls === 'road' || st.cls === 'stop')).forEach(st => quad(Math.min(st.m0, st.m1), Math.max(st.m0, st.m1), 3.2, 3.2 + 6 * K / (U * XG), '#D93025', {}, g));
+    R.steps.filter(st => st.t === 'go' && st.cls === 'tight').forEach(st => quad(Math.min(st.m0, st.m1), Math.max(st.m0, st.m1), 3.2, 3.2 + 2.5 * K / (U * XG), '#F9AB00', {}, g)); }
+  // side by side: how many people fit across the walkable width (about 0.75 m each)
+  if (Lr.prox && XG < 3.2) S.forEach(s => { const m = s.i * 10 + 5; if (NA(s.i)) return; if (s.g == null) return; const [e1, e2] = edges(s), n = Math.floor(s.g / .75);
+    if (!n) { const [x, y] = P(m, (e1 + e2) / 2), r = 5 * K; el('path', { d: `M${x - r} ${y - r}L${x + r} ${y + r}M${x + r} ${y - r}L${x - r} ${y + r}`, stroke: '#D93025', 'stroke-width': fs(2.5), 'stroke-linecap': 'round' }, g); return; }
+    const lane = (e2 - e1) / n; for (let k = 0; k < n; k++) { const [x, y] = P(m, e1 + lane * (k + .5)), rb = Math.max(2.2 * K, .25 * U * XG); el('circle', { cx: x, cy: y, r: Math.min(rb * 2.2, lane * U * XG / 2), fill: 'none', stroke: '#1A73E8', 'stroke-width': fs(1), 'stroke-dasharray': `${fs(2)} ${fs(2)}`, opacity: .8 }, g); el('circle', { cx: x, cy: y, r: rb, fill: '#1A73E8', opacity: .85 }, g); } });
   if (Lr.night) S.forEach(s => { if (s.lit == null) return; const d = Math.max(0, 1 - s.lit); quad(s.i * 10, s.i * 10 + 10, -5, 8, dark ? '#000' : C.navy, { opacity: Math.min(.6, .04 + d * 1.6) }, g); });
   if (Lr.line) S.forEach(s => { const c = wcol(s.g); quad(s.i * 10 + .15, s.i * 10 + 9.85, 3.25, 3.8, c || 'url(#hatch)', {}, g); });
   if (Lr.horn) W().forEach((w, k) => w.honks.forEach(m => { const [x, y] = P(m, 4 + (k % 6) * .45); el('circle', { cx: x, cy: y, r: (.22 * U).toFixed(2), fill: C.red, opacity: .7 }, g); }));
-  if (Lr.swerve && !R) W().forEach((w, k) => w.swerves.forEach(m => { const s = S[Math.min(21, Math.floor(m / 10))]; const [e1, e2] = s.g != null ? edges(s) : [1, 2], a = (e1 + e2) / 2 + ((k % 5) - 2) * .15; const p0 = P(m - .6, a - .35), p1 = P(m, a + .2), p2 = P(m + .6, a - .35);
+  if (Lr.swerve && !R && XG < 2) W().forEach((w, k) => w.swerves.forEach(m => { const s = S[Math.min(21, Math.floor(m / 10))]; const [e1, e2] = s.g != null ? edges(s) : [1, 2], a = (e1 + e2) / 2 + ((k % 5) - 2) * .15; const p0 = P(m - .6, a - .35), p1 = P(m, a + .2), p2 = P(m + .6, a - .35);
     el('polyline', { points: pts([p0, p1, p2]), fill: 'none', stroke: C.mus, 'stroke-width': fs(1.8), 'stroke-linecap': 'round', opacity: .95 }, g); }));
   ds.filter(o => Lr.obst !== 'people' || o.k === 'people').sort((p, q) => (p.m + p.a) - (q.m + q.a)).forEach(o => {
     const c = Lr.obst === 'owner' ? OCOL[o.owner] : KCOL[o.k] || C.ink3, op = R ? .45 : 1;
@@ -604,6 +621,21 @@ function draw() {
     else if (o.k === 'pole') el('rect', { x: x - .14 * U, y: y - .14 * U, width: .28 * U, height: .28 * U, fill: c, opacity: op }, g);
     else el('circle', { cx: x, cy: y, r: .26 * U, fill: c, opacity: .85 * op, stroke: st, 'stroke-width': fs(.5) }, g); });
   if (state.sel != null && !R) quad(state.sel * 10, state.sel * 10 + 10, -.15, 3.2, 'rgba(242,184,0,.14)', { stroke: C.yel, 'stroke-width': fs(3), 'stroke-linejoin': 'round' }, g);
+  // bands beside the footpath: blocked ahead, sound, photos
+  { let off = 4; const bandLab = (t, px) => { if (K > 1.1) return; const [x, y] = PB(-3, px); tx(t, x, y, { 'font-family': 'Roboto, sans-serif', 'font-size': fs(10.5), 'font-weight': 500, fill: dark ? '#8C97B5' : '#5F6368', 'text-anchor': 'end', dy: fs(3.5) }, g); };
+    if (Lr.view) { S.forEach(s => { const sh = s.n ? s.b / s.n : 0, ms = sampleM(s.i * 10 + .3, s.i * 10 + 9.7, 2); poly([...ms.map(m => PB(m, off)), ...ms.slice().reverse().map(m => PB(m, off + 8))], dark ? '#E8EAED' : '#3C4043', { opacity: (.08 + sh * .85).toFixed(2) }, g); }); bandLab('blocked ahead', off + 4); off += 14; }
+    if (Lr.sound) { const bins = Array(45).fill(0), ws = W(); ws.forEach(w => w.honks.forEach(m => bins[clamp(Math.floor(m / 5), 0, 44)]++)); const sm = bins.map((v, i) => (bins[i - 1] || 0) * .25 + v * .5 + (bins[i + 1] || 0) * .25), mx = Math.max(...sm) || 1, ms = sampleM(0, L, 2.5), t = m => sm[clamp(Math.floor(m / 5), 0, 44)] / mx * 20;
+      poly([...ms.map(m => PB(m, off)), ...ms.slice().reverse().map(m => PB(m, off + 1 + t(m)))], '#D93025', { opacity: .7 }, g);
+      ws.forEach(w => w.swerves.forEach(m => { const [x, y] = PB(m, off + 23); el('circle', { cx: x, cy: y, r: 1.6 * K, fill: C.mus, opacity: .8 }, g); }));
+      bandLab('horns · swerves', off + 10); off += 26; }
+    if (Lr.photos) { const P0 = PB(0, 0), P10 = PB(10, 0), cell = Math.hypot(P10[0] - P0[0], P10[1] - P0[1]) / K, th = phone() ? 40 : 64, tw = th * 240 / 427, every = cell < tw + 3 ? Math.ceil((tw + 3) / cell) : 1;
+      for (let i = 0; i < NB; i += every) { const p = svPhoto(i, state.base === 'daynight', 'f'); if (!p) continue; const [x, y] = PB(i * 10 + 5, off + 6 + th / 2), w = tw * K, h = th * K, gp = el('g', { style: 'cursor:pointer' }, g);
+        el('rect', { x: x - w / 2 - 1.5 * K, y: y - h / 2 - 1.5 * K, width: w + 3 * K, height: h + 3 * K, rx: 3 * K, fill: '#fff', stroke: '#DADCE0', 'stroke-width': fs(1) }, gp);
+        const id = `pc${i}`, cp = el('clipPath', { id }, defs); el('rect', { x: x - w / 2, y: y - h / 2, width: w, height: h, rx: 2 * K }, cp);
+        el('image', { href: `../lab/ph/${p.id}.jpg`, x: x - w / 2, y: y - h / 2, width: w, height: h, preserveAspectRatio: 'xMidYMid slice', 'clip-path': `url(#${id})` }, gp);
+        const [ex, ey] = PB(i * 10 + 5, off + 4); el('line', { x1: ex, y1: ey, x2: x, y2: y - h / 2, stroke: '#9AA0A6', 'stroke-width': fs(1) }, gp);
+        gp.addEventListener('pointerup', () => { if (!dragMoved) tapSV = i; }); }
+      bandLab('photos', off + 6 + th / 2); off += th + 14; } }
   if (Lr.chain && K < 1.2) for (let m = 0; m <= L; m += 10) { const big = m % 50 === 0 || m === L, [x, y] = P(m, 3.2), [x2, y2] = P(m, 3.2 + (big ? 1.2 : .7)); el('line', { x1: x, y1: y, x2, y2, stroke: dark ? '#8C97B5' : '#5F6368', 'stroke-width': fs(1.2) }, g);
     if (big || K < .3) tx(`${m} m`, x2, y2, { 'font-family': 'Roboto Mono, monospace', 'font-size': fs(10), fill: T.ink, stroke: T.halo, 'stroke-width': fs(3), 'paint-order': 'stroke', dx: fs(3), dy: fs(10) }, g); }
   if (Lr.through) S.forEach(s => { const [x, y] = P(s.i * 10 + 5, 6.4), r = Math.min(9 * K, 4.2 * U), a = access(s), col = a ? ACC[a] : null;
@@ -616,15 +648,11 @@ function draw() {
   { const [x, y] = PW(489 * SC, 266 * SC), r = 9 * K; el('path', { d: `M${x - r} ${y - r * .9}h${2 * r}v${r * 1.1}l${-r} ${r * .8}l${-r} ${-r * .8}Z`, fill: '#FDD663', stroke: '#B08400', 'stroke-width': fs(1) }, g); tx('48', x, y + r * .25, { 'font-family': 'Roboto, sans-serif', 'font-size': fs(10), 'font-weight': 700, fill: '#3C4043', 'text-anchor': 'middle' }, g); }
   if (K < 2.4) POIS.forEach(([t, px, py]) => { const [x, y] = PW(px * SC, py * SC), r = 6 * K; el('circle', { cx: x, cy: y, r, fill: T.poi, stroke: T.halo, 'stroke-width': fs(1.5) }, g); el('circle', { cx: x, cy: y, r: r * .35, fill: T.halo }, g); lab(t, x + r * 1.6, y + 4 * K, { 'font-size': fs(11.5), fill: T.poi }); });
   if (R) {
-    // walking route as Google-style dots, each coloured by the footpath it sits on
-    const sp = 12 * K / U, n = Math.max(2, Math.round(Math.abs(R.m1 - R.m0) / sp)), r = 4.6 * K;
-    for (let j = 0; j <= n; j++) { const m = R.m0 + (R.m1 - R.m0) * j / n, st = R.steps.find(q => q.t === 'go' && (m - q.m0) * R.dir >= -.01 && (q.m1 - m) * R.dir >= -.01) || { cls: 'clear' }, [f, o] = DOT[st.cls], [x, y] = P(m, centreAt(m));
-      el('circle', { cx: x, cy: y, r, fill: f, stroke: o, 'stroke-width': fs(1.6) }, g); }
     R.steps.filter(st => st.t === 'go' && (st.cls === 'road' || st.cls === 'stop')).forEach(st => { const m = (st.m0 + st.m1) / 2, [x, y] = P(m, -.4), r = 9 * K;
       el('circle', { cx: x, cy: y - r * 1.3, r, fill: '#D93025', stroke: '#fff', 'stroke-width': fs(2) }, g); tx('!', x, y - r * 1.3 + r * .45, { 'font-size': fs(13), 'font-weight': 700, fill: '#fff', 'text-anchor': 'middle' }, g); });
     { const [x, y] = P(R.m0, centreAt(R.m0)); el('circle', { cx: x, cy: y, r: 6.5 * K, fill: '#fff', stroke: '#202124', 'stroke-width': fs(3) }, g); }
     { const [x, y] = P(R.m1, centreAt(R.m1)), r = 11 * K; el('path', { d: `M${x} ${y} l${-r * .7} ${-r * 1.6} a${r} ${r} 0 1 1 ${r * 1.4} 0 z`, fill: '#EA4335', stroke: '#B31412', 'stroke-width': fs(1.2) }, g); el('circle', { cx: x, cy: y - r * 2.15, r: r * .38, fill: '#B31412' }, g); }
-    { const mm = (R.m0 + R.m1) / 2, [x, y] = P(mm, 9), w = 70 * K, h = 36 * K; const bx = el('g', {}, g); el('rect', { x: x - w / 2, y: y - h / 2, width: w, height: h, rx: 3 * K, fill: '#fff', stroke: '#DADCE0', 'stroke-width': fs(1) }, bx);
+    { const mm = (R.m0 + R.m1) / 2, [x, y] = P(mm, 3.2 + 40 * K / (U * XG)), w = 70 * K, h = 36 * K; const bx = el('g', {}, g); el('rect', { x: x - w / 2, y: y - h / 2, width: w, height: h, rx: 3 * K, fill: '#fff', stroke: '#DADCE0', 'stroke-width': fs(1) }, bx);
       tx(fmtT(R.dist / SPEED), x, y - 2 * K, { 'font-family': 'Roboto, sans-serif', 'font-size': fs(13), 'font-weight': 700, fill: '#202124', 'text-anchor': 'middle' }, bx); tx(`${Math.round(R.dist)} m`, x, y + 12 * K, { 'font-family': 'Roboto, sans-serif', 'font-size': fs(11), fill: '#5F6368', 'text-anchor': 'middle' }, bx); }
   }
   if (Lr.calls && !R) calls(S).sort((p, q) => p[0].i - q[0].i).forEach(([s, a, b, c], k) => { const m = s.i * 10 + 5, [x0, y0] = P(m, -.2), x1 = x0, y1 = y0 - (k % 2 ? 92 : 54) * K;
@@ -640,16 +668,16 @@ function draw() {
   meG = el('g', { id: 'me' }, g); el('circle', { r: 16 * K, fill: '#1A73E8', opacity: .18 }, meG); el('circle', { r: 8 * K, fill: '#1A73E8', stroke: '#fff', 'stroke-width': fs(3) }, meG); placeMe();
   drawScale(); renderKey(); drawStrip();
 }
-function drawStrip() { const card = $('stripc'), Lr = state.layers, on = (Lr.walks || Lr.photos) && !state.nav && !stripOff; card.hidden = !on; if (!on) return;
+function drawStrip() { const card = $('stripc'), Lr = state.layers, on = Lr.walks && !state.nav && !stripOff; card.hidden = !on; if (!on) return;
   const sv = $('strip'); sv.innerHTML = ''; const w = Math.max(280, sv.clientWidth || card.clientWidth - 24), x0 = 66, xw = w - x0 - 6, X = m => x0 + m / L * xw, S = STATS, rows = [];
-  $('stS').textContent = [Lr.walks ? `${W().length} walks` : '', Lr.photos ? 'ground photos' : ''].filter(Boolean).join(' · ') + ' · tap to open';
+  $('stS').textContent = `${W().length} walks · ground cut from the worst photo · tap to open`;
   const E = (t, a, p = sv) => el(t, a, p), T = (s2, x, y, a = {}) => tx(s2, x, y, { 'font-family': 'Roboto, sans-serif', 'font-size': 10.5, fill: '#5F6368', ...a }, sv);
   const chan = (cells, y, h, fill) => runs(cells).forEach(([a, b]) => { const Tp = [], Bp = [], pt = (i, m) => { const [e1, e2] = edges(cells[i]); Tp.push([X(m), y + e1 / 3 * h]); Bp.push([X(m), y + e2 / 3 * h]); }; pt(a, a * 10 + .1); for (let i = a; i <= b; i++) pt(i, i * 10 + 5); pt(b, b * 10 + 9.9); E('path', { d: ribbon(Tp, Bp), fill }); });
   const hatch = (y, h) => E('rect', { x: X(160), y, width: X(190) - X(160), height: h, fill: 'url(#shatch)' });
   const d = E('defs', {}), hp = E('pattern', { id: 'shatch', width: 6, height: 6, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' }, d); E('rect', { width: 6, height: 6, fill: '#F1F3F4' }, hp); E('line', { x1: 0, y1: 0, x2: 0, y2: 6, stroke: '#DADCE0', 'stroke-width': 2 }, hp);
   let y = 14; [[0, 'A · 0 m'], [104, 'turn'], [176, 'underpass'], [L, '220 m · B']].forEach(([m, t], k) => T(t, X(m), y, { 'text-anchor': k === 0 ? 'start' : k === 3 ? 'end' : 'middle' }));
   y += 6; T('Median', 0, y + 12); E('rect', { x: X(0), y, width: xw, height: 16, fill: '#111' }); chan(S.map(s => s.g != null ? { g: s.g, top: s.top } : null), y, 16, '#fff'); hatch(y, 16); rows.push(['med', y, y + 16]); y += 22;
-  if (Lr.photos) { const tw = xw / NB, th = Math.min(96, tw * 1.78); T('Ground', 0, y + th / 2 + 4); for (let i = 0; i < NB; i++) { const p = D.photos.df[i] || D.photos.dr[i]; if (!p) continue; const x = X(i * 10), src = `../lab/ph/${p.id}.jpg`;
+  { const tw = xw / NB, th = Math.min(96, tw * 1.78); T('Ground', 0, y + th / 2 + 4); for (let i = 0; i < NB; i++) { const p = D.photos.df[i] || D.photos.dr[i]; if (!p) continue; const x = X(i * 10), src = `../lab/ph/${p.id}.jpg`;
       E('image', { href: src, x, y, width: tw - 1, height: th, preserveAspectRatio: 'none', opacity: .22 });
       if (p.path && p.path.length > 5) { const cp = E('clipPath', { id: `sp${i}`, clipPathUnits: 'objectBoundingBox' }, d); E('polygon', { points: p.path.map(q => q.join(',')).join(' ') }, cp); E('image', { href: src, x, y, width: tw - 1, height: th, preserveAspectRatio: 'none', 'clip-path': `url(#sp${i})` }); } }
     rows.push(['ph', y, y + th]); y += th + 8; }
@@ -660,7 +688,7 @@ function drawStrip() { const card = $('stripc'), Lr = state.layers, on = (Lr.wal
   sv.onclick = e => { const r = sv.getBoundingClientRect(), x = (e.clientX - r.left) * w / r.width, yy = (e.clientY - r.top) * y / r.height, m = (x - x0) / xw * L; if (m < 0 || m > L) return; const i = Math.min(21, Math.floor(m / 10)), row = rows.find(q => yy >= q[1] - 3 && yy <= q[2] + 3);
     if (row && row[0] === 'ph') openSV(i, false, D.photos.df[i] ? 'f' : 'r'); else openPlace(i, true); }; }
 let stripOff = false;
-$('stX').innerHTML = I.x; $('stX').onclick = () => { state.layers.walks = 0; state.layers.photos = 0; renderLayers(); draw(); };
+$('stX').innerHTML = I.x; $('stX').onclick = () => { state.layers.walks = 0; renderLayers(); draw(); };
 let phG = null;
 function placePh() { if (!phG) return; if (state.ph == null) { phG.setAttribute('display', 'none'); return; } const [x1, y1] = P(state.ph, -4), [x2, y2] = P(state.ph, 8); phG.removeAttribute('display'); phG.setAttribute('x1', x1); phG.setAttribute('y1', y1); phG.setAttribute('x2', x2); phG.setAttribute('y2', y2); }
 let meG = null;
@@ -689,11 +717,11 @@ function fly(to, ms = 650) { const id = ++flyId, from = state.vb.slice(), t0 = p
   const step = now => { if (id !== flyId) return; const t = Math.min(1, (now - t0) / ms); setVB(from.map((v, j) => v + (to[j] - v) * e(t))); if (t < 1) requestAnimationFrame(step); else setVB(to, true); }; requestAnimationFrame(step); }
 const toWorld = (cx, cy) => { const p = svg.createSVGPoint(); p.x = cx; p.y = cy; const q = p.matrixTransform(svg.getScreenCTM().inverse()); let x = q.x, y = q.y; if (state.d3) { const u = q.x / .866, v = q.y / .5; x = (u + v) / 2; y = (v - u) / 2; }
   let bj = 0, bd = 1e18; for (let j = 0; j <= 440; j++) { const f = FR[j], e = (f[0] - x) ** 2 + (f[1] - y) ** 2; if (e < bd) { bd = e; bj = j; } }
-  const f = FR[bj], dx = x - f[0], dy = y - f[1]; let m = bj / 2; if (bj === 0 || bj === 440) m += (dx * f[2] + dy * f[3]) / U; return [m, AX + (-dx * f[3] + dy * f[2]) / U]; };
+  const f = FR[bj], dx = x - f[0], dy = y - f[1]; let m = bj / 2; if (bj === 0 || bj === 440) m += (dx * f[2] + dy * f[3]) / U; return [m, AX + (-dx * f[3] + dy * f[2]) / (U * XG)]; };
 function zoomAt(k, cx, cy) { flyId++; const vb = state.vb, f = ctxBox(), w = Math.max(20 * U, Math.min(f[2] * 1.15, vb[2] * k)), h = vb[3] * w / vb[2]; const p = svg.createSVGPoint(); p.x = cx; p.y = cy; const q = p.matrixTransform(svg.getScreenCTM().inverse());
   setVB([q.x - (q.x - vb[0]) * w / vb[2], q.y - (q.y - vb[1]) * h / vb[3], w, h]); }
 const mapCentre = () => { const v = visArea(), r = svg.getBoundingClientRect(); return [r.left + (v.l + v.r) / 2, r.top + (v.t + v.b) / 2]; };
-let dragMoved = false, tapTarget = null;
+let dragMoved = false, tapTarget = null, tapSV = null;
 (() => { const ptrs = new Map(); let start = null, pinch = null;
   svg.addEventListener('wheel', e => { e.preventDefault(); zoomAt(Math.exp(e.deltaY * (e.ctrlKey ? .01 : .0016)), e.clientX, e.clientY); }, { passive: false });
   svg.addEventListener('pointerdown', e => { ptrs.set(e.pointerId, [e.clientX, e.clientY]); flyId++; if (ptrs.size === 1) { start = { x: e.clientX, y: e.clientY, vb: state.vb.slice() }; dragMoved = false; } else if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), vb: state.vb.slice() }; } closePops(); });
@@ -706,7 +734,7 @@ let dragMoved = false, tapTarget = null;
     if (ptrs.size === 0) { svg.classList.remove('drag'); if (had && start && !dragMoved && e.type === 'pointerup') mapTap(e); start = null; setTimeout(() => dragMoved = false, 0); } };
   svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', end); svg.addEventListener('pointerleave', hideTip);
   svg.addEventListener('dblclick', e => zoomAt(.5, e.clientX, e.clientY)); })();
-function mapTap(e) { if (tapTarget != null && !state.pick && !state.nav) { const t = tapTarget; tapTarget = null; return openPlace(t, true); } tapTarget = null; const [m, a] = toWorld(e.clientX, e.clientY); if (m < 0 || m > L) return; const i = Math.min(21, Math.floor(m / 10));
+function mapTap(e) { if (tapSV != null && !state.pick) { const i = tapSV; tapSV = null; tapTarget = null; return openSV(i, state.base === 'daynight', 'f'); } if (tapTarget != null && !state.pick && !state.nav) { const t = tapTarget; tapTarget = null; return openPlace(t, true); } tapTarget = null; const [m, a] = toWorld(e.clientX, e.clientY); if (m < 0 || m > L) return; const i = Math.min(21, Math.floor(m / 10));
   if (a < -2.5 || a > 7) return;
   if (state.pick) { const k = state.pick; state.pick = null; svg.classList.remove('pick'); state[k] = Math.round(clamp(m, 0, L)); makeRoute(); setView('dirs'); fitRoute(); return; }
   if (state.nav) return; openPlace(Math.min(21, Math.floor(m / 10)), false); }
@@ -714,7 +742,7 @@ const tip = $('tip');
 function hover(e) { if (matchMedia('(hover: none)').matches) return; const [m, a] = toWorld(e.clientX, e.clientY); if (m < 0 || m >= L || a < -1 || a > 7) return hideTip(); const s = STATS[Math.floor(m / 10)];
   const r = svg.getBoundingClientRect(); tip.style.left = (e.clientX - r.left) + 'px'; tip.style.top = (e.clientY - r.top) + 'px'; tip.style.opacity = 1; tip.innerHTML = state.pick ? `Set ${state.pick === 'from' ? 'start' : 'destination'} · <b>${Math.round(m)} m</b>` : `${Math.round(m)} m · <b>${s.g == null ? 'not measured' : s.g.toFixed(1) + ' m clear'}</b> · blocked ${s.b}/${s.n}`; }
 function hideTip() { tip.style.opacity = 0; }
-function drawScale() { const mpp = K / U, nice = [1, 2, 5, 10, 20, 50, 100], v = nice.find(n => n >= 70 * mpp) || 100; $('sb').style.width = (v / mpp).toFixed(0) + 'px'; $('sbl').textContent = `${v} m`; }
+function drawScale() { const mpp = K / U, nice = [1, 2, 5, 10, 20, 50, 100], v = nice.find(n => n >= 70 * mpp) || 100; $('sb').style.width = (v / mpp).toFixed(0) + 'px'; $('sbl').textContent = `${v} m` + (XG > 1.05 ? ` · footpath ×${XG.toFixed(1)}` : ' · true scale'); }
 
 /* ---------- sheet ---------- */
 const sc = $('sc'), sheet = $('sheet');
@@ -765,7 +793,7 @@ function dirsView() { const R = state.route, t = R ? fmtT(R.dist / SPEED) : '—
     if (R.prof === 'night' && R.dark) al.push(['a', 'moon', `${R.dark} part${R.dark > 1 ? 's are' : ' is'} darker than usual at night`]);
     const sum = R.road ? `Steps into the road for ${Math.round(R.road)} m` : R.stop ? `May not get through ${Math.round(R.stop)} m` : R.tight ? `Tight for ${Math.round(R.tight)} m` : 'Clear footpath all the way';
     body = `<div class="rcard"><span class="ri">${I[PROFS[R.prof][1]]}</span><div><b>via ${esc(viaOf(R))}</b><small>${esc(sum)}</small><div><button class="lnk" data-act="start">Start</button><button class="lnk" data-act="svroute">Preview</button><button class="lnk" data-act="share">Share</button></div></div><div class="tm"><b>${t}</b><small>${Math.round(R.dist)} m</small></div></div>
-      <div style="padding:6px 22px 4px">${al.map(([k, i, x]) => `<div class="alert ${k}">${I[i]}<span>${x}</span></div>`).join('')}<p class="note" style="margin-top:10px">Time at the median speed of the daytime walks, ${SPEED.toFixed(2)} m/s. Dots on the map are coloured by the footpath: blue clear, amber tight, red in the road.</p></div>
+      <div style="padding:6px 22px 4px">${al.map(([k, i, x]) => `<div class="alert ${k}">${I[i]}<span>${x}</span></div>`).join('')}<p class="note" style="margin-top:10px">Time at the median speed of the daytime walks, ${SPEED.toFixed(2)} m/s. On the map the route lights up the footpath itself: red along the kerb is where you step into the road, amber where it is tight.</p></div>
       <div class="list"><div class="lab" style="padding:10px 22px 2px">Steps</div></div>
       <div class="steps">${R.steps.map((st, j) => { const [a, b, icn, c] = stepText(st, R); return `<button class="step" data-st="${j}"><span class="si" style="background:${c}">${I[icn]}</span><span><b>${esc(a)}</b><small>${esc(b)}</small></span><em>${st.t === 'go' ? Math.round(st.len) + ' m' : ''}</em></button>`; }).join('')}</div>`; }
   return `<div class="dh"><div class="mtabs">${Object.entries(PROFS).map(([k, [n, i]]) => `<button class="mtab" data-prof="${k}" aria-pressed="${k === state.prof}" aria-label="${n}, ${t}" title="${n}"><span class="ico">${I[i]}</span>${t}</button>`).join('')}<button class="ib x" data-act="home" aria-label="Close directions">${I.x}</button></div>
@@ -858,6 +886,10 @@ $('chips').addEventListener('click', e => { const b = e.target.closest('[data-m]
 function setMode(k) { state.mode = k; state.base = MODES[k].B; state.layers = { ...ALWAYS, ...MODES[k].L }; renderChips(); renderLayers(); if (state.view === 'home') setView('home', { keepScroll: true }); else { if (state.view === 'place') setView('place', { keepScroll: true }); draw(); } }
 const sw = ([c, l, b]) => `<div><i style="background:${c === 'url' ? 'repeating-linear-gradient(45deg,var(--paper) 0 3px,var(--hair) 3px 5px)' : c === 'dash' ? 'repeating-linear-gradient(90deg,#1E2A45 0 4px,#fff 4px 7px)' : c};${b ? 'box-shadow:inset 0 0 0 1px var(--hair)' : ''}"></i>${esc(l)}</div>`;
 function detailLeg() { const Lr = state.layers, o = [];
+  if (Lr.prox) o.push(['#1A73E8', 'one person, about 0.75 m, side by side'], ['#D93025', '✕ no one fits: step into the road']);
+  if (Lr.view) o.push(['#3C4043', 'blocked ahead · darker = on more walks']);
+  if (Lr.sound) o.push(['#D93025', 'horns · thicker = more heard'], [C.mus, 'swerves']);
+  if (Lr.photos) o.push(['#DADCE0', 'walk photo, tap for Street View']);
   if (Lr.line) o.push([C.teal, 'walk-line · 1.5 m or more'], [C.amb, 'walk-line · 0.9–1.5 m'], [C.red, 'walk-line · under 0.9 m']);
   if (Lr.through) o.push([C.teal, `✓ usually ${state.thr.toFixed(1)} m clear`], [C.amb, '! sometimes'], [C.red, '✕ rarely']);
   if (Lr.obst === 'kind') o.push([C.ppl, 'people & stalls'], [C.veh, 'vehicles'], [C.fix, 'poles & barriers'], [C.tree, 'trees']);
@@ -875,7 +907,7 @@ function renderLayers() { const b = state.base;
     <div><div class="lab" style="margin-bottom:6px">Key</div><div class="leg">${[...BLEG[b], ...detailLeg()].map(sw).join('')}</div></div>
     <div><div class="lab" style="margin-bottom:6px">Walks shown</div><select class="walk" id="src"><option value="day" ${state.src === 'day' ? 'selected' : ''}>All 11 daytime walks</option><option value="all" ${state.src === 'all' ? 'selected' : ''}>All 15 walks, day and night</option>${walks.map(w => `<option value="${w.k}" ${String(state.src) === String(w.k) ? 'selected' : ''}>One walk · ${esc(wlabel(w))}</option>`).join('')}</select></div>`;
   renderKey(); }
-function renderKey() { const b = state.base; $('mkey').innerHTML = `<b>${esc(BASES[b][0])}</b>${BLEG[b].slice(0, 3).map(sw).join('')}`; }
+function renderKey() { const b = state.base; $('mkey').innerHTML = `<b>${esc(BASES[b][0])}</b>${BLEG[b].slice(0, 3).map(sw).join('')}<span class="ex">${XG > 1.05 ? `Footpath drawn ${XG.toFixed(1)}× wider than real · zoom in for true scale` : 'Footpath at true scale'}</span>`; }
 function openLayers(on) { const p = $('laypop'); p.hidden = !on; $('lay').classList.toggle('open', !!on); $('laybg').hidden = !on || !phone(); $('layB').setAttribute('aria-expanded', on); }
 $('layB').onclick = e => { e.stopPropagation(); openLayers($('laypop').hidden); };
 $('laybg').onclick = () => openLayers(false);
