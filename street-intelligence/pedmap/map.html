@@ -374,7 +374,8 @@ const nameAt = m => { const p = PLACES.find(p => Math.abs(p[1] - m) < 1); return
 const SPEED = med(walks.filter(w => !w.night).map(w => L / w.dur)); // m/s, from the daytime walks
 const fmtT = s => { s = Math.max(0, Math.round(s)); const m = Math.floor(s / 60), r = s % 60; return m ? `${m} min${r ? ' ' + r + ' s' : ''}` : `${r} s`; };
 let booted = false;
-const state = { base: 'nolli', ph: null, mode: 'walk', sel: null, d3: false, thr: .9, src: 'day', vb: null, layers: {}, view: 'home', from: 216, to: 2, prof: 'walk', route: null, nav: null, sv: null, pick: null, col: false, kind: 'vehicle', results: null, q: '' };
+let PLANW = null;
+const state = { plan: null, base: 'nolli', ph: null, mode: 'walk', sel: null, d3: false, thr: .9, src: 'day', vb: null, layers: {}, view: 'home', from: 216, to: 2, prof: 'walk', route: null, nav: null, sv: null, pick: null, col: false, kind: 'vehicle', results: null, q: '' };
 
 /* ---------- icons ---------- */
 const ic = (d, extra = '') => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true" ${extra}>${d}</svg>`;
@@ -442,6 +443,8 @@ const MODES = {
     list: S => S.filter(s => s.g != null).map(s => { const gs = W().filter(w => !w.night).map(w => w.s[s.i]).filter(r => r && r.g > 0).map(r => r.g); return [s, gs.length ? Math.max(...gs) - Math.min(...gs) : 0, gs]; }).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([s, , gs]) => [s, `${Math.min(...gs).toFixed(1)}–${Math.max(...gs).toFixed(1)} m`, `clear width across ${gs.length} daytime walks`]), foot: 'Where the ghost blurs, the footpath depends on the day. Walk again after a cleanup and compare.' },
   vend: { n: 'Vending', ic: 'stall', q: 'Where stalls fit and where they clash', B: 'nolli', L: { obst: 'people' },
     list: S => [...S.filter(s => s.g != null && s.g >= 2).map(s => [s, `${s.g.toFixed(1)} m`, 'Room for a stall zone']), ...S.filter(s => s.g != null && s.g < 1.5 && s.sh.people >= .6).slice(0, 4).map(s => [s, `${s.g.toFixed(1)} m`, `Tight, stalls or crowds on ${Math.round(s.sh.people * 100)}% of walks`])], foot: 'For town vending committees under the Street Vendors Act, 2014.' },
+  plan: { n: 'Plan a change', ic: 'cube', q: 'Where a change would help most', B: 'nolli', L: { obst: 'kind', line: 1 },
+    list: S => S.filter(s => s.g != null && s.g < 1.5).sort((a, b) => a.g - b.g).slice(0, 5).map(s => [s, `${s.g.toFixed(1)} m`, `Mostly ${cause(s)}`]), foot: 'Try changes on the surveyed footpath; widths are recalculated from the same walks.' },
   stress: { n: 'Noise & stress', ic: 'ear', q: 'Most horns and swerves', B: 'nolli', L: { sound: 1, horn: 1, swerve: 1 },
     list: S => S.slice().sort((a, b) => (b.hk + b.sw * 2) - (a.hk + a.sw * 2)).slice(0, 5).map(s => [s, `${s.hk}`, `Horns heard · ${s.sw} walks swerved`]), foot: 'Horns heard and direction changes recorded by the phone on every walk.' }
 };
@@ -514,6 +517,20 @@ function stepText(st, r) {
 const PROFS = { walk: ['Walk', 'walk'], access: ['Wheelchair', 'wheel'], night: ['After dark', 'moon'] };
 function makeRoute() { state.route = buildRoute(state.from, state.to, state.prof); }
 
+/* ---------- plan a change: the Street Lab sandbox, on the map ----------
+   As in the sandbox: a change clears a walk that was blocked when it removes that walk's main obstruction;
+   the cleared walk gets the width of the clear walks in the same stretch. Widening adds its width. */
+const PT = { fixed: ['Move poles, bins and barriers', ['pole', 'barrier'], 0, 'act'], trees: ['Tree grates, move planters', ['plants'], 0, 'act'], vend: ['Vending zone off the footpath', ['people'], 0, 'stall'], park: ['No parking, with bollards', ['vehicle'], 0, 'road'], widen: ['Widen the footpath by 1 m', [], 1, 'ruler'] };
+function loadPlan() { try { const v = JSON.parse(localStorage.getItem('pedmap-plan') || 'null'); if (v && Array.isArray(v.items)) return { items: v.items.filter(it => PT[it.t] && it.m1 > it.m0).slice(0, 40), show: 'after' }; } catch (e) {} return { items: [], show: 'after' }; }
+function savePlan() { try { localStorage.setItem('pedmap-plan', JSON.stringify({ items: state.plan.items })); } catch (e) {} }
+function planWidths(items) { const day = walks.filter(w => !w.night);
+  return Array.from({ length: NB }, (_, i) => { if (NA(i)) return null; const act = items.filter(it => i * 10 + 10 > it.m0 && i * 10 < it.m1), fixes = new Set(act.flatMap(it => PT[it.t][1]));
+    const pool = day.map(w => w.s[i]).filter(Boolean); let clear = pool.filter(r => r.o < OBS); if (clear.length < 2) clear = clear.concat([i - 1, i + 1].filter(j => j >= 0 && j < NB && !NA(j)).flatMap(j => day.map(w => w.s[j]).filter(r => r && r.o < OBS)));
+    const cg = clear.filter(r => r.g > 0).map(r => r.g), ref = cg.length ? med(cg) : null;
+    const eff = pool.map(r => r.o >= OBS && fixes.has(r.k) && ref != null ? Math.max(r.g, ref) : r.g).filter(g => g > 0); let w = eff.length ? med(eff) : null;
+    if (w != null) w += act.reduce((a, it) => a + PT[it.t][2], 0); return w; }); }
+function planSummary() { const b = planWidths([]), a = planWidths(state.plan.items), cnt = (v, f) => v.filter(g => g != null && f(g)).length;
+  return { b, a, okB: cnt(b, g => g >= 1.5), okA: cnt(a, g => g >= 1.5), roadB: cnt(b, g => g < .9) * 10, roadA: cnt(a, g => g < .9) * 10, wcB: cnt(b, g => g >= .9), wcA: cnt(a, g => g >= .9), n: cnt(b, () => true) }; }
 /* ---------- drawing ---------- */
 const NS = 'http://www.w3.org/2000/svg', svg = $('map');
 function el(tag, at, p = svg) { const e = document.createElementNS(NS, tag); for (const k in at) e.setAttribute(k, at[k]); p.appendChild(e); return e; }
@@ -589,7 +606,8 @@ function draw() {
   // the footpath, with a halo to lift it off the base map
   quad(0, L, -.05, 3.23, 'none', { stroke: dark ? '#000' : '#fff', 'stroke-width': fs(4), 'stroke-linejoin': 'round' }, g);
   quad(0, L, 0, 3, T.taken, {}, g); quad(0, L, 3, 3.18, T.kerb, {}, g);
-  const cells = S.map(s => s.g != null ? { g: s.g, top: s.top } : null), ncells = S.map(s => s.ng != null ? { g: s.ng, top: s.top } : null);
+  const planning = state.view === 'plan' && state.plan.items.length, PA = planning ? planWidths(state.plan.items) : null;
+  const cells = S.map((s, i) => { const g = planning && state.plan.show === 'after' ? PA[i] : s.g; return g != null ? { g: Math.min(3, g), top: s.top } : null; }), ncells = S.map(s => s.ng != null ? { g: s.ng, top: s.top } : null);
   if (B === 'fills') { S.forEach(s => { if (NA(s.i)) return; const p = [s.sh.fixed + (s.i === 8 ? .35 : 0), s.sh.vehicle, s.sh.people], t = p.reduce((a, q) => a + q, 0) || 1, ps = p.map(v => v / t), m0 = s.i * 10, m1 = m0 + 10;
       const [e1, e2] = s.g != null ? edges(s) : [3, 3]; let b0 = 0; [C.fix, C.veh, C.ppl].forEach((c, k) => { const b1 = b0 + ps[k]; if (ps[k] > .01) { quad(m0, m1, e1 * b0, e1 * b1, c, { opacity: .92 }, g); if (e2 < 3) quad(m0, m1, 3 - (3 - e2) * b1, 3 - (3 - e2) * b0, c, { opacity: .92 }, g); } b0 = b1; }); });
     channelPath(cells).forEach(d => el('path', { d, fill: T.walk }, g)); }
@@ -620,6 +638,8 @@ function draw() {
     else if (o.k === 'barrier') el('rect', { x: x - .5 * U, y: y - .12 * U, width: U, height: .24 * U, fill: c, opacity: .9 * op, transform: `rotate(${ang.toFixed(1)} ${x} ${y})` }, g);
     else if (o.k === 'pole') el('rect', { x: x - .14 * U, y: y - .14 * U, width: .28 * U, height: .28 * U, fill: c, opacity: op }, g);
     else el('circle', { cx: x, cy: y, r: .26 * U, fill: c, opacity: .85 * op, stroke: st, 'stroke-width': fs(.5) }, g); });
+  if (planning) { if (state.plan.show === 'after') channelPath(S.map(s => s.g != null ? { g: s.g, top: s.top } : null)).forEach(d => el('path', { d, fill: 'none', stroke: '#D93025', 'stroke-width': fs(1.6), 'stroke-dasharray': `${fs(4)} ${fs(3)}` }, g));
+    state.plan.items.forEach(it => { quad(it.m0, it.m1, 3.2, 3.2 + 7 * K / (U * XG), '#1A73E8', {}, g); const [x, y] = P((it.m0 + it.m1) / 2, 3.2 + 26 * K / (U * XG)); tx(PT[it.t][0], x, y, { 'font-family': 'Roboto, sans-serif', 'font-size': fs(11.5), 'font-weight': 500, fill: '#1967D2', 'text-anchor': 'middle', stroke: '#fff', 'stroke-width': fs(3), 'paint-order': 'stroke' }, g); }); }
   if (state.sel != null && !R) quad(state.sel * 10, state.sel * 10 + 10, -.15, 3.2, 'rgba(242,184,0,.14)', { stroke: C.yel, 'stroke-width': fs(3), 'stroke-linejoin': 'round' }, g);
   // bands beside the footpath: blocked ahead, sound, photos
   { let off = 4; const bandLab = (t, px) => { if (K > 1.1) return; const [x, y] = PB(-3, px); tx(t, x, y, { 'font-family': 'Roboto, sans-serif', 'font-size': fs(10.5), 'font-weight': 500, fill: dark ? '#8C97B5' : '#5F6368', 'text-anchor': 'end', dy: fs(3.5) }, g); };
@@ -779,7 +799,7 @@ function placeView() { const i = state.sel, s = STATS[i], Pp = D.photos, dp = Pp
       <div class="stat"><b>${s.sw}</b><span>walks swerved</span></div><div class="stat"><b>${s.hk}</b><span>horns heard</span></div>
       <div class="stat"><b>${s.ng == null ? '—' : s.ng.toFixed(1)}</b><span>m clear at night</span></div><div class="stat"><b>${lit}</b><span>light vs the route at night</span></div></div>
       <div class="bars"><div class="lab" style="margin-top:8px">Seen here on daytime walks</div>${bar('Fixed things', s.sh.fixed, C.fix)}${bar('Vehicles', s.sh.vehicle, C.veh)}${bar('People & stalls', s.sh.people, C.ppl)}</div></div>
-    ${s.g != null && s.g < 1.5 && ow.length ? `<div class="sec"><div class="who">Under BMC 1.5 m. Likely needs <b>${ow.join(', ').toLowerCase()}</b>.</div><div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn g" data-act="evidence">${I.dl}Evidence sheet</button></div></div>` : `<div class="sec"><button class="btn g" data-act="evidence">${I.dl}Evidence sheet</button></div>`}
+    ${s.g != null && s.g < 1.5 && ow.length ? `<div class="sec"><div class="who">Under BMC 1.5 m. Likely needs <b>${ow.join(', ').toLowerCase()}</b>.</div><div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn g" data-act="evidence">${I.dl}Evidence sheet</button><button class="btn g" data-act="plan">${I.cube}Plan a change here</button></div></div>` : `<div class="sec" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn g" data-act="evidence">${I.dl}Evidence sheet</button><button class="btn g" data-act="plan">${I.cube}Plan a change here</button></div>`}
     <div class="list"><div class="lab">Reports here</div>${here.length ? here.map(repRow).join('') : '<p class="note" style="padding:6px 22px 12px">None yet.</p>'}</div>`; }
 const viaOf = R => { const lo = Math.min(R.m0, R.m1), hi = Math.max(R.m0, R.m1), v = []; if (lo < 104) v.push('Jijamata Rd / Old Nagardas Rd'); if (hi > 104 && lo < 162) v.push('the highway service road'); if (hi > 162 && lo < 191) v.push('the underpass walkway'); return v.join(' and ') || 'the footpath'; };
 function dirsView() { const R = state.route, t = R ? fmtT(R.dist / SPEED) : '—';
@@ -814,11 +834,26 @@ function resultsView() { const R = state.results || [];
     <div class="list">${R.length ? R.map(r => `<button class="row" data-go="${Math.min(21, Math.floor(r.m / 10))}"><span class="ic">${I[r.ic || 'pin']}</span><span class="t"><b>${esc(r.n)}</b><small>${esc(r.d)}</small></span>${r.v ? `<span class="v">${esc(r.v)}</span>` : ''}</button>`).join('') : '<p class="note" style="padding:10px 22px">Nothing found on this street. Try a place, a metre like 120, or words like narrow, dark, stalls, horns, wheelchair.</p>'}</div>`; }
 function menuView() { const ln = (h, i, n, d) => `<a class="row" href="${h}" style="text-decoration:none;color:inherit"><span class="ic">${I[i]}</span><span class="t"><b>${n}</b><small>${d}</small></span></a>`;
   return `<div class="ph"><button class="ib" data-act="home" aria-label="Back">${I.back}</button><span class="grow">MENU</span></div>
-    <div class="list">${ln('data.html', 'data', 'Data & exports', 'Charts, PDF, Excel, CSV, JSON')}${ln('index.html', 'book', 'Atlas of views', 'Nolli, ghost, day and night, walker’s eye, sound')}${ln('index.html#make', 'cube', 'Make it physical', '1:1 floor print, 3D cast, tactile map')}${ln('index.html#uses', 'people', 'Who can use this', 'Twelve uses, from wheelchair users to the ward office')}</div>
+    <div class="list">${ln('data.html', 'data', 'Data & exports', 'Charts, PDF, Excel, CSV, JSON')}${ln('index.html', 'book', 'Atlas of views', 'Nolli, ghost, day and night, walker’s eye, sound')}${ln('index.html#make', 'cube', 'Make it physical', '1:1 floor print, 3D cast, tactile map')}${ln('#plan', 'cube', 'Plan a change', 'For planners and the ward: try changes, see the width')}${ln('index.html#uses', 'people', 'Who can use this', 'Twelve uses, from wheelchair users to the ward office')}</div>
     <div class="sec" style="border-top:1px solid var(--hair)"><div class="lab">Keys</div><p class="note" style="margin-top:6px">← → move along the street · + − zoom · / search · Esc back</p></div>
     <div class="sec"><div class="lab">About this map</div><p class="note" style="margin-top:6px">15 walks on Old Nagardas Road, Andheri East, Mumbai, Oct 2026 (11 by day, 4 by night). A phone recorded photos every 3 s, horns and swerves. Clear width is the ground left to walk on, estimated from the photos. Base map tiles and GPS were not used.</p></div>`; }
+function planView() { const P2 = state.plan, sm = planSummary(), i = state.sel ?? 8, m0 = state.pm0 ?? i * 10, m1 = state.pm1 ?? i * 10 + 10, n = P2.items.length;
+  const big = (v0, v1, l, good) => `<div class="stat"><b>${v0} <span style="color:var(--g3);font-weight:400">→</span> <span style="color:${v1 === v0 ? 'var(--g1)' : good(v1, v0) ? '#188038' : '#D93025'}">${v1}</span></b><span>${l}</span></div>`;
+  const changed = sm.b.map((g, k) => [k, g, sm.a[k]]).filter(([, g, a]) => g != null && a != null && Math.abs(a - g) > .04);
+  return `<div class="ph"><button class="ib" data-act="home" aria-label="Back">${I.back}</button><span class="grow">PLAN A CHANGE · FOR PLANNERS AND THE WARD</span></div>
+    <div class="sec"><h2 class="h1">Try a change on this footpath</h2><div class="sub">The Street Lab sandbox, on the map. Widths are recalculated from the same 11 daytime walks.</div>
+      <div class="dmodes" style="padding:12px 0 0"><button class="dm" data-show="after" aria-pressed="${P2.show === 'after'}">With changes</button><button class="dm" data-show="before" aria-pressed="${P2.show === 'before'}">As surveyed</button></div></div>
+    <div class="sec" style="padding-top:4px"><div class="grid2">${big(sm.okB, sm.okA, 'stretches meet BMC 1.5 m', (a, b) => a > b)}${big(sm.roadB + ' m', sm.roadA + ' m', 'where you step into the road', (a, b) => parseFloat(a) < parseFloat(b))}${big(sm.wcB, sm.wcA, `stretches with 0.9 m for a wheelchair (of ${sm.n})`, (a, b) => a > b)}${big(Math.min(...sm.b.filter(g => g != null)).toFixed(1) + ' m', Math.min(...sm.a.filter(g => g != null)).toFixed(1) + ' m', 'narrowest clear width', (a, b) => parseFloat(a) > parseFloat(b))}</div></div>
+    <div class="sec"><div class="lab">Add a change</div><div class="kinds">${Object.entries(PT).map(([k, [nm]]) => `<button class="kind" data-pt="${k}" aria-pressed="${k === (state.pt || 'fixed')}">${nm}</button>`).join('')}</div>
+      <div class="slider" style="margin-top:14px"><span>From</span><input id="pm0" type="range" min="0" max="${L}" step="5" value="${m0}" aria-label="From metre"><b id="pm0v">${m0} m</b></div>
+      <div class="slider"><span>To</span><input id="pm1" type="range" min="0" max="${L}" step="5" value="${m1}" aria-label="To metre"><b id="pm1v">${m1} m</b></div>
+      <div class="sub" id="pmp">${esc(placeOf((m0 + m1) / 2))}</div>
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"><button class="btn" data-act="padd">${I.plus}Add to the plan</button>${n ? `<button class="btn g" data-act="pclear">Clear all</button>` : ''}</div></div>
+    ${n ? `<div class="list"><div class="lab" style="padding:8px 22px 2px">Changes in this plan</div>${P2.items.map((it, k) => `<div class="row"><span class="ic" style="color:#1A73E8">${I[PT[it.t][3]]}</span><span class="t"><b>${esc(PT[it.t][0])}</b><small>${it.m0}–${it.m1} m · ${esc(placeOf((it.m0 + it.m1) / 2))}</small></span><button class="ib" data-pdel="${k}" aria-label="Remove">${I.x}</button></div>`).join('')}</div>` : ''}
+    ${changed.length ? `<div class="list" style="border-top:1px solid var(--gl)"><div class="lab" style="padding:8px 22px 2px">What changes on the footpath</div>${changed.map(([k, g, a]) => `<button class="row" data-go="${k}"><span class="t"><b>${esc(placeOf(k * 10 + 5))}</b><small>${k * 10}–${k * 10 + 10} m</small></span><span class="v">${g.toFixed(1)} → <span style="color:${a >= 1.5 ? '#188038' : a >= .9 ? '#B06000' : '#D93025'}">${a.toFixed(1)} m</span></span></button>`).join('')}</div>` : ''}
+    <div class="sec"><p class="note">Same rule as the Street Lab sandbox: a change clears a walk that was blocked when it removes that walk’s main obstruction, and that walk then gets the width of the clear walks in the same stretch. Widening adds its width. A vending zone assumes the people seen on the footpath were stalls and their customers. Screening only, not a design.</p></div>`; }
 function setView(v, opts = {}) { state.view = v; $('app').classList.toggle('dirmode', v === 'dirs'); if (v === 'home') { state.sel = null; } if (v !== 'dirs') { state.route = null; state.pick = null; svg.classList.remove('pick'); }
-  sc.innerHTML = v === 'home' ? homeView() : v === 'place' ? placeView() : v === 'dirs' ? dirsView() : v === 'report' ? reportView() : v === 'results' ? resultsView() : menuView();
+  sc.innerHTML = v === 'home' ? homeView() : v === 'place' ? placeView() : v === 'dirs' ? dirsView() : v === 'report' ? reportView() : v === 'results' ? resultsView() : v === 'plan' ? planView() : menuView();
   if (!opts.keepScroll) sc.scrollTop = 0; if (phone() && opts.snap) snap(opts.snap); draw(); syncHash(); }
 function openPlace(i, flyTo) { state.sel = clamp(i, 0, 21); setView('place', { snap: 'half' }); if (flyTo) fly(focusBox(state.sel * 10 + 5, 50)); else if (phone()) fly(focusBox(state.sel * 10 + 5, curWm())); }
 function fitRoute() { if (state.route) fly(rangeBox(state.route.m0, state.route.m1)); }
@@ -829,6 +864,9 @@ sc.addEventListener('click', e => { const b = e.target.closest('button,[data-go]
   if (b.dataset.step) return openPlace(state.sel + +b.dataset.step, true);
   if (b.dataset.sv) return openSV(state.sel, b.dataset.sv === 'n');
   if (b.dataset.prof) { state.prof = b.dataset.prof; makeRoute(); setView('dirs', { keepScroll: true }); return; }
+  if (b.dataset.pt) { state.pt = b.dataset.pt; sc.querySelectorAll('[data-pt]').forEach(k => k.setAttribute('aria-pressed', k.dataset.pt === state.pt)); return; }
+  if (b.dataset.show) { state.plan.show = b.dataset.show; setView('plan', { keepScroll: true }); return; }
+  if (b.dataset.pdel != null) { state.plan.items.splice(+b.dataset.pdel, 1); savePlan(); setView('plan', { keepScroll: true }); return; }
   if (b.dataset.kind) { state.kind = b.dataset.kind; sc.querySelectorAll('.kind').forEach(k => k.setAttribute('aria-pressed', k.dataset.kind === state.kind)); return; }
   if (b.dataset.st != null) { const st = state.route.steps[+b.dataset.st]; fly(focusBox((st.m0 + st.m1) / 2, Math.max(30, st.len * 1.6))); return; }
   doAct(b.dataset.act); });
@@ -846,6 +884,9 @@ function doAct(a) { const i = state.sel;
   if (a === 'share') return share();
   if (a === 'data') { location.href = 'data.html'; return; }
   if (a === 'evidence') return saveEvidence();
+  if (a === 'plan') { if (state.sel != null) { state.pm0 = state.sel * 10; state.pm1 = state.sel * 10 + 10; } return setView('plan', { snap: 'half' }); }
+  if (a === 'padd') { const lo = Math.min(state.pm0 ?? 80, state.pm1 ?? 90), hi = Math.max(state.pm0 ?? 80, state.pm1 ?? 90); if (hi - lo < 5) return toast('Choose at least 5 m'); state.plan.items.push({ t: state.pt || 'fixed', m0: lo, m1: hi }); state.plan.show = 'after'; savePlan(); setView('plan', { keepScroll: true }); fly(rangeBox(lo, hi)); return; }
+  if (a === 'pclear') { state.plan.items = []; savePlan(); return setView('plan', { keepScroll: true }); }
   if (a === 'start') return startNav();
   if (a === 'layers') { if (phone()) snap('peek'); return openLayers(true); } }
 let DS = [], dsK = null;
@@ -865,6 +906,7 @@ sc.addEventListener('change', e => { const t = e.target; if (t.id === 'fromS' ||
     state[k] = +t.value; makeRoute(); setView('dirs', { keepScroll: true }); fitRoute(); } });
 sc.addEventListener('input', e => { const t = e.target;
   if (t.id === 'thr') { state.thr = +t.value; t.parentNode.querySelector('b').textContent = state.thr.toFixed(1) + ' m'; clearTimeout(sc.t); sc.t = setTimeout(() => { STATS = stats(); if (state.view === 'dirs') makeRoute(); setView(state.view, { keepScroll: true }); const n = $('thr'); n && n.focus(); }, 150); }
+  if (t.id === 'pm0' || t.id === 'pm1') { state[t.id] = +t.value; $(t.id + 'v').textContent = t.value + ' m'; $('pmp').textContent = placeOf(((state.pm0 ?? 80) + (state.pm1 ?? 90)) / 2); return; }
   if (t.id === 'repM') { state.repM = +t.value; $('repMv').textContent = t.value + ' m'; $('repMp').textContent = placeOf(+t.value); } });
 
 /* ---------- phone sheet ---------- */
@@ -883,7 +925,7 @@ $('tab').onclick = () => { state.col = !state.col; sheet.classList.toggle('col',
 /* ---------- chips, layers ---------- */
 function renderChips() { $('chips').innerHTML = Object.entries(MODES).map(([k, m]) => `<button class="chip" data-m="${k}" aria-pressed="${k === state.mode}">${I[m.ic]}${m.n}</button>`).join(''); }
 $('chips').addEventListener('click', e => { const b = e.target.closest('[data-m]'); if (!b) return; setMode(b.dataset.m); });
-function setMode(k) { state.mode = k; state.base = MODES[k].B; state.layers = { ...ALWAYS, ...MODES[k].L }; renderChips(); renderLayers(); if (state.view === 'home') setView('home', { keepScroll: true }); else { if (state.view === 'place') setView('place', { keepScroll: true }); draw(); } }
+function setMode(k) { state.mode = k; state.base = MODES[k].B; state.layers = { ...ALWAYS, ...MODES[k].L }; renderChips(); renderLayers(); if (k === 'plan') { setView('plan', { snap: 'half' }); return; } if (state.view === 'plan') setView('home', { keepScroll: true }); else if (state.view === 'home') setView('home', { keepScroll: true }); else { if (state.view === 'place') setView('place', { keepScroll: true }); draw(); } }
 const sw = ([c, l, b]) => `<div><i style="background:${c === 'url' ? 'repeating-linear-gradient(45deg,var(--paper) 0 3px,var(--hair) 3px 5px)' : c === 'dash' ? 'repeating-linear-gradient(90deg,#1E2A45 0 4px,#fff 4px 7px)' : c};${b ? 'box-shadow:inset 0 0 0 1px var(--hair)' : ''}"></i>${esc(l)}</div>`;
 function detailLeg() { const Lr = state.layers, o = [];
   if (Lr.prox) o.push(['#1A73E8', 'one person, about 0.75 m, side by side'], ['#D93025', '✕ no one fits: step into the road']);
@@ -1036,7 +1078,7 @@ async function sendReport() { const m = state.repM ?? (state.sel != null ? state
   } catch (e) { btn.disabled = false; msg.textContent = e && e.code === 'permission_denied' ? 'This map does not accept reports from you.' : 'Could not send. Try again.'; } }
 
 /* ---------- share, files ---------- */
-function hashNow() { if (state.sv) return `sv-${state.sv.i * 10}${state.sv.night ? '-night' : ''}`; if (state.nav || state.view === 'dirs') return `route-${state.from}-${state.to}-${state.prof}`; if (state.view === 'place') return `s-${state.sel * 10}`; return state.view === 'home' ? '' : state.view === 'report' ? 'report' : ''; }
+function hashNow() { if (state.sv) return `sv-${state.sv.i * 10}${state.sv.night ? '-night' : ''}`; if (state.nav || state.view === 'dirs') return `route-${state.from}-${state.to}-${state.prof}`; if (state.view === 'place') return `s-${state.sel * 10}`; if (state.view === 'plan') return 'plan'; return state.view === 'home' ? '' : state.view === 'report' ? 'report' : ''; }
 function syncHash() { if (!booted) return; try { history.replaceState(null, '', '#' + hashNow()); } catch (e) {} }
 function share() { const h = '#' + (hashNow() || 'home'), what = state.view === 'place' ? `${placeOf(state.sel * 10 + 5)}, ${state.sel * 10}–${state.sel * 10 + 10} m` : state.view === 'dirs' ? `Walking directions, ${nameAt(state.from)} to ${nameAt(state.to)}` : 'Old Nagardas Road on foot';
   const m = document.createElement('div'); m.className = 'modal'; m.innerHTML = `<div class="box" role="dialog" aria-label="Share"><b style="font:400 22px var(--serif)">Share</b><div class="sub">${esc(what)}</div><p class="note">Copy this page’s link, then add this to the end to open straight onto this view:</p><input readonly value="${esc(h)}"><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn g" data-x="1">Close</button><button class="btn" data-c="1">${I.copy}Copy</button></div></div>`;
@@ -1069,10 +1111,11 @@ function route(h) { h = (h || '').replace(/^#/, ''); let m;
   if (h === 'street-view') { openSV(8, false); return true; }
   if (h === 'report') { doAct('report'); return true; }
   if (h === 'directions') { openDirs(); return true; }
+  if (h === 'plan') { setMode('plan'); return true; }
   return false; }
 addEventListener('hashchange', () => { if (location.hash.slice(1) !== hashNow()) route(location.hash); });
 
-state.layers = { ...ALWAYS, ...MODES.walk.L };
+state.layers = { ...ALWAYS, ...MODES.walk.L }; state.plan = loadPlan();
 renderChips(); renderLayers(); if (phone()) snap('peek');
 setView('home'); K = 1; draw(); setVB(fitBox(), true);
 const routed = route(location.hash); booted = true; syncHash();
