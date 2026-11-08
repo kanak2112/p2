@@ -136,6 +136,9 @@ button.row:hover{background:var(--paper)}
 /* report */
 .kinds{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .kind{border:1px solid var(--hair);background:var(--card);border-radius:16px;height:32px;padding:0 12px;font-size:13px}
+.ptiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.ptile{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 10px;border:1px solid var(--gl);border-radius:12px;background:var(--card,#fff);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;font-size:13px;line-height:1.25;color:var(--g1)}.ptile .ic{color:#1A73E8;flex:none}.ptile:hover{border-color:#1A73E8;background:#F8FAFF}
+.pghost{position:fixed;z-index:9999;pointer-events:none;transform:translate(-50%,-120%);background:#fff;border:1px solid #1A73E8;border-radius:12px;padding:8px 12px;font:500 13px Roboto,Arial,sans-serif;color:#1967D2;box-shadow:0 2px 8px rgba(60,64,67,.3);max-width:260px}.pghost small{display:block;font-weight:400;color:#3C4043;margin-top:2px}.pghost.ok{border-color:#188038;color:#137333}.pghost.no{border-color:#D93025;color:#C5221F}
+.verdict{display:block;margin-top:2px;font-size:12px}.verdict.v2{color:#137333}.verdict.v1{color:#B06000}.verdict.v0{color:#C5221F}
 .kind[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
 textarea{width:100%;border:1px solid var(--hair);border-radius:8px;padding:10px 12px;min-height:80px;resize:vertical;font-size:14px;margin-top:10px}
 input[type=range]{accent-color:var(--pri)}
@@ -529,6 +532,15 @@ function planWidths(items) { const day = walks.filter(w => !w.night);
     const cg = clear.filter(r => r.g > 0).map(r => r.g), ref = cg.length ? med(cg) : null;
     const eff = pool.map(r => r.o >= OBS && fixes.has(r.k) && ref != null ? Math.max(r.g, ref) : r.g).filter(g => g > 0); let w = eff.length ? med(eff) : null;
     if (w != null) w += act.reduce((a, it) => a + PT[it.t][2], 0); return w; }); }
+const KNAME = { people: 'people and stalls', vehicle: 'parked vehicles', pole: 'poles and bins', barrier: 'barriers', plants: 'trees and planters' };
+function verdict(it, others) { others = others || state.plan.items.filter(x => x !== it); const b = planWidths(others), a = planWidths(others.concat([it])), day = walks.filter(w => !w.night), idx = [];
+  for (let i = Math.floor(it.m0 / 10); i * 10 < it.m1 && i < NB; i++) if (!NA(i) && b[i] != null) idx.push(i);
+  if (!idx.length) return { v: 0, t: 'Not measured here (inside the underpass)' };
+  const gain = Math.max(...idx.map(i => a[i] - b[i])), nB = Math.min(...idx.map(i => b[i])), nA = Math.min(...idx.map(i => a[i])), okB = idx.filter(i => b[i] >= 1.5).length, okA = idx.filter(i => a[i] >= 1.5).length;
+  if (gain < .05) { const ks = {}; idx.forEach(i => day.forEach(w => { const r = w.s[i]; if (r && r.o >= OBS) ks[r.k] = (ks[r.k] || 0) + 1; })); const top = Object.entries(ks).sort((x, y) => y[1] - x[1])[0];
+    return { v: 0, t: top ? `Not working here: blocked walks here are mostly ${KNAME[top[0]] || top[0]}` : 'Not needed: this stretch was already clear' }; }
+  const w = `${nB.toFixed(1)} → ${nA.toFixed(1)} m narrowest`;
+  return nA >= 1.5 ? { v: 2, t: `Working: ${w}, meets BMC 1.5 m` } : okA > okB ? { v: 2, t: `Working: ${w}, ${okA - okB} more stretch${okA - okB > 1 ? 'es' : ''} meet${okA - okB > 1 ? '' : 's'} 1.5 m` } : { v: 1, t: `Helps, not enough: ${w}, still under 1.5 m` }; }
 function planSummary() { const b = planWidths([]), a = planWidths(state.plan.items), cnt = (v, f) => v.filter(g => g != null && f(g)).length;
   return { b, a, okB: cnt(b, g => g >= 1.5), okA: cnt(a, g => g >= 1.5), roadB: cnt(b, g => g < .9) * 10, roadA: cnt(a, g => g < .9) * 10, wcB: cnt(b, g => g >= .9), wcA: cnt(a, g => g >= .9), n: cnt(b, () => true) }; }
 /* ---------- drawing ---------- */
@@ -617,7 +629,7 @@ function draw() {
   // the footpath, with a halo to lift it off the base map
   quad(0, L, -.05, 3.23, 'none', { stroke: dark ? '#000' : '#fff', 'stroke-width': fs(4), 'stroke-linejoin': 'round' }, g);
   quad(0, L, 0, 3, T.taken, {}, g); quad(0, L, 3, 3.18, T.kerb, {}, g);
-  const planning = state.view === 'plan' && state.plan.items.length, PA = planning ? planWidths(state.plan.items) : null;
+  const pItems = (state.plan ? state.plan.items : []).concat(state.pdrag ? [state.pdrag] : []), planning = state.view === 'plan' && pItems.length, PA = planning ? planWidths(pItems) : null;
   const cells = S.map((s, i) => { const g = planning && state.plan.show === 'after' ? PA[i] : s.g; return g != null ? { g: Math.min(3, g), top: s.top } : null; }), ncells = S.map(s => s.ng != null ? { g: s.ng, top: s.top } : null);
   if (B === 'fills') { S.forEach(s => { if (NA(s.i)) return; const p = [s.sh.fixed + (s.i === 8 ? .35 : 0), s.sh.vehicle, s.sh.people], t = p.reduce((a, q) => a + q, 0) || 1, ps = p.map(v => v / t), m0 = s.i * 10, m1 = m0 + 10;
       const [e1, e2] = s.g != null ? edges(s) : [3, 3]; let b0 = 0; [C.fix, C.veh, C.ppl].forEach((c, k) => { const b1 = b0 + ps[k]; if (ps[k] > .01) { quad(m0, m1, e1 * b0, e1 * b1, c, { opacity: .92 }, g); if (e2 < 3) quad(m0, m1, 3 - (3 - e2) * b1, 3 - (3 - e2) * b0, c, { opacity: .92 }, g); } b0 = b1; }); });
@@ -650,7 +662,7 @@ function draw() {
     else if (o.k === 'pole') el('rect', { x: x - .14 * U, y: y - .14 * U, width: .28 * U, height: .28 * U, fill: c, opacity: op }, g);
     else el('circle', { cx: x, cy: y, r: .26 * U, fill: c, opacity: .85 * op, stroke: st, 'stroke-width': fs(.5) }, g); });
   if (planning) { if (state.plan.show === 'after') channelPath(S.map(s => s.g != null ? { g: s.g, top: s.top } : null)).forEach(d => el('path', { d, fill: 'none', stroke: '#D93025', 'stroke-width': fs(1.6), 'stroke-dasharray': `${fs(4)} ${fs(3)}` }, g));
-    state.plan.items.forEach(it => { quad(it.m0, it.m1, 3.2, 3.2 + 7 * K / (U * XG), '#1A73E8', {}, g); const [x, y] = P((it.m0 + it.m1) / 2, 3.2 + 26 * K / (U * XG)); tx(PT[it.t][0], x, y, { 'font-family': 'Roboto, sans-serif', 'font-size': fs(11.5), 'font-weight': 500, fill: '#1967D2', 'text-anchor': 'middle', stroke: '#fff', 'stroke-width': fs(3), 'paint-order': 'stroke' }, g); }); }
+    pItems.forEach((it, k) => { const pre = it === state.pdrag, gi = el('g', { 'data-pi': pre ? -1 : k, style: pre ? '' : 'cursor:grab' }, g); quad(it.m0, it.m1, -.1, 3.2, pre ? 'rgba(26,115,232,.12)' : 'rgba(26,115,232,.06)', { stroke: '#1A73E8', 'stroke-width': fs(pre ? 2.5 : 1.5), 'stroke-dasharray': pre ? `${fs(5)} ${fs(3)}` : 'none' }, gi); quad(it.m0, it.m1, 3.2, 3.2 + 7 * K / (U * XG), '#1A73E8', {}, gi); const [x, y] = P((it.m0 + it.m1) / 2, 3.2 + 26 * K / (U * XG)); tx(PT[it.t][0], x, y, { 'font-family': 'Roboto, sans-serif', 'font-size': fs(11.5), 'font-weight': 500, fill: '#1967D2', 'text-anchor': 'middle', stroke: '#fff', 'stroke-width': fs(3), 'paint-order': 'stroke' }, gi); }); }
   if (state.sel != null && !R) quad(state.sel * 10, state.sel * 10 + 10, -.15, 3.2, 'rgba(242,184,0,.14)', { stroke: C.yel, 'stroke-width': fs(3), 'stroke-linejoin': 'round' }, g);
   // bands beside the footpath: blocked ahead, sound, photos
   { let off = 4; const bandLab = (t, px) => { if (K > 1.1) return; const [x, y] = PB(-3, px); tx(t, x, y, { 'font-family': 'Roboto, sans-serif', 'font-size': fs(10.5), 'font-weight': 500, fill: dark ? '#8C97B5' : '#5F6368', 'text-anchor': 'end', dy: fs(3.5) }, g); };
@@ -855,12 +867,13 @@ function planView() { const P2 = state.plan, sm = planSummary(), i = state.sel ?
     <div class="sec"><h2 class="h1">Try a change on this footpath</h2><div class="sub">The Street Lab sandbox, on the map. Widths are recalculated from the same 11 daytime walks.</div>
       <div class="dmodes" style="padding:12px 0 0"><button class="dm" data-show="after" aria-pressed="${P2.show === 'after'}">With changes</button><button class="dm" data-show="before" aria-pressed="${P2.show === 'before'}">As surveyed</button></div></div>
     <div class="sec" style="padding-top:4px"><div class="grid2">${big(sm.okB, sm.okA, 'stretches meet BMC 1.5 m', (a, b) => a > b)}${big(sm.roadB + ' m', sm.roadA + ' m', 'where you step into the road', (a, b) => parseFloat(a) < parseFloat(b))}${big(sm.wcB, sm.wcA, `stretches with 0.9 m for a wheelchair (of ${sm.n})`, (a, b) => a > b)}${big(Math.min(...sm.b.filter(g => g != null)).toFixed(1) + ' m', Math.min(...sm.a.filter(g => g != null)).toFixed(1) + ' m', 'narrowest clear width', (a, b) => parseFloat(a) > parseFloat(b))}</div></div>
-    <div class="sec"><div class="lab">Add a change</div><div class="kinds">${Object.entries(PT).map(([k, [nm]]) => `<button class="kind" data-pt="${k}" aria-pressed="${k === (state.pt || 'fixed')}">${nm}</button>`).join('')}</div>
+    <div class="sec"><div class="lab">Drag a change onto the footpath</div><div class="sub">Drop it on the map where you want it. The footpath redraws, and the plan says whether it works. Drag a placed change along the footpath to move it.</div><div class="ptiles">${Object.entries(PT).map(([k, [nm, , , ic]]) => `<div class="ptile" data-ptile="${k}" role="button" tabindex="0"><span class="ic">${I[ic]}</span><span>${esc(nm)}</span></div>`).join('')}</div></div>
+    <div class="sec"><div class="lab">Or set exact metres</div><div class="kinds">${Object.entries(PT).map(([k, [nm]]) => `<button class="kind" data-pt="${k}" aria-pressed="${k === (state.pt || 'fixed')}">${nm}</button>`).join('')}</div>
       <div class="slider" style="margin-top:14px"><span>From</span><input id="pm0" type="range" min="0" max="${L}" step="5" value="${m0}" aria-label="From metre"><b id="pm0v">${m0} m</b></div>
       <div class="slider"><span>To</span><input id="pm1" type="range" min="0" max="${L}" step="5" value="${m1}" aria-label="To metre"><b id="pm1v">${m1} m</b></div>
       <div class="sub" id="pmp">${esc(placeOf((m0 + m1) / 2))}</div>
       <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"><button class="btn" data-act="padd">${I.plus}Add to the plan</button>${n ? `<button class="btn g" data-act="pclear">Clear all</button>` : ''}</div></div>
-    ${n ? `<div class="list"><div class="lab" style="padding:8px 22px 2px">Changes in this plan</div>${P2.items.map((it, k) => `<div class="row"><span class="ic" style="color:#1A73E8">${I[PT[it.t][3]]}</span><span class="t"><b>${esc(PT[it.t][0])}</b><small>${it.m0}–${it.m1} m · ${esc(placeOf((it.m0 + it.m1) / 2))}</small></span><button class="ib" data-pdel="${k}" aria-label="Remove">${I.x}</button></div>`).join('')}</div>` : ''}
+    ${n ? `<div class="list"><div class="lab" style="padding:8px 22px 2px">Changes in this plan</div>${P2.items.map((it, k) => `<div class="row"><span class="ic" style="color:#1A73E8">${I[PT[it.t][3]]}</span><span class="t"><b>${esc(PT[it.t][0])}</b><small>${it.m0}–${it.m1} m · ${esc(placeOf((it.m0 + it.m1) / 2))}${(() => { const vd = verdict(it); return `<span class="verdict v${vd.v}">${esc(vd.t)}</span>`; })()}</small></span><button class="ib" data-pdel="${k}" aria-label="Remove">${I.x}</button></div>`).join('')}</div>` : ''}
     ${changed.length ? `<div class="list" style="border-top:1px solid var(--gl)"><div class="lab" style="padding:8px 22px 2px">What changes on the footpath</div>${changed.map(([k, g, a]) => `<button class="row" data-go="${k}"><span class="t"><b>${esc(placeOf(k * 10 + 5))}</b><small>${k * 10}–${k * 10 + 10} m</small></span><span class="v">${g.toFixed(1)} → <span style="color:${a >= 1.5 ? '#188038' : a >= .9 ? '#B06000' : '#D93025'}">${a.toFixed(1)} m</span></span></button>`).join('')}</div>` : ''}
     <div class="sec"><p class="note">Same rule as the Street Lab sandbox: a change clears a walk that was blocked when it removes that walk’s main obstruction, and that walk then gets the width of the clear walks in the same stretch. Widening adds its width. A vending zone assumes the people seen on the footpath were stalls and their customers. Screening only, not a design.</p></div>`; }
 function setView(v, opts = {}) { state.view = v; $('app').classList.toggle('dirmode', v === 'dirs'); if (v === 'home') { state.sel = null; } if (v !== 'dirs') { state.route = null; state.pick = null; svg.classList.remove('pick'); }
@@ -1126,6 +1139,26 @@ function route(h) { h = (h || '').replace(/^#/, ''); let m;
   return false; }
 addEventListener('hashchange', () => { if (location.hash.slice(1) !== hashNow()) route(location.hash); });
 
+/* ---------- sandbox: drag a change onto the footpath, or move a placed one ---------- */
+(() => { let dr = null, ghost = null;
+  const span = (m, w) => { const m0 = clamp(Math.round((m - w / 2) / 5) * 5, 0, L - w); return [m0, m0 + w]; };
+  const over = (cx, cy) => { const r = svg.getBoundingClientRect(); if (cx < r.left || cx > r.right || cy < r.top || cy > r.bottom) return null; const [m, a] = toWorld(cx, cy); return m >= 0 && m <= L && a > -4 && a < 9 ? m : null; };
+  const showGhost = (cx, cy, html, cls) => { if (!ghost) { ghost = document.createElement('div'); ghost.className = 'pghost'; document.body.appendChild(ghost); } ghost.className = 'pghost ' + (cls || ''); ghost.innerHTML = html; ghost.style.left = cx + 'px'; ghost.style.top = cy + 'px'; };
+  const move = e => { if (!dr) return; e.preventDefault(); const m = over(e.clientX, e.clientY); const nm = PT[dr.t][0];
+    if (m == null) { if (state.pdrag) { state.pdrag = null; draw(); } showGhost(e.clientX, e.clientY, `${esc(nm)}<small>Drop it on the footpath</small>`); return; }
+    const [m0, m1] = span(m, dr.w); if (!state.pdrag || state.pdrag.m0 !== m0) { state.pdrag = { t: dr.t, m0, m1 }; draw(); }
+    const others = dr.k != null ? state.plan.items.filter((_, j) => j !== dr.k) : state.plan.items, vd = verdict(state.pdrag, others);
+    showGhost(e.clientX, e.clientY, `${esc(nm)} · ${m0}–${m1} m<small>${esc(vd.t)}</small>`, vd.v === 2 ? 'ok' : vd.v === 0 ? 'no' : ''); };
+  const up = e => { if (!dr) return; const m = over(e.clientX, e.clientY), d = dr; dr = null; if (ghost) { ghost.remove(); ghost = null; } const p = state.pdrag; state.pdrag = null;
+    document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); document.removeEventListener('pointercancel', up);
+    if (m == null || !p) { if (d.k != null) state.plan.items.splice(d.k, 0, d.it); draw(); if (d.k != null) setView('plan', { keepScroll: true }); return; }
+    const it = { t: d.t, m0: p.m0, m1: p.m1 }; if (d.k != null) state.plan.items.splice(d.k, 0, it); else state.plan.items.push(it); state.plan.show = 'after'; savePlan(); setView('plan', { keepScroll: true });
+    const vd = verdict(it); toast(`${PT[it.t][0]} at ${it.m0}–${it.m1} m. ${vd.t}`); };
+  const start = (t, w, e, k, it) => { dr = { t, w, k, it }; document.addEventListener('pointermove', move, { passive: false }); document.addEventListener('pointerup', up); document.addEventListener('pointercancel', up); move(e); };
+  sc.addEventListener('pointerdown', e => { const tl = e.target.closest('.ptile'); if (!tl) return; e.preventDefault(); start(tl.dataset.ptile, 20, e); });
+  sc.addEventListener('keydown', e => { const tl = e.target.closest('.ptile'); if (!tl || (e.key !== 'Enter' && e.key !== ' ')) return; e.preventDefault(); const i = state.sel ?? 8; state.plan.items.push({ t: tl.dataset.ptile, m0: i * 10, m1: i * 10 + 10 }); savePlan(); setView('plan', { keepScroll: true }); });
+  svg.addEventListener('pointerdown', e => { if (state.view !== 'plan') return; const gi = e.target.closest('[data-pi]'); if (!gi || +gi.dataset.pi < 0) return; const k = +gi.dataset.pi, it = state.plan.items[k]; if (!it) return;
+    e.stopImmediatePropagation(); e.preventDefault(); state.plan.items.splice(k, 1); start(it.t, it.m1 - it.m0, e, k, it); }, true); })();
 state.layers = { ...ALWAYS, ...MODES.walk.L }; state.plan = loadPlan();
 renderChips(); renderLayers(); if (phone()) snap('peek');
 setView('home'); K = 1; draw(); setVB(fitBox(), true);
