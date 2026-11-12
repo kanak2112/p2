@@ -459,7 +459,7 @@ const owners = s => { const o = []; if (s.fixedOn) o.push('Civil works'); if (s.
 const ALWAYS = { reports: 1, chain: 1, places: 1 };
 const NIGHTL = USES.night;
 const DETAILS = [['line', 'Clear width', 'road'], ['prox', 'People side by side', 'people'], ['photos', 'Photos', 'cam'], ['noise', 'Horns and swerves', 'ear'], ['reports', 'Reports', 'flag']];
-const BASES = { nolli: ['Footpath', 'Figure-ground of the footpath. Black is everything that takes it: buildings, stalls, vehicles, poles. White is the width left to walk, measured every 10 m.'], ghost: ['Ghost', 'Every daytime walk laid over the others. Bright where the walks agree, blurred where it depends on the day.'], daynight: ['Night', 'The footpath after dark. Pale is walkable at night, the dashed line is the daytime width, and warm pools are brighter stretches in the night photos.'], fills: ['Lost to', 'What took the footpath: fixed things need civil works, vehicles need parking control, stalls and crowds need enforcement.'] };
+const BASES = { nolli: ['Footpath', 'Figure-ground of the footpath. Black is everything that takes it: buildings, stalls, vehicles, poles. White is the width left to walk, measured every 10 m.'], ghost: ['Ghost', 'Every daytime walk laid over the others. Bright where the walks agree, blurred where it depends on the day.'], daynight: ['Night', 'The footpath after dark. Pale is walkable at night, the dashed line is the daytime width, and warm pools mark where the night videos pass a lamp, tube light or lit shopfront.'], fills: ['Lost to', 'What took the footpath: fixed things need civil works, vehicles need parking control, stalls and crowds need enforcement.'] };
 const TH = {
   nolli: { bg: '#D9DCD5', land: '#D9DCD5', b1: '#1C1C1C', b2: '#1C1C1C', bEdge: '#1C1C1C', road: '#AEB2AB', roadEdge: '#9DA19A', hwy: '#969B93', hwyEdge: '#878C84', lane: '#E6E8E3', taken: '#111111', walk: '#FFFFFF', kerb: '#6E726B', hatchBg: '#E6E8E3', hatch: '#BFC3BB', ink: '#202124', halo: '#FFFFFF', roadLab: '#3C4043', poi: '#5F6368', pin: '#202124', pinDot: '#FFFFFF', lab: '#5F6368' },
   street: { bg: '#F8F8F8', land: '#F8F8F8', b1: '#E8EAED', b2: '#FCF9EF', bEdge: '#DADCE0', road: '#B9C4D3', roadEdge: '#A6B3C5', hwy: '#8CA5C1', hwyEdge: '#7690B0', lane: '#FFFFFF', taken: '#80868B', walk: '#FFFFFF', kerb: '#80868B', hatchBg: '#F1F3F4', hatch: '#DADCE0', ink: '#202124', halo: '#FFFFFF', roadLab: '#5F6368', poi: '#70757A', pin: '#202124', pinDot: '#FFFFFF', lab: '#70757A' },
@@ -468,7 +468,7 @@ const TH = {
 TH.ghost = TH.nolli;
 const BLEG = { nolli: [['#1C1C1C', 'buildings, and all that takes the footpath'], ['#FFFFFF', 'walkable footpath', 1], ['#AEB2AB', 'carriageway'], ['#D9DCD5', 'open ground, not surveyed'], ['url', 'not measurable']],
   ghost: [['#111111', 'taken on every walk'], ['#8d8a83', 'free on some walks'], ['#FFFFFF', 'free on most walks', 1]],
-  daynight: [['#26355A', 'taken at night'], ['#D6DDEA', 'walkable at night'], ['dash', 'walkable by day'], ['glow', 'brighter in night photos']],
+  daynight: [['#26355A', 'taken at night'], ['#D6DDEA', 'walkable at night'], ['dash', 'walkable by day'], ['glow', 'light passed in the night videos']],
   fills: [[C.fix, 'fixed things'], [C.veh, 'vehicles'], [C.ppl, 'people & stalls'], ['#FFFFFF', 'walkable', 1]],
   street: [['#FFFFFF', 'walkable footpath', 1], ['#80868B', 'footpath taken'], ['#E8EAED', 'buildings'], ['#B9C4D3', 'roads']] };
 const ROADLAB = [['Jijamata Rd · Old Nagardas Rd', 676, 147, -31], ['Jijamata Rd', 191, 518, -30], ['Service Rd', 396, 318, 62], ['Service Rd', 606, 410, 70], ['Service Rd', 666, 708, 88], ['Western Express Hwy', 372, 190, 59]];
@@ -644,9 +644,9 @@ function draw() {
     channelPath(cells).forEach(d => el('path', { d, fill: 'none', stroke: '#fff', 'stroke-width': fs(1.2), 'stroke-dasharray': `${fs(4)} ${fs(3)}`, opacity: .6 }, g)); }
   else channelPath(cells).forEach(d => el('path', { d, fill: T.walk }, g));
   quad(160, 190, 0, 3, 'url(#hatch)', {}, g);
-  // night: street light as warm pools, from the brightness of the walking surface in the night photos (relative, not lux)
+  // night: light where the night videos pass a lamp, a tube light or a lit shopfront (lab/lights.py), not lux
   if (dark) { const gr = el('radialGradient', { id: 'glow' }, defs); el('stop', { offset: '0', 'stop-color': '#FFD27A', 'stop-opacity': .95 }, gr); el('stop', { offset: '.45', 'stop-color': '#FFB84D', 'stop-opacity': .35 }, gr); el('stop', { offset: '1', 'stop-color': '#FFB84D', 'stop-opacity': 0 }, gr);
-    S.forEach(s => { if (s.lit == null) return; const b = clamp(s.lit, 0, 1.6), [x, y] = P(s.i * 10 + 5, 1.5), r = (5 + 9 * b) * U; el('circle', { cx: x, cy: y, r, fill: 'url(#glow)', style: 'mix-blend-mode:screen', opacity: clamp((b - .4) * 1.1, .1, .85).toFixed(2) }, g); }); }
+    (D.lights || []).forEach(l => { const [x, y] = P(l.m, 1.5), r = (6 + 9 * l.s) * U; el('circle', { cx: x, cy: y, r, fill: 'url(#glow)', style: 'mix-blend-mode:screen', opacity: (.35 + .55 * l.s).toFixed(2) }, g); el('circle', { cx: x, cy: y, r: 1.6 * K, fill: '#FFF4D6' }, g); }); }
   if (R) { const lo = Math.min(R.m0, R.m1), hi = Math.max(R.m0, R.m1); if (lo > 0) quad(0, lo, -.1, 3.25, T.land, { opacity: .6 }, g); if (hi < L) quad(hi, L, -.1, 3.25, T.land, { opacity: .6 }, g);
     R.steps.filter(st => st.t === 'go' && (st.cls === 'road' || st.cls === 'stop')).forEach(st => quad(Math.min(st.m0, st.m1), Math.max(st.m0, st.m1), 3.2, 3.2 + 6 * K / (U * XG), '#D93025', {}, g));
     R.steps.filter(st => st.t === 'go' && st.cls === 'tight').forEach(st => quad(Math.min(st.m0, st.m1), Math.max(st.m0, st.m1), 3.2, 3.2 + 2.5 * K / (U * XG), '#F9AB00', {}, g)); }
