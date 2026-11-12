@@ -243,11 +243,20 @@ body{color:var(--g1)}
 .dirmode .sbar{display:none}
 @media(min-width:861px){.dirmode .sc{padding-top:8px}}
 /* along-the-street strip, for each walk and the ground photos */
+.tl{position:absolute;left:calc(var(--sheetW) + 16px);top:64px;width:min(440px,calc(100% - var(--sheetW) - 100px));z-index:7;background:#1F2A3C;color:#E8EAED;border-radius:12px;box-shadow:var(--shadow);padding:12px 16px 12px}
+.colmode .tl{left:16px}
+.tl .tlh{display:flex;align-items:center;gap:8px}.tl .tlh b{flex:1;font:500 15px var(--sans);color:#fff}.tl .tlh small{display:block;font:400 12px var(--sans);color:#AEB7C7;margin-top:2px}
+.tl .tb{width:32px;height:32px;border-radius:8px;border:0;background:#2C3A50;color:#E8EAED;display:grid;place-items:center;cursor:pointer;flex:none}.tl .tb:disabled{opacity:.35;cursor:default}.tl .tb svg{width:18px;height:18px}
+.tl .trk{position:relative;height:30px;margin:10px 4px 0}.tl .rail{position:absolute;left:0;right:0;top:13px;height:3px;border-radius:2px;background:#3A4A63}
+.tl .tk{position:absolute;top:7px;width:4px;height:15px;margin-left:-2px;border-radius:2px;background:#5AA9FF;cursor:pointer}.tl .tk.n{background:#8C97B5;box-shadow:0 0 0 1.5px #FFD27A inset}.tl .tk.off{opacity:.22;cursor:default}.tl .tk.all{width:6px;margin-left:-3px;background:#fff}
+.tl .tk.on{top:3px;height:23px;width:6px;margin-left:-3px;background:#3EC6FF;box-shadow:0 0 0 3px rgba(62,198,255,.25)}
+.tl input{position:absolute;inset:0;width:100%;opacity:0;cursor:pointer;margin:0}
+.tl .tll{position:relative;height:16px;margin:0 4px;}.tl .tll span{position:absolute;transform:translateX(-50%);white-space:nowrap}.tl .tll span:last-child{transform:translateX(-100%)}.tl .tll span:first-child{transform:none}.tl .tll{font:400 11.5px var(--sans);color:#AEB7C7;margin-top:2px}
 .stripc{position:absolute;left:calc(var(--sheetW) + 16px);right:72px;bottom:110px;max-width:1000px;z-index:5;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(60,64,67,.3),0 4px 8px 3px rgba(60,64,67,.15);padding:8px 12px 10px;max-height:46vh;overflow:auto}
 .colmode .stripc{left:16px}
 .sth{display:flex;align-items:center;gap:8px}.sth b{font:500 14px var(--sans);flex:1}.sth small{color:var(--g2);font-size:12px}
 .stripc svg{display:block;width:100%;cursor:pointer}
-.navmode .stripc{display:none}
+.navmode .stripc,.navmode .tl{display:none}
 .attr{position:absolute;right:74px;bottom:6px;z-index:4;font:400 10px var(--sans);color:#5F6368;background:rgba(255,255,255,.75);padding:1px 6px;border-radius:2px;pointer-events:none}
 @media(max-width:860px){.attr{right:auto;left:8px;bottom:calc(var(--sh,190px) + 2px)}}
 .navmode .attr{display:none}
@@ -310,6 +319,8 @@ body{color:var(--g1)}
   .mkey.haswl{display:flex;left:10px;right:60px;top:112px;bottom:auto;max-width:none;padding:6px 10px}
   .mkey.haswl>:not(.wl){display:none}.mkey.haswl .wl{padding-left:0;border-left:0;gap:8px}
   .stripc{left:10px;right:60px;bottom:calc(var(--sh,190px) + 10px);max-height:32vh}
+  .tl{left:10px;right:60px;width:auto;top:112px;padding:10px 12px}
+  .tlon .mkey{display:none!important}
   .sfull .stripc{display:none}
   .dirmode .chips{display:none}.dirmode .lay{top:12px}
   #zin,#zout{display:none}
@@ -357,6 +368,7 @@ body{color:var(--g1)}
     <div class="tg"><button id="zin" aria-label="Zoom in"></button><button id="zout" aria-label="Zoom out"></button><button id="fit" aria-label="Show the whole street"></button></div>
     <div class="scale"><div class="sb" id="sb"></div><span id="sbl">10 m</span></div>
   </div>
+  <div class="tl" id="tl" hidden></div>
   <div class="stripc" id="stripc" hidden><div class="sth"><b>Along the street</b><small id="stS"></small><button class="ib" id="stX" aria-label="Hide the strip"></button></div><svg id="strip" aria-label="The street as a straight strip: each walk and the ground photos"></svg></div>
   <div class="attr" id="attr">Base map traced from a Google Maps screenshot · Map data ©2026 Google</div>
   <div class="navt" id="navt" hidden></div>
@@ -413,14 +425,14 @@ function W() { return state.src === 'day' ? walks.filter(w => !w.night) : state.
 const LP = D.lightp, lightAt = m => { if (!LP) return null; const k = clamp(m / LP.step, 0, LP.v.length - 1), k0 = Math.floor(k), k1 = Math.min(LP.v.length - 1, k0 + 1); return LP.v[k0] + (LP.v[k1] - LP.v[k0]) * (k - k0); };
 const litOf = i => { if (!LP) return D.lit[i] ? D.lit[i].r : null; if (NA(i)) return null; let t = 0, n = 0; for (let m = i * 10; m <= i * 10 + 10; m += LP.step) { t += lightAt(m); n++; } return Math.round(t / n * 100) / 100; };
 function stats() {
-  const all = state.src === 'day' || state.src === 'all' ? walks : W(), day = all.filter(w => !w.night), night = walks.filter(w => w.night);
+  const all = state.src === 'day' || state.src === 'all' ? walks : W(), day = all.filter(w => !w.night), one = !(state.src === 'day' || state.src === 'all'), night = one ? all.filter(w => w.night) : walks.filter(w => w.night);
   return Array.from({ length: NB }, (_, i) => {
     const dr = day.map(w => w.s[i]).filter(Boolean), nr = night.map(w => w.s[i]).filter(Boolean), ar = all.map(w => w.s[i]).filter(Boolean);
     const gs = dr.filter(r => r.g > 0).map(r => r.g), ngs = nr.filter(r => r.g > 0).map(r => r.g), es = dr.filter(r => r.e).map(r => r.e);
     const share = k => dr.length ? dr.filter(r => r.ks.includes(k)).length / dr.length : 0;
     const sh = { fixed: Math.max(share('pole'), share('plants'), share('barrier')), vehicle: share('vehicle'), people: share('people') };
     return { i, g: NA(i) || !gs.length ? null : med(gs), gN: gs.length, ok: gs.filter(g => g >= state.thr).length,
-      ng: NA(i) || ngs.length < 2 ? null : med(ngs), top: es.length ? topOf([med(es.map(e => e[0])), med(es.map(e => e[1]))]) : .5,
+      ng: NA(i) || ngs.length < (one ? 1 : 2) ? null : med(ngs), top: es.length ? topOf([med(es.map(e => e[0])), med(es.map(e => e[1]))]) : .5,
       b: ar.filter(r => r.o >= OBS).length, n: ar.length, sw: all.filter(w => w.swerves.some(m => m >= i * 10 && m < i * 10 + 10)).length,
       hk: all.reduce((s, w) => s + w.honks.filter(m => m >= i * 10 && m < i * 10 + 10).length, 0), lit: litOf(i), sh,
       pers: { vehicle: sh.vehicle >= .6, people: sh.people >= .9 }, fixedOn: sh.fixed >= .4 || i === 8 };
@@ -729,7 +741,7 @@ function draw() {
 }
 function drawStrip() { const card = $('stripc'), Lr = state.layers, on = Lr.walks && !state.nav && !stripOff; card.hidden = !on; if (!on) return;
   const sv = $('strip'); sv.innerHTML = ''; const w = Math.max(280, sv.clientWidth || card.clientWidth - 24), x0 = 66, xw = w - x0 - 6, X = m => x0 + m / L * xw, S = STATS, rows = [];
-  $('stS').textContent = `${W().length} walks · ground cut from the worst photo · tap to open`;
+  $('stS').textContent = `${W().length} walk${W().length === 1 ? '' : 's'} · ground cut from the worst photo · tap to open`;
   const E = (t, a, p = sv) => el(t, a, p), T = (s2, x, y, a = {}) => tx(s2, x, y, { 'font-family': 'Roboto, sans-serif', 'font-size': 10.5, fill: '#5F6368', ...a }, sv);
   const chan = (cells, y, h, fill) => runs(cells).forEach(([a, b]) => { const Tp = [], Bp = [], pt = (i, m) => { const [e1, e2] = edges(cells[i]); Tp.push([X(m), y + e1 / 3 * h]); Bp.push([X(m), y + e2 / 3 * h]); }; pt(a, a * 10 + .1); for (let i = a; i <= b; i++) pt(i, i * 10 + 5); pt(b, b * 10 + 9.9); E('path', { d: ribbon(Tp, Bp), fill }); });
   const hatch = (y, h) => E('rect', { x: X(160), y, width: X(190) - X(160), height: h, fill: 'url(#shatch)' });
@@ -810,7 +822,7 @@ const strip = () => `<div class="strip">${STATS.map(s => `<button data-go="${s.i
 const ago = t => { const s = (Date.now() - t) / 1000; return s < 60 ? 'just now' : s < 3600 ? `${Math.floor(s / 60)} min ago` : s < 86400 ? `${Math.floor(s / 3600)} h ago` : `${Math.floor(s / 86400)} d ago`; };
 const KINDS = { vehicle: 'Vehicle parked', stall: 'Stall or goods', works: 'Works or debris', paving: 'Broken paving', dark: 'Too dark', water: 'Water or garbage', other: 'Other' };
 const repRow = r => `<button class="rep" data-go="${Math.min(21, Math.floor(r.m / 10))}"><span class="d"></span><span><b>${esc(KINDS[r.kind] || 'Report')}</b><small>${Math.round(r.m)} m · ${esc(placeOf(r.m))} · ${ago(r.at)}</small>${r.note ? `<p>${esc(r.note)}</p>` : ''}</span></button>`;
-function homeView() { const S = STATS, meas = S.filter(s => s.g != null), ok = meas.filter(s => s.g >= 1.5).length, M = state.night ? NIGHTL : MODES[state.mode], frac = ok / meas.length;
+function homeView() { const S = STATS, gv = s => state.night ? s.ng : s.g, meas = S.filter(s => gv(s) != null), ok = meas.filter(s => gv(s) >= 1.5).length, M = state.night ? NIGHTL : MODES[state.mode], frac = ok / meas.length;
   const ring = `<svg viewBox="0 0 64 64" role="img" aria-label="${ok} of ${meas.length} measured stretches meet 1.5 m"><circle cx="32" cy="32" r="27" fill="none" stroke="${C.paper}" stroke-width="7"/><circle cx="32" cy="32" r="27" fill="none" stroke="${C.red}" stroke-width="7" stroke-dasharray="${(frac * 169.6).toFixed(1)} 200" transform="rotate(-90 32 32)" stroke-linecap="round"/><text x="32" y="37" text-anchor="middle" font-family="Roboto" font-size="15" font-weight="500" fill="${C.ink}">${ok}/${meas.length}</text></svg>`;
   const recent = REPORTS.slice(0, 3);
   return `<div class="sec" style="border:0;padding-bottom:6px"><h1 class="h1">Old Nagardas Road</h1><div class="sub">Footpath · Andheri East, Mumbai · ${L} m · 15 walks, Oct 2026</div>
@@ -964,7 +976,7 @@ $('tab').onclick = () => { state.col = !state.col; sheet.classList.toggle('col',
 /* ---------- chips, layers ---------- */
 function renderChips() { $('chips').innerHTML = Object.entries(MODES).map(([k, m]) => `<button class="chip" data-m="${k}" aria-pressed="${k === state.mode}">${I[m.ic]}${m.n}</button>`).join(''); }
 $('chips').addEventListener('click', e => { const b = e.target.closest('[data-m]'); if (!b) return; setMode(b.dataset.m); });
-function setMode(k) { state.mode = k; state.base = state.night ? 'daynight' : MODES[k].B; state.layers = { ...ALWAYS, ...MODES[k].L, labels: state.layers.labels ?? 1 }; renderChips(); renderLayers(); if (k === 'plan') { setView('plan', { snap: 'half' }); return; } if (state.view === 'plan') setView('home', { keepScroll: true }); else if (state.view === 'home') setView('home', { keepScroll: true }); else { if (state.view === 'place') setView('place', { keepScroll: true }); draw(); } }
+function setMode(k) { state.mode = k; state.base = state.night ? 'daynight' : MODES[k].B; state.layers = { ...ALWAYS, ...MODES[k].L, labels: state.layers.labels ?? 1 }; if (k !== 'proof' && state.src !== 'day') { state.src = 'day'; STATS = stats(); } renderChips(); renderLayers(); renderTL(); if (k === 'plan') { setView('plan', { snap: 'half' }); return; } if (state.view === 'plan') setView('home', { keepScroll: true }); else if (state.view === 'home') setView('home', { keepScroll: true }); else { if (state.view === 'place') setView('place', { keepScroll: true }); draw(); } }
 const sw = ([c, l, b]) => `<div><i style="background:${c === 'url' ? 'repeating-linear-gradient(45deg,var(--paper) 0 3px,var(--hair) 3px 5px)' : c === 'dash' ? 'repeating-linear-gradient(90deg,#1E2A45 0 4px,#fff 4px 7px)' : c === 'glow' ? 'radial-gradient(circle,#FFD27A 0,#FFB84D 45%,#1E2A45 100%)' : c};${b ? 'box-shadow:inset 0 0 0 1px var(--hair)' : ''}"></i>${esc(l)}</div>`;
 function detailLeg() { const Lr = state.layers, o = [];
   if (Lr.prox) o.push(['#1A73E8', 'one person, about 0.75 m, side by side'], ['#D93025', '✕ no one fits: step into the road']);
@@ -1009,7 +1021,28 @@ function listen() { if (snd) return stopListen(); const AC = window.AudioContext
   snd = { ac, t0, k }; $('lsB').setAttribute('aria-pressed', 'true'); toast('Tone follows the width · tick = horn · knock = swerve'); fly(fitBox(), 500);
   const tick = () => { if (!snd) return; const m = (snd.ac.currentTime - snd.t0) / snd.k; state.ph = clamp(m, 0, L); placePh(); if (m >= L) return stopListen(); snd.raf = requestAnimationFrame(tick); }; snd.raf = requestAnimationFrame(tick); }
 function stopListen() { if (!snd) return; cancelAnimationFrame(snd.raf); try { snd.ac.close(); } catch (e) {} snd = null; state.ph = null; placePh(); $('lsB').setAttribute('aria-pressed', 'false'); }
-function toggleNight(on) { state.night = on == null ? !state.night : on; state.base = state.night ? 'daynight' : MODES[state.mode].B; $('ntB').setAttribute('aria-pressed', state.night); renderLayers(); if (state.view === 'home') setView('home', { keepScroll: true }); else draw(); }
+/* ---------- walks timeline: scrub through the 15 walks, the median at the end ---------- */
+const TLP = [...walks.map(w => w.k), 'all'];
+const tlActive = j => TLP[j] === 'all' || (!!walks[TLP[j]].night === !!state.night);
+const tlIdx = () => state.src === 'day' || state.src === 'all' ? TLP.length - 1 : TLP.indexOf(+state.src);
+const tlX = j => { if (TLP[j] === 'all') return 100; const w = walks[TLP[j]], d0 = walks[0].day, d1 = walks[walks.length - 1].day; return 3 + ((w.day - d0) + (w.dir === 'forward' ? 0 : .42)) / (d1 - d0 + .42) * 86; };
+let tlPlay = null;
+function tlSet(j) { const t = TLP[j]; state.src = t === 'all' ? 'day' : String(t); STATS = stats(); if (state.route) makeRoute(); renderTL(); setView(state.view, { keepScroll: true }); }
+function tlStep(d) { let j = tlIdx() + d; while (j >= 0 && j < TLP.length && !tlActive(j)) j += d; if (j >= 0 && j < TLP.length) tlSet(j); return j >= 0 && j < TLP.length; }
+function tlStop() { if (tlPlay) { clearInterval(tlPlay); tlPlay = null; renderTL(); } }
+function renderTL() { const box = $('tl'), on = state.mode === 'proof' && !state.nav; box.hidden = !on; $('app').classList.toggle('tlon', on); if (!on) { tlStop(); return; }
+  const j = tlIdx(), t = TLP[j], w = t === 'all' ? null : walks[t], act = TLP.map((_, k) => tlActive(k));
+  const title = w ? `Day ${w.day} · ${w.dir === 'forward' ? 'A → B' : 'B → A'} · ${w.night ? 'night' : 'daytime'}` : (state.night ? 'All night walks' : 'All daytime walks');
+  const sub = w ? `${wlabel(w).split(' · ')[1][0].toUpperCase() + wlabel(w).split(' · ')[1].slice(1)} · walked in ${Math.floor(w.dur / 60)} min ${w.dur % 60} s` : `Median of ${walks.filter(x => !!x.night === !!state.night).length} walks · drag to see one walk`;
+  const prevOk = act.slice(0, j).some(Boolean), nextOk = act.slice(j + 1).some(Boolean);
+  box.innerHTML = `<div class="tlh"><b>${esc(title)}<small>${esc(sub)}</small></b><button class="tb" data-tl="play" aria-label="${tlPlay ? 'Pause' : 'Play through the walks'}">${tlPlay ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>' : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'}</button><button class="tb" data-tl="-1" aria-label="Previous walk" ${prevOk ? '' : 'disabled'}>${I.chevL}</button><button class="tb" data-tl="1" aria-label="Next walk" ${nextOk ? '' : 'disabled'}>${I.chevR}</button></div>
+    <div class="trk"><div class="rail"></div>${TLP.map((tt, k) => `<span class="tk${tt === 'all' ? ' all' : walks[tt].night ? ' n' : ''}${act[k] ? '' : ' off'}${k === j ? ' on' : ''}" style="left:${tlX(k)}%" title="${tt === 'all' ? 'All walks' : esc(wlabel(walks[tt]))}"></span>`).join('')}<input type="range" min="0" max="100" step=".1" value="${tlX(j)}" aria-label="Walk: ${esc(title)}"></div>
+    <div class="tll"><span style="left:${tlX(0)}%">Day ${walks[0].day}</span><span style="left:${tlX(walks.length - 1)}%">Day ${walks[walks.length - 1].day}</span><span style="left:100%">All</span></div>`; }
+$('tl').addEventListener('click', e => { const b = e.target.closest('[data-tl]'); if (!b) return; const a = b.dataset.tl;
+  if (a === 'play') { if (tlPlay) return tlStop(); if (tlIdx() === TLP.length - 1) { const f = TLP.findIndex((_, k) => tlActive(k)); tlSet(f); } tlPlay = setInterval(() => { if (!tlStep(1) || tlIdx() === TLP.length - 1) tlStop(); }, 1400); renderTL(); return; }
+  tlStop(); tlStep(+a); });
+$('tl').addEventListener('input', e => { if (e.target.type !== 'range') return; tlStop(); const v = +e.target.value; let best = -1, bd = 1e9; TLP.forEach((_, k) => { if (!tlActive(k)) return; const d = Math.abs(tlX(k) - v); if (d < bd) { bd = d; best = k; } }); if (best !== tlIdx()) tlSet(best); });
+function toggleNight(on) { state.night = on == null ? !state.night : on; tlStop(); if (!(state.src === 'day' || state.src === 'all')) { state.src = 'day'; STATS = stats(); } state.base = state.night ? 'daynight' : MODES[state.mode].B; $('ntB').setAttribute('aria-pressed', state.night); renderLayers(); renderTL(); if (state.view === 'home') setView('home', { keepScroll: true }); else draw(); }
 $('ntB').innerHTML = I.moon; $('ntB').onclick = () => toggleNight();
 $('stB').innerHTML = I.globe; $('stB').onclick = () => { state.sat = !state.sat; $('stB').setAttribute('aria-pressed', state.sat); draw(); };
 
