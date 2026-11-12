@@ -621,7 +621,7 @@ function draw() {
   // the neighbourhood, traced from the screenshot
   const sat = state.sat, cg = el('g', { transform: (state.d3 ? 'matrix(.866 .5 -.866 .5 0 0) ' : '') + `scale(${SC})`, opacity: sat ? 1 : dark ? .75 : B === 'nolli' || B === 'ghost' ? .5 : .7, style: sat ? (dark ? 'filter:brightness(.38) saturate(.6)' : '') : dark ? '' : 'filter:grayscale(1)' }, g), ns = { 'vector-effect': 'non-scaling-stroke' };
   el('rect', { x: -400, y: -400, width: CTX.W + 800, height: CTX.H + 800, fill: sat ? '#3E403C' : T.land }, cg);
-  if (sat) el('image', { href: '../lab/sat.jpg', x: -380, y: -110, width: 1810, height: 900, preserveAspectRatio: 'none' }, cg); else {
+  if (sat) el('image', { href: Lr.labels ? '../lab/sat.jpg' : '../lab/sat-nolabels.jpg', x: -380, y: -110, width: 1810, height: 900, preserveAspectRatio: 'none' }, cg); else {
   el('path', { d: CTX.lane, fill: T.lane }, cg);
   el('path', { d: CTX.bgrey, fill: T.b1, stroke: T.bEdge, 'stroke-width': .8, ...ns }, cg);
   el('path', { d: CTX.bbeige, fill: T.b2, stroke: T.bEdge, 'stroke-width': .8, ...ns }, cg);
