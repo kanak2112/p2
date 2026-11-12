@@ -458,7 +458,7 @@ const MODES = { walk: USES.walk, access: USES.access, proof: USES.proof, plan: U
 const owners = s => { const o = []; if (s.fixedOn) o.push('Civil works'); if (s.pers.people || s.sh.people >= .7) o.push('Enforcement'); if (s.pers.vehicle || s.sh.vehicle >= .5) o.push('Traffic & parking'); return o; };
 const ALWAYS = { reports: 1, chain: 1, places: 1 };
 const NIGHTL = USES.night;
-const DETAILS = [['obst', 'Things in the way', 'cube'], ['line', 'Clear width', 'road'], ['prox', 'People side by side', 'people'], ['photos', 'Photos', 'cam'], ['noise', 'Horns and swerves', 'ear'], ['reports', 'Reports', 'flag']];
+const DETAILS = [['obst', 'Things in the way', 'cube'], ['line', 'Clear width', 'road'], ['prox', 'People side by side', 'people'], ['photos', 'Photos', 'cam'], ['noise', 'Horns and swerves', 'ear']];
 const BASES = { nolli: ['Footpath', 'Figure-ground of the footpath. Black is everything that takes it: buildings, stalls, vehicles, poles. White is the width left to walk, measured every 10 m.'], ghost: ['Ghost', 'Every daytime walk laid over the others. Bright where the walks agree, blurred where it depends on the day.'], daynight: ['Night', 'The footpath after dark. Pale is walkable at night, the dashed line is the daytime width, and warm pools mark where the night videos pass a lamp, tube light or lit shopfront.'], fills: ['Lost to', 'What took the footpath: fixed things need civil works, vehicles need parking control, stalls and crowds need enforcement.'] };
 const TH = {
   nolli: { bg: '#D9DCD5', land: '#D9DCD5', b1: '#1C1C1C', b2: '#1C1C1C', bEdge: '#1C1C1C', road: '#AEB2AB', roadEdge: '#9DA19A', hwy: '#969B93', hwyEdge: '#878C84', lane: '#E6E8E3', taken: '#111111', walk: '#FFFFFF', kerb: '#6E726B', hatchBg: '#E6E8E3', hatch: '#BFC3BB', ink: '#202124', halo: '#FFFFFF', roadLab: '#3C4043', poi: '#5F6368', pin: '#202124', pinDot: '#FFFFFF', lab: '#5F6368' },
@@ -968,7 +968,7 @@ function detailLeg() { const Lr = state.layers, o = [];
   if (Lr.obst === 'kind') o.push([C.ppl, 'people & stalls'], [C.veh, 'vehicles'], [C.fix, 'poles & barriers'], [C.tree, 'trees']);
   if (Lr.obst === 'owner') o.push([C.fix, 'fixed · civil works'], [C.veh, 'on most walks · enforcement'], [C.ppl, 'some walks · time-based']);
   if (Lr.obst === 'people') o.push([C.ppl, 'people & stalls']);
-  if (Lr.swerve || Lr.noise) o.push([C.mus, 'a walker swerved']); if (Lr.horn || Lr.noise) o.push([C.red, 'a horn was heard']); if (Lr.reports) o.push([C.ink, 'report (diamond)']);
+  if (Lr.swerve || Lr.noise) o.push([C.mus, 'a walker swerved']); if (Lr.horn || Lr.noise) o.push([C.red, 'a horn was heard']); if (Lr.reports && REPORTS.length) o.push([C.ink, '◆ a problem someone reported']);
   return o; }
 function renderLayers() { const b = state.base;
   $('layB').innerHTML = `<span class="th">${thumb(b)}</span><span class="tl">${I.layers}Show</span><span class="li">${I.layers}</span>`;
