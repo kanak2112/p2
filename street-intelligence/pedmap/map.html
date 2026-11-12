@@ -190,6 +190,7 @@ select.walk{width:100%;border:1px solid var(--hair);border-radius:6px;padding:7p
 .mkey{position:absolute;left:calc(var(--sheetW) + 100px);bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:5;background:rgba(255,255,255,.94);box-shadow:var(--shadow);border-radius:8px;padding:8px 12px;display:flex;gap:14px;align-items:center;font-size:12px;color:var(--ink2);max-width:calc(100% - var(--sheetW) - 220px);flex-wrap:wrap}
 .mkey b{font:500 12px var(--sans);color:var(--ink)}.mkey .ex{color:var(--g3);font-size:11.5px}
 .mkey div{display:flex;gap:6px;align-items:center}.mkey i{width:16px;height:9px;border-radius:2px;flex:none}
+.mkey .wl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding-left:14px;border-left:1px solid var(--hair)}
 .colmode .mkey{left:100px}
 .mtype{display:flex;gap:12px;align-items:center;width:100%;margin-top:12px;border:1px solid var(--hair);border-radius:10px;background:var(--card);padding:8px 10px;text-align:left}
 .mtype:hover{background:var(--paper)}
@@ -305,6 +306,8 @@ body{color:var(--g1)}
   .layb .th,.layb .tl{display:none}.layb .li{display:grid;place-items:center;height:100%}
   .laypop{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;max-height:78vh;border-radius:16px 16px 0 0;z-index:45;padding:18px max(16px,env(safe-area-inset-left,0px)) calc(18px + env(safe-area-inset-bottom,0px))}
   .mkey{display:none}
+  .mkey.haswl{display:flex;left:10px;right:60px;top:112px;bottom:auto;max-width:none;padding:6px 10px}
+  .mkey.haswl>:not(.wl){display:none}.mkey.haswl .wl{padding-left:0;border-left:0;gap:8px}
   .stripc{left:10px;right:60px;bottom:calc(var(--sh,190px) + 10px);max-height:32vh}
   .sfull .stripc{display:none}
   .dirmode .chips{display:none}.dirmode .lay{top:12px}
@@ -973,7 +976,10 @@ function renderLayers() { const b = state.base;
     <div><div class="lab" style="margin-bottom:6px">Key</div><div class="leg">${[...BLEG[b], ...detailLeg()].map(sw).join('')}</div></div>
     <div><div class="lab" style="margin-bottom:6px">Walks shown</div><select class="walk" id="src"><option value="day" ${state.src === 'day' ? 'selected' : ''}>All 11 daytime walks</option><option value="all" ${state.src === 'all' ? 'selected' : ''}>All 15 walks, day and night</option>${walks.map(w => `<option value="${w.k}" ${String(state.src) === String(w.k) ? 'selected' : ''}>One walk · ${esc(wlabel(w))}</option>`).join('')}</select></div>`;
   renderKey(); }
-function renderKey() { const b = state.base; $('mkey').innerHTML = `<b>${esc(BASES[b][0])}</b>${BLEG[b].slice(0, 3).map(sw).join('')}<span class="ex">${XG > 1.05 ? `Footpath drawn ${XG.toFixed(1)}× wider than real · zoom in for true scale` : 'Footpath at true scale'}</span>`; }
+function renderKey() { const b = state.base, wl = !!state.layers.line;
+  const wlk = wl ? `<span class="wl"><b>Walk-line · usual clear width</b>${[[C.teal, '1.5 m or more'], [C.amb, '0.9–1.5 m'], [C.red, 'under 0.9 m'], ['url', 'not measured']].map(sw).join('')}</span>` : '';
+  $('mkey').classList.toggle('haswl', wl);
+  $('mkey').innerHTML = `<b>${esc(BASES[b][0])}</b>${BLEG[b].slice(0, 3).map(sw).join('')}${wlk}<span class="ex">${XG > 1.05 ? `Footpath drawn ${XG.toFixed(1)}× wider than real · zoom in for true scale` : 'Footpath at true scale'}</span>`; }
 function openLayers(on) { const p = $('laypop'); p.hidden = !on; $('lay').classList.toggle('open', !!on); $('laybg').hidden = !on || !phone(); $('layB').setAttribute('aria-expanded', on); }
 $('layB').onclick = e => { e.stopPropagation(); openLayers($('laypop').hidden); };
 $('laybg').onclick = () => openLayers(false);
