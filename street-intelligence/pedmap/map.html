@@ -458,7 +458,7 @@ const MODES = { walk: USES.walk, access: USES.access, proof: USES.proof, plan: U
 const owners = s => { const o = []; if (s.fixedOn) o.push('Civil works'); if (s.pers.people || s.sh.people >= .7) o.push('Enforcement'); if (s.pers.vehicle || s.sh.vehicle >= .5) o.push('Traffic & parking'); return o; };
 const ALWAYS = { reports: 1, chain: 1, places: 1 };
 const NIGHTL = USES.night;
-const DETAILS = [['line', 'Clear width', 'road'], ['prox', 'People side by side', 'people'], ['photos', 'Photos', 'cam'], ['noise', 'Horns and swerves', 'ear'], ['reports', 'Reports', 'flag']];
+const DETAILS = [['obst', 'Things in the way', 'cube'], ['line', 'Clear width', 'road'], ['prox', 'People side by side', 'people'], ['photos', 'Photos', 'cam'], ['noise', 'Horns and swerves', 'ear'], ['reports', 'Reports', 'flag']];
 const BASES = { nolli: ['Footpath', 'Figure-ground of the footpath. Black is everything that takes it: buildings, stalls, vehicles, poles. White is the width left to walk, measured every 10 m.'], ghost: ['Ghost', 'Every daytime walk laid over the others. Bright where the walks agree, blurred where it depends on the day.'], daynight: ['Night', 'The footpath after dark. Pale is walkable at night, the dashed line is the daytime width, and warm pools mark where the night videos pass a lamp, tube light or lit shopfront.'], fills: ['Lost to', 'What took the footpath: fixed things need civil works, vehicles need parking control, stalls and crowds need enforcement.'] };
 const TH = {
   nolli: { bg: '#D9DCD5', land: '#D9DCD5', b1: '#1C1C1C', b2: '#1C1C1C', bEdge: '#1C1C1C', road: '#AEB2AB', roadEdge: '#9DA19A', hwy: '#969B93', hwyEdge: '#878C84', lane: '#E6E8E3', taken: '#111111', walk: '#FFFFFF', kerb: '#6E726B', hatchBg: '#E6E8E3', hatch: '#BFC3BB', ink: '#202124', halo: '#FFFFFF', roadLab: '#3C4043', poi: '#5F6368', pin: '#202124', pinDot: '#FFFFFF', lab: '#5F6368' },
@@ -985,7 +985,7 @@ $('laybg').onclick = () => openLayers(false);
 $('laypop').addEventListener('click', e => { const t = e.target.closest('button'); if (!t) return;
   if (t.dataset.x) return openLayers(false);
   if (t.dataset.b) { state.base = t.dataset.b; renderLayers(); if (state.view === 'home') setView('home', { keepScroll: true }); else draw(); return; }
-  if (t.dataset.l) { const k = t.dataset.l; state.layers[k] = state.layers[k] ? 0 : (MODES[state.mode].L[k] || 1); renderLayers(); draw(); } });
+  if (t.dataset.l) { const k = t.dataset.l; state.layers[k] = state.layers[k] ? 0 : (MODES[state.mode].L[k] || (k === 'obst' ? 'kind' : 1)); renderLayers(); draw(); } });
 $('laypop').addEventListener('change', e => { const t = e.target; if (t.id === 'src') { state.src = t.value; STATS = stats(); if (state.route) makeRoute(); renderLayers(); setView(state.view, { keepScroll: true }); } });
 function closePops() { openLayers(false); $('sugg').hidden = true; }
 document.addEventListener('pointerdown', e => { if (!e.target.closest('#lay')) openLayers(false); if (!e.target.closest('#sbar')) $('sugg').hidden = true; });
