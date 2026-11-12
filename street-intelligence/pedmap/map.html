@@ -197,7 +197,8 @@ select.walk{width:100%;border:1px solid var(--hair);border-radius:6px;padding:7p
 .mtype .mt svg{width:66px;height:44px;border-radius:6px;display:block}
 .mtype b{display:block;font-weight:500}.mtype small{display:block;color:var(--ink2);font-size:12px;line-height:1.35}
 .peg[aria-pressed=true]{background:#E8F0FE;color:#1967D2}
-#ntB{color:var(--ink2)}#ntB[aria-pressed=true]{background:#1E2A45;color:#FFD27A}
+.cmp{width:40px;height:40px;border-radius:50%;background:var(--card);box-shadow:var(--shadow);display:grid;place-items:center;align-self:center}.cmp svg{transition:transform .25s}
+#ntB,#stB{color:var(--ink2)}#stB[aria-pressed=true]{background:#1A73E8;color:#fff}#ntB[aria-pressed=true]{background:#1E2A45;color:#FFD27A}
 /* Google-style type and surfaces */
 body{color:var(--g1)}
 .lab{font:500 14px var(--sans);letter-spacing:0;text-transform:none;color:var(--g1)}
@@ -348,14 +349,16 @@ body{color:var(--g1)}
   <div class="lay" id="lay"><button class="layb" id="layB" aria-expanded="false" aria-label="Layers: map type and details"></button><div class="laybg" id="laybg" hidden></div><div class="laypop" id="laypop" role="dialog" aria-label="Layers" hidden></div></div>
   <div class="mkey" id="mkey"></div>
   <div class="tools" id="tools">
+    <div class="cmp" id="cmp" title="North" aria-label="North is up" role="img"><svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 2.5 15.5 12h-7Z" fill="#D93025"/><path d="M12 21.5 8.5 12h7Z" fill="#9AA0A6"/></svg></div>
     <button class="peg" id="svB" title="Street View: walk photos" aria-label="Street View"></button>
     <button class="peg" id="ntB" title="Night: width after dark and street light" aria-label="Night view" aria-pressed="false"></button>
+    <button class="peg" id="stB" title="Satellite" aria-label="Satellite view" aria-pressed="false"></button>
     <div class="tg"><button id="d2" aria-pressed="true" title="Plan">2D</button><button id="d3" aria-pressed="false" title="Three-dimensional">3D</button></div>
     <div class="tg"><button id="zin" aria-label="Zoom in"></button><button id="zout" aria-label="Zoom out"></button><button id="fit" aria-label="Show the whole street"></button></div>
     <div class="scale"><div class="sb" id="sb"></div><span id="sbl">10 m</span></div>
   </div>
   <div class="stripc" id="stripc" hidden><div class="sth"><b>Along the street</b><small id="stS"></small><button class="ib" id="stX" aria-label="Hide the strip"></button></div><svg id="strip" aria-label="The street as a straight strip: each walk and the ground photos"></svg></div>
-  <div class="attr">Base map traced from a Google Maps screenshot · Map data ©2026 Google</div>
+  <div class="attr" id="attr">Base map traced from a Google Maps screenshot · Map data ©2026 Google</div>
   <div class="navt" id="navt" hidden></div>
   <div class="navb" id="navb" hidden></div>
   <div class="sv" id="sv" hidden></div>
@@ -393,7 +396,7 @@ const I = {
   data: ic('<path d="M5 20V10m5 10V4m5 16v-7m5 7V8"/>'), swap: ic('<path d="M8 4v16m0-16L4 8m4-4 4 4m4 12V4m0 16-4-4m4 4 4-4"/>'),
   plus: ic('<path d="M12 5v14M5 12h14"/>'), minus: ic('<path d="M5 12h14"/>'), fit: ic('<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>'),
   walk: ic('<circle cx="13" cy="4.5" r="1.8"/><path d="m9 21 2.5-6.5L14 17v4m-5.5-9 2-3.5 3.5 1 2 3.5M11.5 14.5 12.5 9"/>'),
-  wheel: ic('<circle cx="10" cy="15" r="5"/><circle cx="10" cy="4.5" r="1.6"/><path d="M10 7v5h5l2 5h2"/>'), moon: ic('<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5Z"/>'),
+  wheel: ic('<circle cx="10" cy="15" r="5"/><circle cx="10" cy="4.5" r="1.6"/><path d="M10 7v5h5l2 5h2"/>'), moon: ic('<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5Z"/>'), globe: ic('<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c3.2 3 3.2 14 0 17M12 3.5c-3.2 3-3.2 14 0 17"/>'), tag: ic('<path d="M3.5 12.5V4h8.5l9 9-8.5 8.5Z"/><circle cx="8" cy="8.5" r="1.4"/>'),
   act: ic('<path d="M4 20h16M6 20V9l6-5 6 5v11M10 20v-6h4v6"/>'), stall: ic('<path d="M3 9h18l-1.5-4h-15ZM5 9v11h14V9M9 20v-6h6v6"/>'), ear: ic('<path d="M7 9a5 5 0 0 1 10 0c0 3-3 4-3 7a3 3 0 0 1-5 2"/><path d="M10 9a2 2 0 0 1 4 0"/>'),
   pin: ic('<path d="M12 21s-6.5-6.2-6.5-11A6.5 6.5 0 0 1 18.5 10c0 4.8-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.3"/>'), clock: ic('<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>'),
   warn: ic('<path d="M12 4 2.8 20h18.4Z"/><path d="M12 10v4.5m0 2.5v.1"/>'), up: ic('<path d="M12 20V5m-6 6 6-6 6 6"/>'), road: ic('<path d="M7 20 10 4m7 16-3-16m-2 2v2m0 4v2m0 4v2"/>'),
@@ -456,9 +459,9 @@ const USES = {
 };
 const MODES = { walk: USES.walk, access: USES.access, proof: USES.proof, plan: USES.plan };
 const owners = s => { const o = []; if (s.fixedOn) o.push('Civil works'); if (s.pers.people || s.sh.people >= .7) o.push('Enforcement'); if (s.pers.vehicle || s.sh.vehicle >= .5) o.push('Traffic & parking'); return o; };
-const ALWAYS = { reports: 1, chain: 1, places: 1 };
+const ALWAYS = { reports: 1, chain: 1, places: 1, labels: 1 };
 const NIGHTL = USES.night;
-const DETAILS = [['obst', 'Things in the way', 'cube'], ['line', 'Clear width', 'road'], ['prox', 'People side by side', 'people'], ['photos', 'Photos', 'cam'], ['noise', 'Horns and swerves', 'ear']];
+const DETAILS = [['obst', 'Things in the way', 'cube'], ['line', 'Clear width', 'road'], ['prox', 'People side by side', 'people'], ['photos', 'Photos', 'cam'], ['noise', 'Horns and swerves', 'ear'], ['labels', 'Labels', 'tag']];
 const BASES = { nolli: ['Footpath', 'Figure-ground of the footpath. Black is everything that takes it: buildings, stalls, vehicles, poles. White is the width left to walk, measured every 10 m.'], ghost: ['Ghost', 'Every daytime walk laid over the others. Bright where the walks agree, blurred where it depends on the day.'], daynight: ['Night', 'The footpath after dark. Pale is walkable at night, the dashed line is the daytime width, and warm pools mark where the night videos pass a lamp, tube light or lit shopfront.'], fills: ['Lost to', 'What took the footpath: fixed things need civil works, vehicles need parking control, stalls and crowds need enforcement.'] };
 const TH = {
   nolli: { bg: '#D9DCD5', land: '#D9DCD5', b1: '#1C1C1C', b2: '#1C1C1C', bEdge: '#1C1C1C', road: '#AEB2AB', roadEdge: '#9DA19A', hwy: '#969B93', hwyEdge: '#878C84', lane: '#E6E8E3', taken: '#111111', walk: '#FFFFFF', kerb: '#6E726B', hatchBg: '#E6E8E3', hatch: '#BFC3BB', ink: '#202124', halo: '#FFFFFF', roadLab: '#3C4043', poi: '#5F6368', pin: '#202124', pinDot: '#FFFFFF', lab: '#5F6368' },
@@ -616,19 +619,21 @@ function draw() {
   const defs = el('defs', {}); const hp = el('pattern', { id: 'hatch', width: 8, height: 8, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' }, defs); el('rect', { width: 8, height: 8, fill: T.hatchBg }, hp); el('line', { x1: 0, y1: 0, x2: 0, y2: 8, stroke: T.hatch, 'stroke-width': 2 }, hp);
   const g = el('g', {}), dark = B === 'daynight', light = !dark;
   // the neighbourhood, traced from the screenshot
-  const cg = el('g', { transform: (state.d3 ? 'matrix(.866 .5 -.866 .5 0 0) ' : '') + `scale(${SC})`, opacity: dark ? .75 : B === 'nolli' || B === 'ghost' ? .5 : .7, style: dark ? '' : 'filter:grayscale(1)' }, g), ns = { 'vector-effect': 'non-scaling-stroke' };
-  el('rect', { x: -400, y: -400, width: CTX.W + 800, height: CTX.H + 800, fill: T.land }, cg);
+  const sat = state.sat, cg = el('g', { transform: (state.d3 ? 'matrix(.866 .5 -.866 .5 0 0) ' : '') + `scale(${SC})`, opacity: sat ? 1 : dark ? .75 : B === 'nolli' || B === 'ghost' ? .5 : .7, style: sat ? (dark ? 'filter:brightness(.38) saturate(.6)' : '') : dark ? '' : 'filter:grayscale(1)' }, g), ns = { 'vector-effect': 'non-scaling-stroke' };
+  el('rect', { x: -400, y: -400, width: CTX.W + 800, height: CTX.H + 800, fill: sat ? '#3E403C' : T.land }, cg);
+  if (sat) el('image', { href: '../lab/sat.jpg', x: -380, y: -110, width: 1810, height: 900, preserveAspectRatio: 'none' }, cg); else {
   el('path', { d: CTX.lane, fill: T.lane }, cg);
   el('path', { d: CTX.bgrey, fill: T.b1, stroke: T.bEdge, 'stroke-width': .8, ...ns }, cg);
   el('path', { d: CTX.bbeige, fill: T.b2, stroke: T.bEdge, 'stroke-width': .8, ...ns }, cg);
   el('path', { d: CTX.road, fill: T.road, stroke: T.roadEdge, 'stroke-width': 1, ...ns, 'fill-rule': 'evenodd' }, cg);
-  el('path', { d: CTX.hwy, fill: T.hwy, stroke: T.hwyEdge, 'stroke-width': 1, ...ns, 'fill-rule': 'evenodd' }, cg);
+  el('path', { d: CTX.hwy, fill: T.hwy, stroke: T.hwyEdge, 'stroke-width': 1, ...ns, 'fill-rule': 'evenodd' }, cg); }
+  $('attr').textContent = sat ? 'Satellite: Google Maps screenshot, imagery ©2026 Airbus, Maxar Technologies, aligned to the street by hand' : 'Base map traced from a Google Maps screenshot · Map data ©2026 Google';
   // the other side of the road: not walked yet
   { const ms = sampleM(0, L, 2), q = [...ms.map(m => P0(m, -2)), ...ms.slice().reverse().map(m => P0(m, 1))]; poly(q, 'url(#hatch)', { stroke: dark ? '#7D88A6' : '#80868B', 'stroke-width': fs(1.2), 'stroke-dasharray': `${fs(4)} ${fs(3)}`, opacity: .9 }, g);
-    if (K < 4) [50, 195].forEach(m => { const [x, y] = P0(m, -.5), [x2, y2] = P0(m + 2, -.5); let ang = Math.atan2(y2 - y, x2 - x) * 180 / Math.PI; if (ang > 90) ang -= 180; if (ang < -90) ang += 180; tx('OTHER SIDE · NOT WALKED YET', x, y, { 'font-family': 'Roboto, sans-serif', 'font-size': fs(10.5), 'font-weight': 500, 'letter-spacing': fs(.6), fill: dark ? '#C3CBE0' : '#5F6368', stroke: dark ? '#070B16' : '#fff', 'stroke-width': fs(3), 'paint-order': 'stroke', 'text-anchor': 'middle', dy: fs(3.5), transform: `rotate(${ang.toFixed(1)} ${x} ${y})` }, g); }); }
+    if (K < 4 && Lr.labels) [50, 195].forEach(m => { const [x, y] = P0(m, -.5), [x2, y2] = P0(m + 2, -.5); let ang = Math.atan2(y2 - y, x2 - x) * 180 / Math.PI; if (ang > 90) ang -= 180; if (ang < -90) ang += 180; tx('OTHER SIDE · NOT WALKED YET', x, y, { 'font-family': 'Roboto, sans-serif', 'font-size': fs(10.5), 'font-weight': 500, 'letter-spacing': fs(.6), fill: dark ? '#C3CBE0' : '#5F6368', stroke: dark ? '#070B16' : '#fff', 'stroke-width': fs(3), 'paint-order': 'stroke', 'text-anchor': 'middle', dy: fs(3.5), transform: `rotate(${ang.toFixed(1)} ${x} ${y})` }, g); }); }
   // pale ground under the pedestrian layer, so the car world recedes behind it
   const bandW = (Lr.photos ? (phone() ? 54 : 78) : 0) + (Lr.sound ? 26 : 0) + (Lr.view ? 14 : 0);
-  if (bandW) { const ms = sampleM(-2, L + 2, 2), q = [...ms.map(m => PB(m, -4)), ...ms.slice().reverse().map(m => PB(m, bandW + 6))]; poly(q, dark ? '#0B1222' : '#FFFFFF', { opacity: .82 }, g); }
+  if (bandW) { const ms = sampleM(-2, L + 2, 2), q = [...ms.map(m => PB(m, -4)), ...ms.slice().reverse().map(m => PB(m, bandW + 6))]; poly(q, dark ? '#0B1222' : '#FFFFFF', { opacity: state.sat ? .3 : .82 }, g); }
   // the route: the footpath itself lights up, no dots on the carriageway
   if (R) { const lo = Math.min(R.m0, R.m1), hi = Math.max(R.m0, R.m1); quad(lo, hi, -.15, 3.3, 'none', { stroke: '#1A73E8', 'stroke-width': fs(10), 'stroke-linejoin': 'round', opacity: .28 }, g); quad(lo, hi, -.15, 3.3, 'none', { stroke: '#1A73E8', 'stroke-width': fs(2.5), 'stroke-linejoin': 'round' }, g); }
   // the footpath, with a halo to lift it off the base map
@@ -687,17 +692,17 @@ function draw() {
         const [ex, ey] = PB(i * 10 + 5, off + 4); el('line', { x1: ex, y1: ey, x2: x, y2: y - h / 2, stroke: '#9AA0A6', 'stroke-width': fs(1) }, gp);
         gp.addEventListener('pointerup', () => { if (!dragMoved) tapSV = i; }); }
       bandLab('photos', off + 6 + th / 2); off += th + 14; } }
-  if (Lr.chain && K < 1.2) for (let m = 0; m <= L; m += 10) { const big = m % 50 === 0 || m === L, [x, y] = P(m, 3.2), [x2, y2] = P(m, 3.2 + (big ? 1.2 : .7)); el('line', { x1: x, y1: y, x2, y2, stroke: dark ? '#8C97B5' : '#5F6368', 'stroke-width': fs(1.2) }, g);
+  if (Lr.chain && Lr.labels && K < 1.2) for (let m = 0; m <= L; m += 10) { const big = m % 50 === 0 || m === L, [x, y] = P(m, 3.2), [x2, y2] = P(m, 3.2 + (big ? 1.2 : .7)); el('line', { x1: x, y1: y, x2, y2, stroke: dark ? '#8C97B5' : '#5F6368', 'stroke-width': fs(1.2) }, g);
     if (big || K < .3) tx(`${m} m`, x2, y2, { 'font-family': 'Roboto Mono, monospace', 'font-size': fs(10), fill: T.ink, stroke: T.halo, 'stroke-width': fs(3), 'paint-order': 'stroke', dx: fs(3), dy: fs(10) }, g); }
   if (Lr.through) S.forEach(s => { const [x, y] = P(s.i * 10 + 5, 6.4), r = Math.min(9 * K, 4.2 * U), a = access(s), col = a ? ACC[a] : null;
     el('circle', { cx: x, cy: y, r, fill: col || '#9AA0A6', stroke: '#fff', 'stroke-width': fs(1.5) }, g);
     tx(a === 'usually' ? '✓' : a === 'sometimes' ? '!' : a === 'rarely' ? '✕' : '–', x, y + r * .42, { 'text-anchor': 'middle', 'font-size': (r * 1.2).toFixed(2), 'font-weight': 700, fill: '#fff' }, g); });
   // road names and places of the neighbourhood, Google-style labels that keep their size on screen
   const lab = (t, x, y, at) => tx(t, x, y, { 'font-family': 'Roboto, sans-serif', 'paint-order': 'stroke', stroke: T.halo, 'stroke-width': fs(3), 'stroke-linejoin': 'round', ...at }, g);
-  ROADLAB.forEach(([t, px, py, ang]) => { const [x, y] = PW(px * SC, py * SC); let a = ang; if (state.d3) { const c = Math.cos(ang * Math.PI / 180), sn = Math.sin(ang * Math.PI / 180); a = Math.atan2(.5 * (c + sn), .866 * (c - sn)) * 180 / Math.PI; if (a > 90) a -= 180; if (a < -90) a += 180; }
+  if (Lr.labels) ROADLAB.forEach(([t, px, py, ang]) => { const [x, y] = PW(px * SC, py * SC); let a = ang; if (state.d3) { const c = Math.cos(ang * Math.PI / 180), sn = Math.sin(ang * Math.PI / 180); a = Math.atan2(.5 * (c + sn), .866 * (c - sn)) * 180 / Math.PI; if (a > 90) a -= 180; if (a < -90) a += 180; }
     lab(t, x, y, { 'font-size': fs(12), fill: T.roadLab, 'text-anchor': 'middle', 'font-weight': 500, transform: `rotate(${a.toFixed(1)} ${x} ${y})`, 'letter-spacing': fs(.2) }); });
-  { const [x, y] = PW(489 * SC, 266 * SC), r = 9 * K; el('path', { d: `M${x - r} ${y - r * .9}h${2 * r}v${r * 1.1}l${-r} ${r * .8}l${-r} ${-r * .8}Z`, fill: '#FDD663', stroke: '#B08400', 'stroke-width': fs(1) }, g); tx('48', x, y + r * .25, { 'font-family': 'Roboto, sans-serif', 'font-size': fs(10), 'font-weight': 700, fill: '#3C4043', 'text-anchor': 'middle' }, g); }
-  if (K < 2.4) POIS.forEach(([t, px, py]) => { const [x, y] = PW(px * SC, py * SC), r = 6 * K; el('circle', { cx: x, cy: y, r, fill: T.poi, stroke: T.halo, 'stroke-width': fs(1.5) }, g); el('circle', { cx: x, cy: y, r: r * .35, fill: T.halo }, g); lab(t, x + r * 1.6, y + 4 * K, { 'font-size': fs(11.5), fill: T.poi }); });
+  if (Lr.labels) { const [x, y] = PW(489 * SC, 266 * SC), r = 9 * K; el('path', { d: `M${x - r} ${y - r * .9}h${2 * r}v${r * 1.1}l${-r} ${r * .8}l${-r} ${-r * .8}Z`, fill: '#FDD663', stroke: '#B08400', 'stroke-width': fs(1) }, g); tx('48', x, y + r * .25, { 'font-family': 'Roboto, sans-serif', 'font-size': fs(10), 'font-weight': 700, fill: '#3C4043', 'text-anchor': 'middle' }, g); }
+  if (K < 2.4 && Lr.labels) POIS.forEach(([t, px, py]) => { const [x, y] = PW(px * SC, py * SC), r = 6 * K; el('circle', { cx: x, cy: y, r, fill: T.poi, stroke: T.halo, 'stroke-width': fs(1.5) }, g); el('circle', { cx: x, cy: y, r: r * .35, fill: T.halo }, g); lab(t, x + r * 1.6, y + 4 * K, { 'font-size': fs(11.5), fill: T.poi }); });
   if (R) {
     R.steps.filter(st => st.t === 'go' && (st.cls === 'road' || st.cls === 'stop')).forEach(st => { const m = (st.m0 + st.m1) / 2, [x, y] = P(m, -.4), r = 9 * K;
       el('circle', { cx: x, cy: y - r * 1.3, r, fill: '#D93025', stroke: '#fff', 'stroke-width': fs(2) }, g); tx('!', x, y - r * 1.3 + r * .45, { 'font-size': fs(13), 'font-weight': 700, fill: '#fff', 'text-anchor': 'middle' }, g); });
@@ -710,7 +715,7 @@ function draw() {
     el('line', { x1: x0, y1: y0, x2: x1, y2: y1, stroke: c, 'stroke-width': fs(1.5) }, g); el('circle', { cx: x1, cy: y1, r: 3.5 * K, fill: c }, g);
     lab(a, x1 + 7 * K, y1 + 1 * K, { 'font-size': fs(14), fill: dark ? '#E8EAED' : c, 'font-weight': 700 }); lab(b, x1 + 7 * K, y1 + 15 * K, { 'font-size': fs(11.5), fill: T.ink }); });
   if (Lr.reports) REPORTS.forEach(r => { const [x, y] = P(r.m, 3.55), s = 6 * K; const d = el('rect', { x: x - s, y: y - s, width: 2 * s, height: 2 * s, rx: 1.5 * K, fill: '#202124', stroke: '#fff', 'stroke-width': fs(1.6), transform: `rotate(45 ${x} ${y})`, style: 'cursor:pointer' }, g); d.addEventListener('pointerup', () => { if (!dragMoved) tapTarget = Math.min(21, Math.floor(r.m / 10)); }); });
-  if (Lr.places) PLACES.forEach(([n, m]) => { if (R && (Math.abs(m - R.m0) < 1 || Math.abs(m - R.m1) < 1)) return; const [x, y] = P(m, -.6), r = 7 * K; const gp = el('g', { style: 'cursor:pointer' }, g);
+  if (Lr.places && Lr.labels) PLACES.forEach(([n, m]) => { if (R && (Math.abs(m - R.m0) < 1 || Math.abs(m - R.m1) < 1)) return; const [x, y] = P(m, -.6), r = 7 * K; const gp = el('g', { style: 'cursor:pointer' }, g);
     el('path', { d: `M${x} ${y} l${-r * .7} ${-r * 1.6} a${r} ${r} 0 1 1 ${r * 1.4} 0 z`, fill: '#EA4335', stroke: '#B31412', 'stroke-width': fs(1) }, gp); el('circle', { cx: x, cy: y - r * 2.15, r: r * .38, fill: '#B31412' }, gp);
     lab(n, x + r * 1.3, y - r * 1.9, { 'font-size': fs(12.5), 'font-weight': 500, fill: dark ? '#E8EAED' : '#202124' }).parentNode === g && gp.appendChild(g.lastChild);
     gp.addEventListener('pointerup', () => { if (!dragMoved) tapTarget = Math.min(21, Math.floor(m / 10)); }); });
@@ -718,6 +723,7 @@ function draw() {
   phG = el('line', { stroke: C.yel, 'stroke-width': fs(4), 'stroke-linecap': 'round' }, g); placePh();
   meG = el('g', { id: 'me' }, g); el('circle', { r: 16 * K, fill: '#1A73E8', opacity: .18 }, meG); el('circle', { r: 8 * K, fill: '#1A73E8', stroke: '#fff', 'stroke-width': fs(3) }, meG); placeMe();
   drawScale(); renderKey(); drawStrip();
+  $('cmp').querySelector('svg').style.transform = state.d3 ? 'rotate(60deg)' : 'none';
 }
 function drawStrip() { const card = $('stripc'), Lr = state.layers, on = Lr.walks && !state.nav && !stripOff; card.hidden = !on; if (!on) return;
   const sv = $('strip'); sv.innerHTML = ''; const w = Math.max(280, sv.clientWidth || card.clientWidth - 24), x0 = 66, xw = w - x0 - 6, X = m => x0 + m / L * xw, S = STATS, rows = [];
@@ -956,7 +962,7 @@ $('tab').onclick = () => { state.col = !state.col; sheet.classList.toggle('col',
 /* ---------- chips, layers ---------- */
 function renderChips() { $('chips').innerHTML = Object.entries(MODES).map(([k, m]) => `<button class="chip" data-m="${k}" aria-pressed="${k === state.mode}">${I[m.ic]}${m.n}</button>`).join(''); }
 $('chips').addEventListener('click', e => { const b = e.target.closest('[data-m]'); if (!b) return; setMode(b.dataset.m); });
-function setMode(k) { state.mode = k; state.base = state.night ? 'daynight' : MODES[k].B; state.layers = { ...ALWAYS, ...MODES[k].L }; renderChips(); renderLayers(); if (k === 'plan') { setView('plan', { snap: 'half' }); return; } if (state.view === 'plan') setView('home', { keepScroll: true }); else if (state.view === 'home') setView('home', { keepScroll: true }); else { if (state.view === 'place') setView('place', { keepScroll: true }); draw(); } }
+function setMode(k) { state.mode = k; state.base = state.night ? 'daynight' : MODES[k].B; state.layers = { ...ALWAYS, ...MODES[k].L, labels: state.layers.labels ?? 1 }; renderChips(); renderLayers(); if (k === 'plan') { setView('plan', { snap: 'half' }); return; } if (state.view === 'plan') setView('home', { keepScroll: true }); else if (state.view === 'home') setView('home', { keepScroll: true }); else { if (state.view === 'place') setView('place', { keepScroll: true }); draw(); } }
 const sw = ([c, l, b]) => `<div><i style="background:${c === 'url' ? 'repeating-linear-gradient(45deg,var(--paper) 0 3px,var(--hair) 3px 5px)' : c === 'dash' ? 'repeating-linear-gradient(90deg,#1E2A45 0 4px,#fff 4px 7px)' : c === 'glow' ? 'radial-gradient(circle,#FFD27A 0,#FFB84D 45%,#1E2A45 100%)' : c};${b ? 'box-shadow:inset 0 0 0 1px var(--hair)' : ''}"></i>${esc(l)}</div>`;
 function detailLeg() { const Lr = state.layers, o = [];
   if (Lr.prox) o.push(['#1A73E8', 'one person, about 0.75 m, side by side'], ['#D93025', '✕ no one fits: step into the road']);
@@ -1003,6 +1009,7 @@ function listen() { if (snd) return stopListen(); const AC = window.AudioContext
 function stopListen() { if (!snd) return; cancelAnimationFrame(snd.raf); try { snd.ac.close(); } catch (e) {} snd = null; state.ph = null; placePh(); $('lsB').setAttribute('aria-pressed', 'false'); }
 function toggleNight(on) { state.night = on == null ? !state.night : on; state.base = state.night ? 'daynight' : MODES[state.mode].B; $('ntB').setAttribute('aria-pressed', state.night); renderLayers(); if (state.view === 'home') setView('home', { keepScroll: true }); else draw(); }
 $('ntB').innerHTML = I.moon; $('ntB').onclick = () => toggleNight();
+$('stB').innerHTML = I.globe; $('stB').onclick = () => { state.sat = !state.sat; $('stB').setAttribute('aria-pressed', state.sat); draw(); };
 
 /* ---------- map tools ---------- */
 $('zin').innerHTML = I.plus; $('zout').innerHTML = I.minus; $('fit').innerHTML = I.fit; $('svB').innerHTML = I.sv;
