@@ -50,7 +50,7 @@ for d in m["days"]:
             if (grp, i) not in best or n["obstruction"] > best[(grp, i)][0]["obstruction"]:
                 best[(grp, i)] = (n, w, pid, ov)
         walks.append({"day": int(d["day"]), "date": d["processed"], "dir": key, "night": night,
-                      "dur": round(P(w["summary"])["duration_s"]), "s": rec,
+                      "dur": round(P(w["summary"])["duration_s"]), "s": rec, **({"part": w["covers"]} if w.get("partial") else {}),
                       "honks": [round(h["m"]) for h in P(w["honks"])], "swerves": [round(s["m"]) for s in P(w["swerves"])]})
 photos = {}
 for (grp, i), (n, w, pid, ov) in best.items():

@@ -398,7 +398,7 @@ const edges = c => { const gg = Math.min(3, c.g), a1 = (3 - gg) * c.top; return 
 const PLACES = [['R.K. Chouhan Communications', 2, 'Start of the street · A'], ['Shopfronts', 45, 'Crowded stretch'], ['Green bins', 85, 'Narrowest point'], ['Turn onto the highway service road', 104, 'Junction'], ['Underpass walkway', 176, 'Width not measured inside'], ['Amratlal G. Vasani', 216, 'End of the street · B']];
 const placeOf = m => (m < 40 ? 'Near R.K. Chouhan Communications' : m < 76 ? 'Shopfronts' : m < 95 ? 'Green bins' : m < 115 ? 'Turn to the service road' : m < 160 ? 'Towards the underpass' : m < 191 ? 'Underpass walkway' : 'Near Amratlal G. Vasani');
 const nameAt = m => { const p = PLACES.find(p => Math.abs(p[1] - m) < 1); return p ? p[0] : `${Math.round(m)} m · ${placeOf(m)}`; };
-const SPEED = med(walks.filter(w => !w.night).map(w => L / w.dur)); // m/s, from the daytime walks
+const SPEED = med(walks.filter(w => !w.night && !w.part).map(w => L / w.dur)); // m/s, from the daytime walks
 const fmtT = s => { s = Math.max(0, Math.round(s)); const m = Math.floor(s / 60), r = s % 60; return m ? `${m} min${r ? ' ' + r + ' s' : ''}` : `${r} s`; };
 let booted = false;
 let PLANW = null;
@@ -463,7 +463,7 @@ const USES = {
   access: { n: 'Wheelchair & pram', ic: 'wheel', q: 'Where a wheelchair may not get through', B: 'nolli', L: { through: 1, prox: 1, obst: 'kind', photos: 1 },
     list: S => S.filter(s => access(s) === 'rarely' || access(s) === 'sometimes').sort((a, b) => a.ok / a.gN - b.ok / b.gN).slice(0, 5).map(s => [s, `${s.ok}/${s.gN}`, `Walks with ${state.thr.toFixed(1)} m clear`]), foot: '0.9 m is an assumed minimum, to confirm with wheelchair users', thr: 1 },
   night: { n: 'After dark', ic: 'moon', q: 'Darkest stretches at night', B: 'daynight', L: { night: 1, photos: 1 },
-    list: S => S.filter(s => s.lit != null && s.lit < .9).sort((a, b) => a.lit - b.lit).slice(0, 5).map(s => [s, `−${Math.round((1 - s.lit) * 100)}%`, s.ng != null ? `${s.ng.toFixed(1)} m clear at night` : 'Night width not measured']), foot: 'Brightness in night photos against the route’s usual night. Ranks stretches; it is not lux. 4 night walks.' },
+    list: S => S.filter(s => s.lit != null && s.lit < .9).sort((a, b) => a.lit - b.lit).slice(0, 5).map(s => [s, `−${Math.round((1 - s.lit) * 100)}%`, s.ng != null ? `${s.ng.toFixed(1)} m clear at night` : 'Night width not measured']), get foot() { return `Brightness in night photos against the route’s usual night. Ranks stretches; it is not lux. ${NW - NWD} night walks.`; } },
   act: { n: 'Who must act', ic: 'act', q: 'Who must act on each stretch', B: 'fills', L: { obst: 'owner', line: 1 },
     list: S => S.filter(s => s.g != null && s.g < 1.5).sort((a, b) => a.g - b.g).slice(0, 6).map(s => [s, `${s.g.toFixed(1)} m`, owners(s).join(' · ') || 'Mixed']), foot: 'Stretches under BMC 1.5 m. Departments are indicative; confirm with the ward.' },
   proof: { n: 'Evidence', ic: 'cam', q: 'Blocked again and again, and who must act', B: 'nolli', L: { walks: 1, photos: 1, view: 1, obst: 'owner' },
@@ -1039,7 +1039,7 @@ function tlStop() { if (tlPlay) { clearInterval(tlPlay); tlPlay = null; renderTL
 function renderTL() { const box = $('tl'), on = state.mode === 'proof' && !state.nav; box.hidden = !on; $('app').classList.toggle('tlon', on); if (!on) { tlStop(); return; }
   const j = tlIdx(), t = TLP[j], w = t === 'all' ? null : walks[t], act = TLP.map((_, k) => tlActive(k));
   const title = w ? `Day ${w.day} · ${w.dir === 'forward' ? 'A → B' : 'B → A'} · ${w.night ? 'night' : 'daytime'}` : (state.night ? 'All night walks' : 'All daytime walks');
-  const sub = w ? `${wlabel(w).split(' · ')[1][0].toUpperCase() + wlabel(w).split(' · ')[1].slice(1)} · walked in ${Math.floor(w.dur / 60)} min ${w.dur % 60} s` : `Median of ${walks.filter(x => !!x.night === !!state.night).length} walks · drag to see one walk`;
+  const sub = w ? `${wlabel(w).split(' · ')[1][0].toUpperCase() + wlabel(w).split(' · ')[1].slice(1)} · ${w.part ? `part of the route only, ${w.part[0]}–${w.part[1]} m, in ${w.dur} s` : `walked in ${Math.floor(w.dur / 60)} min ${w.dur % 60} s`}` : `Median of ${walks.filter(x => !!x.night === !!state.night).length} walks · drag to see one walk`;
   const prevOk = act.slice(0, j).some(Boolean), nextOk = act.slice(j + 1).some(Boolean);
   box.innerHTML = `<div class="tlh"><b>${esc(title)}<small>${esc(sub)}</small></b><button class="tb" data-tl="play" aria-label="${tlPlay ? 'Pause' : 'Play through the walks'}">${tlPlay ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>' : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'}</button><button class="tb" data-tl="-1" aria-label="Previous walk" ${prevOk ? '' : 'disabled'}>${I.chevL}</button><button class="tb" data-tl="1" aria-label="Next walk" ${nextOk ? '' : 'disabled'}>${I.chevR}</button></div>
     <div class="trk"><div class="rail"></div>${TLP.map((tt, k) => `<span class="tk${tt === 'all' ? ' all' : walks[tt].night ? ' n' : ''}${act[k] ? '' : ' off'}${k === j ? ' on' : ''}" style="left:${tlX(k)}%" title="${tt === 'all' ? 'All walks' : esc(wlabel(walks[tt]))}"></span>`).join('')}<input type="range" min="0" max="100" step=".1" value="${tlX(j)}" aria-label="Walk: ${esc(title)}"></div>
