@@ -391,6 +391,7 @@ const med = a => { const s = a.slice().sort((x, y) => x - y), n = s.length; retu
 const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const walks = D.walks.map((w, k) => ({ ...w, k }));
+const NW = walks.length, NWD = walks.filter(w => !w.night).length;
 const wlabel = w => `Day ${w.day} · ${w.dir === 'forward' ? 'towards Amratlal G. Vasani' : 'towards R.K. Chouhan'}${w.night ? ' · night' : ''}`;
 const topOf = e => { if (!e) return .5; const a = e[0], b = 1 - e[1]; return a + b > .02 ? a / (a + b) : .5; };
 const edges = c => { const gg = Math.min(3, c.g), a1 = (3 - gg) * c.top; return [a1, a1 + gg]; };
@@ -830,7 +831,7 @@ const repRow = r => `<button class="rep" data-go="${Math.min(21, Math.floor(r.m 
 function homeView() { const S = STATS, gv = s => state.night ? s.ng : s.g, meas = S.filter(s => gv(s) != null), ok = meas.filter(s => gv(s) >= 1.5).length, M = state.night ? NIGHTL : MODES[state.mode], frac = ok / meas.length;
   const ring = `<svg viewBox="0 0 64 64" role="img" aria-label="${ok} of ${meas.length} measured stretches meet 1.5 m"><circle cx="32" cy="32" r="27" fill="none" stroke="${C.paper}" stroke-width="7"/><circle cx="32" cy="32" r="27" fill="none" stroke="${C.red}" stroke-width="7" stroke-dasharray="${(frac * 169.6).toFixed(1)} 200" transform="rotate(-90 32 32)" stroke-linecap="round"/><text x="32" y="37" text-anchor="middle" font-family="Roboto" font-size="15" font-weight="500" fill="${C.ink}">${ok}/${meas.length}</text></svg>`;
   const recent = REPORTS.slice(0, 3);
-  return `<div class="sec" style="border:0;padding-bottom:6px"><h1 class="h1">Old Nagardas Road</h1><div class="sub">Footpath · Andheri East, Mumbai · ${L} m · 15 walks, Oct 2026</div>
+  return `<div class="sec" style="border:0;padding-bottom:6px"><h1 class="h1">Old Nagardas Road</h1><div class="sub">Footpath · Andheri East, Mumbai · ${L} m · ${NW} walks, Oct–Nov 2026</div>
     <div class="score">${ring}<p><b>${ok} of ${meas.length}</b> measured stretches meet the BMC minimum of 1.5 m clear. A typical walk takes <b>${fmtT(L / SPEED)}</b>.</p></div></div>
     <div class="acts">${actBtn('dirs', 'dir', 'Directions', true)}${actBtn('sv', 'sv', 'Street View')}${actBtn('report', 'flag', 'Report')}${actBtn('share', 'share', 'Share')}${actBtn('data', 'data', 'Data')}</div>
     <div class="sec"><div class="lab">Along the street · tap a stretch</div>${strip()}</div>
@@ -891,12 +892,12 @@ function menuView() { const ln = (h, i, n, d) => `<a class="row" href="${h}" sty
   return `<div class="ph"><button class="ib" data-act="home" aria-label="Back">${I.back}</button><span class="grow">MENU</span></div>
     <div class="list">${ln('data.html', 'data', 'Data & exports', 'Charts, PDF, Excel, CSV, JSON')}${ln('index.html', 'book', 'Atlas of views', 'Nolli, ghost, day and night, walker’s eye, sound')}${ln('index.html#make', 'cube', 'Make it physical', '1:1 floor print, 3D cast, tactile map')}${ln('#tour', 'info', 'How to read this map', 'A short tour: the footpath, the uses, night and the walks')}${ln('#plan', 'cube', 'Plan a change', 'For planners and the ward: try changes, see the width')}${ln('index.html#uses', 'people', 'Who can use this', 'Twelve uses, from wheelchair users to the ward office')}</div>
     <div class="sec" style="border-top:1px solid var(--hair)"><div class="lab">Keys</div><p class="note" style="margin-top:6px">← → move along the street · + − zoom · / search · Esc back</p></div>
-    <div class="sec"><div class="lab">About this map</div><p class="note" style="margin-top:6px">15 walks on Old Nagardas Road, Andheri East, Mumbai, Oct 2026 (11 by day, 4 by night). A phone recorded photos every 3 s, horns and swerves. Clear width is the ground left to walk on, estimated from the photos. Base map tiles and GPS were not used.</p></div>`; }
+    <div class="sec"><div class="lab">About this map</div><p class="note" style="margin-top:6px">${NW} walks on Old Nagardas Road, Andheri East, Mumbai, Oct–Nov 2026 (${NWD} by day, ${NW - NWD} by night). A phone recorded photos every 3 s, horns and swerves. Clear width is the ground left to walk on, estimated from the photos. Base map tiles and GPS were not used.</p></div>`; }
 function planView() { const P2 = state.plan, sm = planSummary(), i = state.sel ?? 8, m0 = state.pm0 ?? i * 10, m1 = state.pm1 ?? i * 10 + 10, n = P2.items.length;
   const big = (v0, v1, l, good) => `<div class="stat"><b>${v0} <span style="color:var(--g3);font-weight:400">→</span> <span style="color:${v1 === v0 ? 'var(--g1)' : good(v1, v0) ? '#188038' : '#D93025'}">${v1}</span></b><span>${l}</span></div>`;
   const changed = sm.b.map((g, k) => [k, g, sm.a[k]]).filter(([, g, a]) => g != null && a != null && Math.abs(a - g) > .04);
   return `<div class="ph"><button class="ib" data-act="home" aria-label="Back">${I.back}</button><span class="grow">PLAN A CHANGE · FOR PLANNERS AND THE WARD</span></div>
-    <div class="sec"><h2 class="h1">Try a change on this footpath</h2><div class="sub">A sandbox on the map. Widths are recalculated from the same 11 daytime walks.</div>
+    <div class="sec"><h2 class="h1">Try a change on this footpath</h2><div class="sub">A sandbox on the map. Widths are recalculated from the same ${NWD} daytime walks.</div>
       <div class="dmodes" style="padding:12px 0 0"><button class="dm" data-show="after" aria-pressed="${P2.show === 'after'}">With changes</button><button class="dm" data-show="before" aria-pressed="${P2.show === 'before'}">As surveyed</button></div></div>
     <div class="sec" style="padding-top:4px"><div class="grid2">${big(sm.okB, sm.okA, 'stretches meet BMC 1.5 m', (a, b) => a > b)}${big(sm.roadB + ' m', sm.roadA + ' m', 'where you step into the road', (a, b) => parseFloat(a) < parseFloat(b))}${big(sm.wcB, sm.wcA, `stretches with 0.9 m for a wheelchair (of ${sm.n})`, (a, b) => a > b)}${big(Math.min(...sm.b.filter(g => g != null)).toFixed(1) + ' m', Math.min(...sm.a.filter(g => g != null)).toFixed(1) + ' m', 'narrowest clear width', (a, b) => parseFloat(a) > parseFloat(b))}</div></div>
     <div class="sec"><div class="lab">Drag a change onto the footpath</div><div class="sub">Drop it on the map where you want it. The footpath redraws, and the plan says whether it works. Drag a placed change along the footpath to move it.</div><div class="ptiles">${Object.entries(PT).map(([k, [nm, , , ic]]) => `<div class="ptile" data-ptile="${k}" role="button" tabindex="0"><span class="ic">${I[ic]}</span><span>${esc(nm)}</span></div>`).join('')}</div></div>
@@ -1026,7 +1027,7 @@ function listen() { if (snd) return stopListen(); const AC = window.AudioContext
   snd = { ac, t0, k }; $('lsB').setAttribute('aria-pressed', 'true'); toast('Tone follows the width · tick = horn · knock = swerve'); fly(fitBox(), 500);
   const tick = () => { if (!snd) return; const m = (snd.ac.currentTime - snd.t0) / snd.k; state.ph = clamp(m, 0, L); placePh(); if (m >= L) return stopListen(); snd.raf = requestAnimationFrame(tick); }; snd.raf = requestAnimationFrame(tick); }
 function stopListen() { if (!snd) return; cancelAnimationFrame(snd.raf); try { snd.ac.close(); } catch (e) {} snd = null; state.ph = null; placePh(); $('lsB').setAttribute('aria-pressed', 'false'); }
-/* ---------- walks timeline: scrub through the 15 walks, the median at the end ---------- */
+/* ---------- walks timeline: scrub through every walk, the median at the end ---------- */
 const TLP = [...walks.map(w => w.k), 'all'];
 const tlActive = j => TLP[j] === 'all' || (!!walks[TLP[j]].night === !!state.night);
 const tlIdx = () => state.src === 'day' || state.src === 'all' ? TLP.length - 1 : TLP.indexOf(+state.src);
@@ -1049,11 +1050,11 @@ $('tl').addEventListener('click', e => { const b = e.target.closest('[data-tl]')
 $('tl').addEventListener('input', e => { if (e.target.type !== 'range') return; tlStop(); const v = +e.target.value; let best = -1, bd = 1e9; TLP.forEach((_, k) => { if (!tlActive(k)) return; const d = Math.abs(tlX(k) - v); if (d < bd) { bd = d; best = k; } }); if (best !== tlIdx()) tlSet(best); });
 /* ---------- first-run tour: what the map is and how to use it ---------- */
 const TOUR = [
-  [null, 'A map of the footpath, not the road', 'White is the room left to walk. Black is everything that takes it: stalls, vehicles, poles, buildings. Every number comes from 15 walks recorded on this street, by day and at night.'],
+  [null, 'A map of the footpath, not the road', `White is the room left to walk. Black is everything that takes it: stalls, vehicles, poles, buildings. Every number comes from ${NW} walks recorded on this street, by day and at night.`],
   ['#chips', 'Pick a use', 'Walking, Wheelchair & pram, Evidence and Plan a change draw the same street for different questions: where it is hard to walk, whether a wheelchair gets through, how often a stretch is blocked, and whether a change would work.'],
   ['#layB', 'Choose what to show', 'Switch the things in the way, the clear width, people side by side, photos, horns and swerves, and labels on or off. The key at the bottom lists only what is drawn.'],
   ['#tools', 'Night, satellite and photos', 'The moon shows the footpath after dark and how lit each part is. The globe switches to satellite. The person opens the walk photos, as Street View.'],
-  ['[data-m="proof"]', 'Every walk, one by one', 'In Evidence, a timeline runs through all 15 walks. Drag it to see the footpath on one walk, or leave it on All for the usual picture.']];
+  ['[data-m="proof"]', 'Every walk, one by one', `In Evidence, a timeline runs through all ${NW} walks. Drag it to see the footpath on one walk, or leave it on All for the usual picture.`]];
 let tourI = -1;
 function startTour() { tourI = 0; let t = $('tour'); if (!t) { t = document.createElement('div'); t.id = 'tour'; t.className = 'tour'; t.setAttribute('role', 'dialog'); t.setAttribute('aria-modal', 'true'); document.body.appendChild(t);
     t.addEventListener('click', e => { const b = e.target.closest('[data-tour]'); if (!b) return; const a = b.dataset.tour; if (a === 'skip' || (a === 'next' && tourI === TOUR.length - 1)) return endTour(); tourI = clamp(tourI + (a === 'next' ? 1 : -1), 0, TOUR.length - 1); renderTour(); }); }
