@@ -1050,18 +1050,26 @@ $('tl').addEventListener('click', e => { const b = e.target.closest('[data-tl]')
   tlStop(); tlStep(+a); });
 $('tl').addEventListener('input', e => { if (e.target.type !== 'range') return; tlStop(); const v = +e.target.value; let best = -1, bd = 1e9; TLP.forEach((_, k) => { if (!tlActive(k)) return; const d = Math.abs(tlX(k) - v); if (d < bd) { bd = d; best = k; } }); if (best !== tlIdx()) tlSet(best); });
 /* ---------- first-run tour: what the map is and how to use it ---------- */
+const tourHome = () => { if (state.mode !== 'walk') setMode('walk'); if (state.night) toggleNight(false); if (state.view !== 'home') setView('home'); };
 const TOUR = [
-  [null, 'A map of the footpath, not the road', `White is the room left to walk. Black is everything that takes it: stalls, vehicles, poles, buildings. Every number comes from ${NW} walks recorded on this street, by day and at night.`],
-  ['#chips', 'Pick a use', 'Walking, Wheelchair & pram, Evidence and Plan a change draw the same street for different questions: where it is hard to walk, whether a wheelchair gets through, how often a stretch is blocked, and whether a change would work.'],
-  ['#layB', 'Choose what to show', 'Switch the things in the way, the clear width, people side by side, photos, horns and swerves, and labels on or off. The key at the bottom lists only what is drawn.'],
-  ['#tools', 'Night, satellite and photos', 'The moon shows the footpath after dark and how lit each part is. The globe switches to satellite. The person opens the walk photos, as Street View.'],
-  ['[data-m="proof"]', 'Every walk, one by one', `In Evidence, a timeline runs through all ${NW} walks. Drag it to see the footpath on one walk, or leave it on All for the usual picture.`]];
+  [null, 'What this map is for', `Most maps draw footpaths as if they were free to walk. On this street they are not. This map shows how much room is really left to walk on 220 m of Old Nagardas Road, Andheri East, measured from ${NW} phone walks, by day and at night. Use it to plan a walk, check a wheelchair route, prove that a stretch is blocked again and again, or test a fix.`, tourHome],
+  ['#map', 'How to read the footpath', 'The footpath is drawn about three times wider than real, so it can be read. White is the room left to walk. Black is what takes it: stalls, parked vehicles, poles, buildings. Hatching means not measured, as inside the underpass. The other side of the road has not been walked yet.', tourHome],
+  ['#mkey', 'The line along the kerb', 'Teal: 1.5 m or more clear, the BMC minimum. Amber: 0.9 to 1.5 m, tight. Red: under 0.9 m, where people step into the road. The key lists only what is on the map.', tourHome],
+  ['.sheet .strip', 'The street as a strip', 'Each block is 10 m, from R.K. Chouhan Communications (A, 0 m) to Amratlal G. Vasani (B, 220 m), coloured by clear width. Tap a block to open that stretch.', tourHome],
+  ['.sheet .list', 'Where it is hard, worst first', 'The list ranks the stretches for the question you are asking, with how many walks were blocked there. Tap a row to open it.', tourHome],
+  ['.sheet', 'One stretch, up close', 'A stretch shows its clear width, how often it was blocked, what blocks it, the photos and the light at night. From here you can get directions, open Street View, report a problem or plan a change.', () => { tourHome(); openPlace(8, true); }],
+  ['#chips', 'Four uses of one map', 'Walking finds where it is hard to walk. Wheelchair & pram checks whether 0.9 m is left. Evidence shows how often a stretch is blocked and who must act. Plan a change tests a fix before it is built.', tourHome],
+  ['#layB', 'Choose what to show', 'Turn on or off the things in the way, the clear width, people side by side, the photos, horns and swerves, and the labels.', tourHome],
+  ['#tools', 'Night, satellite and Street View', 'The moon shows the footpath after dark and how lit each part is. The globe switches to satellite. The person opens the walk photos, like Street View. 2D and 3D, zoom and the compass are below.', tourHome],
+  ['#dirB', 'Directions, in walking terms', 'Type a start and an end. The route lights up the footpath itself and warns where it is tight, where you step into the road and what is not measured.', tourHome],
+  ['#tl', 'Every walk, one by one', `In Evidence, this timeline runs through all ${NW} walks. Step through it to see the footpath on one day, or leave it on All for the usual picture.`, () => { tourHome(); setMode('proof'); }],
+  [null, 'Now explore', 'Click anything: the photos beside the footpath, a stretch, a use. You can open this tour again from the menu.', tourHome]];
 let tourI = -1;
 function startTour() { tourI = 0; let t = $('tour'); if (!t) { t = document.createElement('div'); t.id = 'tour'; t.className = 'tour'; t.setAttribute('role', 'dialog'); t.setAttribute('aria-modal', 'true'); document.body.appendChild(t);
     t.addEventListener('click', e => { const b = e.target.closest('[data-tour]'); if (!b) return; const a = b.dataset.tour; if (a === 'skip' || (a === 'next' && tourI === TOUR.length - 1)) return endTour(); tourI = clamp(tourI + (a === 'next' ? 1 : -1), 0, TOUR.length - 1); renderTour(); }); }
   t.hidden = false; renderTour(); }
-function endTour() { const t = $('tour'); if (t) t.hidden = true; tourI = -1; try { localStorage.setItem('pedmap-tour', '1'); } catch (e) {} }
-function renderTour() { const t = $('tour'), [sel, h, p] = TOUR[tourI], el0 = sel && document.querySelector(sel), r = el0 && el0.offsetParent !== null ? el0.getBoundingClientRect() : null, pad = 6, vw = innerWidth, vh = innerHeight, cw = Math.min(340, vw - 32);
+function endTour() { const t = $('tour'); if (t) t.hidden = true; tourI = -1; try { tourHome(); } catch (e) {} try { localStorage.setItem('pedmap-tour', '1'); } catch (e) {} document.dispatchEvent(new Event('tourend')); }
+function renderTour() { const go = TOUR[tourI][3]; if (go) { try { go(); } catch (e) {} } const t = $('tour'), [sel, h, p] = TOUR[tourI], el0 = sel && document.querySelector(sel), r = el0 && el0.offsetParent !== null ? el0.getBoundingClientRect() : null, pad = 6, vw = innerWidth, vh = innerHeight, cw = Math.min(340, vw - 32);
   const sh = document.querySelector('.sheet'), minX = !phone() && sh ? sh.getBoundingClientRect().right + 16 : 16; let cx = Math.max(minX, (vw - cw) / 2), cy = vh * .3;
   if (r) { const below = r.bottom + 14, above = r.top - 14; cx = clamp(r.left + r.width / 2 - cw / 2, minX, vw - cw - 16); if (r.left > vw * .6 && r.height > vh * .3) { cx = clamp(r.left - cw - 16, minX, vw - cw - 16); cy = clamp(r.top + r.height / 2 - 90, 16, vh - 220); } else cy = below + 200 < vh ? below : Math.max(16, above - 200); }
   t.innerHTML = `<div class="sp${r ? '' : ' none'}" style="${r ? `left:${r.left - pad}px;top:${r.top - pad}px;width:${r.width + 2 * pad}px;height:${r.height + 2 * pad}px` : ''}"></div>
@@ -1238,7 +1246,7 @@ state.layers = { ...ALWAYS, ...MODES.walk.L }; state.plan = loadPlan();
 renderChips(); renderLayers(); if (phone()) snap('peek');
 setView('home'); K = 1; draw(); setVB(fitBox(), true);
 const routed = route(location.hash); booted = true; syncHash();
-{ let seen = '1'; try { seen = localStorage.getItem('pedmap-tour'); } catch (e) {} if (!seen && !routed && !navigator.webdriver) setTimeout(startTour, 900); }
+{ let seen = '1'; try { seen = localStorage.getItem('pedmap-tour'); } catch (e) {} if (!seen && !routed && !navigator.webdriver && !new URLSearchParams(location.search).has('review')) setTimeout(startTour, 900); }
 if (!routed) setTimeout(() => { if (state.view === 'home' && !state.sv) fly(fitBox(), 900); }, 400);
 document.fonts && document.fonts.ready.then(() => draw());
 </script>
@@ -1342,7 +1350,7 @@ document.fonts && document.fonts.ready.then(() => draw());
     let h = '', canNext = true;
     if (s === 0) {
       h = `<h3>Thank you for reviewing this map</h3><p>This map of the footpath on Old Nagardas Road, Andheri East, was built from 34 phone walks along 220 m. You will answer one question, try six short tasks on the map, and then answer a few questions. The map is being tested, not you.</p>
-      <p class="rv-note">The map is on the left. Click Hide to see more of it; the Review tab brings this panel back.</p>
+      <p class="rv-note">When you press Start, a short tour shows what the map is for and how to read it. This panel then comes back with the tasks. Click Hide at any time to see more of the map; the Review tab brings the panel back.</p>
       <label class="rv-ok"><input type="checkbox" data-c="consent"${S.a.consent ? ' checked' : ''}> <span>I agree that my answers may be used in this M.Des project report and presentation, anonymously unless I allow my name below. My answers are sent by email to the student.</span></label>
       <label class="f">Your role<select data-k="role"><option value="">Choose one</option>${['Architect', 'Urban planner', 'Urban designer', 'Academic', 'Other'].map(o => `<option${S.a.role === o ? ' selected' : ''}>${o}</option>`).join('')}</select></label>
       <label class="f">Years in practice<input type="number" min="0" max="60" data-k="years" value="${esc(S.a.years || '')}"></label>
@@ -1391,15 +1399,18 @@ document.fonts && document.fonts.ready.then(() => draw());
   bd.addEventListener('change', e => { const t = e.target; if (t.dataset.k) S.a[t.dataset.k] = t.value; if (t.type === 'radio') S.a[t.name] = t.value; if (t.dataset.c) S.a[t.dataset.c] = t.checked; save(); refreshNext(); });
   el.addEventListener('click', async e => { const b = e.target.closest('[data-rv]'); if (!b) return; const a = b.dataset.rv;
     if (a === 'min') { setOpen(false); return; }
-    if (a === 'tour') { if (typeof startTour === 'function') { setOpen(false); startTour(); } return; }
+    if (a === 'tour') { runTour(S.step); return; }
     if (a === 'back') { S.step = Math.max(0, S.step - 1); save(); render(); return; }
-    if (a === 'next') { S.step = Math.min(N - 1, S.step + 1); save(); render(); return; }
+    if (a === 'next') { if (S.step === 0 && !S.tourDone) { runTour(1); return; } S.step = Math.min(N - 1, S.step + 1); save(); render(); return; }
     if (a === 'send') { const st = bd.querySelector('.rv-st'); b.disabled = true; st.classList.remove('rv-err'); st.textContent = 'Sending…';
       const body = { _subject: `Pedestrian map review · ${S.a.role || 'reviewer'}${S.a.name ? ' · ' + S.a.name : ''}`, _template: 'box', _captcha: 'false', role: S.a.role || '', years: S.a.years || '', name: S.a.name || '', answers: summary(), data: JSON.stringify({ a: S.a, t: S.t, clicks: S.clicks, sus: susScore() }) };
       try { const r = await fetch(SEND_TO, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) }); const j = await r.json().catch(() => ({}));
         if (r.ok && String(j.success) === 'true') { S.sent = true; save(); render(); }
         else throw new Error(j.message || ('status ' + r.status)); }
       catch (err) { st.classList.add('rv-err'); st.textContent = 'Could not send just now. Open “See or copy your answers”, copy them, and email them to the student.'; b.disabled = false; } } });
+  let afterTour = null;
+  function runTour(next) { if (typeof startTour !== 'function') { S.step = next; save(); render(); return; } stopTimer(); afterTour = next; setOpen(false); startTour(); }
+  document.addEventListener('tourend', () => { if (afterTour == null) return; S.tourDone = true; S.step = afterTour; afterTour = null; save(); setOpen(true); render(); });
   tab.addEventListener('click', () => setOpen(true));
   render();
 })();

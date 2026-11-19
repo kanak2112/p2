@@ -98,7 +98,7 @@
     let h = '', canNext = true;
     if (s === 0) {
       h = `<h3>Thank you for reviewing this map</h3><p>This map of the footpath on Old Nagardas Road, Andheri East, was built from 34 phone walks along 220 m. You will answer one question, try six short tasks on the map, and then answer a few questions. The map is being tested, not you.</p>
-      <p class="rv-note">The map is on the left. Click Hide to see more of it; the Review tab brings this panel back.</p>
+      <p class="rv-note">When you press Start, a short tour shows what the map is for and how to read it. This panel then comes back with the tasks. Click Hide at any time to see more of the map; the Review tab brings the panel back.</p>
       <label class="rv-ok"><input type="checkbox" data-c="consent"${S.a.consent ? ' checked' : ''}> <span>I agree that my answers may be used in this M.Des project report and presentation, anonymously unless I allow my name below. My answers are sent by email to the student.</span></label>
       <label class="f">Your role<select data-k="role"><option value="">Choose one</option>${['Architect', 'Urban planner', 'Urban designer', 'Academic', 'Other'].map(o => `<option${S.a.role === o ? ' selected' : ''}>${o}</option>`).join('')}</select></label>
       <label class="f">Years in practice<input type="number" min="0" max="60" data-k="years" value="${esc(S.a.years || '')}"></label>
@@ -147,15 +147,18 @@
   bd.addEventListener('change', e => { const t = e.target; if (t.dataset.k) S.a[t.dataset.k] = t.value; if (t.type === 'radio') S.a[t.name] = t.value; if (t.dataset.c) S.a[t.dataset.c] = t.checked; save(); refreshNext(); });
   el.addEventListener('click', async e => { const b = e.target.closest('[data-rv]'); if (!b) return; const a = b.dataset.rv;
     if (a === 'min') { setOpen(false); return; }
-    if (a === 'tour') { if (typeof startTour === 'function') { setOpen(false); startTour(); } return; }
+    if (a === 'tour') { runTour(S.step); return; }
     if (a === 'back') { S.step = Math.max(0, S.step - 1); save(); render(); return; }
-    if (a === 'next') { S.step = Math.min(N - 1, S.step + 1); save(); render(); return; }
+    if (a === 'next') { if (S.step === 0 && !S.tourDone) { runTour(1); return; } S.step = Math.min(N - 1, S.step + 1); save(); render(); return; }
     if (a === 'send') { const st = bd.querySelector('.rv-st'); b.disabled = true; st.classList.remove('rv-err'); st.textContent = 'Sending…';
       const body = { _subject: `Pedestrian map review · ${S.a.role || 'reviewer'}${S.a.name ? ' · ' + S.a.name : ''}`, _template: 'box', _captcha: 'false', role: S.a.role || '', years: S.a.years || '', name: S.a.name || '', answers: summary(), data: JSON.stringify({ a: S.a, t: S.t, clicks: S.clicks, sus: susScore() }) };
       try { const r = await fetch(SEND_TO, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) }); const j = await r.json().catch(() => ({}));
         if (r.ok && String(j.success) === 'true') { S.sent = true; save(); render(); }
         else throw new Error(j.message || ('status ' + r.status)); }
       catch (err) { st.classList.add('rv-err'); st.textContent = 'Could not send just now. Open “See or copy your answers”, copy them, and email them to the student.'; b.disabled = false; } } });
+  let afterTour = null;
+  function runTour(next) { if (typeof startTour !== 'function') { S.step = next; save(); render(); return; } stopTimer(); afterTour = next; setOpen(false); startTour(); }
+  document.addEventListener('tourend', () => { if (afterTour == null) return; S.tourDone = true; S.step = afterTour; afterTour = null; save(); setOpen(true); render(); });
   tab.addEventListener('click', () => setOpen(true));
   render();
 })();
