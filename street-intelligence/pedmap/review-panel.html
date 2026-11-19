@@ -256,8 +256,8 @@
     if (a === 'send') { const st = bd.querySelector('.rv-st'); b.disabled = true; st.classList.remove('rv-err'); st.textContent = 'Sending…';
       const body = { _subject: `Pedestrian map review · ${S.a.role || 'reviewer'}${S.a.name ? ' · ' + S.a.name : ''}`, _template: 'box', _captcha: 'false', role: S.a.role || '', years: S.a.years || '', name: S.a.name || '', answers: summary(), data: JSON.stringify({ a: S.a, t: S.t, clicks: S.clicks, fam: S.fam, guideSkips: S.gSkipped || 0, umux: umux() }) };
       try { const r = await fetch(SEND_TO, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) }); const j = await r.json().catch(() => ({}));
-        if (r.ok && String(j.success) === 'true') { S.sent = true; save(); render(); } else throw new Error(j.message || ('status ' + r.status)); }
-      catch (err) { st.classList.add('rv-err'); st.textContent = 'Could not send just now. Open “See or copy your answers”, copy them, and email them to Kanak.'; b.disabled = false; } } });
+        if (r.ok && String(j.success) === 'true') { S.sent = true; save(); render(); } else throw new Error(j.message || ('server answered ' + r.status)); }
+      catch (err) { const m = String(err && err.message || ''); st.classList.add('rv-err'); st.textContent = (/activat/i.test(m) ? 'Not delivered yet: the form is waiting for Kanak to activate it. ' : 'Could not send' + (m ? ' (' + m.slice(0, 160) + ')' : '') + '. ') + 'Open “See or copy your answers”, copy them, and email them to Kanak.'; b.disabled = false; } } });
   tab.addEventListener('click', () => { S.userHid = false; setOpen(true); });
   if (S.phase === 'welcome' || S.phase === 'expect') { wl.hidden = false; renderWelcome(); }
   else if (S.phase === 'tour') runTour();
