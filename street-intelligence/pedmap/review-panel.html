@@ -120,7 +120,12 @@
     stripOff = true; renderLayers(); if (typeof renderKey === 'function') renderKey(); draw(); } catch (e) {} lastMode = state.mode; lastNight = state.night; }
   const N = 11; // 0 familiarise, 1..6 situations, 7 statements, 8 UMUX, 9 practice, 10 send
   let S = { phase: 'welcome', step: 0, a: {}, t: {}, clicks: {}, g: {}, fam: {}, sent: false };
-  try { const v = JSON.parse(localStorage.getItem(KEY) || 'null'); if (v && typeof v === 'object') S = Object.assign(S, v); } catch (e) {}
+  // a reload starts a fresh review; an unfinished one can be resumed from the welcome screen
+  let saved = null;
+  const RKEY = KEY + '-resume';
+  try { const v = JSON.parse(localStorage.getItem(KEY) || 'null'); if (v && typeof v === 'object' && !v.sent && (v.phase === 'panel' || v.phase === 'tour')) { saved = v; localStorage.setItem(RKEY, JSON.stringify(v)); } else { const r = JSON.parse(localStorage.getItem(RKEY) || 'null'); if (r && typeof r === 'object') saved = r; } localStorage.removeItem(KEY); } catch (e) {}
+  const dropResume = () => { saved = null; try { localStorage.removeItem(RKEY); } catch (e) {} };
+  const FRESH = JSON.stringify(S);
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const scale = (name, n, lo, hi) => `<div class="rv-sc" style="--n:${n}" role="radiogroup">${Array.from({ length: n }, (_, i) => `<label><input type="radio" name="${name}" value="${i + 1}"${S.a[name] == i + 1 ? ' checked' : ''}><span>${i + 1}</span></label>`).join('')}</div><div class="rv-ends"><span>${lo}</span><span>${hi}</span></div>`;
@@ -151,7 +156,7 @@
           <label class="f">Name (optional)<input type="text" data-w="name" value="${esc(A.name || '')}"></label>
           <label class="f">May I name you in the report?<select data-w="nameok">${['No, keep me anonymous', 'Yes, in the acknowledgements'].map(o => `<option${A.nameok === o ? ' selected' : ''}>${o}</option>`).join('')}</select></label></div>
           <label class="ok"><input type="checkbox" data-wc="consent"${A.consent ? ' checked' : ''}> <span>I have read the above and agree to take part.</span></label></div>
-        <div class="ft"><span class="mut" style="font-size:13px;flex:1">Best on a laptop, in a full browser window.</span><button class="rv-b p" data-w-go="expect" type="button"${ok ? '' : ' disabled'}>Continue</button></div></div>`;
+        <div class="ft"><span class="mut" style="font-size:13px;flex:1">Best on a laptop, in a full browser window.</span>${saved ? '<button class="rv-b g" data-w-go="resume" type="button">Continue where you left off</button>' : ''}<button class="rv-b p" data-w-go="expect" type="button"${ok ? '' : ' disabled'}>Start</button></div></div>`;
     } else {
       const ok = A.expect && A.expectBlock;
       wl.innerHTML = `<div class="box"><div class="top"><span class="eb">Before you see the map</span><h2>What do you expect?</h2><p class="mut">Answer from experience.</p></div>
@@ -164,7 +169,8 @@
   const wlSet = e => { const t = e.target; if (t.dataset.w) S.a[t.dataset.w] = t.value; if (t.dataset.wc) S.a[t.dataset.wc] = t.checked; if (t.type === 'radio') S.a[t.name] = t.value; save(); wlUpdate(); };
   wl.addEventListener('input', wlSet); wl.addEventListener('change', wlSet);
   wl.addEventListener('click', e => { const b = e.target.closest('[data-w-go]'); if (!b || b.disabled) return; const g = b.dataset.wGo;
-    if (g === 'tour') { wl.hidden = true; S.phase = 'tour'; save(); runTour(); return; }
+    if (g === 'resume') { S = Object.assign(JSON.parse(FRESH), saved); dropResume(); save(); wl.hidden = true; if (S.phase === 'tour') runTour(); else { setOpen(true); enterStep(S.step); } return; }
+    if (g === 'tour') { wl.hidden = true; S.phase = 'tour'; dropResume(); save(); runTour(); return; }
     S.phase = g; save(); renderWelcome(); });
   function runTour() { reset(); setOpen(false); tab.hidden = true; if (typeof startTour === 'function') startTour(); else afterTour(); }
   function afterTour() { S.phase = 'panel'; save(); setOpen(true); enterStep(0); }
@@ -249,7 +255,7 @@
   el.addEventListener('click', async e => { const b = e.target.closest('[data-rv]'); if (!b) return; const a = b.dataset.rv;
     if (a === 'min') { S.userHid = true; setOpen(false); return; }
     if (a === 'show') { const i = +b.dataset.i; famShow = famShow === i ? null : i; if (famShow != null && phoneW()) { S.userHid = true; setOpen(false); } render(); return; }
-    if (a === 'restart') { try { localStorage.removeItem(KEY); localStorage.removeItem('pedmap-plan'); } catch (e) {} location.reload(); return; }
+    if (a === 'restart') { try { localStorage.removeItem(KEY); localStorage.removeItem(RKEY); localStorage.removeItem('pedmap-plan'); } catch (e) {} location.reload(); return; }
     if (a === 'famskip') { S.famSkip = true; save(); render(); return; }
     if (a === 'gskip') { const x = sit(); S.g[x.k] = (S.g[x.k] || 0) + 1; S.gSkipped = (S.gSkipped || 0) + 1; save(); const pre = x.guide[S.g[x.k]] && x.guide[S.g[x.k]][3]; if (pre) pre(); return; }
     if (a === 'back') { enterStep(Math.max(0, S.step - 1)); return; }
@@ -260,8 +266,6 @@
         if (r.ok && String(j.success) === 'true') { S.sent = true; save(); render(); } else throw new Error(j.message || ('server answered ' + r.status)); }
       catch (err) { const m = String(err && err.message || ''); st.classList.add('rv-err'); st.textContent = (/activat/i.test(m) ? 'Not delivered yet: the form is waiting for Kanak to activate it. ' : 'Could not send' + (m ? ' (' + m.slice(0, 160) + ')' : '') + '. ') + 'Open “See or copy your answers”, copy them, and email them to Kanak.'; b.disabled = false; } } });
   tab.addEventListener('click', () => { S.userHid = false; setOpen(true); });
-  if (S.phase === 'welcome' || S.phase === 'expect') { wl.hidden = false; renderWelcome(); }
-  else if (S.phase === 'tour') runTour();
-  else { setOpen(true); enterStep(S.step); }
+  wl.hidden = false; renderWelcome();
 })();
 </script>
