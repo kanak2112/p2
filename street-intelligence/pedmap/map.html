@@ -1052,18 +1052,18 @@ $('tl').addEventListener('input', e => { if (e.target.type !== 'range') return; 
 /* ---------- first-run tour: what the map is and how to use it ---------- */
 const tourHome = () => { if (state.mode !== 'walk') setMode('walk'); if (state.night) toggleNight(false); if (state.view !== 'home') setView('home'); };
 const TOUR = [
-  [null, 'What this map is for', `Most maps draw footpaths as if they were free to walk. On this street they are not. This map shows how much room is really left to walk on 220 m of Old Nagardas Road, Andheri East, measured from ${NW} phone walks, by day and at night. Use it to plan a walk, check a wheelchair route, prove that a stretch is blocked again and again, or test a fix.`, tourHome],
-  ['#map', 'How to read the footpath', 'The footpath is drawn about three times wider than real, so it can be read. White is the room left to walk. Black is what takes it: stalls, parked vehicles, poles, buildings. Hatching means not measured, as inside the underpass. The other side of the road has not been walked yet.', tourHome],
-  ['#mkey', 'The line along the kerb', 'Teal: 1.5 m or more clear, the BMC minimum. Amber: 0.9 to 1.5 m, tight. Red: under 0.9 m, where people step into the road. The key lists only what is on the map.', tourHome],
-  ['.sheet .strip', 'The street as a strip', 'Each block is 10 m, from R.K. Chouhan Communications (A, 0 m) to Amratlal G. Vasani (B, 220 m), coloured by clear width. Tap a block to open that stretch.', tourHome],
-  ['.sheet .list', 'Where it is hard, worst first', 'The list ranks the stretches for the question you are asking, with how many walks were blocked there. Tap a row to open it.', tourHome],
-  ['.sheet', 'One stretch, up close', 'A stretch shows its clear width, how often it was blocked, what blocks it, the photos and the light at night. From here you can get directions, open Street View, report a problem or plan a change.', () => { tourHome(); openPlace(8, true); }],
-  ['#chips', 'Four uses of one map', 'Walking finds where it is hard to walk. Wheelchair & pram checks whether 0.9 m is left. Evidence shows how often a stretch is blocked and who must act. Plan a change tests a fix before it is built.', tourHome],
-  ['#layB', 'Choose what to show', 'Turn on or off the things in the way, the clear width, people side by side, the photos, horns and swerves, and the labels.', tourHome],
-  ['#tools', 'Night, satellite and Street View', 'The moon shows the footpath after dark and how lit each part is. The globe switches to satellite. The person opens the walk photos, like Street View. 2D and 3D, zoom and the compass are below.', tourHome],
-  ['#dirB', 'Directions, in walking terms', 'Type a start and an end. The route lights up the footpath itself and warns where it is tight, where you step into the road and what is not measured.', tourHome],
-  ['#tl', 'Every walk, one by one', `In Evidence, this timeline runs through all ${NW} walks. Step through it to see the footpath on one day, or leave it on All for the usual picture.`, () => { tourHome(); setMode('proof'); }],
-  [null, 'Now explore', 'Click anything: the photos beside the footpath, a stretch, a use. You can open this tour again from the menu.', tourHome]];
+  [null, 'What this map shows', `Room left to walk on 220 m of Old Nagardas Road, Andheri East, measured from ${NW} walks, by day and night.`, tourHome],
+  ['#map', 'Reading the footpath', 'Drawn three times wider than real. White: room to walk. Black: what takes it. Hatched: not measured.', tourHome],
+  ['#mkey', 'Kerb line', 'Teal: 1.5 m or more, the BMC minimum. Amber: 0.9 to 1.5 m. Red: under 0.9 m.', tourHome],
+  ['.sheet .strip', 'Along the street', 'One block per 10 m, from A (0 m) to B (220 m). Tap a block to open it.', tourHome],
+  ['.sheet .list', 'Ranked stretches', 'Hardest first, with how many walks were blocked.', tourHome],
+  ['.sheet', 'One stretch', 'Clear width, walks blocked, causes, photos and night light.', () => { tourHome(); openPlace(8, true); }],
+  ['#chips', 'Four uses', 'Walking, Wheelchair & pram, Evidence, Plan a change: one street, four questions.', tourHome],
+  ['#layB', 'Layers', 'Show or hide obstacles, width, people, photos, horns and labels.', tourHome],
+  ['#tools', 'Map tools', 'Night, satellite, Street View, 2D or 3D, zoom.', tourHome],
+  ['#dirB', 'Directions', 'Routes along the footpath, with warnings where it narrows.', tourHome],
+  ['#tl', 'Walks timeline', `In Evidence: each of the ${NW} walks, or all combined.`, () => { tourHome(); setMode('proof'); }],
+  [null, 'Explore', 'The tour can be reopened from the menu.', tourHome]];
 let tourI = -1;
 function startTour() { tourI = 0; let t = $('tour'); if (!t) { t = document.createElement('div'); t.id = 'tour'; t.className = 'tour'; t.setAttribute('role', 'dialog'); t.setAttribute('aria-modal', 'true'); document.body.appendChild(t);
     t.addEventListener('click', e => { const b = e.target.closest('[data-tour]'); if (!b) return; const a = b.dataset.tour; if (a === 'skip' || (a === 'next' && tourI === TOUR.length - 1)) return endTour(); tourI = clamp(tourI + (a === 'next' ? 1 : -1), 0, TOUR.length - 1); renderTour(); }); }

@@ -76,45 +76,39 @@
 (() => {
   if (!new URLSearchParams(location.search).has('review')) return;
   const SEND_TO = 'https://formsubmit.co/ajax/kanakkothawale9@gmail.com';
-  const KEY = 'pedmap-review-v5';
+  const KEY = 'pedmap-review-v6';
   const phoneW = () => innerWidth <= 860;
   const reset = () => { try { if (state.mode !== 'walk') setMode('walk'); if (state.night) toggleNight(false); if (state.sv) closeSV(); if (state.view !== 'home') setView('home'); fly(fitBox(), 600); } catch (e) {} };
   const near = (a, b) => () => { try { fly(rangeBox(a, b), 700); } catch (e) {} };
   const viewIs = v => state.view === v;
-  const DONE = ['I found an answer', 'Partly', 'I could not tell'];
+  const DONE = ['Yes', 'Partly', 'No'];
   const SIT = [
-    { k: 'a', t: 'Fix one stretch first', who: '“We have money to fix one stretch of this footpath this year. Which one should it be?” asks the ward office.',
-      q: 'Which stretch would you fix first, and what on the map makes the case?', prompt: 'Your choice, and the evidence for it', prep: reset,
-      guide: [['[data-m="proof"]', 'Click Evidence, at the top of the map.', () => state.mode === 'proof'],
-              ['.sheet .list .row', 'Click the first stretch in the list: the most often blocked.', () => viewIs('place')]] },
-    { k: 'b', t: 'A pram every morning', who: 'Meera pushes her daughter’s pram from Amratlal G. Vasani to the shops at R.K. Chouhan Communications every morning.',
-      q: 'Where on this walk would Meera struggle, or have to step off the footpath?', prompt: 'Where, and what told you', prep: reset,
-      guide: [['#dirB', 'Click Directions, the blue arrow in the search bar.', () => viewIs('dirs')],
-              ['[data-prof="access"]', 'Choose the wheelchair tab at the top of the directions.', () => state.prof === 'access']] },
-    { k: 'c', t: 'Permanent, or comes and goes?', who: 'A shopkeeper at the green bins says: “The footpath here is fine. It only gets crowded sometimes.”',
-      q: 'Is the shopkeeper right? Is 80–90 m blocked by something fixed, or by things that come and go?', prompt: 'Your answer, and how you could tell', prep: reset,
+    { k: 'a', t: 'Priority', who: 'The ward can fix one stretch this year.', q: 'Which stretch would you fix first? Why?', prompt: 'Stretch and reason', prep: reset,
       guide: [['[data-m="proof"]', 'Click Evidence.', () => state.mode === 'proof'],
-              ['.sheet .list .row[data-go="8"]', 'Click Green bins, 80–90 m.', () => viewIs('place') && state.sel === 8, near(60, 110)],
-              ['[data-tl="-1"]', 'Step back through the walks a few times with this button. Watch the width and the photos change.', () => typeof tlIdx === 'function' && tlIdx() <= TLP.length - 4]] },
-    { k: 'd', t: 'Walking home after dark', who: 'Riya walks home from the station after 9 pm, from Amratlal G. Vasani towards R.K. Chouhan Communications.',
-      q: 'Which stretch would you warn Riya about, and why?', prompt: 'Which stretch, and why', prep: reset,
-      guide: [['#ntB', 'Turn on Night: the moon beside the map.', () => state.night],
-              ['.sheet .list .row', 'Click the darkest stretch in the list.', () => viewIs('place')]] },
-    { k: 'e', t: 'Clearing the stalls', who: 'The ward plans a drive to clear stalls from this footpath, to fix the pinch at the green bins.',
-      q: 'Will clearing the stalls make 80–90 m meet the BMC minimum of 1.5 m? If not, what would?', prompt: 'What you found', prep: () => { reset(); try { if (state.plan) { state.plan.items = []; savePlan(); } } catch (e) {} },
+              ['.sheet .list .row', 'Open the top stretch.', () => viewIs('place')]] },
+    { k: 'b', t: 'Pram route', who: 'A parent with a pram walks from Amratlal G. Vasani to R.K. Chouhan Communications.', q: 'Where would they struggle?', prompt: 'Where, and the evidence', prep: reset,
+      guide: [['#dirB', 'Click Directions.', () => viewIs('dirs')],
+              ['[data-prof="access"]', 'Select the wheelchair tab.', () => state.prof === 'access']] },
+    { k: 'c', t: 'Fixed or changing', who: 'A shopkeeper at the green bins: “It only gets crowded sometimes.”', q: 'Is 80–90 m blocked by fixed objects or by things that change?', prompt: 'Answer and evidence', prep: reset,
+      guide: [['[data-m="proof"]', 'Click Evidence.', () => state.mode === 'proof'],
+              ['.sheet .list .row[data-go="8"]', 'Open Green bins, 80–90 m.', () => viewIs('place') && state.sel === 8, near(60, 110)],
+              ['[data-tl="-1"]', 'Step back through the walks.', () => typeof tlIdx === 'function' && tlIdx() <= TLP.length - 4]] },
+    { k: 'd', t: 'After dark', who: 'Someone walks home at 9 pm from Amratlal G. Vasani.', q: 'Which stretch is of most concern? Why?', prompt: 'Stretch and reason', prep: reset,
+      guide: [['#ntB', 'Turn on Night.', () => state.night],
+              ['.sheet .list .row', 'Open the darkest stretch.', () => viewIs('place')]] },
+    { k: 'e', t: 'Clearing stalls', who: 'The ward plans to clear stalls from this footpath.', q: 'Would 80–90 m then meet 1.5 m? If not, what would?', prompt: 'What you found', prep: () => { reset(); try { if (state.plan) { state.plan.items = []; savePlan(); } } catch (e) {} },
       guide: [['[data-m="plan"]', 'Click Plan a change.', () => state.mode === 'plan'],
-              ['[data-ptile="vend"]', 'Drag “Vending zone off the footpath” onto the green bins, 80–90 m, and read its verdict.', () => state.plan && state.plan.items.some(it => it.t === 'vend'), near(55, 115)],
-              ['[data-ptile="widen"]', 'Now drag “Widen the footpath by 1 m” onto the same place.', () => state.plan && state.plan.items.some(it => it.t === 'widen')]] },
-    { k: 'f', t: 'Check the evidence', who: 'Before the ward relies on this map, someone has to check that it is right.',
-      q: 'Does the width the map gives for this stretch match what you see in the photos?', prompt: 'Which stretch, and what you saw', choice: ['Matches', 'Partly', 'Does not match'], choiceQ: 'Does the width match the photos?', prep: reset,
-      guide: [['.sheet .list .row', 'Click any stretch in the list.', () => viewIs('place')],
-              ['#svB', 'Open Street View, the person icon beside the map, and look at the photos.', () => !!state.sv]] }];
-  const FAM = [['Open a photo beside the footpath', () => !!state.sv], ['Tap a 10 m block in the strip on the left', () => viewIs('place')], ['Switch to another use at the top', () => state.mode !== 'walk'], ['Turn Night on', () => state.night]];
+              ['[data-ptile="vend"]', 'Drag “Vending zone off the footpath” onto 80–90 m.', () => state.plan && state.plan.items.some(it => it.t === 'vend'), near(55, 115)],
+              ['[data-ptile="widen"]', 'Drag “Widen the footpath by 1 m” onto 80–90 m.', () => state.plan && state.plan.items.some(it => it.t === 'widen')]] },
+    { k: 'f', t: 'Verify', who: 'The map should match what the photos show.', q: 'Does the stated width match the photos?', prompt: 'Stretch and observation', choice: ['Matches', 'Partly', 'Does not match'], choiceQ: 'Match?', prep: reset,
+      guide: [['.sheet .list .row', 'Open any stretch.', () => viewIs('place')],
+              ['#svB', 'Open Street View.', () => !!state.sv]] }];
+  const FAM = [['Open a photo', () => !!state.sv], ['Open a 10 m stretch', () => viewIs('place')], ['Switch use', () => state.mode !== 'walk'], ['Turn on Night', () => state.night]];
   const EXPECT_SHARE = ['Under 25%', '25–50%', '50–75%', '75–100%'];
   const EXPECT_BLOCK = ['Parked vehicles', 'Stalls and people', 'Poles, bins and barriers', 'Trees and planters'];
-  const STMTS = ['I could tell how much room is left to walk on each stretch.', 'I could tell what blocks the footpath, and whether it is permanent or comes and goes.', 'Repeated walks with photos are convincing enough to raise with a ward office.', 'The map shows something that ward maps, audits or Google Maps do not.', 'I trust how the widths were measured.', 'I could use this map to decide what to fix first.', 'The verdicts in Plan a change are believable.'];
+  const STMTS = ['Room to walk on each stretch is clear.', 'What blocks the footpath, and whether it persists, is clear.', 'The evidence would hold up with a ward office.', 'The map shows what ward maps, audits or Google Maps do not.', 'The width measurement is credible.', 'The map helps decide what to fix first.', 'The Plan a change verdicts are credible.'];
   const UMUX = ['This map’s capabilities meet my requirements.', 'This map is easy to use.'];
-  const OPEN = [['first', 'If you had this map for your own work, what would you use it for first?'], ['ward', 'What would a ward office need to see before acting on it? What is missing?'], ['change', 'What would you remove or change?'], ['surprise', 'What did the map show you that surprised you, compared with what you expected at the start?']];
+  const OPEN = [['first', 'What would you use it for first in your work?'], ['ward', 'What would a ward office need before acting?'], ['change', 'What would you remove or change?'], ['surprise', 'What differed from your expectation?']];
   const N = 11; // 0 familiarise, 1..6 situations, 7 statements, 8 UMUX, 9 practice, 10 send
   let S = { phase: 'welcome', step: 0, a: {}, t: {}, clicks: {}, g: {}, fam: {}, sent: false };
   try { const v = JSON.parse(localStorage.getItem(KEY) || 'null'); if (v && typeof v === 'object') S = Object.assign(S, v); } catch (e) {}
@@ -140,7 +134,7 @@
       const ok = A.consent && A.role;
       wl.innerHTML = `<div class="box"><div class="top"><span class="eb">M.Des Project 2 · IDC School of Design, IIT Bombay</span><h2>Help test a map of how people really walk</h2>
         <p>I am Kanak Kothawale (M.Des Interaction Design, guided by Prof. Jayesh Pillai). This map shows how much room is really left to walk on a 220 m footpath in Andheri East, measured from 34 walks.</p>
-        <p class="mut">Is it truthful, and useful for planning? I would value your judgement.</p></div>
+        <p class="mut">I would like your judgement on its accuracy and its use in planning.</p></div>
         <div class="cols"><div class="card"><h4>What you will do, about 30 minutes</h4><ol><li>Two quick questions</li><li>A short tour</li><li>Six situations on the map</li><li>Your view</li></ol></div>
         <div class="card"><h4>How your answers are used</h4><p>Voluntary, and you can stop at any time. Answers reach me by email when you press Send, for my report only. You stay anonymous unless you allow your name.</p></div></div>
         <div class="form"><div class="grid"><label class="f">Your role<select data-w="role"><option value="">Choose one</option>${['Architect', 'Urban planner', 'Urban designer', 'Academic', 'Other'].map(o => `<option${A.role === o ? ' selected' : ''}>${o}</option>`).join('')}</select></label>
@@ -151,9 +145,9 @@
         <div class="ft"><span class="mut" style="font-size:13px;flex:1">Best on a laptop, in a full browser window.</span><button class="rv-b p" data-w-go="expect" type="button"${ok ? '' : ' disabled'}>Continue</button></div></div>`;
     } else {
       const ok = A.expect && A.expectBlock;
-      wl.innerHTML = `<div class="box"><div class="top"><span class="eb">Before you see the map</span><h2>What do you expect?</h2><p class="mut">Answer from your experience of Mumbai streets. Later, you will compare this with what the walks recorded.</p></div>
-        <div class="form"><div style="display:grid;gap:8px"><span class="rv-lbl">How much of this 220 m footpath do you expect meets the BMC minimum of 1.5 m clear to walk?</span>${chips('expect', EXPECT_SHARE)}</div>
-          <div style="display:grid;gap:8px"><span class="rv-lbl">What do you expect takes up most of the footpath here?</span>${chips('expectBlock', EXPECT_BLOCK)}</div></div>
+      wl.innerHTML = `<div class="box"><div class="top"><span class="eb">Before you see the map</span><h2>What do you expect?</h2><p class="mut">Answer from experience.</p></div>
+        <div class="form"><div style="display:grid;gap:8px"><span class="rv-lbl">Share of this footpath meeting the BMC minimum (1.5 m clear):</span>${chips('expect', EXPECT_SHARE)}</div>
+          <div style="display:grid;gap:8px"><span class="rv-lbl">Main obstruction:</span>${chips('expectBlock', EXPECT_BLOCK)}</div></div>
         <div class="ft"><button class="rv-b g" data-w-go="welcome" type="button">Back</button><span style="flex:1"></span><button class="rv-b p" data-w-go="tour" type="button"${ok ? '' : ' disabled'}>Start the tour</button></div></div>`;
     }
   }
@@ -198,25 +192,25 @@
     el.querySelector('.rv-step').textContent = s === 0 ? 'Get familiar' : s <= 6 ? `Situation ${s} of 6` : s === 7 ? 'Your judgement' : s === 8 ? 'Ease of use' : s === 9 ? 'In your practice' : 'Send';
     let h = '';
     if (s === 0) {
-      h = `<h3>Get familiar with the map</h3><p>Take two minutes to look around. Try these, in any order. They tick off as you do them.</p>
+      h = `<h3>Get familiar</h3><p>Two minutes. Try each, in any order.</p>
       <ul class="rv-guide">${FAM.map(([t], i) => `<li class="${S.fam[i] ? 'ok' : ''}">${t}</li>`).join('')}</ul>
-      <p class="rv-note">The tour can be opened again from the menu at the top left.</p>${S.famSkip ? '' : '<button class="rv-skip" data-rv="famskip" type="button">I have looked around enough</button>'}`;
+      ${S.famSkip ? '' : '<button class="rv-skip" data-rv="famskip" type="button">Continue without these</button>'}`;
     } else if (s <= 6) {
       const x = SIT[s - 1], gi = guideAt(), done = guideDone();
       h = `<div class="rv-task"><span class="k">Situation ${x.k}</span><b>${x.t}</b><p class="who">${x.who}</p></div>
-      <div class="rv-q first"><span class="rv-lbl">${done ? 'Done. Now the question.' : 'First, on the map, click what is highlighted:'}</span><ol class="rv-guide">${x.guide.map(([, t], i) => `<li class="${i < gi ? 'ok' : i === gi ? 'now' : ''}">${t}</li>`).join('')}</ol>${done ? '' : '<button class="rv-skip" data-rv="gskip" type="button">Skip this step</button>'}</div>`;
-      if (done) h += `<div class="rv-q"><b>${x.q}</b><p class="rv-note">Explore as much as you need. Time on this situation: <span class="rv-timer">0:00</span></p></div>
+      <div class="rv-q first"><span class="rv-lbl">${done ? 'Done.' : 'On the map, click the highlight:'}</span><ol class="rv-guide">${x.guide.map(([, t], i) => `<li class="${i < gi ? 'ok' : i === gi ? 'now' : ''}">${t}</li>`).join('')}</ol>${done ? '' : '<button class="rv-skip" data-rv="gskip" type="button">Skip this step</button>'}</div>`;
+      if (done) h += `<div class="rv-q"><b>${x.q}</b><p class="rv-note">Explore as needed. <span class="rv-timer">0:00</span></p></div>
       ${ta('note' + x.k, x.prompt)}
-      <div class="rv-q"><span class="rv-lbl">${x.choiceQ || 'Could you find an answer on the map?'}</span>${chips('done' + x.k, x.choice || DONE)}</div>
-      <div class="rv-q"><span class="rv-lbl">How easy was it?</span>${scale('seq' + x.k, 7, '1 very hard', '7 very easy')}</div>`;
+      <div class="rv-q"><span class="rv-lbl">${x.choiceQ || 'Answer found on the map?'}</span>${chips('done' + x.k, x.choice || DONE)}</div>
+      <div class="rv-q"><span class="rv-lbl">Ease</span>${scale('seq' + x.k, 7, '1 very hard', '7 very easy')}</div>`;
     } else if (s === 7) {
-      h = `<h3>Your judgement as a practitioner</h3><p class="rv-note">1 strongly disagree · 5 strongly agree</p>` + STMTS.map((q, i) => `<div class="rv-q${i ? '' : ' first'}"><span>${i + 1}. ${q}</span>${scale('st' + i, 5, 'Disagree', 'Agree')}</div>`).join('');
+      h = `<h3>Your judgement</h3><p class="rv-note">1 strongly disagree · 5 strongly agree</p>` + STMTS.map((q, i) => `<div class="rv-q${i ? '' : ' first'}"><span>${i + 1}. ${q}</span>${scale('st' + i, 5, 'Disagree', 'Agree')}</div>`).join('');
     } else if (s === 8) {
-      h = `<h3>Ease of use</h3><p class="rv-note">Two statements. 1 strongly disagree · 7 strongly agree</p>` + UMUX.map((q, i) => `<div class="rv-q${i ? '' : ' first'}"><span>${q}</span>${scale('ux' + i, 7, 'Disagree', 'Agree')}</div>`).join('');
+      h = `<h3>Ease of use</h3><p class="rv-note">1 strongly disagree · 7 strongly agree</p>` + UMUX.map((q, i) => `<div class="rv-q${i ? '' : ' first'}"><span>${q}</span>${scale('ux' + i, 7, 'Disagree', 'Agree')}</div>`).join('');
     } else if (s === 9) {
-      h = `<h3>In your practice</h3><p class="rv-note">At the start you expected ${esc(S.a.expect || 'some')} of the footpath to meet 1.5 m, and ${esc((S.a.expectBlock || 'something').toLowerCase())} to take most of it.</p>` + OPEN.map(([k, q]) => ta('open' + k, q)).join('');
+      h = `<h3>In your practice</h3><p class="rv-note">You expected ${esc(S.a.expect || '-')} to meet 1.5 m, and ${esc((S.a.expectBlock || '-').toLowerCase())} as the main obstruction.</p>` + OPEN.map(([k, q]) => ta('open' + k, q)).join('');
     } else {
-      h = `<h3>${S.sent ? 'Sent. Thank you.' : 'Send your answers'}</h3><p>${S.sent ? 'Your answers have reached Kanak. You can close this page.' : 'Press Send. Your answers go straight to Kanak by email.'}</p><div class="rv-st" role="status"></div>
+      h = `<h3>${S.sent ? 'Sent. Thank you.' : 'Send your answers'}</h3><p>${S.sent ? 'Received. You can close this page.' : 'Answers go to Kanak by email.'}</p><div class="rv-st" role="status"></div>
       <details><summary class="rv-note">See or copy your answers</summary><textarea class="rv-out" readonly>${esc(summary())}</textarea></details>`;
     }
     const keep = bd.scrollTop; bd.innerHTML = h; bd.scrollTop = s === lastStep ? keep : 0; lastStep = s;
