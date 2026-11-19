@@ -1052,7 +1052,7 @@ $('tl').addEventListener('input', e => { if (e.target.type !== 'range') return; 
 /* ---------- first-run tour: what the map is and how to use it ---------- */
 const tourHome = () => { if (state.mode !== 'walk') setMode('walk'); if (state.night) toggleNight(false); if (state.view !== 'home') setView('home'); };
 const TOUR = [
-  [null, 'What this map shows', `Room left to walk on 220 m of Old Nagardas Road, Andheri East, measured from ${NW} walks, by day and night.`, tourHome],
+  [null, 'What this map shows', `Room left to walk on 220 m of Old Nagardas Road, Andheri East, measured over ${new Set(walks.map(w => w.day)).size} days, by day and night.`, tourHome],
   ['#map', 'Reading the footpath', 'Drawn three times wider than real. White: room to walk. Black: what takes it. Hatched: not measured.', tourHome],
   ['#mkey', 'Kerb line', 'Teal: 1.5 m or more, the BMC minimum. Amber: 0.9 to 1.5 m. Red: under 0.9 m.', tourHome],
   ['.sheet .strip', 'Along the street', 'One block per 10 m, from A (0 m) to B (220 m). Tap a block to open it.', tourHome],
