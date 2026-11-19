@@ -44,13 +44,17 @@ def main():
     for name in ("data.js", "sat.jpg", "sat-nolabels.jpg", "sat-hi.jpg", "sat-hi-nolabels.jpg"):
         shutil.copy(os.path.join(LAB, name), OUT)
     shutil.copytree(os.path.join(LAB, "ph"), os.path.join(OUT, "ph"))
-    with open(os.path.join(HERE, "review", "form.html"), encoding="utf-8") as f:
-        form = f.read()
-    form = re.sub(r'href="https://claude\.ai/artifact/[^"]*"', 'href="../"', form)
-    form = re.sub(r'<meta name="claude:[^"]*"[^>]*>\s*', "", form)
-    assert "claude" not in form.lower(), "platform reference left in form"
+    # the review sidebar is part of the public map only; it opens with ?review=1
+    with open(os.path.join(PED, "review-panel.html"), encoding="utf-8") as f:
+        panel = f.read()
+    with open(os.path.join(OUT, "index.html"), encoding="utf-8") as f:
+        page = f.read()
+    assert page.count("</body>") == 1
+    with open(os.path.join(OUT, "index.html"), "w", encoding="utf-8") as f:
+        f.write(page.replace("</body>", panel + "\n</body>"))
     with open(os.path.join(OUT, "review", "index.html"), "w", encoding="utf-8") as f:
-        f.write(HEAD + form + "\n</body></html>\n")
+        f.write('<!doctype html><meta charset="utf-8"><title>Pedestrian Map Review</title>'
+                '<meta http-equiv="refresh" content="0; url=../?review=1"><a href="../?review=1">Open the review</a>\n')
     open(os.path.join(OUT, ".nojekyll"), "w").close()
     print("built", OUT)
 
