@@ -84,24 +84,24 @@
   const viewIs = v => state.view === v;
   const DONE = ['Yes', 'Partly', 'No'];
   const SIT = [
-    { k: 'a', t: 'Priority', who: 'The ward can fix one stretch this year.', q: 'Which stretch would you fix first? Why?', prompt: 'Stretch and reason', prep: reset,
+    { k: 'a', lay: { photos: 1, line: 1 }, t: 'Priority', who: 'The ward can fix one stretch this year.', q: 'Which stretch would you fix first? Why?', prompt: 'Stretch and reason', prep: reset,
       guide: [['[data-m="proof"]', 'Click Evidence.', () => state.mode === 'proof'],
               ['.sheet .list .row', 'Open the top stretch.', () => viewIs('place')]] },
-    { k: 'b', t: 'Pram route', who: 'A parent with a pram walks from Amratlal G. Vasani to R.K. Chouhan Communications.', q: 'Where would they struggle?', prompt: 'Where, and the evidence', prep: reset,
+    { k: 'b', lay: { photos: 0, line: 1 }, t: 'Pram route', who: 'A parent with a pram walks from Amratlal G. Vasani to R.K. Chouhan Communications.', q: 'Where would they struggle?', prompt: 'Where, and the evidence', prep: reset,
       guide: [['#dirB', 'Click Directions.', () => viewIs('dirs')],
               ['[data-prof="access"]', 'Select the wheelchair tab.', () => state.prof === 'access']] },
-    { k: 'c', t: 'Fixed or changing', who: 'A shopkeeper at the green bins: “It only gets crowded sometimes.”', q: 'Is 80–90 m blocked by fixed objects or by things that change?', prompt: 'Answer and evidence', prep: reset,
+    { k: 'c', lay: { photos: 1, line: 1 }, t: 'Fixed or changing', who: 'A shopkeeper at the green bins: “It only gets crowded sometimes.”', q: 'Is 80–90 m blocked by fixed objects or by things that change?', prompt: 'Answer and evidence', prep: reset,
       guide: [['[data-m="proof"]', 'Click Evidence.', () => state.mode === 'proof'],
               ['.sheet .list .row[data-go="8"]', 'Open Green bins, 80–90 m.', () => viewIs('place') && state.sel === 8, near(60, 110)],
               ['[data-tl="-1"]', 'Step back through the walks.', () => typeof tlIdx === 'function' && tlIdx() <= TLP.length - 4]] },
-    { k: 'd', t: 'After dark', who: 'Someone walks home at 9 pm from Amratlal G. Vasani.', q: 'Which stretch is of most concern? Why?', prompt: 'Stretch and reason', prep: reset,
+    { k: 'd', lay: { photos: 0, line: 1 }, t: 'After dark', who: 'Someone walks home at 9 pm from Amratlal G. Vasani.', q: 'Which stretch is of most concern? Why?', prompt: 'Stretch and reason', prep: reset,
       guide: [['#ntB', 'Turn on Night.', () => state.night],
               ['.sheet .list .row', 'Open the darkest stretch.', () => viewIs('place')]] },
-    { k: 'e', t: 'Clearing stalls', who: 'The ward plans to clear stalls from this footpath.', q: 'Would 80–90 m then meet 1.5 m? If not, what would?', prompt: 'What you found', prep: () => { reset(); try { if (state.plan) { state.plan.items = []; savePlan(); } } catch (e) {} },
+    { k: 'e', lay: { photos: 0, line: 1 }, t: 'Clearing stalls', who: 'The ward plans to clear stalls from this footpath.', q: 'Would 80–90 m then meet 1.5 m? If not, what would?', prompt: 'What you found', prep: () => { reset(); try { if (state.plan) { state.plan.items = []; savePlan(); } } catch (e) {} },
       guide: [['[data-m="plan"]', 'Click Plan a change.', () => state.mode === 'plan'],
               ['[data-ptile="vend"]', 'Drag “Vending zone off the footpath” onto 80–90 m.', () => state.plan && state.plan.items.some(it => it.t === 'vend'), near(55, 115)],
               ['[data-ptile="widen"]', 'Drag “Widen the footpath by 1 m” onto 80–90 m.', () => state.plan && state.plan.items.some(it => it.t === 'widen')]] },
-    { k: 'f', t: 'Verify', who: 'The map should match what the photos show.', q: 'Does the stated width match the photos?', prompt: 'Stretch and observation', choice: ['Matches', 'Partly', 'Does not match'], choiceQ: 'Match?', prep: reset,
+    { k: 'f', lay: { photos: 1, line: 1 }, t: 'Verify', who: 'The map should match what the photos show.', q: 'Does the stated width match the photos?', prompt: 'Stretch and observation', choice: ['Matches', 'Partly', 'Does not match'], choiceQ: 'Match?', prep: reset,
       guide: [['.sheet .list .row', 'Open any stretch.', () => viewIs('place')],
               ['#svB', 'Open Street View.', () => !!state.sv]] }];
   const photoEl = () => { const m = document.getElementById('map').getBoundingClientRect(), sh = document.querySelector('.sheet'), L = Math.max(m.left, !phoneW() && sh ? sh.getBoundingClientRect().right : 0) + 20, R = Math.min(m.right, innerWidth - (!phoneW() && !el.classList.contains('min') ? 400 : 0)) - 80; return [...document.querySelectorAll('#map image')].find(e => { const r = e.getBoundingClientRect(); return r.width > 12 && r.width < 160 && r.left > L && r.right < R && r.top > m.top + 70 && r.bottom < m.bottom - 120; }); };
@@ -113,6 +113,11 @@
   const STMTS = ['Room to walk on each stretch is clear.', 'What blocks the footpath, and whether it persists, is clear.', 'The evidence would hold up with a ward office.', 'The map shows what ward maps, audits or Google Maps do not.', 'The width measurement is credible.', 'The map helps decide what to fix first.', 'The Plan a change verdicts are credible.'];
   const UMUX = ['This map’s capabilities meet my requirements.', 'This map is easy to use.'];
   const OPEN = [['first', 'What would you use it for first in your work?'], ['ward', 'What would a ward office need before acting?'], ['change', 'What would you remove or change?'], ['surprise', 'What differed from your expectation?']];
+  // layers: only what the current situation needs; the Along the street panel stays closed
+  let lastMode = null, lastNight = null;
+  function applyLayers() { try { const x = sit(); const want = Object.assign({ walks: 0, prox: 0, noise: 0 }, S.step === 0 ? { photos: 1 } : x ? x.lay : {});
+    for (const [k, v] of Object.entries(want)) { if (v) state.layers[k] = v; else delete state.layers[k]; }
+    stripOff = true; renderLayers(); if (typeof renderKey === 'function') renderKey(); draw(); } catch (e) {} lastMode = state.mode; lastNight = state.night; }
   const N = 11; // 0 familiarise, 1..6 situations, 7 statements, 8 UMUX, 9 practice, 10 send
   let S = { phase: 'welcome', step: 0, a: {}, t: {}, clicks: {}, g: {}, fam: {}, sent: false };
   try { const v = JSON.parse(localStorage.getItem(KEY) || 'null'); if (v && typeof v === 'object') S = Object.assign(S, v); } catch (e) {}
@@ -226,9 +231,11 @@
   function enterStep(n) { S.step = n; save(); clearRing(); const x = sit();
     if (x && !(S.g[x.k] >= x.guide.length)) { S.g[x.k] = 0; save(); try { x.prep(); } catch (e) {} const pre = x.guide[0][3]; if (pre) setTimeout(pre, 650); }
     else if (n === 0) reset();
-    lastGi = guideAt(); if (phoneW() && !(x && !guideDone())) { S.userHid = false; setOpen(true); } render(); }
+    lastGi = guideAt(); if (phoneW() && !(x && !guideDone())) { S.userHid = false; setOpen(true); } render(); setTimeout(applyLayers, 700); }
   function tick() {
+    if (S.phase === 'tour' || S.phase === 'panel') { try { if (!stripOff) { stripOff = true; draw(); } } catch (e) {} }
     if (S.phase !== 'panel') return;
+    if (state.mode !== lastMode || state.night !== lastNight) applyLayers();
     if (S.step === 0) { let ch = false; FAM.forEach(([, f], i) => { try { if (!S.fam[i] && f()) { S.fam[i] = true; ch = true; } } catch (e) {} }); if (ch) { if (famShow != null && S.fam[famShow]) { famShow = null; if (phoneW()) { S.userHid = false; setOpen(true); } } save(); render(); } if (famShow != null && !S.fam[famShow]) placeRing(FAM[famShow][2], FAM[famShow][3]); else clearRing(); }
     const x = sit();
     if (x) { let gi = guideAt();
