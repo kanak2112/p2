@@ -50,18 +50,20 @@
 (() => {
   if (!new URLSearchParams(location.search).has('review')) return;
   const SEND_TO = 'https://formsubmit.co/ajax/kanakkothawale9@gmail.com';
-  const KEY = 'pedmap-review-v2';
+  const KEY = 'pedmap-review-v3';
+  const DONE = ['I found an answer', 'Partly', 'I could not tell'];
   const TASKS = [
-    ['a', 'Walking directions', 'Plan a walk from Amratlal G. Vasani to R.K. Chouhan Communications. Where would the walk be hard?'],
-    ['b', 'Wheelchair and pram', 'Could a wheelchair get through at 80–90 m, near the green bins?'],
-    ['c', 'Night', 'Which stretch would you avoid after dark, and why?'],
-    ['d', 'Evidence', 'Show that 80–90 m is often blocked, and say who should fix it.'],
-    ['e', 'Day to day', 'On which walk did 80–90 m have the most room?'],
-    ['f', 'Plan a change', 'Try to make 80–90 m meet the BMC minimum of 1.5 m by dragging changes onto it. What works?']];
-  const STMTS = ['I could tell how much room there was to walk at each point.', 'I could tell where I would have to step into the road.', 'I understood which parts of the footpath had not been measured.', 'What the map showed was believable for a street like this.', 'The photos helped me trust what the map showed.', 'After using the map, I would choose my route differently.'];
-  const SUS = ['I think that I would like to use this map frequently.', 'I found the map unnecessarily complex.', 'I thought the map was easy to use.', 'I think that I would need the support of a technical person to be able to use this map.', 'I found the various functions in this map were well integrated.', 'I thought there was too much inconsistency in this map.', 'I would imagine that most people would learn to use this map very quickly.', 'I found the map very cumbersome to use.', 'I felt very confident using the map.', 'I needed to learn a lot of things before I could get going with this map.'];
-  const OPEN = [['use', 'Would you use this map in your work? For what?'], ['missing', 'What is missing, or what would you change?'], ['trust', 'Would a ward office trust this as evidence? Why or why not?'], ['hard', 'What was the hardest part?'], ['useful', 'What was the most useful part?']];
-  // steps: 0 welcome, 1 expectation, 2..7 tasks, 8 statements, 9 SUS, 10 practice, 11 send
+    ['a', 'Fix one stretch first', 'Your ward can fix one stretch of this footpath this year. Which would you pick, and what on the map supports your choice?', DONE, 'Your choice, and why'],
+    ['b', 'A pram on this route', 'A parent pushes a pram from Amratlal G. Vasani to R.K. Chouhan Communications. Where would they struggle, or have to leave the footpath?', DONE, 'Where, and what told you'],
+    ['c', 'Permanent or passing?', 'At 80–90 m, near the green bins, is the footpath blocked by something permanent, or by things that come and go? How can you tell?', DONE, 'Your answer, and how you could tell'],
+    ['d', 'Walking home after dark', 'Someone walks home after dark from Amratlal G. Vasani. Which stretch would worry you, and why?', DONE, 'Which stretch, and why'],
+    ['e', 'Clearing the stalls', 'The ward proposes moving the stalls off this footpath. Would that make 80–90 m meet the BMC minimum of 1.5 m? If not, what would?', DONE, 'What you found'],
+    ['f', 'Check the evidence', 'Pick any stretch and look at its photos. Does the width the map gives match what you see?', ['Matches', 'Partly', 'Does not match'], 'Which stretch, and what you saw']];
+  const EXPECT_BLOCK = ['Parked vehicles', 'Stalls and people', 'Poles, bins and barriers', 'Trees and planters'];
+  const STMTS = ['I could tell how much room is left to walk on each stretch.', 'I could tell what blocks the footpath, and whether it is permanent or comes and goes.', 'Repeated walks with photos are convincing enough to raise with a ward office.', 'The map shows something that ward maps, audits or Google Maps do not.', 'I trust how the widths were measured.', 'I could use this map to decide what to fix first.', 'The verdicts in Plan a change are believable.'];
+  const UMUX = ['This map’s capabilities meet my requirements.', 'This map is easy to use.'];
+  const OPEN = [['first', 'If you had this map for your own work, what would you use it for first?'], ['ward', 'What would a ward office need to see before acting on it? What is missing?'], ['change', 'What would you remove or change?'], ['surprise', 'What did the map show you that surprised you?']];
+  // steps: 0 welcome, 1 expectation, 2..7 tasks, 8 statements, 9 UMUX-Lite, 10 practice, 11 send
   const N = 12;
   let S = { step: 0, a: {}, t: {}, clicks: {}, sent: false };
   try { const v = JSON.parse(localStorage.getItem(KEY) || 'null'); if (v && typeof v === 'object') S = Object.assign(S, v); } catch (e) {}
@@ -83,21 +85,21 @@
   const scale = (name, n, lo, hi) => `<div class="rv-sc" style="--n:${n}" role="radiogroup">${Array.from({ length: n }, (_, i) => `<label><input type="radio" name="${name}" value="${i + 1}"${S.a[name] == i + 1 ? ' checked' : ''}><span>${i + 1}</span></label>`).join('')}</div><div class="rv-ends"><span>${lo}</span><span>${hi}</span></div>`;
   const chips = (name, opts) => `<div class="rv-ch" role="radiogroup">${opts.map(v => `<label><input type="radio" name="${name}" value="${esc(v)}"${S.a[name] === v ? ' checked' : ''}>${esc(v)}</label>`).join('')}</div>`;
   const ta = (id, label) => `<label class="f">${label}<textarea data-k="${id}">${esc(S.a[id] || '')}</textarea></label>`;
-  const susScore = () => { const v = SUS.map((_, i) => +S.a['sus' + i]); if (v.some(x => !x)) return null; return v.reduce((s, x, i) => s + (i % 2 === 0 ? x - 1 : 5 - x), 0) * 2.5; };
+  const umux = () => { const v = UMUX.map((_, i) => +S.a['ux' + i]); if (v.some(x => !x)) return null; return Math.round((v[0] - 1 + v[1] - 1) / 12 * 100); };
   function summary() {
     const A = S.a, L = ['PEDESTRIAN MAP REVIEW', `Consent: ${A.consent ? 'Yes' : 'Not given'}`, `Role: ${A.role || '-'} · Years in practice: ${A.years || '-'}`, `Name: ${A.name || '-'} · Name in report: ${A.nameok || 'No'}`, '',
-      'BEFORE SEEING THE DATA', `Expected share of the 220 m meeting BMC 1.5 m: ${A.expect != null && A.expect !== '' ? A.expect + '%' : '-'}`, `Expected problem spots: ${A.expectWhere || '-'}`, '', 'TASKS (done · ease 1-7 · time · map clicks · notes)'];
+      'BEFORE SEEING THE DATA', `Expected share of the 220 m meeting BMC 1.5 m: ${A.expect != null && A.expect !== '' ? A.expect + '%' : '-'}`, `Expected main cause of blocking: ${A.expectBlock || '-'}`, '', 'TASKS (answer found · ease 1-7 · time · map clicks · answer)'];
     TASKS.forEach(([k, t]) => L.push(`${k}. ${t}: ${A['done' + k] || '-'} · ease ${A['seq' + k] || '-'} · ${S.t[k] != null ? S.t[k] + ' s' : '-'} · ${S.clicks[k] || 0} clicks · ${(A['note' + k] || '-').replace(/\s+/g, ' ')}`));
     L.push('', 'STATEMENTS (1-5)'); STMTS.forEach((s, i) => L.push(`${i + 1}. ${A['st' + i] || '-'}  ${s}`));
-    L.push('', 'SUS (1-5): ' + SUS.map((_, i) => A['sus' + i] || '-').join(' ')); const sc = susScore(); L.push('SUS score: ' + (sc == null ? 'incomplete' : sc));
+    L.push('', 'UMUX-LITE (1-7): ' + UMUX.map((q, i) => `${A['ux' + i] || '-'} ${q}`).join(' | ')); const sc = umux(); L.push('UMUX-Lite score (0-100): ' + (sc == null ? 'incomplete' : sc));
     L.push('', 'IN PRACTICE'); OPEN.forEach(([k, q]) => L.push(`${q} ${(A['open' + k] || '-').replace(/\s+/g, ' ')}`));
     return L.join('\n'); }
   function render() {
     const s = S.step; el.querySelector('.rv-bar i').style.width = (s / (N - 1) * 100) + '%';
-    el.querySelector('.rv-step').textContent = s === 0 ? 'About 30 minutes' : s <= 1 ? 'Before you look' : s <= 7 ? `Task ${s - 1} of 6` : s === 8 ? 'Six statements' : s === 9 ? 'Ease of use' : s === 10 ? 'In your practice' : 'Send';
+    el.querySelector('.rv-step').textContent = s === 0 ? 'About 30 minutes' : s <= 1 ? 'Before you look' : s <= 7 ? `Situation ${s - 1} of 6` : s === 8 ? 'Seven statements' : s === 9 ? 'Ease of use' : s === 10 ? 'In your practice' : 'Send';
     let h = '', canNext = true;
     if (s === 0) {
-      h = `<h3>Thank you for reviewing this map</h3><p>This map of the footpath on Old Nagardas Road, Andheri East, was built from 34 phone walks along 220 m. You will answer one question, try six short tasks on the map, and then answer a few questions. The map is being tested, not you.</p>
+      h = `<h3>Thank you for reviewing this map</h3><p>This map of the footpath on Old Nagardas Road, Andheri East, was built from 34 phone walks along 220 m. You will answer two quick questions, work through six situations a planner or designer might face, and then give your view. The map is being tested, not you.</p>
       <p class="rv-note">When you press Start, a short tour shows what the map is for and how to read it. This panel then comes back with the tasks. Click Hide at any time to see more of the map; the Review tab brings the panel back.</p>
       <label class="rv-ok"><input type="checkbox" data-c="consent"${S.a.consent ? ' checked' : ''}> <span>I agree that my answers may be used in this M.Des project report and presentation, anonymously unless I allow my name below. My answers are sent by email to the student.</span></label>
       <label class="f">Your role<select data-k="role"><option value="">Choose one</option>${['Architect', 'Urban planner', 'Urban designer', 'Academic', 'Other'].map(o => `<option${S.a.role === o ? ' selected' : ''}>${o}</option>`).join('')}</select></label>
@@ -108,26 +110,25 @@
     } else if (s === 1) {
       h = `<h3>Before you look closely</h3><p>From your experience of Mumbai streets, answer before exploring the map.</p>
       <label class="f">How much of this 220 m footpath do you expect meets the BMC minimum of 1.5 m clear? (percent)<input type="number" min="0" max="100" data-k="expect" value="${esc(S.a.expect ?? '')}"></label>
-      ${ta('expectWhere', 'Where on a walk like this do you expect people to be squeezed or pushed into the road?')}`;
-      canNext = S.a.expect !== undefined && S.a.expect !== '';
+      <div class="rv-q"><span class="rv-lbl">What do you expect takes up most of the footpath here?</span>${chips('expectBlock', EXPECT_BLOCK)}</div>`;
+      canNext = S.a.expect !== undefined && S.a.expect !== '' && !!S.a.expectBlock;
     } else if (s <= 7) {
-      const [k, t, q] = TASKS[s - 2];
-      h = `<div class="rv-task"><span class="k">Task ${k}</span><b>${t}</b><p>${q}</p></div><p class="rv-note">Try it on the map, then answer. Time on this task: <span class="rv-timer">0:00</span></p>
-      <div class="rv-q"><span class="rv-lbl">Did you manage it?</span>${chips('done' + k, ['Yes', 'With difficulty', 'No'])}</div>
-      <div class="rv-q"><span class="rv-lbl">How easy was it?</span>${scale('seq' + k, 7, '1 very hard', '7 very easy')}</div>
-      ${ta('note' + k, 'What did you find, or notice?')}`;
+      const [k, t, q, opts, prompt] = TASKS[s - 2];
+      h = `<div class="rv-task"><span class="k">Situation ${k}</span><b>${t}</b><p>${q}</p></div><p class="rv-note">Use the map to answer. Time on this one: <span class="rv-timer">0:00</span></p>
+      ${ta('note' + k, prompt)}
+      <div class="rv-q"><span class="rv-lbl">${k === 'f' ? 'Does the width match the photos?' : 'Could you find an answer on the map?'}</span>${chips('done' + k, opts)}</div>
+      <div class="rv-q"><span class="rv-lbl">How easy was it to find?</span>${scale('seq' + k, 7, '1 very hard', '7 very easy')}</div>`;
       canNext = !!S.a['done' + k] && !!S.a['seq' + k];
     } else if (s === 8) {
-      h = `<h3>Did the map convey the walk?</h3><p class="rv-note">1 strongly disagree · 5 strongly agree</p>` + STMTS.map((q, i) => `<div class="rv-q"><span>${i + 1}. ${q}</span>${scale('st' + i, 5, 'Disagree', 'Agree')}</div>`).join('');
+      h = `<h3>Your judgement as a practitioner</h3><p class="rv-note">1 strongly disagree · 5 strongly agree</p>` + STMTS.map((q, i) => `<div class="rv-q"><span>${i + 1}. ${q}</span>${scale('st' + i, 5, 'Disagree', 'Agree')}</div>`).join('');
       canNext = STMTS.every((_, i) => S.a['st' + i]);
     } else if (s === 9) {
-      h = `<h3>Ease of use</h3><p class="rv-note">Answer quickly, with your first reaction. 1 strongly disagree · 5 strongly agree</p>` + SUS.map((q, i) => `<div class="rv-q"><span>${i + 1}. ${q}</span>${scale('sus' + i, 5, 'Disagree', 'Agree')}</div>`).join('');
-      canNext = SUS.every((_, i) => S.a['sus' + i]);
+      h = `<h3>Ease of use</h3><p class="rv-note">Two statements. 1 strongly disagree · 7 strongly agree</p>` + UMUX.map((q, i) => `<div class="rv-q"><span>${q}</span>${scale('ux' + i, 7, 'Disagree', 'Agree')}</div>`).join('');
+      canNext = UMUX.every((_, i) => S.a['ux' + i]);
     } else if (s === 10) {
       h = `<h3>In your practice</h3>` + OPEN.map(([k, q]) => ta('open' + k, q)).join('');
     } else {
-      const sc = susScore();
-      h = `<h3>${S.sent ? 'Sent. Thank you.' : 'Send your answers'}</h3>${sc != null ? `<p>Your usability score: <b>${sc}</b> (68 is average).</p>` : ''}
+      h = `<h3>${S.sent ? 'Sent. Thank you.' : 'Send your answers'}</h3>
       <p>${S.sent ? 'Your answers have reached the student. You can close this page.' : 'Press Send. Your answers go straight to the student by email.'}</p>
       <div class="rv-st" role="status"></div>
       <details><summary class="rv-note">See or copy your answers</summary><textarea class="rv-out" readonly>${esc(summary())}</textarea></details>`;
@@ -141,7 +142,7 @@
     if (s >= 2 && s <= 7) startTimer(TASKS[s - 2][0]); else stopTimer();
   }
   const refreshNext = () => { const b = ft.querySelector('[data-rv="next"]'); if (!b) return; const keep = bd.scrollTop; const s = S.step; let ok = true;
-    if (s === 0) ok = !!S.a.consent && !!S.a.role; else if (s === 1) ok = S.a.expect !== undefined && S.a.expect !== ''; else if (s <= 7) { const k = TASKS[s - 2][0]; ok = !!S.a['done' + k] && !!S.a['seq' + k]; } else if (s === 8) ok = STMTS.every((_, i) => S.a['st' + i]); else if (s === 9) ok = SUS.every((_, i) => S.a['sus' + i]);
+    if (s === 0) ok = !!S.a.consent && !!S.a.role; else if (s === 1) ok = S.a.expect !== undefined && S.a.expect !== '' && !!S.a.expectBlock; else if (s <= 7) { const k = TASKS[s - 2][0]; ok = !!S.a['done' + k] && !!S.a['seq' + k]; } else if (s === 8) ok = STMTS.every((_, i) => S.a['st' + i]); else if (s === 9) ok = UMUX.every((_, i) => S.a['ux' + i]);
     b.disabled = !ok; bd.scrollTop = keep; };
   bd.addEventListener('input', e => { const t = e.target; if (t.dataset.k) S.a[t.dataset.k] = t.value; if (t.dataset.c) S.a[t.dataset.c] = t.checked; if (t.type === 'radio') S.a[t.name] = t.value; save(); refreshNext(); });
   bd.addEventListener('change', e => { const t = e.target; if (t.dataset.k) S.a[t.dataset.k] = t.value; if (t.type === 'radio') S.a[t.name] = t.value; if (t.dataset.c) S.a[t.dataset.c] = t.checked; save(); refreshNext(); });
@@ -151,7 +152,7 @@
     if (a === 'back') { S.step = Math.max(0, S.step - 1); save(); render(); return; }
     if (a === 'next') { if (S.step === 0 && !S.tourDone) { runTour(1); return; } S.step = Math.min(N - 1, S.step + 1); save(); render(); return; }
     if (a === 'send') { const st = bd.querySelector('.rv-st'); b.disabled = true; st.classList.remove('rv-err'); st.textContent = 'Sending…';
-      const body = { _subject: `Pedestrian map review · ${S.a.role || 'reviewer'}${S.a.name ? ' · ' + S.a.name : ''}`, _template: 'box', _captcha: 'false', role: S.a.role || '', years: S.a.years || '', name: S.a.name || '', answers: summary(), data: JSON.stringify({ a: S.a, t: S.t, clicks: S.clicks, sus: susScore() }) };
+      const body = { _subject: `Pedestrian map review · ${S.a.role || 'reviewer'}${S.a.name ? ' · ' + S.a.name : ''}`, _template: 'box', _captcha: 'false', role: S.a.role || '', years: S.a.years || '', name: S.a.name || '', answers: summary(), data: JSON.stringify({ a: S.a, t: S.t, clicks: S.clicks, umux: umux() }) };
       try { const r = await fetch(SEND_TO, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) }); const j = await r.json().catch(() => ({}));
         if (r.ok && String(j.success) === 'true') { S.sent = true; save(); render(); }
         else throw new Error(j.message || ('status ' + r.status)); }
