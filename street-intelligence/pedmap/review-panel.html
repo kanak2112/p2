@@ -76,7 +76,7 @@
 (() => {
   if (!new URLSearchParams(location.search).has('review')) return;
   const SEND_TO = 'https://formsubmit.co/ajax/kanakkothawale9@gmail.com';
-  const KEY = 'pedmap-review-v4';
+  const KEY = 'pedmap-review-v5';
   const phoneW = () => innerWidth <= 860;
   const reset = () => { try { if (state.mode !== 'walk') setMode('walk'); if (state.night) toggleNight(false); if (state.sv) closeSV(); if (state.view !== 'home') setView('home'); fly(fitBox(), 600); } catch (e) {} };
   const near = (a, b) => () => { try { fly(rangeBox(a, b), 700); } catch (e) {} };
@@ -110,6 +110,7 @@
       guide: [['.sheet .list .row', 'Click any stretch in the list.', () => viewIs('place')],
               ['#svB', 'Open Street View, the person icon beside the map, and look at the photos.', () => !!state.sv]] }];
   const FAM = [['Open a photo beside the footpath', () => !!state.sv], ['Tap a 10 m block in the strip on the left', () => viewIs('place')], ['Switch to another use at the top', () => state.mode !== 'walk'], ['Turn Night on', () => state.night]];
+  const EXPECT_SHARE = ['Under 25%', '25–50%', '50–75%', '75–100%'];
   const EXPECT_BLOCK = ['Parked vehicles', 'Stalls and people', 'Poles, bins and barriers', 'Trees and planters'];
   const STMTS = ['I could tell how much room is left to walk on each stretch.', 'I could tell what blocks the footpath, and whether it is permanent or comes and goes.', 'Repeated walks with photos are convincing enough to raise with a ward office.', 'The map shows something that ward maps, audits or Google Maps do not.', 'I trust how the widths were measured.', 'I could use this map to decide what to fix first.', 'The verdicts in Plan a change are believable.'];
   const UMUX = ['This map’s capabilities meet my requirements.', 'This map is easy to use.'];
@@ -138,10 +139,10 @@
     if (S.phase === 'welcome') {
       const ok = A.consent && A.role;
       wl.innerHTML = `<div class="box"><div class="top"><span class="eb">M.Des Project 2 · IDC School of Design, IIT Bombay</span><h2>Help test a map of how people really walk</h2>
-        <p>I am Kanak Kothawale, an M.Des Interaction Design student, guided by Prof. Jayesh Pillai. Most maps draw footpaths as free to walk. On Mumbai streets they rarely are. I walked one 220 m footpath on Old Nagardas Road, Andheri East, 34 times by day and at night, measured from the videos how much room is really left to walk every 10 m, and turned it into this map.</p>
-        <p class="mut">I would like your judgement as a practitioner: does this map show the footpath truthfully, and is it useful for planning and for a ward office?</p></div>
-        <div class="cols"><div class="card"><h4>What you will do, about 30 minutes</h4><ol><li>Two quick questions, before you see the map</li><li>A short guided tour, 2 minutes</li><li>Get familiar with the map, 2 minutes</li><li>Six situations from planning practice, about 18 minutes</li><li>Your view, about 5 minutes</li></ol></div>
-        <div class="card"><h4>How your answers are used</h4><p>Taking part is voluntary, and you can stop at any time. Your answers go to me by email when you press Send, and are used only in my project report and presentation. You stay anonymous unless you allow your name below. The map itself records nothing about you.</p></div></div>
+        <p>I am Kanak Kothawale (M.Des Interaction Design, guided by Prof. Jayesh Pillai). This map shows how much room is really left to walk on a 220 m footpath in Andheri East, measured from 34 walks.</p>
+        <p class="mut">Is it truthful, and useful for planning? I would value your judgement.</p></div>
+        <div class="cols"><div class="card"><h4>What you will do, about 30 minutes</h4><ol><li>Two quick questions</li><li>A short tour</li><li>Six situations on the map</li><li>Your view</li></ol></div>
+        <div class="card"><h4>How your answers are used</h4><p>Voluntary, and you can stop at any time. Answers reach me by email when you press Send, for my report only. You stay anonymous unless you allow your name.</p></div></div>
         <div class="form"><div class="grid"><label class="f">Your role<select data-w="role"><option value="">Choose one</option>${['Architect', 'Urban planner', 'Urban designer', 'Academic', 'Other'].map(o => `<option${A.role === o ? ' selected' : ''}>${o}</option>`).join('')}</select></label>
           <label class="f">Years in practice<input type="number" min="0" max="60" data-w="years" value="${esc(A.years || '')}"></label>
           <label class="f">Name (optional)<input type="text" data-w="name" value="${esc(A.name || '')}"></label>
@@ -149,14 +150,14 @@
           <label class="ok"><input type="checkbox" data-wc="consent"${A.consent ? ' checked' : ''}> <span>I have read the above and agree to take part.</span></label></div>
         <div class="ft"><span class="mut" style="font-size:13px;flex:1">Best on a laptop, in a full browser window.</span><button class="rv-b p" data-w-go="expect" type="button"${ok ? '' : ' disabled'}>Continue</button></div></div>`;
     } else {
-      const ok = A.expect !== undefined && A.expect !== '' && A.expectBlock;
+      const ok = A.expect && A.expectBlock;
       wl.innerHTML = `<div class="box"><div class="top"><span class="eb">Before you see the map</span><h2>What do you expect?</h2><p class="mut">Answer from your experience of Mumbai streets. Later, you will compare this with what the walks recorded.</p></div>
-        <div class="form"><label class="f">How much of this 220 m footpath do you expect meets the BMC minimum of 1.5 m clear to walk? (percent)<input type="number" min="0" max="100" data-w="expect" value="${esc(A.expect ?? '')}" style="max-width:160px"></label>
+        <div class="form"><div style="display:grid;gap:8px"><span class="rv-lbl">How much of this 220 m footpath do you expect meets the BMC minimum of 1.5 m clear to walk?</span>${chips('expect', EXPECT_SHARE)}</div>
           <div style="display:grid;gap:8px"><span class="rv-lbl">What do you expect takes up most of the footpath here?</span>${chips('expectBlock', EXPECT_BLOCK)}</div></div>
         <div class="ft"><button class="rv-b g" data-w-go="welcome" type="button">Back</button><span style="flex:1"></span><button class="rv-b p" data-w-go="tour" type="button"${ok ? '' : ' disabled'}>Start the tour</button></div></div>`;
     }
   }
-  const wlUpdate = () => { const b = wl.querySelector('[data-w-go="expect"],[data-w-go="tour"]'); if (!b) return; const A = S.a; b.disabled = S.phase === 'welcome' ? !(A.consent && A.role) : !(A.expect !== undefined && A.expect !== '' && A.expectBlock); };
+  const wlUpdate = () => { const b = wl.querySelector('[data-w-go="expect"],[data-w-go="tour"]'); if (!b) return; const A = S.a; b.disabled = S.phase === 'welcome' ? !(A.consent && A.role) : !(A.expect && A.expectBlock); };
   const wlSet = e => { const t = e.target; if (t.dataset.w) S.a[t.dataset.w] = t.value; if (t.dataset.wc) S.a[t.dataset.wc] = t.checked; if (t.type === 'radio') S.a[t.name] = t.value; save(); wlUpdate(); };
   wl.addEventListener('input', wlSet); wl.addEventListener('change', wlSet);
   wl.addEventListener('click', e => { const b = e.target.closest('[data-w-go]'); if (!b || b.disabled) return; const g = b.dataset.wGo;
@@ -183,7 +184,7 @@
   const guideDone = () => { const s = sit(); return !s || guideAt() >= s.guide.length; };
   function summary() {
     const A = S.a, L = ['PEDESTRIAN MAP REVIEW', `Consent: ${A.consent ? 'Yes' : 'Not given'}`, `Role: ${A.role || '-'} · Years in practice: ${A.years || '-'}`, `Name: ${A.name || '-'} · Name in report: ${A.nameok || 'No, keep me anonymous'}`, '',
-      'BEFORE SEEING THE MAP', `Expected share meeting BMC 1.5 m: ${A.expect != null && A.expect !== '' ? A.expect + '%' : '-'}`, `Expected main cause of blocking: ${A.expectBlock || '-'}`,
+      'BEFORE SEEING THE MAP', `Expected share meeting BMC 1.5 m: ${A.expect || '-'}`, `Expected main cause of blocking: ${A.expectBlock || '-'}`,
       `Familiarisation: ${FAM.filter((_, i) => S.fam[i]).length} of ${FAM.length} tried · guide steps skipped: ${S.gSkipped || 0}`, '', 'SITUATIONS (answer found · ease 1-7 · time · map clicks · answer)'];
     SIT.forEach(s => L.push(`${s.k}. ${s.t}: ${A['done' + s.k] || '-'} · ease ${A['seq' + s.k] || '-'} · ${S.t[s.k] != null ? S.t[s.k] + ' s' : '-'} · ${S.clicks[s.k] || 0} clicks · ${(A['note' + s.k] || '-').replace(/\s+/g, ' ')}`));
     L.push('', 'STATEMENTS (1-5)'); STMTS.forEach((q, i) => L.push(`${i + 1}. ${A['st' + i] || '-'}  ${q}`));
@@ -213,7 +214,7 @@
     } else if (s === 8) {
       h = `<h3>Ease of use</h3><p class="rv-note">Two statements. 1 strongly disagree · 7 strongly agree</p>` + UMUX.map((q, i) => `<div class="rv-q${i ? '' : ' first'}"><span>${q}</span>${scale('ux' + i, 7, 'Disagree', 'Agree')}</div>`).join('');
     } else if (s === 9) {
-      h = `<h3>In your practice</h3><p class="rv-note">At the start you expected ${S.a.expect != null && S.a.expect !== '' ? S.a.expect + '%' : 'some'} of the footpath to meet 1.5 m, and ${esc((S.a.expectBlock || 'something').toLowerCase())} to take most of it.</p>` + OPEN.map(([k, q]) => ta('open' + k, q)).join('');
+      h = `<h3>In your practice</h3><p class="rv-note">At the start you expected ${esc(S.a.expect || 'some')} of the footpath to meet 1.5 m, and ${esc((S.a.expectBlock || 'something').toLowerCase())} to take most of it.</p>` + OPEN.map(([k, q]) => ta('open' + k, q)).join('');
     } else {
       h = `<h3>${S.sent ? 'Sent. Thank you.' : 'Send your answers'}</h3><p>${S.sent ? 'Your answers have reached Kanak. You can close this page.' : 'Press Send. Your answers go straight to Kanak by email.'}</p><div class="rv-st" role="status"></div>
       <details><summary class="rv-note">See or copy your answers</summary><textarea class="rv-out" readonly>${esc(summary())}</textarea></details>`;
