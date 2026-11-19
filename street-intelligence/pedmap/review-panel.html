@@ -1,34 +1,34 @@
-<!-- Review panel: opens on the right when the page is loaded with ?review=1. Built into map.html by build_review.py -->
+<!-- Review: opens when the page is loaded with ?review=1. Welcome and consent, expectations, tour, familiarisation,
+     six guided situations, statements, UMUX-Lite, open questions, then answers are emailed. Injected by build_pages.py -->
 <style>
 .rv{position:fixed;top:0;right:0;bottom:0;width:400px;background:var(--card);box-shadow:0 0 18px rgba(0,0,0,.2);z-index:4000;display:flex;flex-direction:column;font:14px/1.5 var(--sans);color:var(--g1);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-right:env(safe-area-inset-right,0px);transition:transform .25s ease}
 .rv.min{transform:translateX(100%);visibility:hidden;transition:transform .25s ease,visibility 0s .25s}
 .rv-hd{padding:14px 18px 10px;border-bottom:1px solid #E8EAED;display:grid;gap:8px}
-.rv-hd .t{display:flex;align-items:center;gap:8px}
-.rv-hd b{font:500 16px var(--sans);flex:1}
-.rv-hd .x{border:0;background:none;cursor:pointer;color:var(--g2);font:500 13px var(--sans);padding:6px 8px;border-radius:6px}
-.rv-hd .x:hover{background:#F1F3F4}
+.rv-hd .t{display:flex;align-items:center;gap:8px}.rv-hd b{font:500 16px var(--sans);flex:1}
+.rv-hd .x{border:0;background:none;cursor:pointer;color:var(--g2);font:500 13px var(--sans);padding:6px 8px;border-radius:6px}.rv-hd .x:hover{background:#F1F3F4}
 .rv-bar{height:4px;background:#E8EAED;border-radius:4px;overflow:hidden}.rv-bar i{display:block;height:100%;background:var(--pri);width:0;transition:width .3s}
 .rv-step{font-size:12px;color:var(--g2)}
 .rv-bd{flex:1;overflow-y:auto;padding:16px 18px;display:grid;gap:14px;align-content:start}
-.rv-bd h3{font:500 18px/1.3 var(--sans);margin:0}
-.rv-bd p{margin:0}
+.rv-bd h3{font:500 18px/1.3 var(--sans);margin:0}.rv-bd p{margin:0}
 .rv-note{font-size:12.5px;color:var(--g2)}
-.rv-task{background:#F8F9FA;border-radius:10px;padding:12px 14px;display:grid;gap:6px}
+.rv-task{background:#F8F9FA;border-radius:10px;padding:14px;display:grid;gap:6px}
 .rv-task .k{font:500 12px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--pri)}
+.rv-task b{font:500 16px var(--sans)}
+.rv-task .who{font-style:italic;color:var(--g1)}
 .rv-lbl{font:500 13px var(--sans);color:var(--g1)}
 .rv label.f{display:grid;gap:6px;font:500 13px var(--sans)}
-.rv input[type=text],.rv input[type=number],.rv select,.rv textarea{font:14px var(--sans);color:var(--g1);background:#fff;border:1px solid #DADCE0;border-radius:8px;padding:9px 11px;width:100%;box-sizing:border-box}
-.rv textarea{min-height:70px;resize:vertical}
+.rv input[type=text],.rv input[type=number],.rv select,.rv textarea,.rvw input[type=text],.rvw input[type=number],.rvw select{font:14px var(--sans);color:var(--g1);background:#fff;border:1px solid #DADCE0;border-radius:8px;padding:9px 11px;width:100%;box-sizing:border-box}
+.rv textarea{min-height:76px;resize:vertical}
 .rv-sc{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:5px}
 .rv-sc label{display:grid;place-items:center;border:1px solid #DADCE0;border-radius:8px;padding:7px 0;cursor:pointer;font:500 13px var(--sans)}
 .rv-sc input,.rv-ch input{position:absolute;opacity:0;width:1px;height:1px}
 .rv-sc label:has(input:checked){background:var(--pri);border-color:var(--pri);color:#fff}
 .rv-ends{display:flex;justify-content:space-between;font-size:11.5px;color:var(--g2)}
 .rv-ch{display:flex;flex-wrap:wrap;gap:6px}
-.rv-ch label{border:1px solid #DADCE0;border-radius:999px;padding:6px 12px;cursor:pointer;font:500 13px var(--sans)}
+.rv-ch label{border:1px solid #DADCE0;border-radius:999px;padding:6px 12px;cursor:pointer;font:500 13px var(--sans);background:#fff}
 .rv-ch label:has(input:checked){background:var(--pribg);border-color:var(--pri);color:var(--pri2)}
-.rv-sc label:focus-within,.rv-ch label:focus-within,.rv button:focus-visible,.rv input:focus-visible,.rv textarea:focus-visible,.rv select:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
-.rv-q{display:grid;gap:7px;padding-top:12px;border-top:1px solid #E8EAED}.rv-q:first-child{border-top:0;padding-top:0}
+.rv-sc label:focus-within,.rv-ch label:focus-within,.rv button:focus-visible,.rvw button:focus-visible,.rv input:focus-visible,.rv textarea:focus-visible,.rv select:focus-visible,.rvw input:focus-visible,.rvw select:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+.rv-q{display:grid;gap:7px;padding-top:12px;border-top:1px solid #E8EAED}.rv-q.first{border-top:0;padding-top:0}
 .rv-ft{border-top:1px solid #E8EAED;padding:12px 18px;display:flex;gap:8px;align-items:center}
 .rv-b{border:0;border-radius:18px;padding:9px 18px;font:500 14px var(--sans);cursor:pointer}
 .rv-b.p{background:var(--pri);color:#fff}.rv-b.p:hover{background:var(--pri2)}
@@ -36,131 +36,224 @@
 .rv-b[disabled]{opacity:.45;cursor:default}
 .rv-sp{flex:1}
 .rv-timer{font:500 12px var(--mono);color:var(--g2)}
-.rv-ok{display:flex;gap:9px;align-items:flex-start;font-size:13px}.rv-ok input{margin-top:3px;width:16px;height:16px;accent-color:var(--pri)}
-.rv-st{font:500 13px var(--sans);color:var(--pri2)}
-.rv-err{color:#C5221F}
+.rv-st{font:500 13px var(--sans);color:var(--pri2)}.rv-err{color:#C5221F}
 .rv-out{width:100%;min-height:180px;font:12px/1.45 var(--mono)}
 .rv-tab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:3999;background:var(--pri);color:#fff;border:0;border-radius:10px 0 0 10px;padding:14px 8px;font:500 13px var(--sans);cursor:pointer;writing-mode:vertical-rl;box-shadow:var(--shadow);margin-right:env(safe-area-inset-right,0px)}
 .rv-tab[hidden]{display:none}
+.rv-guide{display:grid;gap:8px;margin:0;padding:0;list-style:none;counter-reset:g}
+.rv-guide li{display:grid;grid-template-columns:24px 1fr;gap:10px;align-items:start;font-size:14px;color:var(--g2)}
+.rv-guide li::before{counter-increment:g;content:counter(g);display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#E8EAED;color:var(--g2);font:500 12px var(--sans)}
+.rv-guide li.now{color:var(--g1);font-weight:500}.rv-guide li.now::before{background:var(--pri);color:#fff}
+.rv-guide li.ok{color:var(--g2);text-decoration:line-through}.rv-guide li.ok::before{content:"✓";background:#E6F4EA;color:#137333}
+.rv-skip{border:0;background:none;color:var(--g2);font:400 12px var(--sans);text-decoration:underline;cursor:pointer;padding:0;justify-self:start}
+.rv-ring{position:fixed;z-index:4500;border:3px solid #FBBC04;border-radius:12px;pointer-events:none;box-shadow:0 0 0 4px rgba(251,188,4,.35);animation:rvp 1.2s ease-in-out infinite;transition:left .2s,top .2s,width .2s,height .2s}
+.rv-ring[hidden]{display:none}
+.rv-call{position:fixed;z-index:4501;max-width:260px;background:#202124;color:#fff;font:500 13px/1.4 var(--sans);padding:8px 12px;border-radius:8px;box-shadow:var(--shadow);pointer-events:none}
+.rv-call[hidden]{display:none}
+@keyframes rvp{0%,100%{box-shadow:0 0 0 4px rgba(251,188,4,.35)}50%{box-shadow:0 0 0 12px rgba(251,188,4,.12)}}
+.rvw{position:fixed;inset:0;z-index:6000;background:rgba(32,33,36,.62);display:grid;place-items:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));font:15px/1.55 var(--sans);color:var(--g1)}
+.rvw[hidden]{display:none}
+.rvw .box{background:#fff;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.35);width:min(760px,100%);max-height:100%;overflow-y:auto;display:grid}
+.rvw .top{padding:26px 28px 6px;display:grid;gap:10px}
+.rvw .eb{font:500 12px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--pri)}
+.rvw h2{font:400 28px/1.2 var(--sans);margin:0}
+.rvw p{margin:0}.rvw .mut{color:var(--g2)}
+.rvw .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;padding:14px 28px}
+.rvw .card{background:#F8F9FA;border-radius:12px;padding:14px 16px;display:grid;gap:8px;align-content:start}
+.rvw .card h4{margin:0;font:500 14px var(--sans)}
+.rvw ol{margin:0;padding-left:20px;display:grid;gap:4px}
+.rvw .form{padding:4px 28px 8px;display:grid;gap:12px}
+.rvw .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.rvw label.f{display:grid;gap:6px;font:500 13px var(--sans)}
+.rvw .ok{display:flex;gap:10px;align-items:flex-start;font-size:14px}.rvw .ok input{margin-top:4px;width:18px;height:18px;accent-color:var(--pri)}
+.rvw .ft{display:flex;gap:10px;align-items:center;padding:16px 28px 24px;border-top:1px solid #E8EAED;margin-top:8px}
+.rvw .rv-ch label{font-size:14px}
 @media(min-width:861px){.rvon .tools{right:calc(416px + env(safe-area-inset-right,0px))}.rvon .chips{right:416px}.rvon .attr{right:474px}.rvon .mkey{max-width:calc(100% - var(--sheetW) - 640px)}.rvon .tour{right:400px}}
-@media(max-width:860px){.rv{width:100%;left:0}.rv-tab{top:auto;bottom:calc(var(--sh,190px) + 70px);transform:none}}
-@media (prefers-reduced-motion:reduce){.rv,.rv-bar i{transition:none}}
+@media(max-width:860px){.rv{width:100%;left:0}.rv-tab{top:auto;bottom:calc(var(--sh,190px) + 70px);transform:none}.rvw .top,.rvw .cols,.rvw .form,.rvw .ft{padding-left:18px;padding-right:18px}}
+@media (prefers-reduced-motion:reduce){.rv,.rv-bar i{transition:none}.rv-ring{animation:none}}
 </style>
 <script>
 (() => {
   if (!new URLSearchParams(location.search).has('review')) return;
   const SEND_TO = 'https://formsubmit.co/ajax/kanakkothawale9@gmail.com';
-  const KEY = 'pedmap-review-v3';
+  const KEY = 'pedmap-review-v4';
+  const phoneW = () => innerWidth <= 860;
+  const reset = () => { try { if (state.mode !== 'walk') setMode('walk'); if (state.night) toggleNight(false); if (state.sv) closeSV(); if (state.view !== 'home') setView('home'); fly(fitBox(), 600); } catch (e) {} };
+  const near = (a, b) => () => { try { fly(rangeBox(a, b), 700); } catch (e) {} };
+  const viewIs = v => state.view === v;
   const DONE = ['I found an answer', 'Partly', 'I could not tell'];
-  const TASKS = [
-    ['a', 'Fix one stretch first', 'Your ward can fix one stretch of this footpath this year. Which would you pick, and what on the map supports your choice?', DONE, 'Your choice, and why'],
-    ['b', 'A pram on this route', 'A parent pushes a pram from Amratlal G. Vasani to R.K. Chouhan Communications. Where would they struggle, or have to leave the footpath?', DONE, 'Where, and what told you'],
-    ['c', 'Permanent or passing?', 'At 80–90 m, near the green bins, is the footpath blocked by something permanent, or by things that come and go? How can you tell?', DONE, 'Your answer, and how you could tell'],
-    ['d', 'Walking home after dark', 'Someone walks home after dark from Amratlal G. Vasani. Which stretch would worry you, and why?', DONE, 'Which stretch, and why'],
-    ['e', 'Clearing the stalls', 'The ward proposes moving the stalls off this footpath. Would that make 80–90 m meet the BMC minimum of 1.5 m? If not, what would?', DONE, 'What you found'],
-    ['f', 'Check the evidence', 'Pick any stretch and look at its photos. Does the width the map gives match what you see?', ['Matches', 'Partly', 'Does not match'], 'Which stretch, and what you saw']];
+  const SIT = [
+    { k: 'a', t: 'Fix one stretch first', who: '“We have money to fix one stretch of this footpath this year. Which one should it be?” asks the ward office.',
+      q: 'Which stretch would you fix first, and what on the map makes the case?', prompt: 'Your choice, and the evidence for it', prep: reset,
+      guide: [['[data-m="proof"]', 'Click Evidence, at the top of the map.', () => state.mode === 'proof'],
+              ['.sheet .list .row', 'Click the first stretch in the list: the most often blocked.', () => viewIs('place')]] },
+    { k: 'b', t: 'A pram every morning', who: 'Meera pushes her daughter’s pram from Amratlal G. Vasani to the shops at R.K. Chouhan Communications every morning.',
+      q: 'Where on this walk would Meera struggle, or have to step off the footpath?', prompt: 'Where, and what told you', prep: reset,
+      guide: [['#dirB', 'Click Directions, the blue arrow in the search bar.', () => viewIs('dirs')],
+              ['[data-prof="access"]', 'Choose the wheelchair tab at the top of the directions.', () => state.prof === 'access']] },
+    { k: 'c', t: 'Permanent, or comes and goes?', who: 'A shopkeeper at the green bins says: “The footpath here is fine. It only gets crowded sometimes.”',
+      q: 'Is the shopkeeper right? Is 80–90 m blocked by something fixed, or by things that come and go?', prompt: 'Your answer, and how you could tell', prep: reset,
+      guide: [['[data-m="proof"]', 'Click Evidence.', () => state.mode === 'proof'],
+              ['.sheet .list .row[data-go="8"]', 'Click Green bins, 80–90 m.', () => viewIs('place') && state.sel === 8, near(60, 110)],
+              ['[data-tl="-1"]', 'Step back through the walks a few times with this button. Watch the width and the photos change.', () => typeof tlIdx === 'function' && tlIdx() <= TLP.length - 4]] },
+    { k: 'd', t: 'Walking home after dark', who: 'Riya walks home from the station after 9 pm, from Amratlal G. Vasani towards R.K. Chouhan Communications.',
+      q: 'Which stretch would you warn Riya about, and why?', prompt: 'Which stretch, and why', prep: reset,
+      guide: [['#ntB', 'Turn on Night: the moon beside the map.', () => state.night],
+              ['.sheet .list .row', 'Click the darkest stretch in the list.', () => viewIs('place')]] },
+    { k: 'e', t: 'Clearing the stalls', who: 'The ward plans a drive to clear stalls from this footpath, to fix the pinch at the green bins.',
+      q: 'Will clearing the stalls make 80–90 m meet the BMC minimum of 1.5 m? If not, what would?', prompt: 'What you found', prep: () => { reset(); try { if (state.plan) { state.plan.items = []; savePlan(); } } catch (e) {} },
+      guide: [['[data-m="plan"]', 'Click Plan a change.', () => state.mode === 'plan'],
+              ['[data-ptile="vend"]', 'Drag “Vending zone off the footpath” onto the green bins, 80–90 m, and read its verdict.', () => state.plan && state.plan.items.some(it => it.t === 'vend'), near(55, 115)],
+              ['[data-ptile="widen"]', 'Now drag “Widen the footpath by 1 m” onto the same place.', () => state.plan && state.plan.items.some(it => it.t === 'widen')]] },
+    { k: 'f', t: 'Check the evidence', who: 'Before the ward relies on this map, someone has to check that it is right.',
+      q: 'Does the width the map gives for this stretch match what you see in the photos?', prompt: 'Which stretch, and what you saw', choice: ['Matches', 'Partly', 'Does not match'], choiceQ: 'Does the width match the photos?', prep: reset,
+      guide: [['.sheet .list .row', 'Click any stretch in the list.', () => viewIs('place')],
+              ['#svB', 'Open Street View, the person icon beside the map, and look at the photos.', () => !!state.sv]] }];
+  const FAM = [['Open a photo beside the footpath', () => !!state.sv], ['Tap a 10 m block in the strip on the left', () => viewIs('place')], ['Switch to another use at the top', () => state.mode !== 'walk'], ['Turn Night on', () => state.night]];
   const EXPECT_BLOCK = ['Parked vehicles', 'Stalls and people', 'Poles, bins and barriers', 'Trees and planters'];
   const STMTS = ['I could tell how much room is left to walk on each stretch.', 'I could tell what blocks the footpath, and whether it is permanent or comes and goes.', 'Repeated walks with photos are convincing enough to raise with a ward office.', 'The map shows something that ward maps, audits or Google Maps do not.', 'I trust how the widths were measured.', 'I could use this map to decide what to fix first.', 'The verdicts in Plan a change are believable.'];
   const UMUX = ['This map’s capabilities meet my requirements.', 'This map is easy to use.'];
-  const OPEN = [['first', 'If you had this map for your own work, what would you use it for first?'], ['ward', 'What would a ward office need to see before acting on it? What is missing?'], ['change', 'What would you remove or change?'], ['surprise', 'What did the map show you that surprised you?']];
-  // steps: 0 welcome, 1 expectation, 2..7 tasks, 8 statements, 9 UMUX-Lite, 10 practice, 11 send
-  const N = 12;
-  let S = { step: 0, a: {}, t: {}, clicks: {}, sent: false };
+  const OPEN = [['first', 'If you had this map for your own work, what would you use it for first?'], ['ward', 'What would a ward office need to see before acting on it? What is missing?'], ['change', 'What would you remove or change?'], ['surprise', 'What did the map show you that surprised you, compared with what you expected at the start?']];
+  const N = 11; // 0 familiarise, 1..6 situations, 7 statements, 8 UMUX, 9 practice, 10 send
+  let S = { phase: 'welcome', step: 0, a: {}, t: {}, clicks: {}, g: {}, fam: {}, sent: false };
   try { const v = JSON.parse(localStorage.getItem(KEY) || 'null'); if (v && typeof v === 'object') S = Object.assign(S, v); } catch (e) {}
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const el = document.createElement('aside'); el.className = 'rv'; el.setAttribute('aria-label', 'Review of the map');
-  el.innerHTML = '<div class="rv-hd"><div class="t"><b>Review the map</b><button class="x" data-rv="min" type="button">Hide</button></div><div class="rv-bar"><i></i></div><div class="rv-step"></div></div><div class="rv-bd"></div><div class="rv-ft"></div>';
-  const tab = document.createElement('button'); tab.className = 'rv-tab'; tab.type = 'button'; tab.textContent = 'Review'; tab.hidden = true;
-  document.body.appendChild(el); document.body.appendChild(tab);
-  const app = document.getElementById('app'); const setOpen = o => { el.classList.toggle('min', !o); tab.hidden = o; app && app.classList.toggle('rvon', o); };
-  setOpen(true);
-  const bd = el.querySelector('.rv-bd'), ft = el.querySelector('.rv-ft');
-  // task timing: time and map clicks while a task step is open
-  let t0 = null, curTask = null;
-  const startTimer = k => { stopTimer(); curTask = k; t0 = Date.now(); };
-  const stopTimer = () => { if (curTask && t0) { S.t[curTask] = Math.round((S.t[curTask] || 0) + (Date.now() - t0) / 1000); save(); } curTask = null; t0 = null; };
-  document.addEventListener('pointerdown', e => { if (curTask && !el.contains(e.target)) { S.clicks[curTask] = (S.clicks[curTask] || 0) + 1; } }, true);
-  setInterval(() => { const tm = el.querySelector('.rv-timer'); if (tm && curTask && t0) { const s = Math.round((S.t[curTask] || 0) + (Date.now() - t0) / 1000); tm.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); } }, 1000);
   const scale = (name, n, lo, hi) => `<div class="rv-sc" style="--n:${n}" role="radiogroup">${Array.from({ length: n }, (_, i) => `<label><input type="radio" name="${name}" value="${i + 1}"${S.a[name] == i + 1 ? ' checked' : ''}><span>${i + 1}</span></label>`).join('')}</div><div class="rv-ends"><span>${lo}</span><span>${hi}</span></div>`;
   const chips = (name, opts) => `<div class="rv-ch" role="radiogroup">${opts.map(v => `<label><input type="radio" name="${name}" value="${esc(v)}"${S.a[name] === v ? ' checked' : ''}>${esc(v)}</label>`).join('')}</div>`;
   const ta = (id, label) => `<label class="f">${label}<textarea data-k="${id}">${esc(S.a[id] || '')}</textarea></label>`;
   const umux = () => { const v = UMUX.map((_, i) => +S.a['ux' + i]); if (v.some(x => !x)) return null; return Math.round((v[0] - 1 + v[1] - 1) / 12 * 100); };
+  const app = document.getElementById('app');
+  const el = document.createElement('aside'); el.className = 'rv min'; el.setAttribute('aria-label', 'Review of the map');
+  el.innerHTML = '<div class="rv-hd"><div class="t"><b>Review the map</b><button class="x" data-rv="min" type="button">Hide</button></div><div class="rv-bar"><i></i></div><div class="rv-step"></div></div><div class="rv-bd"></div><div class="rv-ft"></div>';
+  const tab = document.createElement('button'); tab.className = 'rv-tab'; tab.type = 'button'; tab.textContent = 'Review'; tab.hidden = true;
+  const ring = document.createElement('div'); ring.className = 'rv-ring'; ring.hidden = true;
+  const call = document.createElement('div'); call.className = 'rv-call'; call.hidden = true;
+  const wl = document.createElement('div'); wl.className = 'rvw'; wl.hidden = true; wl.setAttribute('role', 'dialog'); wl.setAttribute('aria-modal', 'true'); wl.setAttribute('aria-label', 'Welcome to the review');
+  document.body.append(el, tab, ring, call, wl);
+  const bd = el.querySelector('.rv-bd'), ft = el.querySelector('.rv-ft');
+  const setOpen = o => { el.classList.toggle('min', !o); tab.hidden = o || S.phase !== 'panel'; app && app.classList.toggle('rvon', o); };
+  function renderWelcome() {
+    const A = S.a;
+    if (S.phase === 'welcome') {
+      const ok = A.consent && A.role;
+      wl.innerHTML = `<div class="box"><div class="top"><span class="eb">M.Des Project 2 · IDC School of Design, IIT Bombay</span><h2>Help test a map of how people really walk</h2>
+        <p>I am Kanak Kothawale, an M.Des Interaction Design student, guided by Prof. Jayesh Pillai. Most maps draw footpaths as free to walk. On Mumbai streets they rarely are. I walked one 220 m footpath on Old Nagardas Road, Andheri East, 34 times by day and at night, measured from the videos how much room is really left to walk every 10 m, and turned it into this map.</p>
+        <p class="mut">I would like your judgement as a practitioner: does this map show the footpath truthfully, and is it useful for planning and for a ward office?</p></div>
+        <div class="cols"><div class="card"><h4>What you will do, about 30 minutes</h4><ol><li>Two quick questions, before you see the map</li><li>A short guided tour, 2 minutes</li><li>Get familiar with the map, 2 minutes</li><li>Six situations from planning practice, about 18 minutes</li><li>Your view, about 5 minutes</li></ol></div>
+        <div class="card"><h4>How your answers are used</h4><p>Taking part is voluntary, and you can stop at any time. Your answers go to me by email when you press Send, and are used only in my project report and presentation. You stay anonymous unless you allow your name below. The map itself records nothing about you.</p></div></div>
+        <div class="form"><div class="grid"><label class="f">Your role<select data-w="role"><option value="">Choose one</option>${['Architect', 'Urban planner', 'Urban designer', 'Academic', 'Other'].map(o => `<option${A.role === o ? ' selected' : ''}>${o}</option>`).join('')}</select></label>
+          <label class="f">Years in practice<input type="number" min="0" max="60" data-w="years" value="${esc(A.years || '')}"></label>
+          <label class="f">Name (optional)<input type="text" data-w="name" value="${esc(A.name || '')}"></label>
+          <label class="f">May I name you in the report?<select data-w="nameok">${['No, keep me anonymous', 'Yes, in the acknowledgements'].map(o => `<option${A.nameok === o ? ' selected' : ''}>${o}</option>`).join('')}</select></label></div>
+          <label class="ok"><input type="checkbox" data-wc="consent"${A.consent ? ' checked' : ''}> <span>I have read the above and agree to take part.</span></label></div>
+        <div class="ft"><span class="mut" style="font-size:13px;flex:1">Best on a laptop, in a full browser window.</span><button class="rv-b p" data-w-go="expect" type="button"${ok ? '' : ' disabled'}>Continue</button></div></div>`;
+    } else {
+      const ok = A.expect !== undefined && A.expect !== '' && A.expectBlock;
+      wl.innerHTML = `<div class="box"><div class="top"><span class="eb">Before you see the map</span><h2>What do you expect?</h2><p class="mut">Answer from your experience of Mumbai streets. Later, you will compare this with what the walks recorded.</p></div>
+        <div class="form"><label class="f">How much of this 220 m footpath do you expect meets the BMC minimum of 1.5 m clear to walk? (percent)<input type="number" min="0" max="100" data-w="expect" value="${esc(A.expect ?? '')}" style="max-width:160px"></label>
+          <div style="display:grid;gap:8px"><span class="rv-lbl">What do you expect takes up most of the footpath here?</span>${chips('expectBlock', EXPECT_BLOCK)}</div></div>
+        <div class="ft"><button class="rv-b g" data-w-go="welcome" type="button">Back</button><span style="flex:1"></span><button class="rv-b p" data-w-go="tour" type="button"${ok ? '' : ' disabled'}>Start the tour</button></div></div>`;
+    }
+  }
+  const wlUpdate = () => { const b = wl.querySelector('[data-w-go="expect"],[data-w-go="tour"]'); if (!b) return; const A = S.a; b.disabled = S.phase === 'welcome' ? !(A.consent && A.role) : !(A.expect !== undefined && A.expect !== '' && A.expectBlock); };
+  const wlSet = e => { const t = e.target; if (t.dataset.w) S.a[t.dataset.w] = t.value; if (t.dataset.wc) S.a[t.dataset.wc] = t.checked; if (t.type === 'radio') S.a[t.name] = t.value; save(); wlUpdate(); };
+  wl.addEventListener('input', wlSet); wl.addEventListener('change', wlSet);
+  wl.addEventListener('click', e => { const b = e.target.closest('[data-w-go]'); if (!b || b.disabled) return; const g = b.dataset.wGo;
+    if (g === 'tour') { wl.hidden = true; S.phase = 'tour'; save(); runTour(); return; }
+    S.phase = g; save(); renderWelcome(); });
+  function runTour() { reset(); setOpen(false); tab.hidden = true; if (typeof startTour === 'function') startTour(); else afterTour(); }
+  function afterTour() { S.phase = 'panel'; save(); setOpen(true); enterStep(0); }
+  document.addEventListener('tourend', () => { if (S.phase === 'tour') afterTour(); });
+  let t0 = null, cur = null;
+  const startTimer = k => { if (cur === k) return; stopTimer(); cur = k; t0 = Date.now(); };
+  const stopTimer = () => { if (cur && t0) { S.t[cur] = Math.round((S.t[cur] || 0) + (Date.now() - t0) / 1000); save(); } cur = null; t0 = null; };
+  document.addEventListener('pointerdown', e => { if (cur && !el.contains(e.target)) S.clicks[cur] = (S.clicks[cur] || 0) + 1; }, true);
+  function placeRing(sel, text) {
+    const t = sel && [...document.querySelectorAll(sel)].find(x => x.offsetParent !== null && x.getBoundingClientRect().width > 0);
+    if (!t) { ring.hidden = true; call.hidden = true; return; }
+    const r = t.getBoundingClientRect(), p = 5; ring.hidden = false; Object.assign(ring.style, { left: r.left - p + 'px', top: r.top - p + 'px', width: r.width + 2 * p + 'px', height: r.height + 2 * p + 'px' });
+    call.hidden = false; if (call.textContent !== text) call.textContent = text; call.style.maxWidth = Math.min(260, innerWidth - 32) + 'px';
+    const cr = call.getBoundingClientRect(), right = !phoneW() && !el.classList.contains('min') ? 400 : 0; let x = r.left + r.width / 2 - cr.width / 2, y = r.bottom + 12;
+    if (y + cr.height > innerHeight - 8) y = r.top - cr.height - 12;
+    x = Math.max(8, Math.min(x, innerWidth - right - cr.width - 8)); call.style.left = x + 'px'; call.style.top = Math.max(8, y) + 'px'; }
+  const clearRing = () => { ring.hidden = true; call.hidden = true; };
+  const sit = () => S.step >= 1 && S.step <= 6 ? SIT[S.step - 1] : null;
+  const guideAt = () => { const s = sit(); return s ? (S.g[s.k] || 0) : -1; };
+  const guideDone = () => { const s = sit(); return !s || guideAt() >= s.guide.length; };
   function summary() {
-    const A = S.a, L = ['PEDESTRIAN MAP REVIEW', `Consent: ${A.consent ? 'Yes' : 'Not given'}`, `Role: ${A.role || '-'} · Years in practice: ${A.years || '-'}`, `Name: ${A.name || '-'} · Name in report: ${A.nameok || 'No'}`, '',
-      'BEFORE SEEING THE DATA', `Expected share of the 220 m meeting BMC 1.5 m: ${A.expect != null && A.expect !== '' ? A.expect + '%' : '-'}`, `Expected main cause of blocking: ${A.expectBlock || '-'}`, '', 'TASKS (answer found · ease 1-7 · time · map clicks · answer)'];
-    TASKS.forEach(([k, t]) => L.push(`${k}. ${t}: ${A['done' + k] || '-'} · ease ${A['seq' + k] || '-'} · ${S.t[k] != null ? S.t[k] + ' s' : '-'} · ${S.clicks[k] || 0} clicks · ${(A['note' + k] || '-').replace(/\s+/g, ' ')}`));
-    L.push('', 'STATEMENTS (1-5)'); STMTS.forEach((s, i) => L.push(`${i + 1}. ${A['st' + i] || '-'}  ${s}`));
+    const A = S.a, L = ['PEDESTRIAN MAP REVIEW', `Consent: ${A.consent ? 'Yes' : 'Not given'}`, `Role: ${A.role || '-'} · Years in practice: ${A.years || '-'}`, `Name: ${A.name || '-'} · Name in report: ${A.nameok || 'No, keep me anonymous'}`, '',
+      'BEFORE SEEING THE MAP', `Expected share meeting BMC 1.5 m: ${A.expect != null && A.expect !== '' ? A.expect + '%' : '-'}`, `Expected main cause of blocking: ${A.expectBlock || '-'}`,
+      `Familiarisation: ${FAM.filter((_, i) => S.fam[i]).length} of ${FAM.length} tried · guide steps skipped: ${S.gSkipped || 0}`, '', 'SITUATIONS (answer found · ease 1-7 · time · map clicks · answer)'];
+    SIT.forEach(s => L.push(`${s.k}. ${s.t}: ${A['done' + s.k] || '-'} · ease ${A['seq' + s.k] || '-'} · ${S.t[s.k] != null ? S.t[s.k] + ' s' : '-'} · ${S.clicks[s.k] || 0} clicks · ${(A['note' + s.k] || '-').replace(/\s+/g, ' ')}`));
+    L.push('', 'STATEMENTS (1-5)'); STMTS.forEach((q, i) => L.push(`${i + 1}. ${A['st' + i] || '-'}  ${q}`));
     L.push('', 'UMUX-LITE (1-7): ' + UMUX.map((q, i) => `${A['ux' + i] || '-'} ${q}`).join(' | ')); const sc = umux(); L.push('UMUX-Lite score (0-100): ' + (sc == null ? 'incomplete' : sc));
     L.push('', 'IN PRACTICE'); OPEN.forEach(([k, q]) => L.push(`${q} ${(A['open' + k] || '-').replace(/\s+/g, ' ')}`));
     return L.join('\n'); }
+  function canNext() { const s = S.step, A = S.a; if (s === 0) return FAM.filter((_, i) => S.fam[i]).length >= 2 || !!S.famSkip;
+    if (s <= 6) { const x = SIT[s - 1]; return guideDone() && !!A['done' + x.k] && !!A['seq' + x.k]; } if (s === 7) return STMTS.every((_, i) => A['st' + i]); if (s === 8) return UMUX.every((_, i) => A['ux' + i]); return true; }
   function render() {
     const s = S.step; el.querySelector('.rv-bar i').style.width = (s / (N - 1) * 100) + '%';
-    el.querySelector('.rv-step').textContent = s === 0 ? 'About 30 minutes' : s <= 1 ? 'Before you look' : s <= 7 ? `Situation ${s - 1} of 6` : s === 8 ? 'Seven statements' : s === 9 ? 'Ease of use' : s === 10 ? 'In your practice' : 'Send';
-    let h = '', canNext = true;
+    el.querySelector('.rv-step').textContent = s === 0 ? 'Get familiar' : s <= 6 ? `Situation ${s} of 6` : s === 7 ? 'Your judgement' : s === 8 ? 'Ease of use' : s === 9 ? 'In your practice' : 'Send';
+    let h = '';
     if (s === 0) {
-      h = `<h3>Thank you for reviewing this map</h3><p>This map of the footpath on Old Nagardas Road, Andheri East, was built from 34 phone walks along 220 m. You will answer two quick questions, work through six situations a planner or designer might face, and then give your view. The map is being tested, not you.</p>
-      <p class="rv-note">When you press Start, a short tour shows what the map is for and how to read it. This panel then comes back with the tasks. Click Hide at any time to see more of the map; the Review tab brings the panel back.</p>
-      <label class="rv-ok"><input type="checkbox" data-c="consent"${S.a.consent ? ' checked' : ''}> <span>I agree that my answers may be used in this M.Des project report and presentation, anonymously unless I allow my name below. My answers are sent by email to the student.</span></label>
-      <label class="f">Your role<select data-k="role"><option value="">Choose one</option>${['Architect', 'Urban planner', 'Urban designer', 'Academic', 'Other'].map(o => `<option${S.a.role === o ? ' selected' : ''}>${o}</option>`).join('')}</select></label>
-      <label class="f">Years in practice<input type="number" min="0" max="60" data-k="years" value="${esc(S.a.years || '')}"></label>
-      <label class="f">Name (optional)<input type="text" data-k="name" value="${esc(S.a.name || '')}"></label>
-      <label class="f">May your name appear in the report?<select data-k="nameok">${['No, keep me anonymous', 'Yes, in the acknowledgements'].map(o => `<option${S.a.nameok === o ? ' selected' : ''}>${o}</option>`).join('')}</select></label>`;
-      canNext = !!S.a.consent && !!S.a.role;
-    } else if (s === 1) {
-      h = `<h3>Before you look closely</h3><p>From your experience of Mumbai streets, answer before exploring the map.</p>
-      <label class="f">How much of this 220 m footpath do you expect meets the BMC minimum of 1.5 m clear? (percent)<input type="number" min="0" max="100" data-k="expect" value="${esc(S.a.expect ?? '')}"></label>
-      <div class="rv-q"><span class="rv-lbl">What do you expect takes up most of the footpath here?</span>${chips('expectBlock', EXPECT_BLOCK)}</div>`;
-      canNext = S.a.expect !== undefined && S.a.expect !== '' && !!S.a.expectBlock;
-    } else if (s <= 7) {
-      const [k, t, q, opts, prompt] = TASKS[s - 2];
-      h = `<div class="rv-task"><span class="k">Situation ${k}</span><b>${t}</b><p>${q}</p></div><p class="rv-note">Use the map to answer. Time on this one: <span class="rv-timer">0:00</span></p>
-      ${ta('note' + k, prompt)}
-      <div class="rv-q"><span class="rv-lbl">${k === 'f' ? 'Does the width match the photos?' : 'Could you find an answer on the map?'}</span>${chips('done' + k, opts)}</div>
-      <div class="rv-q"><span class="rv-lbl">How easy was it to find?</span>${scale('seq' + k, 7, '1 very hard', '7 very easy')}</div>`;
-      canNext = !!S.a['done' + k] && !!S.a['seq' + k];
+      h = `<h3>Get familiar with the map</h3><p>Take two minutes to look around. Try these, in any order. They tick off as you do them.</p>
+      <ul class="rv-guide">${FAM.map(([t], i) => `<li class="${S.fam[i] ? 'ok' : ''}">${t}</li>`).join('')}</ul>
+      <p class="rv-note">The tour can be opened again from the menu at the top left.</p>${S.famSkip ? '' : '<button class="rv-skip" data-rv="famskip" type="button">I have looked around enough</button>'}`;
+    } else if (s <= 6) {
+      const x = SIT[s - 1], gi = guideAt(), done = guideDone();
+      h = `<div class="rv-task"><span class="k">Situation ${x.k}</span><b>${x.t}</b><p class="who">${x.who}</p></div>
+      <div class="rv-q first"><span class="rv-lbl">${done ? 'Done. Now the question.' : 'First, on the map, click what is highlighted:'}</span><ol class="rv-guide">${x.guide.map(([, t], i) => `<li class="${i < gi ? 'ok' : i === gi ? 'now' : ''}">${t}</li>`).join('')}</ol>${done ? '' : '<button class="rv-skip" data-rv="gskip" type="button">Skip this step</button>'}</div>`;
+      if (done) h += `<div class="rv-q"><b>${x.q}</b><p class="rv-note">Explore as much as you need. Time on this situation: <span class="rv-timer">0:00</span></p></div>
+      ${ta('note' + x.k, x.prompt)}
+      <div class="rv-q"><span class="rv-lbl">${x.choiceQ || 'Could you find an answer on the map?'}</span>${chips('done' + x.k, x.choice || DONE)}</div>
+      <div class="rv-q"><span class="rv-lbl">How easy was it?</span>${scale('seq' + x.k, 7, '1 very hard', '7 very easy')}</div>`;
+    } else if (s === 7) {
+      h = `<h3>Your judgement as a practitioner</h3><p class="rv-note">1 strongly disagree · 5 strongly agree</p>` + STMTS.map((q, i) => `<div class="rv-q${i ? '' : ' first'}"><span>${i + 1}. ${q}</span>${scale('st' + i, 5, 'Disagree', 'Agree')}</div>`).join('');
     } else if (s === 8) {
-      h = `<h3>Your judgement as a practitioner</h3><p class="rv-note">1 strongly disagree · 5 strongly agree</p>` + STMTS.map((q, i) => `<div class="rv-q"><span>${i + 1}. ${q}</span>${scale('st' + i, 5, 'Disagree', 'Agree')}</div>`).join('');
-      canNext = STMTS.every((_, i) => S.a['st' + i]);
+      h = `<h3>Ease of use</h3><p class="rv-note">Two statements. 1 strongly disagree · 7 strongly agree</p>` + UMUX.map((q, i) => `<div class="rv-q${i ? '' : ' first'}"><span>${q}</span>${scale('ux' + i, 7, 'Disagree', 'Agree')}</div>`).join('');
     } else if (s === 9) {
-      h = `<h3>Ease of use</h3><p class="rv-note">Two statements. 1 strongly disagree · 7 strongly agree</p>` + UMUX.map((q, i) => `<div class="rv-q"><span>${q}</span>${scale('ux' + i, 7, 'Disagree', 'Agree')}</div>`).join('');
-      canNext = UMUX.every((_, i) => S.a['ux' + i]);
-    } else if (s === 10) {
-      h = `<h3>In your practice</h3>` + OPEN.map(([k, q]) => ta('open' + k, q)).join('');
+      h = `<h3>In your practice</h3><p class="rv-note">At the start you expected ${S.a.expect != null && S.a.expect !== '' ? S.a.expect + '%' : 'some'} of the footpath to meet 1.5 m, and ${esc((S.a.expectBlock || 'something').toLowerCase())} to take most of it.</p>` + OPEN.map(([k, q]) => ta('open' + k, q)).join('');
     } else {
-      h = `<h3>${S.sent ? 'Sent. Thank you.' : 'Send your answers'}</h3>
-      <p>${S.sent ? 'Your answers have reached the student. You can close this page.' : 'Press Send. Your answers go straight to the student by email.'}</p>
-      <div class="rv-st" role="status"></div>
+      h = `<h3>${S.sent ? 'Sent. Thank you.' : 'Send your answers'}</h3><p>${S.sent ? 'Your answers have reached Kanak. You can close this page.' : 'Press Send. Your answers go straight to Kanak by email.'}</p><div class="rv-st" role="status"></div>
       <details><summary class="rv-note">See or copy your answers</summary><textarea class="rv-out" readonly>${esc(summary())}</textarea></details>`;
     }
-    bd.innerHTML = h; bd.scrollTop = 0;
+    const keep = bd.scrollTop; bd.innerHTML = h; bd.scrollTop = s === lastStep ? keep : 0; lastStep = s;
     const back = s > 0 ? '<button class="rv-b g" data-rv="back" type="button">Back</button>' : '';
-    const fwd = s === 0 ? `<button class="rv-b g" data-rv="tour" type="button">Show the tour</button><span class="rv-sp"></span><button class="rv-b p" data-rv="next" type="button"${canNext ? '' : ' disabled'}>Start</button>`
-      : s < N - 1 ? `<span class="rv-sp"></span><button class="rv-b p" data-rv="next" type="button"${canNext ? '' : ' disabled'}>Next</button>`
-      : `<span class="rv-sp"></span><button class="rv-b p" data-rv="send" type="button"${S.sent ? ' disabled' : ''}>${S.sent ? 'Sent' : 'Send'}</button>`;
-    ft.innerHTML = back + fwd;
-    if (s >= 2 && s <= 7) startTimer(TASKS[s - 2][0]); else stopTimer();
-  }
-  const refreshNext = () => { const b = ft.querySelector('[data-rv="next"]'); if (!b) return; const keep = bd.scrollTop; const s = S.step; let ok = true;
-    if (s === 0) ok = !!S.a.consent && !!S.a.role; else if (s === 1) ok = S.a.expect !== undefined && S.a.expect !== '' && !!S.a.expectBlock; else if (s <= 7) { const k = TASKS[s - 2][0]; ok = !!S.a['done' + k] && !!S.a['seq' + k]; } else if (s === 8) ok = STMTS.every((_, i) => S.a['st' + i]); else if (s === 9) ok = UMUX.every((_, i) => S.a['ux' + i]);
-    b.disabled = !ok; bd.scrollTop = keep; };
-  bd.addEventListener('input', e => { const t = e.target; if (t.dataset.k) S.a[t.dataset.k] = t.value; if (t.dataset.c) S.a[t.dataset.c] = t.checked; if (t.type === 'radio') S.a[t.name] = t.value; save(); refreshNext(); });
-  bd.addEventListener('change', e => { const t = e.target; if (t.dataset.k) S.a[t.dataset.k] = t.value; if (t.type === 'radio') S.a[t.name] = t.value; if (t.dataset.c) S.a[t.dataset.c] = t.checked; save(); refreshNext(); });
+    ft.innerHTML = back + '<span class="rv-sp"></span>' + (s < N - 1 ? `<button class="rv-b p" data-rv="next" type="button"${canNext() ? '' : ' disabled'}>Next</button>` : `<button class="rv-b p" data-rv="send" type="button"${S.sent ? ' disabled' : ''}>${S.sent ? 'Sent' : 'Send'}</button>`);
+    if (s >= 1 && s <= 6) startTimer(SIT[s - 1].k); else stopTimer(); }
+  let lastStep = -1, lastGi = -1;
+  const refreshNext = () => { const b = ft.querySelector('[data-rv="next"]'); if (b) b.disabled = !canNext(); };
+  function enterStep(n) { S.step = n; save(); clearRing(); const x = sit();
+    if (x && !(S.g[x.k] >= x.guide.length)) { S.g[x.k] = 0; save(); try { x.prep(); } catch (e) {} const pre = x.guide[0][3]; if (pre) setTimeout(pre, 650); }
+    else if (n === 0) reset();
+    lastGi = guideAt(); if (phoneW() && !(x && !guideDone())) { S.userHid = false; setOpen(true); } render(); }
+  function tick() {
+    if (S.phase !== 'panel') return;
+    if (S.step === 0) { let ch = false; FAM.forEach(([, f], i) => { try { if (!S.fam[i] && f()) { S.fam[i] = true; ch = true; } } catch (e) {} }); if (ch) { save(); render(); } clearRing(); }
+    const x = sit();
+    if (x) { let gi = guideAt();
+      while (gi < x.guide.length) { let ok = false; try { ok = x.guide[gi][2](); } catch (e) {} if (!ok) break; gi++; S.g[x.k] = gi; save(); const pre = x.guide[gi] && x.guide[gi][3]; if (pre) setTimeout(pre, 300); }
+      if (gi !== lastGi) { lastGi = gi; render(); if (gi >= x.guide.length && phoneW()) { S.userHid = false; setOpen(true); } }
+      if (gi < x.guide.length) { if (phoneW() && !el.classList.contains('min')) setOpen(false); placeRing(x.guide[gi][0], x.guide[gi][1]); } else clearRing(); }
+    const tm = el.querySelector('.rv-timer'); if (tm && cur && t0) { const v = Math.round((S.t[cur] || 0) + (Date.now() - t0) / 1000); tm.textContent = Math.floor(v / 60) + ':' + String(v % 60).padStart(2, '0'); } }
+  setInterval(tick, 350);
+  const bdSet = e => { const t = e.target; if (t.dataset.k) S.a[t.dataset.k] = t.value; if (t.type === 'radio') S.a[t.name] = t.value; save(); refreshNext(); };
+  bd.addEventListener('input', bdSet); bd.addEventListener('change', bdSet);
   el.addEventListener('click', async e => { const b = e.target.closest('[data-rv]'); if (!b) return; const a = b.dataset.rv;
-    if (a === 'min') { setOpen(false); return; }
-    if (a === 'tour') { runTour(S.step); return; }
-    if (a === 'back') { S.step = Math.max(0, S.step - 1); save(); render(); return; }
-    if (a === 'next') { if (S.step === 0 && !S.tourDone) { runTour(1); return; } S.step = Math.min(N - 1, S.step + 1); save(); render(); return; }
+    if (a === 'min') { S.userHid = true; setOpen(false); return; }
+    if (a === 'famskip') { S.famSkip = true; save(); render(); return; }
+    if (a === 'gskip') { const x = sit(); S.g[x.k] = (S.g[x.k] || 0) + 1; S.gSkipped = (S.gSkipped || 0) + 1; save(); const pre = x.guide[S.g[x.k]] && x.guide[S.g[x.k]][3]; if (pre) pre(); return; }
+    if (a === 'back') { enterStep(Math.max(0, S.step - 1)); return; }
+    if (a === 'next') { enterStep(Math.min(N - 1, S.step + 1)); return; }
     if (a === 'send') { const st = bd.querySelector('.rv-st'); b.disabled = true; st.classList.remove('rv-err'); st.textContent = 'Sending…';
-      const body = { _subject: `Pedestrian map review · ${S.a.role || 'reviewer'}${S.a.name ? ' · ' + S.a.name : ''}`, _template: 'box', _captcha: 'false', role: S.a.role || '', years: S.a.years || '', name: S.a.name || '', answers: summary(), data: JSON.stringify({ a: S.a, t: S.t, clicks: S.clicks, umux: umux() }) };
+      const body = { _subject: `Pedestrian map review · ${S.a.role || 'reviewer'}${S.a.name ? ' · ' + S.a.name : ''}`, _template: 'box', _captcha: 'false', role: S.a.role || '', years: S.a.years || '', name: S.a.name || '', answers: summary(), data: JSON.stringify({ a: S.a, t: S.t, clicks: S.clicks, fam: S.fam, guideSkips: S.gSkipped || 0, umux: umux() }) };
       try { const r = await fetch(SEND_TO, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) }); const j = await r.json().catch(() => ({}));
-        if (r.ok && String(j.success) === 'true') { S.sent = true; save(); render(); }
-        else throw new Error(j.message || ('status ' + r.status)); }
-      catch (err) { st.classList.add('rv-err'); st.textContent = 'Could not send just now. Open “See or copy your answers”, copy them, and email them to the student.'; b.disabled = false; } } });
-  let afterTour = null;
-  function runTour(next) { if (typeof startTour !== 'function') { S.step = next; save(); render(); return; } stopTimer(); afterTour = next; setOpen(false); startTour(); }
-  document.addEventListener('tourend', () => { if (afterTour == null) return; S.tourDone = true; S.step = afterTour; afterTour = null; save(); setOpen(true); render(); });
-  tab.addEventListener('click', () => setOpen(true));
-  render();
+        if (r.ok && String(j.success) === 'true') { S.sent = true; save(); render(); } else throw new Error(j.message || ('status ' + r.status)); }
+      catch (err) { st.classList.add('rv-err'); st.textContent = 'Could not send just now. Open “See or copy your answers”, copy them, and email them to Kanak.'; b.disabled = false; } } });
+  tab.addEventListener('click', () => { S.userHid = false; setOpen(true); });
+  if (S.phase === 'welcome' || S.phase === 'expect') { wl.hidden = false; renderWelcome(); }
+  else if (S.phase === 'tour') runTour();
+  else { setOpen(true); enterStep(S.step); }
 })();
 </script>
