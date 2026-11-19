@@ -146,7 +146,7 @@ nav.sub button[aria-current=true]{color:var(--ink);text-decoration:underline;tex
     <div>
       <div class="eyebrow">A pedestrian map · Andheri East, Mumbai · <a href="map.html" style="color:inherit">Open the map →</a></div>
       <h1>Old Nagardas Road <em>on foot</em></h1>
-      <div class="meta"><span><b>220 m</b> R.K. Chouhan Communications → Amratlal G. Vasani</span><span><b>15</b> walks · 11 day · 4 night</span><span><b>Oct 2026</b></span></div>
+      <div class="meta"><span><b>220 m</b> R.K. Chouhan Communications → Amratlal G. Vasani</span><span><b>34</b> walks · 21 day · 13 night</span><span><b>Oct–Nov 2026</b></span></div>
     </div>
     <div class="walks">
       <div class="ttl">Walks shown</div>
@@ -604,7 +604,7 @@ PAGES.connect = S => { const base = location.href.split('#')[0];
 const USES = [
   ['now', 'Can a wheelchair get through?', 'Wheelchair users, carers with prams, older people', 'Where the footpath is wide enough on most days, and where you will be forced into the road.', [['through', 'Can I get through?'], ['line', 'Walk-line']]],
   ['now', 'Who has to act on each stretch', 'Ward office: encroachment, works and parking teams', 'Fixed things need works, persistent stalls need enforcement, parked vehicles need parking control. The map sorts the footpath by owner.', [['fills', 'Lost to'], ['plan', 'Obstruction plan']]],
-  ['now', 'Proof for a complaint or a petition', 'Residents, advocacy groups, lawyers', 'Dated, repeated and photographed: blocked on 13 of 15 walks, not “the footpath is bad”.', [['nolli', 'Nolli'], ['collage', 'Ground collage']]],
+  ['now', 'Proof for a complaint or a petition', 'Residents, advocacy groups, lawyers', 'Dated, repeated and photographed: blocked on 27 of 33 walks, not “the footpath is bad”.', [['nolli', 'Nolli'], ['collage', 'Ground collage']]],
   ['now', 'Where street vending can fit', 'Town vending committees under the Street Vendors Act, 2014', 'Where stalls already sit and where they leave the walking path free, so vending zones do not take the footpath.', [['plan', 'Obstruction plan'], ['ghost', 'Ghost']]],
   ['now', 'Is it safe after dark?', 'Women’s safety audits, residents walking home', 'Which stretches get darker and narrower at night.', [['daynight', 'Day & night']]],
   ['now', 'Did the cleanup work?', 'Ward office, residents', 'Walk again after a drive or a repair and compare the same stretch, measured the same way.', [['ghost', 'Ghost'], ['block', 'Space-time block']]],
@@ -614,7 +614,7 @@ const USES = [
   ['next', 'Ward report cards', 'Corporators, citizens, journalists', 'How many stretches in each ward are walkable, updated as walks come in.', [['line', 'Walk-line']], 'needs many streets per ward'],
   ['next', 'Monsoon, heat and shade', 'Disaster management, urban designers', 'The same method on rainy days and at midday: waterlogged and unshaded stretches.', [['layers', 'What a walker meets']], 'needs walks in other seasons'],
   ['next', 'A city map made by walkers', 'Anyone with a phone', 'Every walk recorded adds to the map; the same pipeline, at the scale of the city.', [['block', 'Space-time block']], 'needs the capture tool in more hands']];
-PAGES.uses = () => `<h2>Uses</h2><p class="lede">What a pedestrian map is for, beyond this jury. The first group works with the 15 walks already recorded; the second needs more walks or new kinds of data.</p>
+PAGES.uses = () => `<h2>Uses</h2><p class="lede">What a pedestrian map is for, beyond this jury. The first group works with the 34 walks already recorded; the second needs more walks or new kinds of data.</p>
   <div class="grp">Possible now, with these walks</div>${USES.filter(u => u[0] === 'now').map((u, k) => useRow(u, k)).join('')}
   <div class="grp">Next, with more walks</div>${USES.filter(u => u[0] === 'next').map((u, k) => useRow(u, k + 6)).join('')}`;
 const useRow = (u, k) => `<div class="use"><div class="n">${String(k + 1).padStart(2, '0')}</div><div><h3>${u[1]}</h3><div class="who">${u[2]}</div></div><div><p>${u[3]}</p>${u[5] ? `<div class="tag" style="margin-top:6px">${u[5]}</div>` : ''}</div><div class="go">${u[4].map(([v, l]) => `<button data-go="${v}">${l} →</button>`).join('')}</div></div>`;

@@ -79,7 +79,7 @@ nav.links a[aria-current=page]{background:var(--ink);color:#fff}
 <div class="wrap">
   <header>
     <div><div class="eyebrow">Pedestrian map · data</div><h1>Old Nagardas Road, in numbers</h1>
-      <p class="sub">Fifteen walks along 220 m in Andheri East, October 2026. Every chart below can be saved for a report, a spreadsheet, a slide or a design file.</p></div>
+      <p class="sub">Thirty-four walks along 220 m in Andheri East, October–November 2026. Every chart below can be saved for a report, a spreadsheet, a slide or a design file.</p></div>
     <nav class="links"><a href="map.html">Map</a><a href="index.html">Atlas</a><a href="data.html" aria-current="page">Data</a></nav>
   </header>
   <div class="bar"><span class="lab">Walks</span><div class="seg" id="dir"><button data-v="both">Both directions</button><button data-v="f">A → B</button><button data-v="r">B → A</button></div>
@@ -190,7 +190,7 @@ function render() { const S = stats();
   const host = document.getElementById('charts'); const open = {}; host.querySelectorAll('.chart').forEach(c => open[c.dataset.id] = !c.querySelector('.tbl').hidden); host.innerHTML = '';
   CHARTS.forEach(c => { const card = document.createElement('section'); card.className = 'chart' + (c.wide ? ' wide' : ''); card.dataset.id = c.id;
     const leg = c.legend(); card.innerHTML = `<h2>${c.title}</h2><p class="take">${c.take(S)}</p>${leg.length ? `<div class="legend">${leg.map(([col, l]) => `<span><i style="${col === 'hatch' ? 'background:repeating-linear-gradient(45deg,var(--paper) 0 3px,var(--hair) 3px 5px)' : col === 'line' ? 'width:3px;height:12px;background:var(--ink)' : col === 'dot' ? 'width:8px;height:8px;border-radius:50%;background:var(--ink)' : col === 'ramp' ? 'width:40px;background:linear-gradient(90deg,rgb(235,244,241),rgb(8,84,78))' : 'background:' + col}"></i>${l}</span>`).join('')}</div>` : ''}<div class="plot"></div>
-      <div class="foot"><span class="src">Source · 15 walks, Oct 2026</span><button data-a="table">${open[c.id] ? 'Hide table' : 'Table'}</button><button data-a="svg">SVG</button><button data-a="png">PNG</button><button data-a="csv">CSV</button></div><div class="tbl" ${open[c.id] ? '' : 'hidden'}></div>`;
+      <div class="foot"><span class="src">Source · 34 walks, Oct–Nov 2026</span><button data-a="table">${open[c.id] ? 'Hide table' : 'Table'}</button><button data-a="svg">SVG</button><button data-a="png">PNG</button><button data-a="csv">CSV</button></div><div class="tbl" ${open[c.id] ? '' : 'hidden'}></div>`;
     host.appendChild(card); const s = c.draw(S); s.setAttribute('aria-label', c.title); card.querySelector('.plot').appendChild(s); svgs[c.id] = s;
     if (open[c.id]) card.querySelector('.tbl').innerHTML = table(c.rows(S)); });
 }
@@ -215,7 +215,7 @@ const sheets = () => { const S = stats(); return {
   'Walk x stretch': CHARTS[1].rows(S),
   Obstructions: D.dets.filter(d => W().some(w => !w.night && w.day === d[4] && (w.dir === 'forward') === (d[3] === 'f'))).map(d => ({ along_m: d[0], across_path: d[1], kind: d[2], direction: d[3] === 'f' ? 'A→B' : 'B→A', day: d[4] })),
   Horns: W().flatMap(w => w.honks.map(m => ({ walk: w.label, at_m: m }))), Swerves: W().flatMap(w => w.swerves.map(m => ({ walk: w.label, at_m: m }))),
-  Method: [{ note: 'Old Nagardas Road, Andheri East (K/East ward), 220 m from R.K. Chouhan Communications to Amratlal G. Vasani. 15 walks in Oct 2026, one side of the road.' }, { note: 'Clear width: free walkway traced in walk photos per 10 m; camera estimates, not tape-measured; stretch value = median of daytime walks that could measure it.' }, { note: 'Blocked: the worst photo in the stretch scored obstruction 1.4 or higher.' }, { note: 'Night light: walking-surface brightness in night photos relative to the route’s usual night frame; ranks stretches, not lux.' }, { note: 'Underpass walkway 160–190 m is not measurable from photos.' }] }; };
+  Method: [{ note: 'Old Nagardas Road, Andheri East (K/East ward), 220 m from R.K. Chouhan Communications to Amratlal G. Vasani. 34 walks in Oct–Nov 2026, one side of the road.' }, { note: 'Clear width: free walkway traced in walk photos per 10 m; camera estimates, not tape-measured; stretch value = median of daytime walks that could measure it.' }, { note: 'Blocked: the worst photo in the stretch scored obstruction 1.4 or higher.' }, { note: 'Night light: walking-surface brightness in night photos relative to the route’s usual night frame; ranks stretches, not lux.' }, { note: 'Underpass walkway 160–190 m is not measurable from photos.' }] }; };
 const EXPORTS = [
   ['Ward office', 'PDF report', 'A printable report: headline numbers and every chart, one per page.', 'pdf'],
   ['Analysts', 'Excel workbook', 'Six sheets: stretches, every walk by stretch, obstructions, horns, swerves and the method.', 'xlsx'],
@@ -229,11 +229,11 @@ document.getElementById('exports').addEventListener('click', async e => { const 
   if (k === 'pdf') await pdf(); } catch (err) { toast(err.message || 'Could not build the file.'); } b.disabled = false; });
 async function pdf() { if (!window.jspdf) throw new Error('The PDF library did not load.'); const { jsPDF } = window.jspdf, doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' }), S = stats();
   doc.setFont('times', 'normal'); doc.setFontSize(24); doc.text('Old Nagardas Road, in numbers', 16, 24); doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(80);
-  doc.text(doc.splitTextToSize('Footpath along 220 m in Andheri East (K/East ward), from 15 walks in October 2026. Clear width is traced from walk photos (camera estimates). One side of the road was walked.', 260), 16, 32);
+  doc.text(doc.splitTextToSize('Footpath along 220 m in Andheri East (K/East ward), from 34 walks in October–November 2026. Clear width is traced from walk photos (camera estimates). One side of the road was walked.', 260), 16, 32);
   document.querySelectorAll('.tile').forEach((t, j) => { const x = 16 + j * 54; doc.setTextColor(20); doc.setFontSize(20); doc.text(t.querySelector('b').textContent, x, 56); doc.setFontSize(8.5); doc.setTextColor(90); doc.text(doc.splitTextToSize(t.querySelector('span').textContent, 48), x, 62); });
   doc.setFontSize(8); doc.setTextColor(120); doc.text(doc.splitTextToSize(document.querySelector('.note').textContent, 265), 16, 182);
   for (const c of CHARTS) { const p = await svgToPng(svgs[c.id], 2); doc.addPage(); doc.setTextColor(20); doc.setFont('times', 'normal'); doc.setFontSize(18); doc.text(c.title, 16, 20); doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(80); doc.text(doc.splitTextToSize(c.take(S), 265), 16, 28);
-    const maxW = 265, maxH = 150, k = Math.min(maxW / p.w, maxH / p.h); doc.addImage(p.jpg, 'JPEG', 16, 40, p.w * k, p.h * k); doc.setFontSize(8); doc.setTextColor(130); doc.text('Source: 15 walks on Old Nagardas Road, Oct 2026.', 16, 200); }
+    const maxW = 265, maxH = 150, k = Math.min(maxW / p.w, maxH / p.h); doc.addImage(p.jpg, 'JPEG', 16, 40, p.w * k, p.h * k); doc.setFontSize(8); doc.setTextColor(130); doc.text('Source: 34 walks on Old Nagardas Road, Oct–Nov 2026.', 16, 200); }
   await save('old-nagardas-road-footpath-report.pdf', doc.output('blob')); }
 document.getElementById('charts').addEventListener('click', async e => { const b = e.target.closest('[data-a]'); if (!b) return; const card = b.closest('.chart'), c = CHARTS.find(x => x.id === card.dataset.id), S = stats(), base = `old-nagardas-${c.id}`;
   if (b.dataset.a === 'table') { const t = card.querySelector('.tbl'); t.hidden = !t.hidden; if (!t.hidden) t.innerHTML = table(c.rows(S)); b.textContent = t.hidden ? 'Table' : 'Hide table'; }

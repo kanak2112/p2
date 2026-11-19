@@ -1,0 +1,177 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<title>Pedestrian Map Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Roboto+Serif:opsz,wght@8..144,500;8..144,600&display=swap">
+<style>
+/* Layout: one reading column of numbered steps, like a field survey sheet; answers summarised at the end. */
+:root {
+  --bg: #F3F4F0; --card: #FFFFFF; --fg: #141414; --fg2: #4E534C; --line: #D5DAD1;
+  --accent: #12867E; --accent-ink: #FFFFFF; --amber: #B5760E; --soft: #E4F1EF;
+  --display: "Roboto Serif", Georgia, "Times New Roman", serif;
+  --body: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121513; --card: #1B1F1C; --fg: #EDEFEA; --fg2: #A9B0A6; --line: #2E3530;
+  --accent: #3DB3A9; --accent-ink: #0B1513; --amber: #E2A84A; --soft: #16302D; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #121513; --card: #1B1F1C; --fg: #EDEFEA; --fg2: #A9B0A6; --line: #2E3530;
+  --accent: #3DB3A9; --accent-ink: #0B1513; --amber: #E2A84A; --soft: #16302D; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--fg); font: 16px/1.55 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 32px 64px }
+.wrap { max-width: 760px; margin: 0 auto; display: grid; gap: 20px }
+h1, h2 { font-family: var(--display); font-weight: 600; text-wrap: balance; margin: 0; letter-spacing: -0.01em }
+h1 { font-size: clamp(28px, 5vw, 38px); line-height: 1.15 }
+h2 { font-size: 22px; line-height: 1.25 }
+p { margin: 0 }
+.lede { color: var(--fg2); max-width: 62ch }
+.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent) }
+section { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 22px; display: grid; gap: 16px; min-width: 0 }
+.head { display: flex; gap: 12px; align-items: baseline }
+.num { font-family: var(--display); font-size: 15px; color: var(--accent); font-variant-numeric: tabular-nums; min-width: 1.5em }
+.btn { display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 8px; padding: 11px 16px; font: 600 15px var(--body); cursor: pointer; text-decoration: none }
+.btn.primary { background: var(--accent); color: var(--accent-ink) }
+.btn.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line) }
+.btn:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, .scale label:focus-within { outline: 3px solid var(--accent); outline-offset: 2px }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center }
+label.f { display: grid; gap: 6px; font-weight: 500; font-size: 15px; min-width: 0 }
+input[type=text], input[type=number], select, textarea { font: 15px var(--body); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; width: 100% }
+textarea { min-height: 76px; resize: vertical }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px }
+.task { border-top: 1px solid var(--line); padding-top: 16px; display: grid; gap: 12px }
+.task:first-of-type { border-top: 0; padding-top: 0 }
+.task h3 { font-size: 16px; margin: 0; font-weight: 600 }
+.task .q { margin: 0 }
+.task .ok { font-size: 13px; color: var(--fg2) }
+.lbl { font-size: 13px; color: var(--fg2); font-weight: 500 }
+.scale { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 6px }
+.scale label { display: grid; place-items: center; border: 1px solid var(--line); border-radius: 8px; padding: 8px 0; cursor: pointer; font-variant-numeric: tabular-nums; font-weight: 500 }
+.scale input { position: absolute; opacity: 0; width: 1px; height: 1px }
+.scale label:has(input:checked) { background: var(--accent); color: var(--accent-ink); border-color: var(--accent) }
+.ends { display: flex; justify-content: space-between; font-size: 12px; color: var(--fg2) }
+.chips { display: flex; flex-wrap: wrap; gap: 8px }
+.chips label { border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; cursor: pointer; font-size: 14px; font-weight: 500 }
+.chips input { position: absolute; opacity: 0; width: 1px; height: 1px }
+.chips label:has(input:checked) { background: var(--soft); border-color: var(--accent); color: var(--fg) }
+.chips label:focus-within { outline: 3px solid var(--accent); outline-offset: 2px }
+.stmt { display: grid; gap: 8px; padding-top: 14px; border-top: 1px solid var(--line) }
+.stmt:first-of-type { border-top: 0; padding-top: 0 }
+.consent { display: flex; gap: 10px; align-items: flex-start; font-size: 15px }
+.consent input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--accent) }
+.out { width: 100%; min-height: 260px; font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace }
+.meter { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap }
+.meter b { font-family: var(--display); font-size: 28px; font-variant-numeric: tabular-nums }
+.note { font-size: 13px; color: var(--fg2) }
+.status { font-size: 14px; color: var(--accent); font-weight: 500; min-height: 1.4em }
+.prog { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 8px; font-size: 13px; color: var(--fg2); display: flex; gap: 10px; align-items: center }
+.bar { flex: 1; height: 4px; background: var(--line); border-radius: 4px; overflow: hidden }
+.bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .3s }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg) }
+@media (prefers-reduced-motion: reduce) { .bar i { transition: none } }
+</style>
+
+<div class="wrap">
+  <header style="display:grid;gap:10px">
+    <div class="eyebrow">M.Des Project 2 · IDC School of Design, IIT Bombay</div>
+    <h1>Pedestrian Map Review</h1>
+    <p class="lede">Thank you for reviewing this map of the footpath on Old Nagardas Road, Andheri East. It was built from 34 phone walks along 220 m. The review takes about 30 minutes: open the map, try six short tasks, then answer a few questions. Please say out loud, or write down, anything that confuses you. There are no wrong answers. The map is being tested, not you.</p>
+  </header>
+
+  <div class="prog" aria-hidden="true"><span id="progT">0 of 6 sections</span><span class="bar"><i id="progB"></i></span></div>
+
+  <section aria-labelledby="s1">
+    <div class="head"><span class="num">1</span><h2 id="s1">Before you start</h2></div>
+    <p>Open the map in a new tab, ideally on a laptop. The first time, it shows a short tour. Keep this page open beside it.</p>
+    <div class="row"><a class="btn primary" href="../" target="_blank" rel="noopener">Open the map</a><span class="note">Opens in a new tab</span></div>
+    <label class="consent"><input type="checkbox" id="consent"> <span>I agree that my answers may be used, without my name unless I allow it below, in this M.Des project report and its presentation.</span></label>
+    <div class="grid2">
+      <label class="f">Your role
+        <select id="role"><option value="">Choose one</option><option>Architect</option><option>Urban planner</option><option>Urban designer</option><option>Academic</option><option>Other</option></select></label>
+      <label class="f">Years in practice <input type="number" id="years" min="0" max="60" inputmode="numeric"></label>
+      <label class="f">Name (optional) <input type="text" id="name" autocomplete="name"></label>
+      <label class="f">May your name appear in the report?
+        <select id="nameok"><option value="No">No, keep me anonymous</option><option value="Yes">Yes, in the acknowledgements</option></select></label>
+    </div>
+  </section>
+
+  <section aria-labelledby="s2">
+    <div class="head"><span class="num">2</span><h2 id="s2">Six tasks on the map</h2></div>
+    <p class="note">For each task: try it on the map, then say whether you managed, how easy it was, and anything you noticed.</p>
+    <div id="tasks" style="display:grid;gap:16px"></div>
+  </section>
+
+  <section aria-labelledby="s3">
+    <div class="head"><span class="num">3</span><h2 id="s3">Did the map convey the walk?</h2></div>
+    <p class="note">1 strongly disagree · 5 strongly agree</p>
+    <div id="stmts" style="display:grid;gap:14px"></div>
+  </section>
+
+  <section aria-labelledby="s4">
+    <div class="head"><span class="num">4</span><h2 id="s4">Ease of use</h2></div>
+    <p class="note">The System Usability Scale. Answer quickly, with your first reaction. 1 strongly disagree · 5 strongly agree</p>
+    <div id="sus" style="display:grid;gap:14px"></div>
+  </section>
+
+  <section aria-labelledby="s5">
+    <div class="head"><span class="num">5</span><h2 id="s5">In your practice</h2></div>
+    <div id="open" style="display:grid;gap:14px"></div>
+  </section>
+
+  <section aria-labelledby="s6">
+    <div class="head"><span class="num">6</span><h2 id="s6">Send your answers</h2></div>
+    <div class="meter"><span class="lbl">Your usability score</span><b id="susScore">—</b><span class="note" id="susNote">Answer all ten ease-of-use statements to see it. 68 is average.</span></div>
+    <p>Your answers are below. Copy them and send them to Kanak by email or WhatsApp, the way you were contacted. Nothing is sent automatically.</p>
+    <div class="row"><button class="btn primary" id="copy" type="button">Copy my answers</button><button class="btn ghost" id="clear" type="button">Clear the form</button><span class="status" id="st" role="status"></span></div>
+    <textarea class="out" id="out" readonly aria-label="Your answers, ready to copy"></textarea>
+    <p class="note">Your answers are kept in this browser only, so you can come back to them. Clearing the form removes them.</p>
+  </section>
+</div>
+
+<script>
+const TASKS = [
+  ['a', 'Walking directions', 'Plan a walk from Amratlal G. Vasani to R.K. Chouhan Communications. Where would the walk be hard?'],
+  ['b', 'Wheelchair and pram', 'Could a wheelchair get through at 80–90 m, near the green bins?'],
+  ['c', 'Night', 'Which stretch would you avoid after dark, and why?'],
+  ['d', 'Evidence', 'Show that 80–90 m is often blocked, and say who should fix it.'],
+  ['e', 'Day to day', 'On which walk did 80–90 m have the most room?'],
+  ['f', 'Plan a change', 'Try to make 80–90 m meet the BMC minimum of 1.5 m by dragging changes onto it. What works?']];
+const STMTS = ['I could tell how much room there was to walk at each point.', 'I could tell where I would have to step into the road.', 'I understood which parts of the footpath had not been measured.', 'What the map showed was believable for a street like this.', 'The photos helped me trust what the map showed.', 'After using the map, I would choose my route differently.'];
+const SUS = ['I think that I would like to use this map frequently.', 'I found the map unnecessarily complex.', 'I thought the map was easy to use.', 'I think that I would need the support of a technical person to be able to use this map.', 'I found the various functions in this map were well integrated.', 'I thought there was too much inconsistency in this map.', 'I would imagine that most people would learn to use this map very quickly.', 'I found the map very cumbersome to use.', 'I felt very confident using the map.', 'I needed to learn a lot of things before I could get going with this map.'];
+const OPEN = [['use', 'Would you use this map in your work? For what?'], ['missing', 'What is missing, or what would you change?'], ['trust', 'Would a ward office trust this as evidence? Why or why not?'], ['hard', 'What was the hardest part?'], ['useful', 'What was the most useful part?']];
+const $ = id => document.getElementById(id);
+const scale = (name, n, lo, hi) => `<div class="scale" style="--n:${n}" role="radiogroup">${Array.from({ length: n }, (_, i) => `<label><input type="radio" name="${name}" value="${i + 1}" id="${name}-${i + 1}"><span>${i + 1}</span></label>`).join('')}</div><div class="ends"><span>${lo}</span><span>${hi}</span></div>`;
+$('tasks').innerHTML = TASKS.map(([k, t, q]) => `<div class="task"><h3>${k}. ${t}</h3><p class="q">${q}</p>
+  <div><div class="lbl" id="d-${k}-l">Did you manage it?</div><div class="chips" role="radiogroup" aria-labelledby="d-${k}-l">${['Yes', 'With difficulty', 'No'].map(v => `<label><input type="radio" name="done-${k}" value="${v}" id="done-${k}-${v.replace(/\W/g, '')}">${v}</label>`).join('')}</div></div>
+  <div><div class="lbl">How easy was it?</div>${scale('seq-' + k, 7, '1 very hard', '7 very easy')}</div>
+  <label class="f"><span class="lbl">What did you find, or notice?</span><textarea id="note-${k}"></textarea></label></div>`).join('');
+$('stmts').innerHTML = STMTS.map((s, i) => `<div class="stmt"><div>${i + 1}. ${s}</div>${scale('st-' + i, 5, 'Strongly disagree', 'Strongly agree')}</div>`).join('');
+$('sus').innerHTML = SUS.map((s, i) => `<div class="stmt"><div>${i + 1}. ${s}</div>${scale('sus-' + i, 5, 'Strongly disagree', 'Strongly agree')}</div>`).join('');
+$('open').innerHTML = OPEN.map(([k, q]) => `<label class="f">${q}<textarea id="open-${k}"></textarea></label>`).join('');
+const radio = n => { const e = document.querySelector(`input[name="${n}"]:checked`); return e ? e.value : ''; };
+function susScore() { const v = SUS.map((_, i) => +radio('sus-' + i)); if (v.some(x => !x)) return null; return v.reduce((a, x, i) => a + (i % 2 === 0 ? x - 1 : 5 - x), 0) * 2.5; }
+function collect() {
+  const L = ['PEDESTRIAN MAP REVIEW', 'Consent: ' + ($('consent').checked ? 'Yes' : 'Not given'), 'Role: ' + ($('role').value || '-') + ' · Years in practice: ' + ($('years').value || '-'), 'Name: ' + ($('name').value.trim() || '-') + ' · Name in report: ' + $('nameok').value, '', 'TASKS (done · ease 1-7 · notes)'];
+  TASKS.forEach(([k, t]) => L.push(`${k}. ${t}: ${radio('done-' + k) || '-'} · ease ${radio('seq-' + k) || '-'} · ${$('note-' + k).value.trim().replace(/\s+/g, ' ') || '-'}`));
+  L.push('', 'STATEMENTS (1-5)'); STMTS.forEach((s, i) => L.push(`${i + 1}. ${radio('st-' + i) || '-'}  ${s}`));
+  L.push('', 'SUS (1-5)'); SUS.forEach((s, i) => L.push(`${i + 1}. ${radio('sus-' + i) || '-'}`)); const sc = susScore(); L.push('SUS score: ' + (sc == null ? 'incomplete' : sc));
+  L.push('', 'IN PRACTICE'); OPEN.forEach(([k, q]) => L.push(`${q} ${$('open-' + k).value.trim().replace(/\s+/g, ' ') || '-'}`));
+  return L.join('\n'); }
+function progress() {
+  const done = [$('consent').checked && $('role').value, TASKS.every(([k]) => radio('done-' + k) && radio('seq-' + k)), STMTS.every((_, i) => radio('st-' + i)), SUS.every((_, i) => radio('sus-' + i)), OPEN.some(([k]) => $('open-' + k).value.trim()), false].filter(Boolean).length;
+  $('progT').textContent = `${done} of 5 sections answered`; $('progB').style.width = (done / 5 * 100) + '%'; }
+const KEY = 'pedmap-review-v1';
+function save() { try { const d = {}; document.querySelectorAll('input,select,textarea').forEach(e => { if (!e.id || e.id === 'out') return; if (e.type === 'radio') { if (e.checked) d[e.name] = e.value; } else if (e.type === 'checkbox') d[e.id] = e.checked; else d[e.id] = e.value; }); localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) {} }
+function load() { try { const d = JSON.parse(localStorage.getItem(KEY) || '{}'); for (const [k, v] of Object.entries(d)) { const r = document.querySelector(`input[name="${k}"][value="${v}"]`); if (r) { r.checked = true; continue; } const e = $(k); if (!e) continue; if (e.type === 'checkbox') e.checked = !!v; else e.value = v; } } catch (e) {} }
+function refresh() { $('out').value = collect(); const sc = susScore(); $('susScore').textContent = sc == null ? '—' : sc; $('susNote').textContent = sc == null ? 'Answer all ten ease-of-use statements to see it. 68 is average.' : (sc >= 68 ? 'Above the average of 68.' : 'Below the average of 68.'); progress(); }
+document.addEventListener('input', () => { save(); refresh(); }); document.addEventListener('change', () => { save(); refresh(); });
+$('copy').addEventListener('click', () => { const t = collect(); const done = () => { $('st').textContent = 'Copied. Paste it into your message to Kanak.'; };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, () => { $('out').focus(); $('out').select(); $('st').textContent = 'Selected. Copy it with Ctrl+C or Cmd+C.'; });
+  else { $('out').focus(); $('out').select(); $('st').textContent = 'Selected. Copy it with Ctrl+C or Cmd+C.'; } });
+let armed = false;
+$('clear').addEventListener('click', () => { if (!armed) { armed = true; $('clear').textContent = 'Click again to clear everything'; setTimeout(() => { armed = false; $('clear').textContent = 'Clear the form'; }, 4000); return; }
+  try { localStorage.removeItem(KEY); } catch (e) {} document.querySelectorAll('input,select,textarea').forEach(e => { if (e.id === 'out') return; if (e.type === 'radio' || e.type === 'checkbox') e.checked = false; else if (e.tagName === 'SELECT') e.selectedIndex = 0; else e.value = ''; });
+  armed = false; $('clear').textContent = 'Clear the form'; $('st').textContent = 'Cleared.'; refresh(); });
+load(); refresh();
+</script>
+
+</body></html>
