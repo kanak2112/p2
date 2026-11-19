@@ -78,6 +78,10 @@
   if (!new URLSearchParams(location.search).has('review')) return;
   const SEND_TO = 'https://formsubmit.co/ajax/kanakkothawale9@gmail.com';
   const KEY = 'pedmap-review-v6';
+  const FORMSPREE = ''; // Formspree form id, e.g. 'xyzabcd': submissions are also kept in its dashboard
+  const LKEY = 'pedmap-review-last';
+  const keepLast = text => { try { localStorage.setItem(LKEY, JSON.stringify({ at: new Date().toISOString(), text })); } catch (e) {} };
+  let lastSent = null; try { lastSent = JSON.parse(localStorage.getItem(LKEY) || 'null'); } catch (e) {}
   const phoneW = () => innerWidth <= 860;
   const reset = () => { try { if (state.mode !== 'walk') setMode('walk'); if (state.night) toggleNight(false); if (state.sv) closeSV(); if (state.view !== 'home') setView('home'); fly(fitBox(), 600); } catch (e) {} };
   const near = (a, b) => () => { try { fly(rangeBox(a, b), 700); } catch (e) {} };
@@ -156,7 +160,7 @@
           <label class="f">Name (optional)<input type="text" data-w="name" value="${esc(A.name || '')}"></label>
           <label class="f">May I name you in the report?<select data-w="nameok">${['No, keep me anonymous', 'Yes, in the acknowledgements'].map(o => `<option${A.nameok === o ? ' selected' : ''}>${o}</option>`).join('')}</select></label></div>
           <label class="ok"><input type="checkbox" data-wc="consent"${A.consent ? ' checked' : ''}> <span>I have read the above and agree to take part.</span></label></div>
-        <div class="ft"><span class="mut" style="font-size:13px;flex:1">Best on a laptop, in a full browser window.</span>${saved ? '<button class="rv-b g" data-w-go="resume" type="button">Continue where you left off</button>' : ''}<button class="rv-b p" data-w-go="expect" type="button"${ok ? '' : ' disabled'}>Start</button></div></div>`;
+        ${lastSent && lastSent.text ? `<div class="form"><details><summary class="mut" style="font-size:13px;cursor:pointer">Your last answers, ${esc(new Date(lastSent.at).toLocaleString())}: see or copy</summary><textarea class="rv-out" readonly style="width:100%;margin-top:8px">${esc(lastSent.text)}</textarea></details></div>` : ''}<div class="ft"><span class="mut" style="font-size:13px;flex:1">Best on a laptop, in a full browser window.</span>${saved ? '<button class="rv-b g" data-w-go="resume" type="button">Continue where you left off</button>' : ''}<button class="rv-b p" data-w-go="expect" type="button"${ok ? '' : ' disabled'}>Start</button></div></div>`;
     } else {
       const ok = A.expect && A.expectBlock;
       wl.innerHTML = `<div class="box"><div class="top"><span class="eb">Before you see the map</span><h2>What do you expect?</h2><p class="mut">Answer from experience.</p></div>
@@ -261,10 +265,14 @@
     if (a === 'back') { enterStep(Math.max(0, S.step - 1)); return; }
     if (a === 'next') { enterStep(Math.min(N - 1, S.step + 1)); return; }
     if (a === 'send') { const st = bd.querySelector('.rv-st'); b.disabled = true; st.classList.remove('rv-err'); st.textContent = 'Sending…';
-      const body = { _subject: `Pedestrian map review · ${S.a.role || 'reviewer'}${S.a.name ? ' · ' + S.a.name : ''}`, _template: 'box', _captcha: 'false', role: S.a.role || '', years: S.a.years || '', name: S.a.name || '', answers: summary(), data: JSON.stringify({ a: S.a, t: S.t, clicks: S.clicks, fam: S.fam, guideSkips: S.gSkipped || 0, umux: umux() }) };
-      try { const r = await fetch(SEND_TO, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) }); const j = await r.json().catch(() => ({}));
-        if (r.ok && String(j.success) === 'true') { S.sent = true; save(); render(); } else throw new Error(j.message || ('server answered ' + r.status)); }
-      catch (err) { const m = String(err && err.message || ''); st.classList.add('rv-err'); st.textContent = (/activat/i.test(m) ? 'Not delivered yet: the form is waiting for Kanak to activate it. ' : 'Could not send' + (m ? ' (' + m.slice(0, 160) + ')' : '') + '. ') + 'Open “See or copy your answers”, copy them, and email them to Kanak.'; b.disabled = false; } } });
+      const text = summary(); keepLast(text);
+      const body = { _subject: `Pedestrian map review · ${S.a.role || 'reviewer'}${S.a.name ? ' · ' + S.a.name : ''}`, _template: 'box', _captcha: 'false', role: S.a.role || '', years: S.a.years || '', name: S.a.name || '', answers: text, data: JSON.stringify({ a: S.a, t: S.t, clicks: S.clicks, fam: S.fam, guideSkips: S.gSkipped || 0, umux: umux() }) };
+      const post = async (url, ok) => { try { const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) }); const j = await r.json().catch(() => ({})); return ok(r, j) ? null : (j.message || (j.errors && j.errors[0] && j.errors[0].message) || 'server answered ' + r.status); } catch (e) { return String(e && e.message || e); } };
+      const jobs = [post(SEND_TO, (r, j) => r.ok && String(j.success) === 'true')]; if (FORMSPREE) jobs.push(post('https://formspree.io/f/' + FORMSPREE, (r, j) => r.ok && j.ok !== false));
+      const errs = await Promise.all(jobs);
+      if (errs.some(e => e === null)) { S.sent = true; save(); render(); }
+      else { const m = errs.filter(Boolean).join('; '); st.classList.add('rv-err'); st.textContent = (/activat/i.test(m) ? 'Not delivered yet: the form is waiting for Kanak to activate it. ' : 'Could not send' + (m ? ' (' + m.slice(0, 160) + ')' : '') + '. ') + 'Open “See or copy your answers”, copy them, and send them to Kanak.'; b.disabled = false; } }
+  });
   tab.addEventListener('click', () => { S.userHid = false; setOpen(true); });
   wl.hidden = false; renderWelcome();
 })();
