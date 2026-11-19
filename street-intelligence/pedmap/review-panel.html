@@ -220,7 +220,7 @@
       h = `<h3>In your practice</h3><p class="rv-note">You expected ${esc(S.a.expect || '-')} to meet 1.5 m, and ${esc((S.a.expectBlock || '-').toLowerCase())} as the main obstruction.</p>` + OPEN.map(([k, q]) => ta('open' + k, q)).join('');
     } else {
       h = `<h3>${S.sent ? 'Sent. Thank you.' : 'Send your answers'}</h3><p>${S.sent ? 'Received. You can close this page.' : 'Answers go to Kanak by email.'}</p><div class="rv-st" role="status"></div>
-      <details><summary class="rv-note">See or copy your answers</summary><textarea class="rv-out" readonly>${esc(summary())}</textarea></details>`;
+      ${S.sent ? '<button class="rv-b g" data-rv="restart" type="button">Start a new review</button>' : ''}<details><summary class="rv-note">See or copy your answers</summary><textarea class="rv-out" readonly>${esc(summary())}</textarea></details>`;
     }
     const keep = bd.scrollTop; bd.innerHTML = h; bd.scrollTop = s === lastStep ? keep : 0; lastStep = s;
     const back = s > 0 ? '<button class="rv-b g" data-rv="back" type="button">Back</button>' : '';
@@ -249,6 +249,7 @@
   el.addEventListener('click', async e => { const b = e.target.closest('[data-rv]'); if (!b) return; const a = b.dataset.rv;
     if (a === 'min') { S.userHid = true; setOpen(false); return; }
     if (a === 'show') { const i = +b.dataset.i; famShow = famShow === i ? null : i; if (famShow != null && phoneW()) { S.userHid = true; setOpen(false); } render(); return; }
+    if (a === 'restart') { try { localStorage.removeItem(KEY); localStorage.removeItem('pedmap-plan'); } catch (e) {} location.reload(); return; }
     if (a === 'famskip') { S.famSkip = true; save(); render(); return; }
     if (a === 'gskip') { const x = sit(); S.g[x.k] = (S.g[x.k] || 0) + 1; S.gSkipped = (S.gSkipped || 0) + 1; save(); const pre = x.guide[S.g[x.k]] && x.guide[S.g[x.k]][3]; if (pre) pre(); return; }
     if (a === 'back') { enterStep(Math.max(0, S.step - 1)); return; }
