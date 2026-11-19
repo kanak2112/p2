@@ -45,6 +45,7 @@
 .rv-guide li::before{counter-increment:g;content:counter(g);display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#E8EAED;color:var(--g2);font:500 12px var(--sans)}
 .rv-guide li.now{color:var(--g1);font-weight:500}.rv-guide li.now::before{background:var(--pri);color:#fff}
 .rv-guide li.ok{color:var(--g2);text-decoration:line-through}.rv-guide li.ok::before{content:"✓";background:#E6F4EA;color:#137333}
+.rv-fam li{grid-template-columns:24px 1fr auto;align-items:center}.rv-show{border:1px solid #DADCE0;background:#fff;color:var(--g2);border-radius:14px;width:32px;height:28px;display:grid;place-items:center;cursor:pointer;padding:0}.rv-show:hover,.rv-show.on{color:var(--pri);border-color:var(--pri);background:var(--pribg)}.rv-guide li.ok .rv-show{opacity:.5}
 .rv-skip{border:0;background:none;color:var(--g2);font:400 12px var(--sans);text-decoration:underline;cursor:pointer;padding:0;justify-self:start}
 .rv-ring{position:fixed;z-index:4500;border:3px solid #FBBC04;border-radius:12px;pointer-events:none;box-shadow:0 0 0 4px rgba(251,188,4,.35);animation:rvp 1.2s ease-in-out infinite;transition:left .2s,top .2s,width .2s,height .2s}
 .rv-ring[hidden]{display:none}
@@ -103,7 +104,10 @@
     { k: 'f', t: 'Verify', who: 'The map should match what the photos show.', q: 'Does the stated width match the photos?', prompt: 'Stretch and observation', choice: ['Matches', 'Partly', 'Does not match'], choiceQ: 'Match?', prep: reset,
       guide: [['.sheet .list .row', 'Open any stretch.', () => viewIs('place')],
               ['#svB', 'Open Street View.', () => !!state.sv]] }];
-  const FAM = [['Open a photo', () => !!state.sv], ['Open a 10 m stretch', () => viewIs('place')], ['Switch use', () => state.mode !== 'walk'], ['Turn on Night', () => state.night]];
+  const photoEl = () => { const m = document.getElementById('map').getBoundingClientRect(), sh = document.querySelector('.sheet'), L = Math.max(m.left, !phoneW() && sh ? sh.getBoundingClientRect().right : 0) + 20, R = Math.min(m.right, innerWidth - (!phoneW() && !el.classList.contains('min') ? 400 : 0)) - 80; return [...document.querySelectorAll('#map image')].find(e => { const r = e.getBoundingClientRect(); return r.width > 12 && r.width < 160 && r.left > L && r.right < R && r.top > m.top + 70 && r.bottom < m.bottom - 120; }); };
+  const FAM = [['Open a photo', () => !!state.sv, photoEl, 'Click a photo beside the footpath.'], ['Open a 10 m stretch', () => viewIs('place'), '.sheet .strip button', 'Click any block.'], ['Switch use', () => state.mode !== 'walk', '#chips', 'Click a use.'], ['Turn on Night', () => state.night, '#ntB', 'Click the moon.']];
+  const EYE = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 5C6.5 5 2.7 9.4 1.5 12c1.2 2.6 5 7 10.5 7s9.3-4.4 10.5-7C21.3 9.4 17.5 5 12 5zm0 11.5A4.5 4.5 0 1 1 12 7.5a4.5 4.5 0 0 1 0 9zm0-2.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>';
+  let famShow = null;
   const EXPECT_SHARE = ['Under 25%', '25–50%', '50–75%', '75–100%'];
   const EXPECT_BLOCK = ['Parked vehicles', 'Stalls and people', 'Poles, bins and barriers', 'Trees and planters'];
   const STMTS = ['Room to walk on each stretch is clear.', 'What blocks the footpath, and whether it persists, is clear.', 'The evidence would hold up with a ward office.', 'The map shows what ward maps, audits or Google Maps do not.', 'The width measurement is credible.', 'The map helps decide what to fix first.', 'The Plan a change verdicts are credible.'];
@@ -165,7 +169,7 @@
   const stopTimer = () => { if (cur && t0) { S.t[cur] = Math.round((S.t[cur] || 0) + (Date.now() - t0) / 1000); save(); } cur = null; t0 = null; };
   document.addEventListener('pointerdown', e => { if (cur && !el.contains(e.target)) S.clicks[cur] = (S.clicks[cur] || 0) + 1; }, true);
   function placeRing(sel, text) {
-    const t = sel && [...document.querySelectorAll(sel)].find(x => x.offsetParent !== null && x.getBoundingClientRect().width > 0);
+    const t = typeof sel === 'function' ? sel() : sel && [...document.querySelectorAll(sel)].find(x => x.offsetParent !== null && x.getBoundingClientRect().width > 0);
     if (!t) { ring.hidden = true; call.hidden = true; return; }
     const r = t.getBoundingClientRect(), p = 5; ring.hidden = false; Object.assign(ring.style, { left: r.left - p + 'px', top: r.top - p + 'px', width: r.width + 2 * p + 'px', height: r.height + 2 * p + 'px' });
     call.hidden = false; if (call.textContent !== text) call.textContent = text; call.style.maxWidth = Math.min(260, innerWidth - 32) + 'px';
@@ -193,7 +197,7 @@
     let h = '';
     if (s === 0) {
       h = `<h3>Get familiar</h3><p>Two minutes. Try each, in any order.</p>
-      <ul class="rv-guide">${FAM.map(([t], i) => `<li class="${S.fam[i] ? 'ok' : ''}">${t}</li>`).join('')}</ul>
+      <ul class="rv-guide rv-fam">${FAM.map(([t], i) => `<li class="${S.fam[i] ? 'ok' : ''}"><span>${t}</span><button class="rv-show${famShow === i ? ' on' : ''}" data-rv="show" data-i="${i}" type="button" aria-label="Show where: ${t}" title="Show where">${EYE}</button></li>`).join('')}</ul>
       ${S.famSkip ? '' : '<button class="rv-skip" data-rv="famskip" type="button">Continue without these</button>'}`;
     } else if (s <= 6) {
       const x = SIT[s - 1], gi = guideAt(), done = guideDone();
@@ -225,7 +229,7 @@
     lastGi = guideAt(); if (phoneW() && !(x && !guideDone())) { S.userHid = false; setOpen(true); } render(); }
   function tick() {
     if (S.phase !== 'panel') return;
-    if (S.step === 0) { let ch = false; FAM.forEach(([, f], i) => { try { if (!S.fam[i] && f()) { S.fam[i] = true; ch = true; } } catch (e) {} }); if (ch) { save(); render(); } clearRing(); }
+    if (S.step === 0) { let ch = false; FAM.forEach(([, f], i) => { try { if (!S.fam[i] && f()) { S.fam[i] = true; ch = true; } } catch (e) {} }); if (ch) { if (famShow != null && S.fam[famShow]) { famShow = null; if (phoneW()) { S.userHid = false; setOpen(true); } } save(); render(); } if (famShow != null && !S.fam[famShow]) placeRing(FAM[famShow][2], FAM[famShow][3]); else clearRing(); }
     const x = sit();
     if (x) { let gi = guideAt();
       while (gi < x.guide.length) { let ok = false; try { ok = x.guide[gi][2](); } catch (e) {} if (!ok) break; gi++; S.g[x.k] = gi; save(); const pre = x.guide[gi] && x.guide[gi][3]; if (pre) setTimeout(pre, 300); }
@@ -237,6 +241,7 @@
   bd.addEventListener('input', bdSet); bd.addEventListener('change', bdSet);
   el.addEventListener('click', async e => { const b = e.target.closest('[data-rv]'); if (!b) return; const a = b.dataset.rv;
     if (a === 'min') { S.userHid = true; setOpen(false); return; }
+    if (a === 'show') { const i = +b.dataset.i; famShow = famShow === i ? null : i; if (famShow != null && phoneW()) { S.userHid = true; setOpen(false); } render(); return; }
     if (a === 'famskip') { S.famSkip = true; save(); render(); return; }
     if (a === 'gskip') { const x = sit(); S.g[x.k] = (S.g[x.k] || 0) + 1; S.gSkipped = (S.gSkipped || 0) + 1; save(); const pre = x.guide[S.g[x.k]] && x.guide[S.g[x.k]][3]; if (pre) pre(); return; }
     if (a === 'back') { enterStep(Math.max(0, S.step - 1)); return; }

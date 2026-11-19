@@ -1062,7 +1062,7 @@ const TOUR = [
   ['#layB', 'Layers', 'Show or hide obstacles, width, people, photos, horns and labels.', tourHome],
   ['#tools', 'Map tools', 'Night, satellite, Street View, 2D or 3D, zoom.', tourHome],
   ['#dirB', 'Directions', 'Routes along the footpath, with warnings where it narrows.', tourHome],
-  ['#tl', 'Walks timeline', `In Evidence: each of the ${NW} walks, or all combined.`, () => { tourHome(); setMode('proof'); }],
+  ['#tl', 'Walks timeline', `In Evidence: the walks of each of the ${new Set(walks.map(w => w.day)).size} days, or all combined.`, () => { tourHome(); setMode('proof'); }],
   [null, 'Explore', 'The tour can be reopened from the menu.', tourHome]];
 let tourI = -1;
 function startTour() { tourI = 0; let t = $('tour'); if (!t) { t = document.createElement('div'); t.id = 'tour'; t.className = 'tour'; t.setAttribute('role', 'dialog'); t.setAttribute('aria-modal', 'true'); document.body.appendChild(t);
