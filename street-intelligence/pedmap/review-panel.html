@@ -112,7 +112,7 @@
   const EXPECT_BLOCK = ['Parked vehicles', 'Stalls and people', 'Poles, bins and barriers', 'Trees and planters'];
   const STMTS = ['Room to walk on each stretch is clear.', 'What blocks the footpath, and whether it persists, is clear.', 'The evidence would hold up with a ward office.', 'The map shows what ward maps, audits or Google Maps do not.', 'The width measurement is credible.', 'The map helps decide what to fix first.', 'The Plan a change verdicts are credible.'];
   const UMUX = ['This map’s capabilities meet my requirements.', 'This map is easy to use.'];
-  const OPEN = [['first', 'What would you use it for first in your work?'], ['ward', 'What would a ward office need before acting?'], ['change', 'What would you remove or change?'], ['surprise', 'What differed from your expectation?']];
+  const OPEN = [['overall', 'Overall, is this map useful for planning? Why or why not?'], ['first', 'What would you use it for first in your work?'], ['ward', 'What would a ward office need before acting?'], ['change', 'What would you remove or change?'], ['surprise', 'What differed from your expectation?']];
   // layers: only what the current situation needs; the Along the street panel stays closed
   let lastMode = null, lastNight = null;
   function applyLayers() { try { const x = sit(); const want = Object.assign({ walks: 0, prox: 0, noise: 0 }, S.step === 0 ? { photos: 1 } : x ? x.lay : {});
