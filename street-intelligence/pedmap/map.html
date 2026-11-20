@@ -154,6 +154,7 @@ button.rep:hover{background:var(--paper)}
 .tg button+button{border-top:1px solid var(--hair)}
 .tg button:hover{background:var(--paper)}
 .tg button[aria-pressed=true]{color:var(--pri);background:#E8F0FE}
+.gl{border-bottom:1px solid var(--hair);padding:10px 0}.gl summary{cursor:pointer;font-weight:600;list-style-position:inside}.gl p{margin:6px 0 0;color:var(--g2);font-size:13px;line-height:1.45}
 .peg{background:var(--card);border-radius:8px;box-shadow:var(--shadow);border:0;width:40px;height:40px;display:grid;place-items:center;color:var(--mus)}
 .scale{display:flex;align-items:center;gap:8px;font:400 11px var(--mono);color:var(--ink2);background:rgba(255,255,255,.8);padding:3px 8px;border-radius:3px}
 .scale .sb{height:6px;border:1.5px solid var(--ink2);border-top:0}
@@ -366,6 +367,7 @@ body{color:var(--g1)}
   <div class="mkey" id="mkey"></div>
   <div class="tools" id="tools">
     <div class="cmp" id="cmp" title="North" aria-label="North is up" role="img"><svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 2.5 15.5 12h-7Z" fill="#D93025"/><path d="M12 21.5 8.5 12h7Z" fill="#9AA0A6"/></svg></div>
+    <button class="peg" id="glB" title="Glossary: what the words mean" aria-label="Glossary" style="font:600 17px/1 inherit">?</button>
     <button class="peg" id="svB" title="Street View: walk photos" aria-label="Street View"></button>
     <button class="peg" id="ntB" title="Night: width after dark and street light" aria-label="Night view" aria-pressed="false"></button>
     <button class="peg" id="stB" title="Satellite" aria-label="Satellite view" aria-pressed="false"></button>
@@ -392,6 +394,24 @@ const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const walks = D.walks.map((w, k) => ({ ...w, k }));
 const NW = walks.length, NWD = walks.filter(w => !w.night).length;
+const pct = (a, b) => b ? Math.round(a / b * 100) + '%' : '—';
+const GLOSS = [
+  ['Stretch', 'A 10 m length of the footpath. The street is 22 stretches, 0–220 m from R.K. Chouhan Communications.', /stretch/],
+  ['Walk', 'One recorded trip along the street, by day or night. A phone took a photo every 3 s and recorded sound.', /walks?\b/],
+  ['Clear width', 'The footpath left to walk on once obstacles are removed. Estimated from the photos; the daytime median of all walks.', /clear|walkable/],
+  ['BMC minimum, 1.5 m', 'The clear width asked for by the BMC Universal Footpath Policy. Green lines meet it.', /1\.5/],
+  ['Wheelchair width, 0.9 m', 'An assumed minimum for one wheelchair to pass. Adjustable in Layers.', /0\.9|wheelchair/],
+  ['% of walks blocked', 'The share of walks on which an obstacle narrowed this stretch. 80% = blocked on 8 walks in 10.', /blocked/],
+  ['Obstacles', 'What takes the footpath, in black or by colour: fixed things (poles, barriers), vehicles, and people and stalls.', /taken|takes|fixed|vehicles|stalls|trees|poles/],
+  ['Who must act', 'Fixed things: civil works. On most walks: enforcement. Some walks only: a time-based rule.', /civil|enforcement|time-based/],
+  ['Not measured', 'Hatched. The photos could not give a width here, e.g. no clear footpath edge.', /not measur/],
+  ['Walkable ground (yellow outline)', 'On Street View photos: the ground the software traced as walkable. Automatic, so it can be wrong, and can include road where there is no kerb.', /yellow|outline/],
+  ['Night light', 'How bright the night photos are, relative to the rest of this street. A comparison, not a lux reading.', /night|brighter/],
+  ['Swerve', 'The walker stepped sideways to get past something, found from the phone’s motion.', /swerve/],
+  ['Horn', 'A vehicle horn picked up by the phone’s microphone during a walk.', /horn/],
+  ['Evidence', 'A dated sheet for one stretch, with photos and counts, to send to the ward office.', /evidence|report/],
+  ['Plan a change', 'A sandbox: place a change on the footpath and see the new width.', /plan/]];
+const gtip = l => { const g = [...GLOSS.slice(3, 5), ...GLOSS].find(e => e[2].test(String(l).toLowerCase())); return g ? g[0] + ': ' + g[1] : ''; };
 const wlabel = w => `Day ${w.day} · ${w.dir === 'forward' ? 'towards Amratlal G. Vasani' : 'towards R.K. Chouhan'}${w.night ? ' · night' : ''}`;
 const topOf = e => { if (!e) return .5; const a = e[0], b = 1 - e[1]; return a + b > .02 ? a / (a + b) : .5; };
 const edges = c => { const gg = Math.min(3, c.g), a1 = (3 - gg) * c.top; return [a1, a1 + gg]; };
@@ -459,15 +479,15 @@ let STATS = stats();
 /* ---------- what the map shows (chips) ---------- */
 const USES = {
   walk: { n: 'Walking', ic: 'walk', q: 'Where it is hard to walk', B: 'nolli', L: { photos: 1, obst: 'kind', line: 1 },
-    list: S => S.filter(s => s.g != null).sort((a, b) => a.g - b.g).slice(0, 5).map(s => [s, `${s.g.toFixed(1)} m`, s.g < .9 ? 'You step into the road' : `Blocked on ${s.b} of ${s.n} walks`]), foot: 'Narrowest first · clear width is the daytime median' },
+    list: S => S.filter(s => s.g != null).sort((a, b) => a.g - b.g).slice(0, 5).map(s => [s, `${s.g.toFixed(1)} m`, s.g < .9 ? 'You step into the road' : `Blocked on ${pct(s.b, s.n)} of walks`]), foot: 'Narrowest first · clear width is the daytime median' },
   access: { n: 'Wheelchair & pram', ic: 'wheel', q: 'Where a wheelchair may not get through', B: 'nolli', L: { through: 1, prox: 1, obst: 'kind', photos: 1 },
-    list: S => S.filter(s => access(s) === 'rarely' || access(s) === 'sometimes').sort((a, b) => a.ok / a.gN - b.ok / b.gN).slice(0, 5).map(s => [s, `${s.gN - s.ok}/${s.gN}`, `Walks under ${state.thr.toFixed(1)} m clear`]), foot: '0.9 m is an assumed minimum, to confirm with wheelchair users', thr: 1 },
+    list: S => S.filter(s => access(s) === 'rarely' || access(s) === 'sometimes').sort((a, b) => a.ok / a.gN - b.ok / b.gN).slice(0, 5).map(s => [s, pct(s.gN - s.ok, s.gN), `of walks under ${state.thr.toFixed(1)} m clear`]), foot: '0.9 m is an assumed minimum, to confirm with wheelchair users', thr: 1 },
   night: { n: 'After dark', ic: 'moon', q: 'Darkest stretches at night', B: 'daynight', L: { night: 1, photos: 1 },
     list: S => S.filter(s => s.lit != null && s.lit < .9).sort((a, b) => a.lit - b.lit).slice(0, 5).map(s => [s, `−${Math.round((1 - s.lit) * 100)}%`, s.ng != null ? `about ${s.ng.toFixed(1)} m clear at night (rough)` : 'Night width not measured']), get foot() { return `Brightness in night photos against the route’s usual night. Ranks stretches; it is not lux. ${NW - NWD} night walks.`; } },
   act: { n: 'Who must act', ic: 'act', q: 'Who must act on each stretch', B: 'fills', L: { obst: 'owner', line: 1 },
     list: S => S.filter(s => s.g != null && s.g < 1.5).sort((a, b) => a.g - b.g).slice(0, 6).map(s => [s, `${s.g.toFixed(1)} m`, owners(s).join(' · ') || 'Mixed']), foot: 'Stretches under BMC 1.5 m. Departments are indicative; confirm with the ward.' },
   proof: { n: 'Evidence', ic: 'cam', q: 'Blocked again and again, and who must act', B: 'nolli', L: { walks: 1, photos: 1, view: 1, obst: 'owner' },
-    list: S => S.filter(s => s.n).sort((a, b) => b.b / b.n - a.b / a.n).slice(0, 5).map(s => [s, `${s.b}/${s.n}`, `walks blocked · ${owners(s).join(' · ') || 'mixed'}`]), foot: 'Dated, repeated and photographed. Colours show who must act: civil works, parking, or stalls and crowds. Open a stretch to save its evidence sheet.' },
+    list: S => S.filter(s => s.n).sort((a, b) => b.b / b.n - a.b / a.n).slice(0, 5).map(s => [s, pct(s.b, s.n), `of walks blocked · ${owners(s).join(' · ') || 'mixed'}`]), foot: 'Dated, repeated and photographed. Colours show who must act: civil works, parking, or stalls and crowds. Open a stretch to save its evidence sheet.' },
   change: { n: 'Day to day', ic: 'layers', q: 'Where the footpath changes from walk to walk', B: 'ghost', L: { walks: 1 },
     list: S => S.filter(s => s.g != null).map(s => { const gs = W().filter(w => !w.night).map(w => w.s[s.i]).filter(r => r && r.g > 0).map(r => r.g); return [s, gs.length ? Math.max(...gs) - Math.min(...gs) : 0, gs]; }).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([s, , gs]) => [s, `${Math.min(...gs).toFixed(1)}–${Math.max(...gs).toFixed(1)} m`, `clear width across ${gs.length} daytime walks`]), foot: 'Where the ghost blurs, the footpath depends on the day. Walk again after a cleanup and compare.' },
   vend: { n: 'Vending', ic: 'stall', q: 'Where stalls fit and where they clash', B: 'nolli', L: { obst: 'people' },
@@ -630,7 +650,7 @@ const fs = px => (px * K).toFixed(2);
 function rotT(t, x, y) { if (state.d3) t.setAttribute('transform', `rotate(30 ${x} ${y})`); return t; }
 const wcells = (w, S) => w.s.map((r, i) => r && r.g > 0 && !NA(i) ? { g: r.g, top: r.e ? topOf(r.e) : S[i].top } : null);
 function calls(S) { const m = S.filter(s => s.g != null); if (!m.length) return []; const worst = m.reduce((a, b) => b.g < a.g ? b : a), widest = m.reduce((a, b) => b.g > a.g ? b : a), swv = S.reduce((a, b) => b.sw > a.sw ? b : a), lit = S.filter(s => s.lit != null), dark = lit.length ? lit.reduce((a, b) => b.lit < a.lit ? b : a) : null;
-  const out = [[worst, worst.g < .9 ? 'You step into the road' : 'Narrowest', `${worst.g.toFixed(1)} m clear · blocked on ${worst.b} of ${worst.n} walks`, worst.g < .9 ? '#D93025' : '#E37400'], [widest, 'Room to walk', `about ${widest.g.toFixed(1)} m clear`, '#188038']];
+  const out = [[worst, worst.g < .9 ? 'You step into the road' : 'Narrowest', `${worst.g.toFixed(1)} m clear · blocked on ${pct(worst.b, worst.n)} of walks`, worst.g < .9 ? '#D93025' : '#E37400'], [widest, 'Room to walk', `about ${widest.g.toFixed(1)} m clear`, '#188038']];
   if (swv.sw) out.push([swv, 'Walkers swerve', `${swv.sw} walks turned aside here`, '#B06000']); if (dark && dark.lit < .85) out.push([dark, 'Darkest at night', `${Math.round((1 - dark.lit) * 100)}% darker than the route`, '#3949AB']);
   const seen = new Set(); return out.filter(c => { if (seen.has(c[0].i)) return false; seen.add(c[0].i); return true; }); }
 const DOT = { clear: ['#1A73E8', '#174EA6'], tight: ['#F9AB00', '#B06000'], road: ['#D93025', '#A50E0E'], stop: ['#D93025', '#A50E0E'], under: ['#9AA0A6', '#5F6368'], nm: ['#9AA0A6', '#5F6368'] };
@@ -848,11 +868,11 @@ function placeView() { const i = state.sel, s = STATS[i], Pp = D.photos, dp = Pp
   const bar = (l, x, c) => `<div class="bar"><span>${l}</span><span class="tr"><i style="width:${Math.round(x * 100)}%;background:${c}"></i></span><em>${Math.round(x * 100)}%</em></div>`;
   const acc = access(s), lit = s.lit == null ? '—' : s.lit < 1 ? `−${Math.round((1 - s.lit) * 100)}%` : `+${Math.round((s.lit - 1) * 100)}%`, ow = owners(s), here = REPORTS.filter(r => Math.floor(r.m / 10) === i);
   return `<div class="ph"><button class="ib" data-act="home" aria-label="Back">${I.back}</button><span class="grow">${i * 10}–${i * 10 + 10} M OF ${L}</span><button class="ib" data-step="-1" aria-label="Previous stretch">${I.chevL}</button><button class="ib" data-step="1" aria-label="Next stretch">${I.chevR}</button></div>
-    <div class="hero">${pic(dp, 'DAY · GROUND TRACED', false)}${pic(np, 'NIGHT', true)}</div>
+    <div class="hero">${pic(dp, 'DAY · YELLOW = WALKABLE', false)}${pic(np, 'NIGHT', true)}</div>
     <div class="sec"><h2 class="h1">${esc(placeOf(i * 10 + 5))}</h2><div class="sub">Footpath · Old Nagardas Road, Andheri East</div>
       <div class="wbig"><b>${s.g == null ? '—' : s.g.toFixed(1)}</b><span>${s.g == null ? '' : 'm clear · daytime median of ' + s.gN + (s.gN === 1 ? ' photo' : ' photos')}</span></div><span class="verdict ${v[0]}">${v[1]}</span></div>
     <div class="acts">${actBtn('from', 'here', 'Start here')}${actBtn('to', 'dir', 'Go here', true)}${actBtn('sv', 'sv', 'Street View')}${actBtn('report', 'flag', 'Report')}${actBtn('share', 'share', 'Share')}</div>
-    <div class="sec" style="padding-top:4px"><div class="grid2"><div class="stat"><b>${s.b}<small style="font-size:12px;color:var(--ink3)">/${s.n}</small></b><span>walks blocked</span></div><div class="stat"><b>${acc ? s.ok + '/' + s.gN : '—'}</b><span>walks with ${state.thr.toFixed(1)} m for a wheelchair</span></div>
+    <div class="sec" style="padding-top:4px"><div class="grid2"><div class="stat" title="${esc(gtip('blocked'))}"><b>${pct(s.b, s.n)}</b><span>of walks blocked · ${s.b} of ${s.n}</span></div><div class="stat" title="${esc(gtip('wheelchair'))}"><b>${acc ? pct(s.ok, s.gN) : '—'}</b><span>of walks with ${state.thr.toFixed(1)} m for a wheelchair${acc ? ` · ${s.ok} of ${s.gN}` : ''}</span></div>
       <div class="stat"><b>${s.sw}</b><span>walks swerved</span></div><div class="stat"><b>${s.hk}</b><span>horns heard</span></div>
       <div class="stat"><b>${s.ng == null ? '—' : s.ng.toFixed(1)}</b><span>m clear at night, rough</span></div><div class="stat"><b>${lit}</b><span>light vs the route at night</span></div></div>
       <div class="bars"><div class="lab" style="margin-top:8px">Seen here on daytime walks</div>${bar('Fixed things', s.sh.fixed, C.fix)}${bar('Vehicles', s.sh.vehicle, C.veh)}${bar('People & stalls', s.sh.people, C.ppl)}</div></div>
@@ -889,9 +909,13 @@ function reportView() { const m = state.repM ?? (state.sel != null ? state.sel *
 function resultsView() { const R = state.results || [];
   return `<div class="ph"><button class="ib" data-act="home" aria-label="Back">${I.back}</button><span class="grow">${R.length} RESULT${R.length === 1 ? '' : 'S'} · ${esc(state.q.toUpperCase())}</span></div>
     <div class="list">${R.length ? R.map(r => `<button class="row" data-go="${Math.min(21, Math.floor(r.m / 10))}"><span class="ic">${I[r.ic || 'pin']}</span><span class="t"><b>${esc(r.n)}</b><small>${esc(r.d)}</small></span>${r.v ? `<span class="v">${esc(r.v)}</span>` : ''}</button>`).join('') : '<p class="note" style="padding:10px 22px">Nothing found on this street. Try a place, a metre like 120, or words like narrow, dark, stalls, horns, wheelchair.</p>'}</div>`; }
+function glossView() {
+  return `<div class="ph"><button class="ib" data-act="home" aria-label="Back">${I.back}</button><span class="grow">WHAT THE WORDS MEAN</span></div>
+    <div class="sec"><h2 class="h1">Glossary</h2><div class="sub">The terms used on this map, in plain words. Tap one to open it.</div></div>
+    <div class="sec" style="padding-top:0">${GLOSS.map(([t, d]) => `<details class="gl"><summary>${esc(t)}</summary><p>${esc(d)}</p></details>`).join('')}</div>`; }
 function menuView() { const ln = (h, i, n, d) => `<a class="row" href="${h}" style="text-decoration:none;color:inherit"><span class="ic">${I[i]}</span><span class="t"><b>${n}</b><small>${d}</small></span></a>`;
   return `<div class="ph"><button class="ib" data-act="home" aria-label="Back">${I.back}</button><span class="grow">MENU</span></div>
-    <div class="list">${ln('data.html', 'data', 'Data & exports', 'Charts, PDF, Excel, CSV, JSON')}${ln('index.html', 'book', 'Atlas of views', 'Nolli, ghost, day and night, walker’s eye, sound')}${ln('index.html#make', 'cube', 'Make it physical', '1:1 floor print, 3D cast, tactile map')}${ln('#tour', 'info', 'How to read this map', 'A short tour: the footpath, the uses, night and the walks')}${ln('#plan', 'cube', 'Plan a change', 'For planners and the ward: try changes, see the width')}${ln('index.html#uses', 'people', 'Who can use this', 'Twelve uses, from wheelchair users to the ward office')}</div>
+    <div class="list">${ln('data.html', 'data', 'Data & exports', 'Charts, PDF, Excel, CSV, JSON')}${ln('index.html', 'book', 'Atlas of views', 'Nolli, ghost, day and night, walker’s eye, sound')}${ln('index.html#make', 'cube', 'Make it physical', '1:1 floor print, 3D cast, tactile map')}<button class="row" data-act="gloss" style="width:100%;border:0;background:none;text-align:left;font:inherit;color:inherit;cursor:pointer"><span class="ic">${I.book}</span><span class="t"><b>Glossary</b><small>What the words on this map mean</small></span></button>${ln('#tour', 'info', 'How to read this map', 'A short tour: the footpath, the uses, night and the walks')}${ln('#plan', 'cube', 'Plan a change', 'For planners and the ward: try changes, see the width')}${ln('index.html#uses', 'people', 'Who can use this', 'Twelve uses, from wheelchair users to the ward office')}</div>
     <div class="sec" style="border-top:1px solid var(--hair)"><div class="lab">Keys</div><p class="note" style="margin-top:6px">← → move along the street · + − zoom · / search · Esc back</p></div>
     <div class="sec"><div class="lab">About this map</div><p class="note" style="margin-top:6px">${NW} walks on Old Nagardas Road, Andheri East, Mumbai, Oct–Nov 2026 (${NWD} by day, ${NW - NWD} by night). A phone recorded photos every 3 s, horns and swerves. Clear width is the ground left to walk on, estimated from the photos. Base map tiles and GPS were not used.</p></div>`; }
 function planView() { const P2 = state.plan, sm = planSummary(), i = state.sel ?? 8, m0 = state.pm0 ?? i * 10, m1 = state.pm1 ?? i * 10 + 10, n = P2.items.length;
@@ -913,7 +937,7 @@ function planView() { const P2 = state.plan, sm = planSummary(), i = state.sel ?
     ${changed.length ? `<div class="list" style="border-top:1px solid var(--gl)"><div class="lab" style="padding:8px 22px 2px">What changes on the footpath</div>${changed.map(([k, g, a]) => `<button class="row" data-go="${k}"><span class="t"><b>${esc(placeOf(k * 10 + 5))}</b><small>${k * 10}–${k * 10 + 10} m</small></span><span class="v">${g.toFixed(1)} → <span style="color:${a >= 1.5 ? '#188038' : a >= .9 ? '#B06000' : '#D93025'}">${a.toFixed(1)} m</span></span></button>`).join('')}</div>` : ''}
     <div class="sec"><p class="note">The rule: a change clears a walk that was blocked when it removes that walk’s main obstruction, and that walk then gets the width of the clear walks in the same stretch. Widening adds its width. A vending zone assumes the people seen on the footpath were stalls and their customers. Screening only, not a design.</p></div>`; }
 function setView(v, opts = {}) { state.view = v; $('app').classList.toggle('dirmode', v === 'dirs'); if (v === 'home') { state.sel = null; } if (v !== 'dirs') { state.route = null; state.pick = null; svg.classList.remove('pick'); }
-  sc.innerHTML = v === 'home' ? homeView() : v === 'place' ? placeView() : v === 'dirs' ? dirsView() : v === 'report' ? reportView() : v === 'results' ? resultsView() : v === 'plan' ? planView() : menuView();
+  sc.innerHTML = v === 'home' ? homeView() : v === 'place' ? placeView() : v === 'dirs' ? dirsView() : v === 'report' ? reportView() : v === 'results' ? resultsView() : v === 'plan' ? planView() : v === 'gloss' ? glossView() : menuView();
   if (!opts.keepScroll) sc.scrollTop = 0; if (phone() && opts.snap) snap(opts.snap); draw(); syncHash(); }
 function openPlace(i, flyTo) { state.sel = clamp(i, 0, 21); setView('place', { snap: 'half' }); if (flyTo) fly(focusBox(state.sel * 10 + 5, 50)); else if (phone()) fly(focusBox(state.sel * 10 + 5, curWm())); }
 function fitRoute() { if (state.route) fly(rangeBox(state.route.m0, state.route.m1)); }
@@ -931,6 +955,7 @@ sc.addEventListener('click', e => { const b = e.target.closest('button,[data-go]
   if (b.dataset.st != null) { const st = state.route.steps[+b.dataset.st]; fly(focusBox((st.m0 + st.m1) / 2, Math.max(30, st.len * 1.6))); return; }
   doAct(b.dataset.act); });
 function doAct(a) { const i = state.sel;
+  if (a === 'gloss') return setView('gloss', { snap: 'full' });
   if (a === 'home') { if (state.view === 'results') { q.value = ''; $('clrB').hidden = true; } return setView('home', { snap: 'peek' }); }
   if (a === 'place') return openPlace(state.sel, false);
   if (a === 'dirs') return openDirs(i != null ? i * 10 + 5 : null);
@@ -986,7 +1011,7 @@ $('tab').onclick = () => { state.col = !state.col; sheet.classList.toggle('col',
 function renderChips() { $('chips').innerHTML = Object.entries(MODES).map(([k, m]) => `<button class="chip" data-m="${k}" aria-pressed="${k === state.mode}">${I[m.ic]}${m.n}</button>`).join(''); }
 $('chips').addEventListener('click', e => { const b = e.target.closest('[data-m]'); if (!b) return; setMode(b.dataset.m); });
 function setMode(k) { state.mode = k; state.base = state.night ? 'daynight' : MODES[k].B; state.layers = { ...ALWAYS, ...MODES[k].L, labels: state.layers.labels ?? 1 }; if (k !== 'proof' && state.src !== 'day') { state.src = 'day'; STATS = stats(); } renderChips(); renderLayers(); renderTL(); if (k === 'plan') { setView('plan', { snap: 'half' }); return; } if (state.view === 'plan') setView('home', { keepScroll: true }); else if (state.view === 'home') setView('home', { keepScroll: true }); else { if (state.view === 'place') setView('place', { keepScroll: true }); draw(); } }
-const sw = ([c, l, b]) => `<div><i style="background:${c === 'url' ? 'repeating-linear-gradient(45deg,var(--paper) 0 3px,var(--hair) 3px 5px)' : c === 'dash' ? 'repeating-linear-gradient(90deg,#1E2A45 0 4px,#fff 4px 7px)' : c === 'glow' ? 'radial-gradient(circle,#FFD27A 0,#FFB84D 45%,#1E2A45 100%)' : c};${b ? 'box-shadow:inset 0 0 0 1px var(--hair)' : ''}"></i>${esc(l)}</div>`;
+const sw = ([c, l, b]) => `<div><i style="background:${c === 'url' ? 'repeating-linear-gradient(45deg,var(--paper) 0 3px,var(--hair) 3px 5px)' : c === 'dash' ? 'repeating-linear-gradient(90deg,#1E2A45 0 4px,#fff 4px 7px)' : c === 'glow' ? 'radial-gradient(circle,#FFD27A 0,#FFB84D 45%,#1E2A45 100%)' : c};${b ? 'box-shadow:inset 0 0 0 1px var(--hair)' : ''}"></i>${esc(l)}</div>`.replace('<div>', `<div title="${esc(gtip(l))}">`);
 function detailLeg() { const Lr = state.layers, o = [];
   if (Lr.prox) o.push(['#1A73E8', 'one person, about 0.75 m, side by side'], ['#D93025', '✕ no one fits: step into the road']);
   if (Lr.view) o.push(['#3C4043', 'blocked ahead · darker = on more walks']);
@@ -1086,6 +1111,7 @@ $('stB').innerHTML = I.globe; $('stB').onclick = () => { state.sat = !state.sat;
 $('zin').innerHTML = I.plus; $('zout').innerHTML = I.minus; $('fit').innerHTML = I.fit; $('svB').innerHTML = I.sv;
 $('zin').onclick = () => zoomAt(.6, ...mapCentre()); $('zout').onclick = () => zoomAt(1.6, ...mapCentre());
 $('fit').onclick = () => fly(state.route ? rangeBox(state.route.m0, state.route.m1) : fitBox());
+$('glB').onclick = () => { if (!svEl.hidden) closeSV(); setView(state.view === 'gloss' ? 'home' : 'gloss', { snap: 'full' }); if (state.col) $('tab').click(); };
 $('svB').onclick = () => openSV(state.nav ? Math.min(21, Math.floor(state.nav.m / 10)) : state.sel != null ? state.sel : Math.min(21, Math.max(0, Math.floor(toWorld(...mapCentre())[0] / 10))), false);
 function set3(on) { if (on === state.d3) return; setTimeout(renderLayers); const m = clamp(toWorld(...mapCentre())[0], 0, L), w = curWm(); state.d3 = on; $('d2').setAttribute('aria-pressed', !on); $('d3').setAttribute('aria-pressed', on); draw(); setVB(w > 180 ? fitBox() : focusBox(m, w), true); }
 $('d2').onclick = () => set3(false); $('d3').onclick = () => set3(true);
@@ -1155,11 +1181,11 @@ function renderSV() { const v = state.sv, i = v.i, s = STATS[i], p = svPhoto(i, 
   svEl.innerHTML = `<div class="bg" style="background-image:url('${src}')"></div>
     <div class="svh"><button class="ib" data-v="close" aria-label="Close Street View">${I.back}</button><span class="t"><b>${esc(placeOf(i * 10 + 5))} · ${i * 10}–${i * 10 + 10} m</b><small>${v.night ? 'Night walk' : 'Day walk'}${w ? ` · day ${w.day}, ${date}` : ''} · facing ${v.dir === 'f' ? 'Amratlal G. Vasani' : 'R.K. Chouhan'}</small></span>
       <span class="svb"><button data-v="day" aria-pressed="${!v.night}">Day</button><button data-v="night" aria-pressed="${v.night}">Night</button></span>
-      <span class="svb"><button data-v="trace" aria-pressed="${v.trace}" title="Show the walkable ground traced on the photo">Ground</button></span></div>
+      <span class="svb"><button data-v="trace" aria-pressed="${v.trace}" title="Yellow outline: the ground the software traced as walkable">Walkable ground</button></span></div>
     <div class="svm"><button class="arw" data-v="prev" aria-label="Previous stretch" ${i === 0 ? 'style="visibility:hidden"' : ''}>${I.chevL}</button>
       <div class="ph2">${p ? `<img src="${src}" alt="Walk photo, ${i * 10} to ${i * 10 + 10} m">${v.trace && !v.night && p.path && p.path.length > 5 ? `<svg viewBox="0 0 1 1" preserveAspectRatio="none"><polygon points="${p.path.map(q => q.join(',')).join(' ')}" fill="rgba(242,184,0,.3)" stroke="#F2B800" stroke-width=".006"/></svg>` : ''}` : ''}</div>
       <button class="arw" data-v="next" aria-label="Next stretch" ${i === 21 ? 'style="visibility:hidden"' : ''}>${I.chevR}</button>
-      <div class="side"><b>${(v.night ? s.ng : s.g) == null ? '—' : (v.night ? s.ng : s.g).toFixed(1) + ' m'}</b><span>${(v.night ? s.ng : s.g) == null ? 'width not measured here' : 'clear to walk, median of ' + (v.night ? 'night' : 'daytime') + ' walks'}</span><span style="margin-top:10px">Blocked on ${s.b} of ${s.n} walks · ${s.sw} swerved · ${s.hk} horns</span><button class="btn g" data-v="map" style="margin-top:14px;justify-self:start">${I.pin}Open on the map</button></div></div>
+      <div class="side"><b>${(v.night ? s.ng : s.g) == null ? '—' : (v.night ? s.ng : s.g).toFixed(1) + ' m'}</b><span>${(v.night ? s.ng : s.g) == null ? 'width not measured here' : 'clear to walk, median of ' + (v.night ? 'night' : 'daytime') + ' walks'}</span>${v.trace && !v.night ? '<span class="svnote" style="margin-top:10px;font-size:12px;color:#d6dad3;border-left:3px solid #F2B800;padding-left:8px">Yellow outline: ground the software traced as walkable. Automatic, so it can include road where there is no kerb.</span>' : ''}<span style="margin-top:10px">Blocked on ${pct(s.b, s.n)} of walks · ${s.sw} swerved · ${s.hk} horns</span><button class="btn g" data-v="map" style="margin-top:14px;justify-self:start">${I.pin}Open on the map</button></div></div>
     <div class="svs">${Array.from({ length: NB }, (_, k) => { const q = svPhoto(k, v.night, v.dir); return `<button data-v="go" data-k="${k}" class="${k === i ? 'on' : ''}" aria-label="${k * 10} m">${q ? `<img src="../lab/ph/${q.id}.jpg" alt="" loading="lazy">` : ''}<span>${k * 10}</span></button>`; }).join('')}</div>`;
   const on = svEl.querySelector('.svs .on'), st = svEl.querySelector('.svs'); if (on && st) st.scrollLeft = on.offsetLeft - st.clientWidth / 2 + on.offsetWidth / 2; }
 svEl.addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; const v = state.sv, k = b.dataset.v;
@@ -1198,7 +1224,7 @@ async function saveFile(name, data, type) { let dl = null; try { dl = window.cla
   if (window.claude) { toast('Saving files is not available in this view.'); return; }
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([data], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
 function saveEvidence() { const i = state.sel, s = STATS[i];
-  const lines = [['Location', `Old Nagardas Road, Andheri East (K/East ward) · ${i * 10}–${i * 10 + 10} m from R.K. Chouhan Communications`], ['Clear walkway', s.g == null ? 'not measurable here' : `${s.g.toFixed(1)} m (median of ${s.gN} daytime photo${s.gN === 1 ? '' : 's'}) · BMC Universal Footpath Policy minimum 1.5 m`], ['Blocked', `${s.b} of ${s.n} walks`], ['Walkers swerved', `${s.sw} walks`], ['Horns heard', `${s.hk}`], ['Seen on daytime walks', `fixed things ${Math.round(s.sh.fixed * 100)}% · vehicles ${Math.round(s.sh.vehicle * 100)}% · people and stalls ${Math.round(s.sh.people * 100)}%`], ['At night', s.ng == null ? 'width not measured' : `${s.ng.toFixed(1)} m clear`], ['Reports on this map', `${REPORTS.filter(r => Math.floor(r.m / 10) === i).length}`], ['Method', 'Walks recorded in Oct 2026 on one side of the road; widths are camera estimates from walk photos, not tape-measured.']];
+  const lines = [['Location', `Old Nagardas Road, Andheri East (K/East ward) · ${i * 10}–${i * 10 + 10} m from R.K. Chouhan Communications`], ['Clear walkway', s.g == null ? 'not measurable here' : `${s.g.toFixed(1)} m (median of ${s.gN} daytime photo${s.gN === 1 ? '' : 's'}) · BMC Universal Footpath Policy minimum 1.5 m`], ['Blocked', `${pct(s.b, s.n)} of walks (${s.b} of ${s.n})`], ['Walkers swerved', `${s.sw} walks`], ['Horns heard', `${s.hk}`], ['Seen on daytime walks', `fixed things ${Math.round(s.sh.fixed * 100)}% · vehicles ${Math.round(s.sh.vehicle * 100)}% · people and stalls ${Math.round(s.sh.people * 100)}%`], ['At night', s.ng == null ? 'width not measured' : `${s.ng.toFixed(1)} m clear`], ['Reports on this map', `${REPORTS.filter(r => Math.floor(r.m / 10) === i).length}`], ['Method', 'Walks recorded in Oct 2026 on one side of the road; widths are camera estimates from walk photos, not tape-measured.']];
   const svgTxt = `<svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="148mm" viewBox="0 0 210 148"><rect width="210" height="148" fill="#fff"/><text x="12" y="18" font-family="Georgia" font-size="9">Footpath evidence · ${esc(placeOf(i * 10 + 5))}</text>${lines.map((l, j) => `<text x="12" y="${30 + j * 12.5}" font-family="Arial" font-size="3.4" fill="#777">${esc(l[0].toUpperCase())}</text><text x="12" y="${35 + j * 12.5}" font-family="Arial" font-size="4.2">${esc(l[1])}</text>`).join('')}</svg>`;
   saveFile(`footpath-evidence-${i * 10}-${i * 10 + 10}m.svg`, svgTxt, 'image/svg+xml'); }
 
