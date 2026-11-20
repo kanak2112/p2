@@ -13,7 +13,7 @@
   --ground:#E4E7E1; --paper:#F3F4F0; --card:#FFFFFF; --ink:#141414; --ink2:#4E534C; --ink3:#6B7069; --hair:#D5DAD1;
   --bldg:#D3D7CE; --bldg2:#C3C8BE; --road:#B4B9B1; --kerb:#8D928A; --taken:#3A3D39; --walk:#FAFBF7;
   --mus:#966C00; --yel:#F2B800; --red:#C2402D; --amb:#D6921B; --teal:#12867E; --navy:#1E2A45;
-  --fix:#3657C9; --veh:#D9622B; --ppl:#D7A511; --tree:#5E7A57;
+  --fix:#3657C9; --veh:#8A5A2B; --ppl:#8E5BB5; --tree:#5E7A57;
   --serif:Roboto,Arial,sans-serif; --sans:Roboto,Arial,sans-serif; --mono:"Roboto Mono",ui-monospace,monospace; --pri:#1A73E8; --pri2:#1967D2; --pribg:#E8F0FE; --g1:#202124; --g2:#5F6368; --g3:#70757A; --gl:#DADCE0;
   --shadow:0 1px 2px rgba(0,0,0,.12),0 6px 18px -6px rgba(20,30,20,.28);
   --sheetW:408px;
@@ -155,6 +155,7 @@ button.rep:hover{background:var(--paper)}
 .tg button+button{border-top:1px solid var(--hair)}
 .tg button:hover{background:var(--paper)}
 .tg button[aria-pressed=true]{color:var(--pri);background:#E8F0FE}
+.mtab .md{font:400 10px var(--sans);color:var(--g2)}.mtab[aria-pressed=true] .md{color:inherit}
 .aud{flex:none;display:flex;background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:3px;height:30px}.aud button{border:0;background:none;border-radius:15px;padding:0 12px;font:500 13px var(--sans);color:var(--g2);cursor:pointer;white-space:nowrap}.aud button[aria-pressed=true]{background:#1A73E8;color:#fff}
 .mkey .kk{cursor:pointer;border-radius:4px}.mkey .kk:hover{background:rgba(26,115,232,.08)}
 .gl.hit summary{color:#1A73E8}
@@ -349,6 +350,7 @@ body{color:var(--g1)}
 .navmode .mkey{display:none}
 .navmode .lay{left:16px}
 @media(min-width:861px){.colmode .chips{left:16px}.colmode .lay{left:16px}.navmode .chips{display:none}}
+@media(max-width:860px){.ib,.peg{min-width:44px;min-height:44px}#chips .chip,#chips .aud{height:44px}.aud button{min-height:38px}.tg button{min-height:44px;min-width:44px}.act span.c{width:44px;height:44px}.kind,.dm,.btn{min-height:44px}}
 </style>
 </head>
 <body>
@@ -406,6 +408,13 @@ const NW = walks.length, NWD = walks.filter(w => !w.night).length;
 // 120–130 m was also reported by a reviewer.
 const NOKERB = { 0: 'Junction: no raised kerb', 11: 'Open junction at the service road', 12: 'Open junction at the service road', 13: 'Kerb broken or missing on some walks', 19: 'Underpass exit: no raised kerb', 20: 'Open edge to the road', 21: 'Open edge to the road' };
 const KERBC = '#C2185B';
+// Where walkers cross traffic, from the walk photos (open junctions) and a reviewer (150–160 m).
+const CROSS = [[2, 'Start junction, R.K. Chouhan'], [104, 'Turn onto the highway service road'], [155, 'Road crossing before the underpass'], [191, 'Underpass exit onto the service road']];
+const crossSig = m => { const ws = walks.filter(w => !w.part || (m >= w.part[0] && m <= w.part[1])), n = ws.length || 1;
+  const hk = ws.reduce((t, w) => t + w.honks.filter(h => Math.abs(h - m) <= 10).length, 0), sw = ws.reduce((t, w) => t + w.swerves.filter(h => Math.abs(h - m) <= 10).length, 0);
+  return { n: ws.length, hk, sw, hpw: hk / n }; };
+// What lines the footpath on the building side, judged by eye from the daytime walk photos.
+const FRONT = [[0, 100, 'Shops', '#A1887F'], [100, 140, 'Shops and stalls at the junction', '#D7CCC8'], [140, 150, 'Shops', '#A1887F'], [150, 160, 'Under the flyover, open', '#ECEFF1'], [160, 190, 'Underpass wall', '#616161'], [190, 200, 'Open edge with trees', '#C5D6BE'], [200, 220, 'Shops', '#A1887F']];
 const WPHD = window.WPH || {};
 const pct = (a, b) => b ? Math.round(a / b * 100) + '%' : '—';
 const GLOSS = [
@@ -420,6 +429,8 @@ const GLOSS = [
   ['Not measured', 'Hatched. The photos could not give a width here, e.g. no clear footpath edge.', /not measur/],
   ['Walkable ground (yellow outline)', 'On Street View photos: the ground the software traced as walkable. Automatic, so it can be wrong, and can include road where there is no kerb.', /yellow|outline/],
   ['No raised kerb (magenta)', 'Stretches where the photos show no kerb between footpath and road. The traced ground may include road there, so the width may read too high. Judged by eye from the walk photos.', /kerb/],
+  ['Crossing', 'A point where walkers cross or meet traffic. Ranked by horns heard within 10 m, per walk: a sign of conflict, not a safety rating.', /crossing/],
+  ['Frontage', 'What lines the footpath on the building side: shops, stalls, walls or open edge. Judged by eye from the walk photos.', /frontage|shops|underpass wall|open edge/],
   ['Night light', 'How bright the night photos are, relative to the rest of this street. A comparison, not a lux reading.', /night|brighter/],
   ['Swerve', 'The walker stepped sideways to get past something, found from the phone’s motion.', /swerve/],
   ['Horn', 'A vehicle horn picked up by the phone’s microphone during a walk.', /horn/],
@@ -511,13 +522,16 @@ const USES = {
   stress: { n: 'Noise & stress', ic: 'ear', q: 'Most horns and swerves', B: 'nolli', L: { sound: 1, horn: 1, swerve: 1 },
     list: S => S.slice().sort((a, b) => (b.hk + b.sw * 2) - (a.hk + a.sw * 2)).slice(0, 5).map(s => [s, `${s.hk}`, `Horns heard · ${s.sw} walks swerved`]), foot: 'Horns heard and direction changes recorded by the phone on every walk.' }
 };
-const MODES = { walk: USES.walk, access: USES.access, stress: USES.stress, proof: USES.proof, act: USES.act, plan: USES.plan };
-const AUD = { walker: { n: 'For walkers', m: ['walk', 'access', 'stress'] }, planner: { n: 'For planners', m: ['proof', 'act', 'plan'] } };
+USES.cross = { n: 'Crossings', ic: 'warn', q: 'Where walkers cross traffic', B: 'nolli', L: { cross: 1, horn: 1 },
+  list: () => CROSS.map(([m, n]) => [m, n, crossSig(m)]).sort((a, b) => b[2].hpw - a[2].hpw).map(([m, n, c]) => [STATS[Math.min(21, Math.floor(m / 10))], c.hpw.toFixed(1), `${n} · ${m} m · horns per walk${NOKERB[Math.min(21, Math.floor(m / 10))] ? ' · no kerb' : ''}`]),
+  foot: 'Horns heard within 10 m of each crossing, per walk. A sign of conflict with traffic, not a measured safety rating. Crossings are not yet surveyed.' };
+const MODES = { walk: USES.walk, access: USES.access, stress: USES.stress, proof: USES.proof, act: USES.act, cross: USES.cross, plan: USES.plan };
+const AUD = { walker: { n: 'For walkers', m: ['walk', 'access', 'stress'] }, planner: { n: 'For planners', m: ['proof', 'act', 'cross', 'plan'] } };
 const audOf = k => AUD.planner.m.includes(k) ? 'planner' : 'walker';
 const owners = s => { const o = []; if (s.fixedOn) o.push('Civil works'); if (s.pers.people || s.sh.people >= .7) o.push('Enforcement'); if (s.pers.vehicle || s.sh.vehicle >= .5) o.push('Traffic & parking'); return o; };
 const ALWAYS = { reports: 1, chain: 1, places: 1, labels: 1 };
 const NIGHTL = USES.night;
-const DETAILS = [['obst', 'Things in the way', 'cube'], ['line', 'Clear width', 'road'], ['prox', 'People side by side', 'people'], ['photos', 'Photos', 'cam'], ['noise', 'Horns and swerves', 'ear'], ['labels', 'Labels', 'tag']];
+const DETAILS = [['obst', 'Things in the way', 'cube'], ['line', 'Clear width', 'road'], ['prox', 'People side by side', 'people'], ['photos', 'Photos', 'cam'], ['noise', 'Horns and swerves', 'ear'], ['cross', 'Crossings', 'warn'], ['ctx', 'Frontage', 'stall'], ['labels', 'Labels', 'tag']];
 const BASES = { nolli: ['Footpath', 'Figure-ground of the footpath. Black is everything that takes it: buildings, stalls, vehicles, poles. White is the width left to walk, measured every 10 m.'], ghost: ['Ghost', 'Every daytime walk laid over the others. Bright where the walks agree, blurred where it depends on the day.'], daynight: ['Night', 'The footpath after dark. Pale is walkable at night, the dashed line is the daytime width, and the warm glow is how lit each part is in the night photos: lamps, the underpass tube lights and lit shopfronts.'], fills: ['Lost to', 'What took the footpath: fixed things need civil works, vehicles need parking control, stalls and crowds need enforcement.'] };
 const TH = {
   nolli: { bg: '#D9DCD5', land: '#D9DCD5', b1: '#1C1C1C', b2: '#1C1C1C', bEdge: '#1C1C1C', road: '#AEB2AB', roadEdge: '#9DA19A', hwy: '#969B93', hwyEdge: '#878C84', lane: '#E6E8E3', taken: '#111111', walk: '#FFFFFF', kerb: '#6E726B', hatchBg: '#E6E8E3', hatch: '#BFC3BB', ink: '#202124', halo: '#FFFFFF', roadLab: '#3C4043', poi: '#5F6368', pin: '#202124', pinDot: '#FFFFFF', lab: '#5F6368' },
@@ -717,7 +731,9 @@ function draw() {
     if (!n) { const [x, y] = P(m, (e1 + e2) / 2), r = 5 * K; el('path', { d: `M${x - r} ${y - r}L${x + r} ${y + r}M${x + r} ${y - r}L${x - r} ${y + r}`, stroke: '#D93025', 'stroke-width': fs(2.5), 'stroke-linecap': 'round' }, g); return; }
     const lane = (e2 - e1) / n; for (let k = 0; k < n; k++) { const [x, y] = P(m, e1 + lane * (k + .5)), rb = Math.max(2.2 * K, .25 * U * XG); el('circle', { cx: x, cy: y, r: Math.min(rb * 2.2, lane * U * XG / 2), fill: 'none', stroke: '#1A73E8', 'stroke-width': fs(1), 'stroke-dasharray': `${fs(2)} ${fs(2)}`, opacity: .8 }, g); el('circle', { cx: x, cy: y, r: rb, fill: '#1A73E8', opacity: .85 }, g); } });
   if (Lr.night) S.forEach(s => { if (s.lit == null) return; const d = Math.max(0, 1 - s.lit); quad(s.i * 10, s.i * 10 + 10, -5, 8, dark ? '#000' : C.navy, { opacity: Math.min(.6, .04 + d * 1.6) }, g); });
-  if (Lr.line) S.forEach(s => { const c = wcol(s.g); quad(s.i * 10 + .15, s.i * 10 + 9.85, 3.25, 3.8, c || 'url(#hatch)', {}, g); });
+  if (Lr.line) S.forEach(s => { const c = wcol(s.g); quad(s.i * 10 + .15, s.i * 10 + 9.85, 3.25, 3.8, c || 'url(#hatch)', c ? { stroke: 'rgba(32,33,36,.55)', 'stroke-width': fs(.6) } : {}, g); });
+  if (Lr.ctx) FRONT.forEach(([m0, m1, , c]) => quad(m0 + .1, m1 - .1, -.75, -.12, c, { stroke: dark ? '#000' : '#fff', 'stroke-width': fs(.6) }, g));
+  if (Lr.cross) CROSS.forEach(([m]) => { for (let k = 0; k < 5; k++) quad(m - 1.6 + k * .7, m - 1.25 + k * .7, 3.3, 6.2, '#fff', { stroke: '#202124', 'stroke-width': fs(.8) }, g); });
   Object.keys(NOKERB).forEach(k => { const m0 = +k * 10; for (let m = m0 + .5; m < m0 + 10; m += 2.5) quad(m, Math.min(m0 + 9.8, m + 1.4), Lr.line ? 3.85 : 3.2, Lr.line ? 4.25 : 3.6, KERBC, {}, g); });
   if (Lr.horn || Lr.noise) W().forEach((w, k) => w.honks.forEach(m => { const [x, y] = P(m, 4 + (k % 6) * .45); el('circle', { cx: x, cy: y, r: (.22 * U).toFixed(2), fill: C.red, opacity: .7 }, g); }));
   if ((Lr.swerve || Lr.noise) && !R && XG < 2) W().forEach((w, k) => w.swerves.forEach(m => { const s = S[Math.min(21, Math.floor(m / 10))]; const [e1, e2] = s.g != null ? edges(s) : [1, 2], a = (e1 + e2) / 2 + ((k % 5) - 2) * .15; const p0 = P(m - .6, a - .35), p1 = P(m, a + .2), p2 = P(m + .6, a - .35);
@@ -864,7 +880,7 @@ const sc = $('sc'), sheet = $('sheet');
 const colOf = s => s.g == null ? (NA(s.i) ? 'url' : C.hair) : wcol(s.g);
 const strip = () => `<div class="strip">${STATS.map(s => `<button data-go="${s.i}" class="${s.i === state.sel ? 'on' : ''}" style="background:${colOf(s) === 'url' ? 'repeating-linear-gradient(45deg,var(--paper) 0 3px,var(--hair) 3px 5px)' : colOf(s)}" aria-label="${s.i * 10} to ${s.i * 10 + 10} m, ${s.g == null ? 'not measured' : s.g.toFixed(1) + ' m clear'}" title="${s.i * 10}–${s.i * 10 + 10} m · ${s.g == null ? 'not measured' : s.g.toFixed(1) + ' m'}"></button>`).join('')}</div><div class="sx"><span>A · 0 m</span><span>underpass</span><span>220 m · B</span></div>`;
 const ago = t => { const s = (Date.now() - t) / 1000; return s < 60 ? 'just now' : s < 3600 ? `${Math.floor(s / 60)} min ago` : s < 86400 ? `${Math.floor(s / 3600)} h ago` : `${Math.floor(s / 86400)} d ago`; };
-const KINDS = { vehicle: 'Vehicle parked', stall: 'Stall or goods', works: 'Works or debris', paving: 'Broken paving', dark: 'Too dark', water: 'Water or garbage', other: 'Other' };
+const KINDS = { vehicle: 'Vehicle parked', stall: 'Stall or goods', works: 'Works or debris', paving: 'Broken paving or uneven floor', kerb: 'Broken kerb or no ramp', crossing: 'Unsafe crossing', dark: 'Too dark', water: 'Water or garbage', other: 'Other' };
 const repRow = r => `<button class="rep" data-go="${Math.min(21, Math.floor(r.m / 10))}"><span class="d"></span><span><b>${esc(KINDS[r.kind] || 'Report')}</b><small>${Math.round(r.m)} m · ${esc(placeOf(r.m))} · ${ago(r.at)}</small>${r.note ? `<p>${esc(r.note)}</p>` : ''}</span></button>`;
 function homeView() { const S = STATS, gv = s => state.night ? s.ng : s.g, meas = S.filter(s => gv(s) != null), ok = meas.filter(s => gv(s) >= 1.5).length, M = state.night ? NIGHTL : MODES[state.mode], frac = ok / meas.length;
   const ring = `<svg viewBox="0 0 64 64" role="img" aria-label="${ok} of ${meas.length} measured stretches meet 1.5 m"><circle cx="32" cy="32" r="27" fill="none" stroke="${C.paper}" stroke-width="7"/><circle cx="32" cy="32" r="27" fill="none" stroke="${C.red}" stroke-width="7" stroke-dasharray="${(frac * 169.6).toFixed(1)} 200" transform="rotate(-90 32 32)" stroke-linecap="round"/><text x="32" y="37" text-anchor="middle" font-family="Roboto" font-size="15" font-weight="500" fill="${C.ink}">${ok}/${meas.length}</text></svg>`;
@@ -890,19 +906,21 @@ function placeView() { const i = state.sel, s = STATS[i], Pp = D.photos, dp = Pp
   const bar = (l, x, c) => `<div class="bar"><span>${l}</span><span class="tr"><i style="width:${Math.round(x * 100)}%;background:${c}"></i></span><em>${Math.round(x * 100)}%</em></div>`;
   const acc = access(s), lit = s.lit == null ? '—' : s.lit < 1 ? `−${Math.round((1 - s.lit) * 100)}%` : `+${Math.round((s.lit - 1) * 100)}%`, ow = owners(s), here = REPORTS.filter(r => Math.floor(r.m / 10) === i);
   return `<div class="ph"><button class="ib" data-act="home" aria-label="Back">${I.back}</button><span class="grow">${i * 10}–${i * 10 + 10} M OF ${L}</span><button class="ib" data-step="-1" aria-label="Previous stretch">${I.chevL}</button><button class="ib" data-step="1" aria-label="Next stretch">${I.chevR}</button></div>
-    <div class="hero">${twp ? `<button class="im" data-sv="${tw.night ? 'n' : 'd'}" aria-label="Open in Street View">${wpic(twr, tw, true)}<span class="cap">DAY ${tw.day} · ${tw.night ? 'NIGHT WALK' : 'YELLOW = WALKABLE'} · BOXES = OBSTACLES</span></button>` : pic(dp, 'DAY · YELLOW = WALKABLE', false)}${pic(np, 'NIGHT', true)}</div>
-    ${NOKERB[i] ? `<div class="sec kerbw"><b>No raised kerb here.</b> ${esc(NOKERB[i])}. The traced ground may include road, so the width may read too high.</div>` : ''}
     <div class="sec"><h2 class="h1">${esc(placeOf(i * 10 + 5))}</h2><div class="sub">Footpath · Old Nagardas Road, Andheri East</div>
       <div class="wbig"><b>${s.g == null ? '—' : s.g.toFixed(1)}</b><span>${s.g == null ? '' : 'm clear · daytime median of ' + s.gN + (s.gN === 1 ? ' photo' : ' photos')}</span></div><span class="verdict ${v[0]}">${v[1]}</span></div>
-    <div class="acts">${actBtn('from', 'here', 'Start here')}${actBtn('to', 'dir', 'Go here', true)}${actBtn('sv', 'sv', 'Street View')}${actBtn('report', 'flag', 'Report')}${actBtn('share', 'share', 'Share')}</div>
-    <div class="sec" style="padding-top:4px"><div class="grid2"><div class="stat" title="${esc(gtip('blocked'))}"><b>${pct(s.b, s.n)}</b><span>of walks blocked · ${s.b} of ${s.n}</span></div><div class="stat" title="${esc(gtip('wheelchair'))}"><b>${acc ? pct(s.ok, s.gN) : '—'}</b><span>of walks with ${state.thr.toFixed(1)} m for a wheelchair${acc ? ` · ${s.ok} of ${s.gN}` : ''}</span></div>
-      <div class="stat"><b>${s.sw}</b><span>walks swerved</span></div><div class="stat"><b>${s.hk}</b><span>horns heard</span></div>
-      <div class="stat"><b>${s.ng == null ? '—' : s.ng.toFixed(1)}</b><span>m clear at night, rough</span></div><div class="stat"><b>${lit}</b><span>light vs the route at night</span></div></div>
+    ${NOKERB[i] ? `<div class="sec kerbw"><b>No raised kerb here.</b> ${esc(NOKERB[i])}. The traced ground may include road, so the width may read too high.</div>` : ''}
+    <div class="hero">${twp ? `<button class="im" data-sv="${tw.night ? 'n' : 'd'}" aria-label="Open in Street View">${wpic(twr, tw, true)}<span class="cap">DAY ${tw.day} · ${tw.night ? 'NIGHT WALK' : 'YELLOW = WALKABLE'} · BOXES = OBSTACLES</span></button>` : pic(dp, 'DAY · YELLOW = WALKABLE', false)}${pic(np, 'NIGHT', true)}</div>
+    <p class="note" style="padding:6px 22px 0;margin:0">Tap a photo for Street View.</p>
+    <div class="acts">${actBtn('from', 'here', 'Start here')}${actBtn('to', 'dir', 'Go here', true)}${actBtn('report', 'flag', 'Report')}${actBtn('share', 'share', 'Share')}</div>
+    <div class="sec" style="padding-top:4px"><div class="grid2"><div class="stat" title="${esc(gtip('blocked'))}"><b>${pct(s.b, s.n)}</b><span>how often it is blocked (${s.b} of ${s.n} walks)</span></div><div class="stat" title="${esc(gtip('wheelchair'))}"><b>${acc ? pct(s.ok, s.gN) : '—'}</b><span>how often a wheelchair fits, ${state.thr.toFixed(1)} m${acc ? ` (${s.ok} of ${s.gN} walks)` : ''}</span></div>
+      <div class="stat"><b>${s.sw}</b><span>walks where the walker swerved</span></div><div class="stat"><b>${s.hk}</b><span>horns heard</span></div>
+      <div class="stat"><b>${s.ng == null ? '—' : s.ng.toFixed(1)}</b><span>m clear at night (rough estimate)</span></div><div class="stat"><b>${lit}</b><span>night light vs the rest of the street</span></div></div>
       <div class="lab" style="margin-top:12px">Every walk here · ${shots.length} photos · tap one to see that walk</div><div class="wstrip">${shots.map(w => `<button data-wk="${w.k}" class="${tw && tw.k === w.k ? 'on' : ''}${w.night ? ' n' : ''}" title="${esc(wlabel(w))}">${wpic(w.s[i], w, false)}<span>D${w.day}${w.dir === 'forward' ? '→' : '←'}</span></button>`).join('')}</div>
       <p class="note" style="margin:4px 0 0">Boxes: <i style="color:${C.ppl}">■</i> people &amp; stalls <i style="color:${C.veh}">■</i> vehicles <i style="color:${C.fix}">■</i> poles &amp; barriers <i style="color:${C.tree}">■</i> greenery. Detected automatically.</p>
       <div class="bars"><div class="lab" style="margin-top:8px">Seen here on daytime walks</div>${bar('Fixed things', s.sh.fixed, C.fix)}${bar('Vehicles', s.sh.vehicle, C.veh)}${bar('People & stalls', s.sh.people, C.ppl)}</div></div>
     ${s.g != null && s.g < 1.5 && ow.length ? `<div class="sec"><div class="who">Under BMC 1.5 m. Likely needs <b>${ow.join(', ').toLowerCase()}</b>.</div><div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn g" data-act="evidence">${I.dl}Evidence sheet</button><button class="btn g" data-act="plan">${I.cube}Plan a change here</button></div></div>` : `<div class="sec" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn g" data-act="evidence">${I.dl}Evidence sheet</button><button class="btn g" data-act="plan">${I.cube}Plan a change here</button></div>`}
-    <div class="list"><div class="lab">Reports here</div>${here.length ? here.map(repRow).join('') : '<p class="note" style="padding:6px 22px 12px">None yet.</p>'}</div>`; }
+    <div class="sec"><p class="note" style="margin:0">Surface, kerbs and ramps are not measured by the walks. Seen a broken kerb, uneven floor or missing ramp? <button class="lnk" data-act="report" style="padding:0">Report it</button>.</p></div>
+    <div class="list"><div class="lab">Reports here${here.length ? ' · ' + here.length : ''}</div>${here.length ? here.map(repRow).join('') : '<p class="note" style="padding:6px 22px 12px">None yet.</p>'}</div>`; }
 const viaOf = R => { const lo = Math.min(R.m0, R.m1), hi = Math.max(R.m0, R.m1), v = []; if (lo < 104) v.push('Jijamata Rd / Old Nagardas Rd'); if (hi > 104 && lo < 162) v.push('the highway service road'); if (hi > 162 && lo < 191) v.push('the underpass walkway'); return v.join(' and ') || 'the footpath'; };
 function dirsView() { const R = state.route, t = R ? fmtT(R.dist / SPEED) : '—';
   let body = '';
@@ -918,7 +936,7 @@ function dirsView() { const R = state.route, t = R ? fmtT(R.dist / SPEED) : '—
       <div style="padding:6px 22px 4px">${al.map(([k, i, x]) => `<div class="alert ${k}">${I[i]}<span>${x}</span></div>`).join('')}<p class="note" style="margin-top:10px">Time at the median speed of the daytime walks, ${SPEED.toFixed(2)} m/s. On the map the route lights up the footpath itself: red along the kerb is where you step into the road, amber where it is tight.</p></div>
       <div class="list"><div class="lab" style="padding:10px 22px 2px">Steps</div></div>
       <div class="steps">${R.steps.map((st, j) => { const [a, b, icn, c] = stepText(st, R); return `<button class="step" data-st="${j}"><span class="si" style="background:${c}">${I[icn]}</span><span><b>${esc(a)}</b><small>${esc(b)}</small></span><em>${st.t === 'go' ? Math.round(st.len) + ' m' : ''}</em></button>`; }).join('')}</div>`; }
-  return `<div class="dh"><div class="mtabs">${Object.entries(PROFS).map(([k, [n, i]]) => `<button class="mtab" data-prof="${k}" aria-pressed="${k === state.prof}" aria-label="${n}, ${t}" title="${n}"><span class="ico">${I[i]}</span>${t}</button>`).join('')}<button class="ib x" data-act="home" aria-label="Close directions">${I.x}</button></div>
+  return `<div class="dh"><div class="mtabs">${Object.entries(PROFS).map(([k, [n, i]]) => { const Rk = R ? buildRoute(state.from, state.to, k) : null, d = !Rk ? '' : k === 'walk' ? (Rk.road ? `${Math.round(Rk.road)} m in road` : 'no road') : k === 'access' ? (Rk.stop ? `${Math.round(Rk.stop)} m blocked` : 'gets through') : (Rk.dark ? `${Rk.dark} dark part${Rk.dark > 1 ? 's' : ''}` : 'lit'); return `<button class="mtab" data-prof="${k}" aria-pressed="${k === state.prof}" aria-label="${n}, ${t}${d ? ', ' + d : ''}" title="${n}"><span class="ico">${I[i]}</span>${t}${d ? `<small class="md">${d}</small>` : ''}</button>`; }).join('')}<button class="ib x" data-act="home" aria-label="Close directions">${I.x}</button></div>
     <div class="ft"><span class="dots"><span class="a"></span><i></i><i></i><i></i><span class="b">${I.pin.replace('class="i"', 'class="i" style="width:18px;height:18px"')}</span></span>
       <div class="fi"><input id="fromI" value="${esc(nameAt(state.from))}" placeholder="Choose starting point" aria-label="Starting point" autocomplete="off"></div><button class="ib swap" data-act="swap" aria-label="Swap start and destination">${I.swap}</button>
       <div class="fi"><input id="toI" value="${esc(nameAt(state.to))}" placeholder="Choose destination" aria-label="Destination" autocomplete="off"></div></div>
@@ -930,7 +948,7 @@ function reportView() { const m = state.repM ?? (state.sel != null ? state.sel *
       <div class="kinds">${Object.entries(KINDS).map(([k, n]) => `<button class="kind" data-kind="${k}" aria-pressed="${k === state.kind}">${n}</button>`).join('')}</div>
       <div class="slider" style="margin-top:16px"><span>Where</span><input id="repM" type="range" min="0" max="${L}" step="1" value="${Math.round(m)}" aria-label="Metres along the street"><b id="repMv">${Math.round(m)} m</b></div><div class="sub" id="repMp">${esc(placeOf(m))}</div>
       <textarea id="repN" maxlength="200" placeholder="Optional note, e.g. car parked on the footpath since morning"></textarea>
-      <div style="display:flex;gap:8px;align-items:center;margin-top:12px"><button class="btn" data-act="send" ${off ? 'disabled' : ''}>${I.flag}Send report</button><span class="note" id="repMsg">${off ? 'You can read reports on this map but not add them.' : db ? '' : 'Saved on this device only.'}</span></div></div>`; }
+      <div style="display:flex;gap:8px;align-items:center;margin-top:12px"><button class="btn" data-act="send" ${off ? 'disabled' : ''}>${I.flag}Send report</button><span class="note" id="repMsg">${off ? 'You can read reports on this map but not add them.' : db ? '' : 'Sent to the project team and saved on this device.'}</span></div></div>`; }
 function resultsView() { const R = state.results || [];
   return `<div class="ph"><button class="ib" data-act="home" aria-label="Back">${I.back}</button><span class="grow">${R.length} RESULT${R.length === 1 ? '' : 'S'} · ${esc(state.q.toUpperCase())}</span></div>
     <div class="list">${R.length ? R.map(r => `<button class="row" data-go="${Math.min(21, Math.floor(r.m / 10))}"><span class="ic">${I[r.ic || 'pin']}</span><span class="t"><b>${esc(r.n)}</b><small>${esc(r.d)}</small></span>${r.v ? `<span class="v">${esc(r.v)}</span>` : ''}</button>`).join('') : '<p class="note" style="padding:10px 22px">Nothing found on this street. Try a place, a metre like 120, or words like narrow, dark, stalls, horns, wheelchair.</p>'}</div>`; }
@@ -1047,6 +1065,8 @@ function detailLeg() { const Lr = state.layers, o = [];
   if (Lr.view) o.push(['#3C4043', 'blocked ahead · darker = on more walks']);
   if (Lr.sound) o.push(['#D93025', 'horns · thicker = more heard'], [C.mus, 'swerves']);
   
+  if (Lr.ctx) [...new Map(FRONT.map(f => [f[2], f[3]])).entries()].forEach(([n, c]) => o.push([c, 'frontage: ' + n.toLowerCase(), 1]));
+  if (Lr.cross) o.push(['#FFFFFF', 'crossing, where walkers meet traffic', 1]);
   if (Lr.line) o.push([C.teal, 'clear 1.5 m or more'], [C.amb, 'clear 0.9–1.5 m'], [C.red, 'clear under 0.9 m']);
   if (Lr.through) o.push([C.teal, `✓ usually ${state.thr.toFixed(1)} m clear`], [C.amb, '! sometimes'], [C.red, '✕ rarely']);
   if (Lr.obst === 'kind') o.push([C.ppl, 'people & stalls'], [C.veh, 'vehicles'], [C.fix, 'poles & barriers'], [C.tree, 'trees']);
@@ -1109,18 +1129,12 @@ $('tl').addEventListener('input', e => { if (e.target.type !== 'range') return; 
 /* ---------- first-run tour: what the map is and how to use it ---------- */
 const tourHome = () => { if (state.mode !== 'walk') setMode('walk'); if (state.night) toggleNight(false); if (state.view !== 'home') setView('home'); };
 const TOUR = [
-  [null, 'What this map shows', `Room left to walk on 220 m of Old Nagardas Road, Andheri East, measured over ${new Set(walks.map(w => w.day)).size} days, by day and night.`, tourHome],
-  ['#map', 'Reading the footpath', 'Drawn three times wider than real. White: room to walk. Black: what takes it. Hatched: not measured.', tourHome],
-  ['#mkey', 'Kerb line', 'Teal: 1.5 m or more, the BMC minimum. Amber: 0.9 to 1.5 m. Red: under 0.9 m.', tourHome],
-  ['.sheet .strip', 'Along the street', 'One block per 10 m, from A (0 m) to B (220 m). Tap a block to open it.', tourHome],
-  ['.sheet .list', 'Ranked stretches', 'Hardest first, with how many walks were blocked.', tourHome],
-  ['.sheet', 'One stretch', 'Clear width, walks blocked, causes, photos and night light.', () => { tourHome(); openPlace(8, true); }],
-  ['#chips', 'Four uses', 'Walking, Wheelchair & pram, Evidence, Plan a change: one street, four questions.', tourHome],
-  ['#layB', 'Layers', 'Show or hide obstacles, width, people, photos, horns and labels.', tourHome],
-  ['#tools', 'Map tools', 'Night, satellite, Street View, 2D or 3D, zoom.', tourHome],
-  ['#dirB', 'Directions', 'Routes along the footpath, with warnings where it narrows.', tourHome],
-  ['#tl', 'Walks timeline', `In Evidence: the walks of each of the ${new Set(walks.map(w => w.day)).size} days, or all combined.`, () => { tourHome(); setMode('proof'); }],
-  [null, 'Explore', 'The tour can be reopened from the menu.', tourHome]];
+  [null, 'Start here', `How much room is left to walk on 220 m of Old Nagardas Road, Andheri East. Recorded on ${new Set(walks.map(w => w.day)).size} days, by day and night. Six steps.`, tourHome],
+  ['#map', 'Reading the footpath', 'Drawn three times wider than real. White: room to walk. Black: what takes it. The kerb line: teal meets 1.5 m, amber is tight, red means stepping into the road.', tourHome],
+  ['.sheet', 'One stretch', 'Tap any stretch: how wide it is, how often it is blocked, and a photo from every walk.', () => { tourHome(); openPlace(8, true); }],
+  ['#chips', 'For walkers, for planners', 'Walkers: walking, wheelchair, noise. Planners: evidence, who must act, crossings, plan a change.', tourHome],
+  ['#mkey', 'Key and glossary', 'Click anything in the key, or the ? button, to see what a word means.', tourHome],
+  [null, 'Explore', 'The tour is in the menu if you need it again.', tourHome]];
 let tourI = -1;
 function startTour() { tourI = 0; let t = $('tour'); if (!t) { t = document.createElement('div'); t.id = 'tour'; t.className = 'tour'; t.setAttribute('role', 'dialog'); t.setAttribute('aria-modal', 'true'); document.body.appendChild(t);
     t.addEventListener('click', e => { const b = e.target.closest('[data-tour]'); if (!b) return; const a = b.dataset.tour; if (a === 'skip' || (a === 'next' && tourI === TOUR.length - 1)) return endTour(); tourI = clamp(tourI + (a === 'next' ? 1 : -1), 0, TOUR.length - 1); renderTour(); }); }
@@ -1206,13 +1220,16 @@ function stopPlay() { playId++; if (state.nav) { state.nav.playing = false; if (
 const svEl = $('sv');
 const walkOf = id => { const m = id.match(/^(\d+)([fr])/); if (!m) return null; return walks.find(w => w.day === +m[1] && (w.dir === 'forward') === (m[2] === 'f') && w.night === false) || walks.find(w => w.day === +m[1] && (w.dir === 'forward') === (m[2] === 'f')); };
 function svPhoto(i, night, dir) { const Pp = D.photos; return night ? Pp.nr[i] : dir === 'r' ? (Pp.dr[i] || Pp.df[i]) : (Pp.df[i] || Pp.dr[i]); }
+let svPlay = null;
+function svStop() { if (svPlay) { clearInterval(svPlay); svPlay = null; } }
 function openSV(i, night, dir) { stopPlay(); state.sv = { i: clamp(i, 0, 21), night: !!night, dir: dir || state.sv?.dir || 'f', trace: state.sv ? state.sv.trace : true }; svEl.hidden = false; renderSV(); syncHash(); svEl.querySelector('[data-v=close]').focus(); }
-function closeSV() { const i = state.sv.i; state.sv = null; svEl.hidden = true; syncHash(); if (state.nav) return; if (state.view === 'place' && state.sel !== i) openPlace(i, true); }
+function closeSV() { svStop(); const i = state.sv.i; state.sv = null; svEl.hidden = true; syncHash(); if (state.nav) return; if (state.view === 'place' && state.sel !== i) openPlace(i, true); }
 function renderSV() { const v = state.sv, i = v.i, s = STATS[i], p = svPhoto(i, v.night, v.dir), w = p ? walkOf(p.id) : null, src = p ? `ph/${p.id}.jpg` : '';
   const date = w ? new Date(w.date + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '';
   svEl.innerHTML = `<div class="bg" style="background-image:url('${src}')"></div>
     <div class="svh"><button class="ib" data-v="close" aria-label="Close Street View">${I.back}</button><span class="t"><b>${esc(placeOf(i * 10 + 5))} · ${i * 10}–${i * 10 + 10} m</b><small>${v.night ? 'Night walk' : 'Day walk'}${w ? ` · day ${w.day}, ${date}` : ''} · facing ${v.dir === 'f' ? 'Amratlal G. Vasani' : 'R.K. Chouhan'}</small></span>
       <span class="svb"><button data-v="day" aria-pressed="${!v.night}">Day</button><button data-v="night" aria-pressed="${v.night}">Night</button></span>
+      <span class="svb"><button data-v="play" aria-pressed="${!!svPlay}" title="Play: walk along the street, one stretch at a time">${svPlay ? 'Pause' : 'Play walk'}</button></span>
       <span class="svb"><button data-v="trace" aria-pressed="${v.trace}" title="Yellow outline: the ground the software traced as walkable">Walkable ground</button></span></div>
     <div class="svm"><button class="arw" data-v="prev" aria-label="Previous stretch" ${i === 0 ? 'style="visibility:hidden"' : ''}>${I.chevL}</button>
       <div class="ph2">${p ? `<img src="${src}" alt="Walk photo, ${i * 10} to ${i * 10 + 10} m">${v.trace && !v.night && p.path && p.path.length > 5 ? `<svg viewBox="0 0 1 1" preserveAspectRatio="none"><polygon points="${p.path.map(q => q.join(',')).join(' ')}" fill="rgba(242,184,0,.3)" stroke="#F2B800" stroke-width=".006"/></svg>` : ''}` : ''}</div>
@@ -1221,6 +1238,9 @@ function renderSV() { const v = state.sv, i = v.i, s = STATS[i], p = svPhoto(i, 
     <div class="svs">${Array.from({ length: NB }, (_, k) => { const q = svPhoto(k, v.night, v.dir); return `<button data-v="go" data-k="${k}" class="${k === i ? 'on' : ''}" aria-label="${k * 10} m">${q ? `<img src="ph/${q.id}.jpg" alt="" loading="lazy">` : ''}<span>${k * 10}</span></button>`; }).join('')}</div>`;
   const on = svEl.querySelector('.svs .on'), st = svEl.querySelector('.svs'); if (on && st) st.scrollLeft = on.offsetLeft - st.clientWidth / 2 + on.offsetWidth / 2; }
 svEl.addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; const v = state.sv, k = b.dataset.v;
+  if (k !== 'play') svStop();
+  if (k === 'play') { if (svPlay) { svStop(); renderSV(); return; } const fw = v.dir !== 'r'; if (fw ? v.i >= 21 : v.i <= 0) v.i = fw ? 0 : 21;
+    svPlay = setInterval(() => { const w = state.sv; if (!w) return svStop(); const f2 = w.dir !== 'r'; if (f2 ? w.i >= 21 : w.i <= 0) { svStop(); renderSV(); return; } w.i += f2 ? 1 : -1; renderSV(); syncHash(); }, 1600); renderSV(); return; }
   if (k === 'close') return closeSV(); if (k === 'map') { const i = v.i; state.sv = null; svEl.hidden = true; return state.nav ? null : openPlace(i, true); }
   if (k === 'day') v.night = false; if (k === 'night') v.night = true; if (k === 'trace') v.trace = !v.trace;
   if (k === 'prev') v.i = Math.max(0, v.i - 1); if (k === 'next') v.i = Math.min(21, v.i + 1); if (k === 'go') v.i = +b.dataset.k;
@@ -1239,7 +1259,8 @@ function refreshReports() { REPORTS.sort((a, b) => b.at - a.at); if (['home', 'p
 async function sendReport() { const m = state.repM ?? (state.sel != null ? state.sel * 10 + 5 : 85), note = ($('repN').value || '').trim().slice(0, 200), btn = sc.querySelector('[data-act=send]'), msg = $('repMsg');
   const r = { m: Math.round(m), kind: state.kind, note, at: Date.now() }; btn.disabled = true; msg.textContent = 'Sending…';
   try { if (db) { let by = null; try { by = userNS ? await userNS.id() : null; } catch (e) {} await db.collection('reports').add({ ...r, by }); }
-    else { const all = localReps(); all.unshift(r); try { localStorage.setItem(LKEY, JSON.stringify(all.slice(0, 300))); } catch (e) {} REPORTS = all; }
+    else { const all = localReps(); all.unshift(r); try { localStorage.setItem(LKEY, JSON.stringify(all.slice(0, 300))); } catch (e) {} REPORTS = all;
+      fetch('https://formspree.io/f/meagzvvz', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ _subject: 'Pedestrian map: report at ' + r.m + ' m', kind: KINDS[r.kind], metre: r.m, place: placeOf(r.m), note: r.note || '', time: new Date(r.at).toISOString() }) }).catch(() => {}); }
     toast('Report added. Thank you.'); state.sel = Math.min(21, Math.floor(r.m / 10)); openPlace(state.sel, true);
   } catch (e) { btn.disabled = false; msg.textContent = e && e.code === 'permission_denied' ? 'This map does not accept reports from you.' : 'Could not send. Try again.'; } }
 
