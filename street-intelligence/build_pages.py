@@ -44,17 +44,16 @@ def main():
     for name in ("data.js", "sat.jpg", "sat-nolabels.jpg", "sat-hi.jpg", "sat-hi-nolabels.jpg"):
         shutil.copy(os.path.join(LAB, name), OUT)
     shutil.copytree(os.path.join(LAB, "ph"), os.path.join(OUT, "ph"))
-    # the review sidebar is part of the public map only; it opens with ?review=1
-    with open(os.path.join(PED, "review-panel.html"), encoding="utf-8") as f:
-        panel = f.read()
+    # The review is frozen: review_snapshot/ is a fixed copy of the map with its review panel, published as is,
+    # so later changes to the map never change what reviewers see. ?review=1 on the map redirects there.
     with open(os.path.join(OUT, "index.html"), encoding="utf-8") as f:
         page = f.read()
-    assert page.count("</body>") == 1
+    go = "<script>if (new URLSearchParams(location.search).has('review')) location.replace('review/' + location.search + location.hash);</script>"
+    assert page.count('<meta charset="utf-8">') >= 1
     with open(os.path.join(OUT, "index.html"), "w", encoding="utf-8") as f:
-        f.write(page.replace("</body>", panel + "\n</body>"))
-    with open(os.path.join(OUT, "review", "index.html"), "w", encoding="utf-8") as f:
-        f.write('<!doctype html><meta charset="utf-8"><title>Pedestrian Map Review</title>'
-                '<meta http-equiv="refresh" content="0; url=../?review=1"><a href="../?review=1">Open the review</a>\n')
+        f.write(page.replace('<meta charset="utf-8">', '<meta charset="utf-8">\n' + go, 1))
+    shutil.rmtree(os.path.join(OUT, "review"))
+    shutil.copytree(os.path.join(HERE, "review_snapshot"), os.path.join(OUT, "review"))
     open(os.path.join(OUT, ".nojekyll"), "w").close()
     print("built", OUT)
 
