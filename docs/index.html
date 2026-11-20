@@ -258,15 +258,16 @@ body{color:var(--g1)}
 .dirmode .sbar{display:none}
 @media(min-width:861px){.dirmode .sc{padding-top:8px}}
 /* along-the-street strip, for each walk and the ground photos */
-.tl{position:absolute;left:calc(var(--sheetW) + 16px);top:64px;width:min(440px,calc(100% - var(--sheetW) - 100px));z-index:7;background:#1F2A3C;color:#E8EAED;border-radius:12px;box-shadow:var(--shadow);padding:12px 16px 12px}
-.colmode .tl{left:16px}
-.tl .tlh{display:flex;align-items:center;gap:8px}.tl .tlh b{flex:1;font:500 15px var(--sans);color:#fff}.tl .tlh small{display:block;font:400 12px var(--sans);color:#AEB7C7;margin-top:2px}
-.tl .tb{width:32px;height:32px;border-radius:8px;border:0;background:#2C3A50;color:#E8EAED;display:grid;place-items:center;cursor:pointer;flex:none}.tl .tb:disabled{opacity:.35;cursor:default}.tl .tb svg{width:18px;height:18px}
-.tl .trk{position:relative;height:30px;margin:10px 4px 0}.tl .rail{position:absolute;left:0;right:0;top:13px;height:3px;border-radius:2px;background:#3A4A63}
-.tl .tk{position:absolute;top:7px;width:4px;height:15px;margin-left:-2px;border-radius:2px;background:#5AA9FF;cursor:pointer}.tl .tk.n{background:#8C97B5;box-shadow:0 0 0 1.5px #FFD27A inset}.tl .tk.off{opacity:.22;cursor:default}.tl .tk.all{width:6px;margin-left:-3px;background:#fff}
-.tl .tk.on{top:3px;height:23px;width:6px;margin-left:-3px;background:#3EC6FF;box-shadow:0 0 0 3px rgba(62,198,255,.25)}
+.tl{position:absolute;left:calc(var(--sheetW) + 16px);top:64px;width:min(440px,calc(100% - var(--sheetW) - 100px));z-index:7;background:var(--card,#fff);color:var(--ink);border-radius:12px;box-shadow:var(--shadow);padding:12px 14px 10px 16px}
+.tl .tlh{display:flex;align-items:center;gap:4px}.tl .tlh b{flex:1;font:500 15px var(--sans);color:var(--ink)}.tl .tlh small{display:block;font:400 12px var(--sans);color:var(--g2);margin-top:2px}
+.tl .tb{width:36px;height:36px;border-radius:50%;border:0;background:none;color:var(--ink2);display:grid;place-items:center;cursor:pointer;flex:none}.tl .tb:hover{background:#F1F3F4}.tl .tb:disabled{opacity:.35;cursor:default;background:none}.tl .tb svg{width:20px;height:20px}
+.tl .tb[data-tl=play]{background:#1A73E8;color:#fff;margin-right:4px}.tl .tb[data-tl=play]:hover{background:#1765CC}
+.tl .trk{position:relative;height:30px;margin:10px 4px 0}.tl .rail{position:absolute;left:0;right:0;top:13px;height:3px;border-radius:2px;background:#E8EAED}
+.tl .tk{position:absolute;top:8px;width:4px;height:13px;margin-left:-2px;border-radius:2px;background:#8AB4F8;cursor:pointer}.tl .tk.n{background:var(--navy,#1E2A45)}.tl .tk.off{opacity:.25;cursor:default}.tl .tk.all{width:6px;margin-left:-3px;background:var(--ink2)}
+.tl .tk.on{top:3px;height:23px;width:6px;margin-left:-3px;background:#1A73E8;box-shadow:0 0 0 3px rgba(26,115,232,.22)}
 .tl input{position:absolute;inset:0;width:100%;opacity:0;cursor:pointer;margin:0}
-.tl .tll{position:relative;height:16px;margin:0 4px;}.tl .tll span{position:absolute;transform:translateX(-50%);white-space:nowrap}.tl .tll span:last-child{transform:translateX(-100%)}.tl .tll span:first-child{transform:none}.tl .tll{font:400 11.5px var(--sans);color:#AEB7C7;margin-top:2px}
+.tl .tlk{display:flex;gap:6px;align-items:center;font:400 11px var(--sans);color:var(--g2);margin:4px 4px 0}.tl .tlk i{width:4px;height:11px;border-radius:2px;background:#8AB4F8;margin-left:6px}.tl .tlk i:first-child{margin-left:0}.tl .tlk i.n{background:var(--navy,#1E2A45)}
+.tl .tll{position:relative;height:16px;margin:0 4px;}.tl .tll span{position:absolute;transform:translateX(-50%);white-space:nowrap}.tl .tll span:last-child{transform:translateX(-100%)}.tl .tll span:first-child{transform:none}.tl .tll{font:400 11.5px var(--sans);color:var(--g2);margin-top:2px}
 .stripc{position:absolute;left:calc(var(--sheetW) + 16px);right:72px;bottom:110px;max-width:1000px;z-index:5;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(60,64,67,.3),0 4px 8px 3px rgba(60,64,67,.15);padding:8px 12px 10px;max-height:46vh;overflow:auto}
 .colmode .stripc{left:16px}
 .sth{display:flex;align-items:center;gap:8px}.sth b{font:500 14px var(--sans);flex:1}.sth small{color:var(--g2);font-size:12px}
@@ -1172,12 +1173,12 @@ function tlStep(d) { let j = tlIdx() + d; while (j >= 0 && j < TLP.length && !tl
 function tlStop() { if (tlPlay) { clearInterval(tlPlay); tlPlay = null; renderTL(); } }
 function renderTL() { const box = $('tl'), on = state.mode === 'proof' && !state.nav; box.hidden = !on; $('app').classList.toggle('tlon', on); if (!on) { tlStop(); return; }
   const j = tlIdx(), t = TLP[j], w = t === 'all' ? null : walks[t], act = TLP.map((_, k) => tlActive(k));
-  const title = w ? `Day ${w.day} · ${w.dir === 'forward' ? 'A → B' : 'B → A'} · ${w.night ? 'night' : 'daytime'}` : (state.night ? 'All night walks' : 'All daytime walks');
+  const title = w ? `Day ${w.day} · ${w.night ? 'night' : 'day'} walk, ${w.dir === 'forward' ? 'A → B' : 'B → A'}` : (state.night ? 'All night walks' : 'All daytime walks');
   const sub = w ? `${wlabel(w).split(' · ')[1][0].toUpperCase() + wlabel(w).split(' · ')[1].slice(1)} · ${w.part ? `part of the route only, ${w.part[0]}–${w.part[1]} m, in ${w.dur} s` : `walked in ${Math.floor(w.dur / 60)} min ${w.dur % 60} s`}` : `Median of ${walks.filter(x => !!x.night === !!state.night).length} walks · drag to see one walk`;
   const prevOk = act.slice(0, j).some(Boolean), nextOk = act.slice(j + 1).some(Boolean);
   box.innerHTML = `<div class="tlh"><b>${esc(title)}<small>${esc(sub)}</small></b><button class="tb" data-tl="play" aria-label="${tlPlay ? 'Pause' : 'Play through the walks'}">${tlPlay ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>' : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'}</button><button class="tb" data-tl="-1" aria-label="Previous walk" ${prevOk ? '' : 'disabled'}>${I.chevL}</button><button class="tb" data-tl="1" aria-label="Next walk" ${nextOk ? '' : 'disabled'}>${I.chevR}</button></div>
     <div class="trk"><div class="rail"></div>${TLP.map((tt, k) => `<span class="tk${tt === 'all' ? ' all' : walks[tt].night ? ' n' : ''}${act[k] ? '' : ' off'}${k === j ? ' on' : ''}" style="left:${tlX(k)}%" title="${tt === 'all' ? 'All walks' : esc(wlabel(walks[tt]))}"></span>`).join('')}<input type="range" min="0" max="100" step=".1" value="${tlX(j)}" aria-label="Walk: ${esc(title)}"></div>
-    <div class="tll"><span style="left:${tlX(0)}%">Day ${walks[0].day}</span><span style="left:${tlX(walks.length - 1)}%">Day ${walks[walks.length - 1].day}</span><span style="left:100%">All</span></div>`; }
+    <div class="tll"><span style="left:${tlX(0)}%">Day ${walks[0].day}</span><span style="left:${tlX(walks.length - 1)}%">Day ${walks[walks.length - 1].day}</span><span style="left:100%">All</span></div><div class="tlk"><i></i>day walk <i class="n"></i>night walk</div>`; }
 $('tl').addEventListener('click', e => { const b = e.target.closest('[data-tl]'); if (!b) return; const a = b.dataset.tl;
   if (a === 'play') { if (tlPlay) return tlStop(); if (tlIdx() === TLP.length - 1) { const f = TLP.findIndex((_, k) => tlActive(k)); tlSet(f); } tlPlay = setInterval(() => { if (!tlStep(1) || tlIdx() === TLP.length - 1) tlStop(); }, 1400); renderTL(); return; }
   tlStop(); tlStep(+a); });
