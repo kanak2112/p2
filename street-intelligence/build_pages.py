@@ -44,6 +44,8 @@ def main():
     for name in ("data.js", "sat.jpg", "sat-nolabels.jpg", "sat-hi.jpg", "sat-hi-nolabels.jpg"):
         shutil.copy(os.path.join(LAB, name), OUT)
     shutil.copytree(os.path.join(LAB, "ph"), os.path.join(OUT, "ph"))
+    shutil.copy(os.path.join(LAB, "wph.js"), OUT)
+    shutil.copytree(os.path.join(LAB, "wph"), os.path.join(OUT, "wph"))
     # The review is frozen: review_snapshot/ is a fixed copy of the map with its review panel, published as is,
     # so later changes to the map never change what reviewers see. ?review=1 on the map redirects there.
     with open(os.path.join(OUT, "index.html"), encoding="utf-8") as f:
