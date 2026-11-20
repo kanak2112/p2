@@ -200,10 +200,12 @@ select.walk{width:100%;border:1px solid var(--hair);border-radius:6px;padding:7p
 .dt[aria-pressed=true]{color:var(--pri);font-weight:500}.dt[aria-pressed=true] .c{border:2px solid var(--pri);background:#E8F0FE}
 .lay.open{z-index:50}
 .laybg{position:fixed;inset:0;background:rgba(0,0,0,.32);z-index:44}
-.mkey{position:absolute;left:calc(var(--sheetW) + 100px);bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:5;background:rgba(255,255,255,.94);box-shadow:var(--shadow);border-radius:8px;padding:8px 12px;display:flex;gap:14px;align-items:center;font-size:12px;color:var(--ink2);max-width:calc(100% - var(--sheetW) - 220px);flex-wrap:wrap}
+.mkey{position:absolute;left:calc(var(--sheetW) + 100px);bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:5;background:rgba(255,255,255,.95);box-shadow:var(--shadow);border-radius:8px;padding:7px 12px;display:flex;gap:10px;align-items:flex-start;font-size:12px;color:var(--ink2);max-width:min(760px,calc(100% - var(--sheetW) - 220px))}
 .mkey b{font:500 12px var(--sans);color:var(--ink)}.mkey .ex{color:var(--g3);font-size:11.5px}
 .mkey div{display:flex;gap:6px;align-items:center}.mkey i{width:16px;height:9px;border-radius:2px;flex:none}
-.mkey .wl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding-left:14px;border-left:1px solid var(--hair)}
+.mkey .wl{display:contents}
+.mkey .kb{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center}.mkey .kg{display:flex;flex-wrap:wrap;gap:4px 9px;align-items:center;white-space:nowrap}.mkey .kg em{font:500 10.5px var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--g3)}
+.mkey .kt{border:0;background:none;font:500 12px var(--sans);color:var(--ink);padding:1px 2px;cursor:pointer;white-space:nowrap}.mkey.min .kb{display:none}.mkey .ex{flex-basis:100%}
 .colmode .mkey{left:100px}
 .mtype{display:flex;gap:12px;align-items:center;width:100%;margin-top:12px;border:1px solid var(--hair);border-radius:10px;background:var(--card);padding:8px 10px;text-align:left}
 .mtype:hover{background:var(--paper)}
@@ -330,7 +332,7 @@ body{color:var(--g1)}
   .laypop{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;max-height:78vh;border-radius:16px 16px 0 0;z-index:45;padding:18px max(16px,env(safe-area-inset-left,0px)) calc(18px + env(safe-area-inset-bottom,0px))}
   .mkey{display:none}
   .mkey.haswl{display:flex;left:10px;right:60px;top:112px;bottom:auto;max-width:none;padding:6px 10px}
-  .mkey.haswl>:not(.wl){display:none}.mkey.haswl .wl{padding-left:0;border-left:0;gap:8px}
+  .mkey.haswl .kf,.mkey.haswl .ex{display:none}.mkey.haswl .kb{gap:5px 14px}.mkey.min{right:auto}
   .stripc{left:10px;right:60px;bottom:calc(var(--sh,190px) + 10px);max-height:32vh}
   .tl{left:10px;right:60px;width:auto;top:112px;padding:10px 12px}
   .tlon .mkey{display:none!important}
@@ -444,6 +446,12 @@ const PLACES = [['R.K. Chouhan Communications', 2, 'Start of the street · A'], 
 const placeOf = m => (m < 40 ? 'Near R.K. Chouhan Communications' : m < 76 ? 'Shopfronts' : m < 95 ? 'Green bins' : m < 115 ? 'Turn to the service road' : m < 160 ? 'Towards the underpass' : m < 191 ? 'Underpass walkway' : 'Near Amratlal G. Vasani');
 const nameAt = m => { const p = PLACES.find(p => Math.abs(p[1] - m) < 1); return p ? p[0] : `${Math.round(m)} m · ${placeOf(m)}`; };
 const SPEED = med(walks.filter(w => !w.night && !w.part).map(w => L / w.dur)); // m/s, from the daytime walks
+// Route speed by profile. Walk: daytime walks in the same direction. After dark: the night walks (all went B to A).
+// Wheelchair: not measured on this street; 1.0 m/s is an assumed typical manual wheelchair speed.
+const spdOf = f => med(walks.filter(w => !w.part).filter(f).map(w => L / w.dur));
+const SPD = { f: spdOf(w => !w.night && w.dir === 'forward'), r: spdOf(w => !w.night && w.dir !== 'forward'), n: spdOf(w => w.night), wc: 1.0 };
+const routeSpeed = R => R.prof === 'access' ? SPD.wc : R.prof === 'night' ? SPD.n : (R.m1 >= R.m0 ? SPD.f : SPD.r);
+const speedNote = R => R.prof === 'access' ? `Time at 1.0 m/s, an assumed typical wheelchair speed: no wheelchair was recorded on this street.` : R.prof === 'night' ? `Time at the median speed of the ${walks.filter(w => w.night && !w.part).length} night walks, ${SPD.n.toFixed(2)} m/s. All night walks went from B to A.` : `Time at the median speed of the daytime walks in this direction, ${(R.m1 >= R.m0 ? SPD.f : SPD.r).toFixed(2)} m/s.`;
 const fmtT = s => { s = Math.max(0, Math.round(s)); const m = Math.floor(s / 60), r = s % 60; return m ? `${m} min${r ? ' ' + r + ' s' : ''}` : `${r} s`; };
 let booted = false;
 let PLANW = null;
@@ -783,7 +791,7 @@ function draw() {
     { const [x, y] = P(R.m0, centreAt(R.m0)); el('circle', { cx: x, cy: y, r: 6.5 * K, fill: '#fff', stroke: '#202124', 'stroke-width': fs(3) }, g); }
     { const [x, y] = P(R.m1, centreAt(R.m1)), r = 11 * K; el('path', { d: `M${x} ${y} l${-r * .7} ${-r * 1.6} a${r} ${r} 0 1 1 ${r * 1.4} 0 z`, fill: '#EA4335', stroke: '#B31412', 'stroke-width': fs(1.2) }, g); el('circle', { cx: x, cy: y - r * 2.15, r: r * .38, fill: '#B31412' }, g); }
     { const mm = (R.m0 + R.m1) / 2, [x, y] = P(mm, 3.2 + 40 * K / (U * XG)), w = 70 * K, h = 36 * K; const bx = el('g', {}, g); el('rect', { x: x - w / 2, y: y - h / 2, width: w, height: h, rx: 3 * K, fill: '#fff', stroke: '#DADCE0', 'stroke-width': fs(1) }, bx);
-      tx(fmtT(R.dist / SPEED), x, y - 2 * K, { 'font-family': 'Roboto, sans-serif', 'font-size': fs(13), 'font-weight': 700, fill: '#202124', 'text-anchor': 'middle' }, bx); tx(`${Math.round(R.dist)} m`, x, y + 12 * K, { 'font-family': 'Roboto, sans-serif', 'font-size': fs(11), fill: '#5F6368', 'text-anchor': 'middle' }, bx); }
+      tx(fmtT(R.dist / routeSpeed(R)), x, y - 2 * K, { 'font-family': 'Roboto, sans-serif', 'font-size': fs(13), 'font-weight': 700, fill: '#202124', 'text-anchor': 'middle' }, bx); tx(`${Math.round(R.dist)} m`, x, y + 12 * K, { 'font-family': 'Roboto, sans-serif', 'font-size': fs(11), fill: '#5F6368', 'text-anchor': 'middle' }, bx); }
   }
   if (Lr.calls && !R) calls(S).sort((p, q) => p[0].i - q[0].i).forEach(([s, a, b, c], k) => { const m = s.i * 10 + 5, [x0, y0] = P(m, -.2), x1 = x0, y1 = y0 - (k % 2 ? 92 : 54) * K;
     el('line', { x1: x0, y1: y0, x2: x1, y2: y1, stroke: c, 'stroke-width': fs(1.5) }, g); el('circle', { cx: x1, cy: y1, r: 3.5 * K, fill: c }, g);
@@ -840,7 +848,7 @@ function boxAround([cx, cy], w0, h0) { const W = svg.clientWidth, H = svg.client
 function focusBox(m, wm = 60, a = 1.5) { const c = P(m, a); return boxAround(c, wm * U * (state.d3 ? 1.1 : 1), 1); }
 function rangeBox(m0, m1) { const q = []; sampleM(Math.min(m0, m1) - 6, Math.max(m0, m1) + 6, 3).forEach(m => q.push(P(m, -6), P(m, 9))); return boxOfB(bboxOf(q), 1.2); }
 function curWm() { const v = visArea(); return state.vb[2] * (v.r - v.l) / (svg.clientWidth * U * (state.d3 ? 1.1 : 1)); }
-function setVB(b, redraw) { state.vb = b; svg.setAttribute('viewBox', b.map(v => v.toFixed(2)).join(' ')); const nk = b[2] / Math.max(1, svg.clientWidth); if (redraw || Math.abs(nk / K - 1) > .02) { K = nk; schedule(); } }
+function setVB(b, redraw) { state.vb = b; svg.setAttribute('viewBox', b.map(v => v.toFixed(3)).join(' ')); const nk = b[2] / Math.max(1, svg.clientWidth); if (redraw || nk !== K) { K = nk; schedule(); } }
 let raf = 0; function schedule() { cancelAnimationFrame(raf); raf = requestAnimationFrame(draw); }
 let flyId = 0;
 function fly(to, ms = 650) { const id = ++flyId, from = state.vb.slice(), t0 = performance.now(), e = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -849,22 +857,33 @@ function fly(to, ms = 650) { const id = ++flyId, from = state.vb.slice(), t0 = p
 const toWorld = (cx, cy) => { const p = svg.createSVGPoint(); p.x = cx; p.y = cy; const q = p.matrixTransform(svg.getScreenCTM().inverse()); let x = q.x, y = q.y; if (state.d3) { const u = q.x / .866, v = q.y / .5; x = (u + v) / 2; y = (v - u) / 2; }
   let bj = 0, bd = 1e18; for (let j = 0; j <= 440; j++) { const f = FR[j], e = (f[0] - x) ** 2 + (f[1] - y) ** 2; if (e < bd) { bd = e; bj = j; } }
   const f = FR[bj], dx = x - f[0], dy = y - f[1]; let m = bj / 2; if (bj === 0 || bj === 440) m += (dx * f[2] + dy * f[3]) / U; return [m, AX + SIDE * (-dx * f[3] + dy * f[2]) / (U * XG)]; };
-function zoomAt(k, cx, cy) { flyId++; const vb = state.vb, f = ctxBox(), w = Math.max(20 * U, Math.min(f[2] * 1.15, vb[2] * k)), h = vb[3] * w / vb[2]; const p = svg.createSVGPoint(); p.x = cx; p.y = cy; const q = p.matrixTransform(svg.getScreenCTM().inverse());
-  setVB([q.x - (q.x - vb[0]) * w / vb[2], q.y - (q.y - vb[1]) * h / vb[3], w, h]); }
+// screen point -> world point from a view box, without relying on the SVG's current transform
+const scr2w = (vb, cx, cy) => { const r = svg.getBoundingClientRect(), s = Math.max(vb[2] / r.width, vb[3] / r.height), ox = (r.width * s - vb[2]) / 2, oy = (r.height * s - vb[3]) / 2; return [vb[0] - ox + (cx - r.left) * s, vb[1] - oy + (cy - r.top) * s]; };
+// what is under a screen point: a place on the footpath (m, a) when near it, else a plain world point
+function anchorAt(cx, cy) { const [m, a] = toWorld(cx, cy); if (!state.d3 && m > -1 && m < L + 1 && a > -10 && a < 14) return { m, a }; return { w: scr2w(state.vb, cx, cy) }; }
+// a view of width w that puts the anchor at screen point (cx, cy)
+function viewFor(w, an, cx, cy) { const vb = state.vb, f = ctxBox(); w = Math.max(20 * U, Math.min(f[2] * 1.15, w)); const h = vb[3] * w / vb[2], r = svg.getBoundingClientRect();
+  let q = an.w; if (an.m != null) { const keep = XG; XG = exOf(w / Math.max(1, svg.clientWidth)); q = P(an.m, an.a); XG = keep; }
+  const s = Math.max(w / r.width, h / r.height), ox = (r.width * s - w) / 2, oy = (r.height * s - h) / 2; return [q[0] + ox - (cx - r.left) * s, q[1] + oy - (cy - r.top) * s, w, h]; }
+function zoomAt(k, cx, cy) { flyId++; setVB(viewFor(state.vb[2] * k, anchorAt(cx, cy), cx, cy)); }
+// wheel and trackpad: ease towards the target zoom over a few frames instead of jumping a notch at a time
+let wz = null;
+function wheelZoom(dlog, cx, cy) { flyId++; if (!wz) { wz = { log: 0, an: anchorAt(cx, cy), cx, cy, raf: 0 }; } else if (Math.hypot(cx - wz.cx, cy - wz.cy) > 4) { wz.an = anchorAt(cx, cy); wz.cx = cx; wz.cy = cy; }
+  wz.log += dlog; if (!wz.raf) { const step = () => { const d = Math.abs(wz.log) < .002 ? wz.log : wz.log * .35; wz.log -= d; setVB(viewFor(state.vb[2] * Math.exp(d), wz.an, wz.cx, wz.cy)); if (Math.abs(wz.log) > 1e-4) wz.raf = requestAnimationFrame(step); else wz = null; }; wz.raf = requestAnimationFrame(step); } }
 const mapCentre = () => { const v = visArea(), r = svg.getBoundingClientRect(); return [r.left + (v.l + v.r) / 2, r.top + (v.t + v.b) / 2]; };
 let dragMoved = false, tapTarget = null, tapSV = null;
 (() => { const ptrs = new Map(); let start = null, pinch = null;
-  svg.addEventListener('wheel', e => { e.preventDefault(); zoomAt(Math.exp(e.deltaY * (e.ctrlKey ? .01 : .0016)), e.clientX, e.clientY); }, { passive: false });
-  svg.addEventListener('pointerdown', e => { ptrs.set(e.pointerId, [e.clientX, e.clientY]); flyId++; if (ptrs.size === 1) { start = { x: e.clientX, y: e.clientY, vb: state.vb.slice() }; dragMoved = false; } else if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), vb: state.vb.slice() }; } closePops(); });
+  svg.addEventListener('wheel', e => { e.preventDefault(); const dy = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY; wheelZoom(clamp(dy * (e.ctrlKey ? .01 : .0016), -.7, .7), e.clientX, e.clientY); }, { passive: false });
+  svg.addEventListener('pointerdown', e => { ptrs.set(e.pointerId, [e.clientX, e.clientY]); flyId++; if (ptrs.size === 1) { start = { x: e.clientX, y: e.clientY, vb: state.vb.slice() }; dragMoved = false; } else if (ptrs.size === 2) { const [a, b] = [...ptrs.values()], mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2; pinch = { d: Math.max(1, Math.hypot(a[0] - b[0], a[1] - b[1])), w: state.vb[2], an: anchorAt(mx, my) }; dragMoved = true; } closePops(); });
   svg.addEventListener('pointermove', e => { if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, [e.clientX, e.clientY]);
-    if (ptrs.size === 2 && pinch) { const [a, b] = [...ptrs.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]); state.vb = pinch.vb.slice(); zoomAt(pinch.d / Math.max(1, d), (a[0] + b[0]) / 2, (a[1] + b[1]) / 2); dragMoved = true; return; }
+    if (ptrs.size === 2 && pinch) { const [a, b] = [...ptrs.values()], d = Math.max(1, Math.hypot(a[0] - b[0], a[1] - b[1])); flyId++; setVB(viewFor(pinch.w * pinch.d / d, pinch.an, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2)); dragMoved = true; return; }
     if (start && ptrs.size) { if (!dragMoved && Math.abs(e.clientX - start.x) + Math.abs(e.clientY - start.y) > 5) { dragMoved = true; try { svg.setPointerCapture(e.pointerId); } catch (_) {} svg.classList.add('drag'); }
-      if (dragMoved) { const s = start.vb[2] / svg.clientWidth; setVB([start.vb[0] - (e.clientX - start.x) * s, start.vb[1] - (e.clientY - start.y) * s, start.vb[2], start.vb[3]]); hideTip(); } return; }
+      if (dragMoved) { const s = Math.max(start.vb[2] / svg.clientWidth, start.vb[3] / svg.clientHeight); setVB([start.vb[0] - (e.clientX - start.x) * s, start.vb[1] - (e.clientY - start.y) * s, start.vb[2], start.vb[3]]); hideTip(); } return; }
     hover(e); });
-  const end = e => { const had = ptrs.has(e.pointerId); ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch = null;
+  const end = e => { const had = ptrs.has(e.pointerId); ptrs.delete(e.pointerId); if (ptrs.size < 2 && pinch) { pinch = null; const [q] = [...ptrs.values()]; if (q) start = { x: q[0], y: q[1], vb: state.vb.slice() }; }
     if (ptrs.size === 0) { svg.classList.remove('drag'); if (had && start && !dragMoved && e.type === 'pointerup') mapTap(e); start = null; setTimeout(() => dragMoved = false, 0); } };
   svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', end); svg.addEventListener('pointerleave', hideTip);
-  svg.addEventListener('dblclick', e => zoomAt(.5, e.clientX, e.clientY)); })();
+  svg.addEventListener('dblclick', e => wheelZoom(Math.log(.5), e.clientX, e.clientY)); })();
 function mapTap(e) { if (tapSV != null && !state.pick) { const i = tapSV; tapSV = null; tapTarget = null; return openSV(i, state.base === 'daynight', 'f'); } if (tapTarget != null && !state.pick && !state.nav) { const t = tapTarget; tapTarget = null; return openPlace(t, true); } tapTarget = null; const [m, a] = toWorld(e.clientX, e.clientY); if (m < 0 || m > L) return; const i = Math.min(21, Math.floor(m / 10));
   if (a < -2.5 || a > 7) return;
   if (state.pick) { const k = state.pick; state.pick = null; svg.classList.remove('pick'); state[k] = Math.round(clamp(m, 0, L)); makeRoute(); setView('dirs'); fitRoute(); return; }
@@ -922,7 +941,7 @@ function placeView() { const i = state.sel, s = STATS[i], Pp = D.photos, dp = Pp
     <div class="sec"><p class="note" style="margin:0">Surface, kerbs and ramps are not measured by the walks. Seen a broken kerb, uneven floor or missing ramp? <button class="lnk" data-act="report" style="padding:0">Report it</button>.</p></div>
     <div class="list"><div class="lab">Reports here${here.length ? ' · ' + here.length : ''}</div>${here.length ? here.map(repRow).join('') : '<p class="note" style="padding:6px 22px 12px">None yet.</p>'}</div>`; }
 const viaOf = R => { const lo = Math.min(R.m0, R.m1), hi = Math.max(R.m0, R.m1), v = []; if (lo < 104) v.push('Jijamata Rd / Old Nagardas Rd'); if (hi > 104 && lo < 162) v.push('the highway service road'); if (hi > 162 && lo < 191) v.push('the underpass walkway'); return v.join(' and ') || 'the footpath'; };
-function dirsView() { const R = state.route, t = R ? fmtT(R.dist / SPEED) : '—';
+function dirsView() { const R = state.route, t = R ? fmtT(R.dist / routeSpeed(R)) : '—';
   let body = '';
   if (!R) body = `<div class="sec"><p class="note">Choose two different places on the footpath.</p></div>`;
   else { const al = [];
@@ -933,10 +952,10 @@ function dirsView() { const R = state.route, t = R ? fmtT(R.dist / SPEED) : '—
     if (R.prof === 'night' && R.dark) al.push(['a', 'moon', `${R.dark} part${R.dark > 1 ? 's are' : ' is'} darker than usual at night`]);
     const sum = R.road ? `Steps into the road for ${Math.round(R.road)} m` : R.stop ? `May not get through ${Math.round(R.stop)} m` : R.tight ? `Tight for ${Math.round(R.tight)} m` : 'Clear footpath all the way';
     body = `<div class="rcard"><span class="ri">${I[PROFS[R.prof][1]]}</span><div><b>via ${esc(viaOf(R))}</b><small>${esc(sum)}</small><div><button class="lnk" data-act="start">Start</button><button class="lnk" data-act="svroute">Preview</button><button class="lnk" data-act="share">Share</button></div></div><div class="tm"><b>${t}</b><small>${Math.round(R.dist)} m</small></div></div>
-      <div style="padding:6px 22px 4px">${al.map(([k, i, x]) => `<div class="alert ${k}">${I[i]}<span>${x}</span></div>`).join('')}<p class="note" style="margin-top:10px">Time at the median speed of the daytime walks, ${SPEED.toFixed(2)} m/s. On the map the route lights up the footpath itself: red along the kerb is where you step into the road, amber where it is tight.</p></div>
+      <div style="padding:6px 22px 4px">${al.map(([k, i, x]) => `<div class="alert ${k}">${I[i]}<span>${x}</span></div>`).join('')}<p class="note" style="margin-top:10px">${esc(speedNote(R))} On the map the route lights up the footpath itself: red along the kerb is where you step into the road, amber where it is tight.</p></div>
       <div class="list"><div class="lab" style="padding:10px 22px 2px">Steps</div></div>
       <div class="steps">${R.steps.map((st, j) => { const [a, b, icn, c] = stepText(st, R); return `<button class="step" data-st="${j}"><span class="si" style="background:${c}">${I[icn]}</span><span><b>${esc(a)}</b><small>${esc(b)}</small></span><em>${st.t === 'go' ? Math.round(st.len) + ' m' : ''}</em></button>`; }).join('')}</div>`; }
-  return `<div class="dh"><div class="mtabs">${Object.entries(PROFS).map(([k, [n, i]]) => { const Rk = R ? buildRoute(state.from, state.to, k) : null, d = !Rk ? '' : k === 'walk' ? (Rk.road ? `${Math.round(Rk.road)} m in road` : 'no road') : k === 'access' ? (Rk.stop ? `${Math.round(Rk.stop)} m blocked` : 'gets through') : (Rk.dark ? `${Rk.dark} dark part${Rk.dark > 1 ? 's' : ''}` : 'lit'); return `<button class="mtab" data-prof="${k}" aria-pressed="${k === state.prof}" aria-label="${n}, ${t}${d ? ', ' + d : ''}" title="${n}"><span class="ico">${I[i]}</span>${t}${d ? `<small class="md">${d}</small>` : ''}</button>`; }).join('')}<button class="ib x" data-act="home" aria-label="Close directions">${I.x}</button></div>
+  return `<div class="dh"><div class="mtabs">${Object.entries(PROFS).map(([k, [n, i]]) => { const Rk = R ? buildRoute(state.from, state.to, k) : null, tk = Rk ? fmtT(Rk.dist / routeSpeed(Rk)) : t, d = !Rk ? '' : k === 'walk' ? (Rk.road ? `${Math.round(Rk.road)} m in road` : 'no road') : k === 'access' ? (Rk.stop ? `${Math.round(Rk.stop)} m blocked` : 'gets through') : (Rk.dark ? `${Rk.dark} dark part${Rk.dark > 1 ? 's' : ''}` : 'lit'); return `<button class="mtab" data-prof="${k}" aria-pressed="${k === state.prof}" aria-label="${n}, ${tk}${d ? ', ' + d : ''}" title="${n}"><span class="ico">${I[i]}</span>${tk}${d ? `<small class="md">${d}</small>` : ''}</button>`; }).join('')}<button class="ib x" data-act="home" aria-label="Close directions">${I.x}</button></div>
     <div class="ft"><span class="dots"><span class="a"></span><i></i><i></i><i></i><span class="b">${I.pin.replace('class="i"', 'class="i" style="width:18px;height:18px"')}</span></span>
       <div class="fi"><input id="fromI" value="${esc(nameAt(state.from))}" placeholder="Choose starting point" aria-label="Starting point" autocomplete="off"></div><button class="ib swap" data-act="swap" aria-label="Swap start and destination">${I.swap}</button>
       <div class="fi"><input id="toI" value="${esc(nameAt(state.to))}" placeholder="Choose destination" aria-label="Destination" autocomplete="off"></div></div>
@@ -1059,7 +1078,7 @@ function renderChips() { const a = audOf(state.mode);
   $('chips').innerHTML = `<span class="aud" role="group" aria-label="Who is this for">${Object.entries(AUD).map(([k, A]) => `<button data-aud="${k}" aria-pressed="${k === a}">${A.n}</button>`).join('')}</span>` + AUD[a].m.map(k => `<button class="chip" data-m="${k}" aria-pressed="${k === state.mode}">${I[MODES[k].ic]}${MODES[k].n}</button>`).join(''); }
 $('chips').addEventListener('click', e => { const a = e.target.closest('[data-aud]'); if (a) { if (audOf(state.mode) !== a.dataset.aud) setMode(AUD[a.dataset.aud].m[0]); return; } const b = e.target.closest('[data-m]'); if (!b) return; setMode(b.dataset.m); });
 function setMode(k) { state.mode = k; state.base = state.night ? 'daynight' : MODES[k].B; state.layers = { ...ALWAYS, ...MODES[k].L, labels: state.layers.labels ?? 1 }; if (k !== 'proof' && state.src !== 'day') { state.src = 'day'; STATS = stats(); } renderChips(); renderLayers(); renderTL(); if (k === 'plan') { setView('plan', { snap: 'half' }); return; } if (state.view === 'plan') setView('home', { keepScroll: true }); else if (state.view === 'home') setView('home', { keepScroll: true }); else { if (state.view === 'place') setView('place', { keepScroll: true }); draw(); } }
-const sw = ([c, l, b]) => `<div><i style="background:${c === 'url' ? 'repeating-linear-gradient(45deg,var(--paper) 0 3px,var(--hair) 3px 5px)' : c === 'dash' ? 'repeating-linear-gradient(90deg,#1E2A45 0 4px,#fff 4px 7px)' : c === 'glow' ? 'radial-gradient(circle,#FFD27A 0,#FFB84D 45%,#1E2A45 100%)' : c};${b ? 'box-shadow:inset 0 0 0 1px var(--hair)' : ''}"></i>${esc(l)}</div>`.replace('<div>', gtip(l) ? `<div class="kk" role="button" tabindex="0" data-gl="${esc(gtip(l).split(':')[0])}" title="${esc(gtip(l))} · click for the glossary">` : '<div>');
+const sw = ([c, l, b], disp) => `<div><i style="background:${c === 'url' ? 'repeating-linear-gradient(45deg,var(--paper) 0 3px,var(--hair) 3px 5px)' : c === 'dash' ? 'repeating-linear-gradient(90deg,#1E2A45 0 4px,#fff 4px 7px)' : c === 'glow' ? 'radial-gradient(circle,#FFD27A 0,#FFB84D 45%,#1E2A45 100%)' : c};${b ? 'box-shadow:inset 0 0 0 1px var(--hair)' : ''}"></i>${esc(disp || l)}</div>`.replace('<div>', gtip(l) ? `<div class="kk" role="button" tabindex="0" data-gl="${esc(gtip(l).split(':')[0])}" title="${esc(gtip(l))} · click for the glossary">` : '<div>');
 function detailLeg() { const Lr = state.layers, o = [];
   if (Lr.prox) o.push(['#1A73E8', 'one person, about 0.75 m, side by side'], ['#D93025', '✕ no one fits: step into the road']);
   if (Lr.view) o.push(['#3C4043', 'blocked ahead · darker = on more walks']);
@@ -1080,9 +1099,23 @@ function renderLayers() { const b = state.base;
     <div class="dets">${DETAILS.map(([k, l, i]) => `<button class="dt" data-l="${k}" aria-pressed="${!!state.layers[k]}"><span class="c">${I[i]}</span>${l}</button>`).join('')}</div>
     <p class="note">Night is the moon button beside the map. The key at the bottom of the map lists what is drawn.</p>`;
   renderKey(); }
-function renderKey() { const b = state.base, base = BLEG[b].filter(e => !/carriageway|open ground/.test(e[1])), dl = detailLeg();
-  $('mkey').classList.toggle('haswl', dl.length > 0);
-  $('mkey').innerHTML = `<b>Key</b>${[...base, [KERBC, 'no raised kerb: width may include road']].map(sw).join('')}${dl.length ? `<span class="wl">${dl.map(sw).join('')}</span>` : ''}<span class="ex">${XG > 1.05 ? `Footpath drawn ${XG.toFixed(1)}× wider than real · zoom in for true scale` : 'Footpath at true scale'}</span>`; }
+// key entries are grouped under a short heading, with short labels; the full wording stays in the tooltip and glossary
+const KGROUPS = [
+  ['Clear width', /^clear (1\.5 m or more|0\.9–1\.5 m|under 0\.9 m)$/, l => l.replace('clear ', '').replace(' or more', '+').replace('under ', '< ')],
+  ['Wheelchair fits', /usually|! sometimes|✕ rarely/, l => l.replace(/ \d\.\d m clear/, '')],
+  ['In the way', /^(people & stalls|vehicles|poles & barriers|trees)$/, l => l.replace(' & barriers', '')],
+  ['Who must act', /civil works|enforcement|time-based/, l => l.split(' · ').pop()],
+  ['Frontage', /^frontage: /, l => ({ 'shops and stalls at the junction': 'junction stalls', 'under the flyover, open': 'under flyover', 'open edge with trees': 'open edge' })[l.replace('frontage: ', '')] || l.replace('frontage: ', '')]];
+const KSHORT = { 'crossing, where walkers meet traffic': 'crossing', 'a horn was heard': 'horn heard', 'a walker swerved': 'walker swerved', 'one person, about 0.75 m, side by side': 'one person, 0.75 m', '✕ no one fits: step into the road': '✕ no one fits', 'blocked ahead · darker = on more walks': 'blocked ahead, darker = more walks' };
+const BSHORT = { 'buildings, and all that takes the footpath': 'taken', 'walkable footpath': 'walkable', 'not measurable': 'not measured', 'no raised kerb: width may include road': 'no kerb' };
+function keyGroups(list) { const out = [], seen = {}; for (const e of list) { const g = KGROUPS.find(g => g[1].test(e[1])); if (!g) { out.push([null, [[e]]]); continue; }
+    if (!seen[g[0]]) { seen[g[0]] = [g[0], []]; out.push(seen[g[0]]); } seen[g[0]][1].push([e, g[2](e[1])]); }
+  return out.map(([h, items]) => h ? `<span class="kg"><em>${h}</em>${items.map(([e, d]) => sw(e, d)).join('')}</span>` : `<span class="kg">${sw(items[0][0], KSHORT[items[0][0][1]])}</span>`).join(''); }
+let keyMin = null;
+function renderKey() { const b = state.base, base = BLEG[b].filter(e => !/carriageway|open ground/.test(e[1])), dl = detailLeg(); if (keyMin == null) { try { keyMin = localStorage.getItem('pedmap-keymin') === '1' || (localStorage.getItem('pedmap-keymin') == null && phone()); } catch (e) { keyMin = phone(); } }
+  const k = $('mkey'); k.classList.toggle('haswl', dl.length > 0); k.classList.toggle('min', keyMin);
+  const fp = [...base, [KERBC, 'no raised kerb: width may include road']].map(e => sw(e, BSHORT[e[1]] || e[1])).join('');
+  k.innerHTML = `<button class="kt" aria-expanded="${!keyMin}" title="${keyMin ? 'Show the key' : 'Hide the key'}">Key <span aria-hidden="true">${keyMin ? '▸' : '▾'}</span></button><span class="kb"><span class="kg kf"><em>Footpath</em>${fp}</span>${dl.length ? `<span class="wl">${keyGroups(dl)}</span>` : ''}<span class="ex">${XG > 1.05 ? `Drawn ${XG.toFixed(1)}× wider · zoom in for true scale` : 'True scale'}</span></span>`; }
 function openLayers(on) { const p = $('laypop'); p.hidden = !on; $('lay').classList.toggle('open', !!on); $('laybg').hidden = !on || !phone(); $('layB').setAttribute('aria-expanded', on); }
 $('layB').onclick = e => { e.stopPropagation(); openLayers($('laypop').hidden); };
 $('laybg').onclick = () => openLayers(false);
@@ -1156,7 +1189,7 @@ $('zin').innerHTML = I.plus; $('zout').innerHTML = I.minus; $('fit').innerHTML =
 $('zin').onclick = () => zoomAt(.6, ...mapCentre()); $('zout').onclick = () => zoomAt(1.6, ...mapCentre());
 $('fit').onclick = () => fly(state.route ? rangeBox(state.route.m0, state.route.m1) : fitBox());
 $('glB').onclick = () => state.view === 'gloss' ? setView('home') : openGloss();
-$('mkey').addEventListener('click', e => { const k = e.target.closest('[data-gl]'); if (k) openGloss(k.dataset.gl); });
+$('mkey').addEventListener('click', e => { if (e.target.closest('.kt')) { keyMin = !keyMin; try { localStorage.setItem('pedmap-keymin', keyMin ? '1' : '0'); } catch (_) {} renderKey(); return; } const k = e.target.closest('[data-gl]'); if (k) openGloss(k.dataset.gl); });
 $('mkey').addEventListener('keydown', e => { const k = e.target.closest('[data-gl]'); if (k && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openGloss(k.dataset.gl); } });
 $('svB').onclick = () => openSV(state.nav ? Math.min(21, Math.floor(state.nav.m / 10)) : state.sel != null ? state.sel : Math.min(21, Math.max(0, Math.floor(toWorld(...mapCentre())[0] / 10))), false);
 function set3(on) { if (on === state.d3) return; setTimeout(renderLayers); const m = clamp(toWorld(...mapCentre())[0], 0, L), w = curWm(); state.d3 = on; $('d2').setAttribute('aria-pressed', !on); $('d3').setAttribute('aria-pressed', on); draw(); setVB(w > 180 ? fitBox() : focusBox(m, w), true); }
