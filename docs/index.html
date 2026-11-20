@@ -426,7 +426,7 @@ const GLOSS = [
   ['BMC minimum, 1.5 m', 'The clear width asked for by the BMC Universal Footpath Policy. Green lines meet it.', /1\.5/],
   ['Wheelchair width, 0.9 m', 'An assumed minimum for one wheelchair to pass. Adjustable in Layers.', /0\.9|wheelchair/],
   ['% of walks blocked', 'The share of walks on which an obstacle narrowed this stretch. 80% = blocked on 8 walks in 10.', /blocked/],
-  ['Obstacles', 'What takes the footpath: fixed things (poles, barriers, tree trunks), vehicles, and people and stalls. Across walks, every walk’s obstacles are drawn faintly on top of each other: a spot taken on one walk barely shows, a spot taken walk after walk builds up dark. Pick one walk on the timeline to see that walk’s own obstacles.', /taken|takes|fixed|vehicles|stalls|trees|poles/],
+  ['Obstacles', 'What takes the footpath: fixed things (poles, barriers, tree trunks), vehicles, and people and stalls. Across walks, every walk’s obstacles are drawn faintly on top of each other: a spot taken on one walk barely shows, a spot taken walk after walk builds up dark. Each obstacle sits in the taken part of its own walk; a faint shape in the white means that on that walk the free path was narrower than usual. Pick one walk on the timeline to see that walk’s own obstacles.', /taken|takes|fixed|vehicles|stalls|trees|poles/],
   ['Who must act', 'Fixed things: civil works. On most walks: enforcement. Some walks only: a time-based rule.', /civil|enforcement|time-based/],
   ['Not measured', 'Hatched. The photos could not give a width here, e.g. no clear footpath edge.', /not measur/],
   ['Walkable ground (yellow outline)', 'On Street View photos: the ground the software traced as walkable. Automatic, so it can be wrong, and can include road where there is no kerb.', /yellow|outline/],
@@ -498,9 +498,16 @@ function stats() {
   });
 }
 function dets(S) { const ws = W().filter(w => !w.night);
-  return D.dets.filter(d => ws.some(w => w.day === d[4] && (w.dir === 'forward') === (d[3] === 'f'))).map(d => { const i = Math.min(21, Math.floor(d[0] / 10)), s = S[i], [e1, e2] = s.g != null ? edges(s) : [0, 3];
+  // An obstacle takes space, so it is drawn in the taken (black) part of the footpath, on the side where it stood:
+  // its position across the traced ground of its photo gives building side or kerb side, and the free path it is kept out
+  // of is that walk's own free width in that stretch (the median if the walk has none).
+  return D.dets.filter(d => ws.some(w => w.day === d[4] && (w.dir === 'forward') === (d[3] === 'f'))).map(d => { const i = Math.min(21, Math.floor(d[0] / 10)), s = S[i];
+    const wk = ws.find(w => w.day === d[4] && (w.dir === 'forward') === (d[3] === 'f')), r = wk && wk.s[i], ch = r && r.g > 0 ? { g: r.g, top: r.e ? topOf(r.e) : s.top } : s.g != null ? s : null;
+    const [e1, e2] = ch ? edges(ch) : [3, 3], a0 = .15 + clamp(d[1], 0, 1) * 2.7;
+    let a = a0; if (a0 > e1 && a0 < e2) { const bB = e1, bK = 3 - e2; const kerb = (a0 - e1 > e2 - a0 && bK >= .25) || bB < .25;
+      a = kerb ? (bK >= .7 ? e2 + .35 : e2 + bK / 2) : (bB >= .7 ? e1 - .35 : e1 / 2); }
     const owner = ['pole', 'plants', 'barrier'].includes(d[2]) ? 'fixed' : (d[2] === 'vehicle' ? s.pers.vehicle : s.pers.people) ? 'persistent' : 'dynamic';
-    return { m: d[0], a: Math.max(.15, Math.min(3.7, e1 + d[1] * (e2 - e1))), k: d[2], owner, w: d[4] + d[3] }; }); }
+    return { m: d[0], a: Math.max(.1, Math.min(2.9, a)), k: d[2], owner, w: d[4] + d[3] }; }); }
 // footprint of each kind on the ground, in metres along and across; a tree blocks only at its trunk or grate
 const FOOT = { vehicle: [1.8, .7], people: [.5, .5], pole: [.3, .3], barrier: [1, .25], plants: [.5, .5] };
 const access = s => { if (NA(s.i) || !s.gN) return null; const r = s.ok / s.gN; return r >= .75 ? 'usually' : r >= .5 ? 'sometimes' : 'rarely'; };
@@ -1106,7 +1113,7 @@ function detailLeg() { const Lr = state.layers, o = [];
   if (Lr.obst === 'kind') o.push([C.ppl, 'people & stalls'], [C.veh, 'vehicles'], [C.fix, 'poles & barriers'], [C.tree, oneWk ? 'trees: trunk, canopy dashed' : 'trees (trunk)']);
   if (Lr.obst === 'owner') o.push([C.fix, 'fixed · civil works'], [C.veh, 'on most walks · enforcement'], [C.ppl, 'some walks · time-based']);
   if (Lr.obst === 'people') o.push([C.ppl, 'people & stalls']);
-  if (Lr.obst && !oneWk) o.push(['grad', 'darker = taken on more walks']);
+  if (Lr.obst && !oneWk) o.push(['grad', 'darker = taken on more walks'], ['#E8E4F0', 'faint in the white: only on walks with less room', 1]);
   if (Lr.swerve || Lr.noise) o.push([C.mus, 'a walker swerved']); if (Lr.horn || Lr.noise) o.push([C.red, 'a horn was heard']); if (Lr.reports && REPORTS.length) o.push([C.ink, '◆ a problem someone reported']);
   return o; }
 function renderLayers() { const b = state.base;
@@ -1119,7 +1126,7 @@ function renderLayers() { const b = state.base;
 const KGROUPS = [
   ['Clear width', /^clear (1\.5 m or more|0\.9–1\.5 m|under 0\.9 m)$/, l => l.replace('clear ', '').replace(' or more', '+').replace('under ', '< ')],
   ['Wheelchair fits', /usually|! sometimes|✕ rarely/, l => l.replace(/ \d\.\d m clear/, '')],
-  ['In the way', /^(people & stalls|vehicles|poles & barriers|trees.*|darker = taken on more walks)$/, l => l.replace(' & barriers', '').replace('darker = taken on more walks', 'darker = more walks')],
+  ['In the way', /^(people & stalls|vehicles|poles & barriers|trees.*|darker = taken on more walks|faint in the white.*)$/, l => l.replace(' & barriers', '').replace('darker = taken on more walks', 'darker = more walks').replace('faint in the white: only on walks with less room', 'faint in white = some walks')],
   ['Who must act', /civil works|enforcement|time-based/, l => l.split(' · ').pop()],
   ['Frontage', /^frontage: /, l => ({ 'shops and stalls at the junction': 'junction stalls', 'under the flyover, open': 'under flyover', 'open edge with trees': 'open edge' })[l.replace('frontage: ', '')] || l.replace('frontage: ', '')]];
 const KSHORT = { 'crossing, where walkers meet traffic': 'crossing', 'a horn was heard': 'horn heard', 'a walker swerved': 'walker swerved', 'one person, about 0.75 m, side by side': 'one person, 0.75 m', '✕ no one fits: step into the road': '✕ no one fits', 'blocked ahead · darker = on more walks': 'blocked ahead, darker = more walks' };
