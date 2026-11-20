@@ -426,7 +426,7 @@ const GLOSS = [
   ['BMC minimum, 1.5 m', 'The clear width asked for by the BMC Universal Footpath Policy. Green lines meet it.', /1\.5/],
   ['Wheelchair width, 0.9 m', 'An assumed minimum for one wheelchair to pass. Adjustable in Layers.', /0\.9|wheelchair/],
   ['% of walks blocked', 'The share of walks on which an obstacle narrowed this stretch. 80% = blocked on 8 walks in 10.', /blocked/],
-  ['Obstacles', 'What takes the footpath: fixed things (poles, barriers, tree trunks), vehicles, and people and stalls. Across walks, the footpath is shaded where they stood: darker means on more walks, the colour is what stood there most often. Pick one walk on the timeline to see that walk’s own obstacles.', /taken|takes|fixed|vehicles|stalls|trees|poles/],
+  ['Obstacles', 'What takes the footpath: fixed things (poles, barriers, tree trunks), vehicles, and people and stalls. Across walks, every walk’s obstacles are drawn faintly on top of each other: a spot taken on one walk barely shows, a spot taken walk after walk builds up dark. Pick one walk on the timeline to see that walk’s own obstacles.', /taken|takes|fixed|vehicles|stalls|trees|poles/],
   ['Who must act', 'Fixed things: civil works. On most walks: enforcement. Some walks only: a time-based rule.', /civil|enforcement|time-based/],
   ['Not measured', 'Hatched. The photos could not give a width here, e.g. no clear footpath edge.', /not measur/],
   ['Walkable ground (yellow outline)', 'On Street View photos: the ground the software traced as walkable. Automatic, so it can be wrong, and can include road where there is no kerb.', /yellow|outline/],
@@ -749,15 +749,16 @@ function draw() {
   if ((Lr.swerve || Lr.noise) && !R && XG < 2) W().forEach((w, k) => w.swerves.forEach(m => { const s = S[Math.min(21, Math.floor(m / 10))]; const [e1, e2] = s.g != null ? edges(s) : [1, 2], a = (e1 + e2) / 2 + ((k % 5) - 2) * .15; const p0 = P(m - .6, a - .35), p1 = P(m, a + .2), p2 = P(m + .6, a - .35);
     el('polyline', { points: pts([p0, p1, p2]), fill: 'none', stroke: C.mus, 'stroke-width': fs(1.8), 'stroke-linecap': 'round', opacity: .95 }, g); }));
   // Things in the way. One walk chosen on the timeline: that walk's own obstacles, outlined so the footpath shows through.
-  // Across walks: no stack of objects from different days, but how often each spot was taken: the footpath is cut into
-  // cells 1 m along and 0.5 m across, each shaded by the share of walks on which something stood there (darker = more
-  // walks), coloured by what stood there most often.
+  // Across walks: every walk's obstacles drawn faintly over each other, so only spots taken walk after walk build up.
   const oneW = !(state.src === 'day' || state.src === 'all'), dsF = ds.filter(o => Lr.obst !== 'people' || o.k === 'people'), colOf = o => Lr.obst === 'owner' ? OCOL[o.owner] : KCOL[o.k] || C.ink3, op = R ? .45 : 1;
-  if (!oneW && dsF.length) { const nW = Math.max(1, W().filter(w => !w.night).length), cells = new Map();
-    dsF.forEach(o => { const [fl, fa] = FOOT[o.k] || [.5, .5]; for (let m = Math.floor(o.m - fl / 2); m <= Math.floor(o.m + fl / 2); m++) for (let a = Math.floor((o.a - fa / 2) * 2); a <= Math.floor((o.a + fa / 2) * 2); a++) { if (a < 0 || a > 6 || m < 0 || m >= L) continue;
-      const key = m * 10 + a; let c = cells.get(key); if (!c) { c = { m, a, walks: new Set(), by: {} }; cells.set(key, c); } c.walks.add(o.w); const kk = Lr.obst === 'owner' ? o.owner : o.k; (c.by[kk] = c.by[kk] || new Set()).add(o.w); } });
-    cells.forEach(c => { const n = c.walks.size; if (n < 2) return; const f = n / nW, top = Object.entries(c.by).sort((p, q) => q[1].size - p[1].size)[0][0], col = Lr.obst === 'owner' ? OCOL[top] : KCOL[top] || C.ink3;
-      quad(c.m, c.m + 1.02, c.a / 2, c.a / 2 + .51, col, { opacity: ((.18 + .72 * Math.min(1, f / .6)) * op).toFixed(2) }, g); }); }
+  if (!oneW && dsF.length) { const nW = Math.max(1, W().filter(w => !w.night).length), alpha = clamp(4.5 / nW, .12, .4) * op, seen = new Set(), dk = dark ? '#000' : null;
+    // ghost: every walk's obstacles drawn faintly on top of each other; a spot taken on many walks builds up dark
+    dsF.forEach(o => { const key = `${o.w}|${o.k}|${Math.round(o.m * 2)}|${Math.round(o.a * 4)}`; if (seen.has(key)) return; seen.add(key);
+      const c = colOf(o), [x, y] = P(o.m, o.a), [x2, y2] = P(o.m + 1, o.a), ang = Math.atan2(y2 - y, x2 - x) * 180 / Math.PI, a = { fill: c, opacity: alpha.toFixed(3) };
+      if (o.k === 'vehicle') el('rect', { x: x - .9 * U, y: y - .35 * U, width: 1.8 * U, height: .7 * U, rx: .3 * U, ...a, transform: `rotate(${ang.toFixed(1)} ${x} ${y})` }, g);
+      else if (o.k === 'barrier') el('rect', { x: x - .5 * U, y: y - .12 * U, width: U, height: .24 * U, ...a, transform: `rotate(${ang.toFixed(1)} ${x} ${y})` }, g);
+      else if (o.k === 'pole') el('rect', { x: x - .14 * U, y: y - .14 * U, width: .28 * U, height: .28 * U, ...a }, g);
+      else el('circle', { cx: x, cy: y, r: (o.k === 'plants' ? .2 : .25) * U, ...a, fill: o.k === 'plants' ? '#6B5E4E' : c }, g); }); }
   if (oneW) dsF.sort((p, q) => (p.m + p.a) - (q.m + q.a)).forEach(o => {
     const c = colOf(o);
     if (state.d3) { const box = (m0, m1, a0, a1, h, f) => { poly([P(m0, a1, 0), P(m1, a1, 0), P(m1, a1, h), P(m0, a1, h)], shade(f, -.18), { opacity: op }, g); poly([P(m1, a0, 0), P(m1, a1, 0), P(m1, a1, h), P(m1, a0, h)], shade(f, -.32), { opacity: op }, g); poly([P(m0, a0, h), P(m1, a0, h), P(m1, a1, h), P(m0, a1, h)], f, { opacity: op }, g); };
