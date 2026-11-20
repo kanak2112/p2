@@ -204,7 +204,7 @@ select.walk{width:100%;border:1px solid var(--hair);border-radius:6px;padding:7p
 .mkey div{display:flex;gap:6px;align-items:center}.mkey i{width:16px;height:9px;border-radius:2px;flex:none}
 .mkey .wl{display:contents}
 .mkey .kb{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center}.mkey .kg{display:flex;flex-wrap:wrap;gap:4px 9px;align-items:center;white-space:nowrap}.mkey .kg em{font:500 10.5px var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--g3)}
-.mkey .kt{border:0;background:none;font:500 12px var(--sans);color:var(--ink);padding:1px 2px;cursor:pointer;white-space:nowrap}.mkey.min .kb{display:none}.mkey .ex{flex-basis:100%}
+.mkey .kt{border:0;background:none;font:500 12px var(--sans);color:#1A73E8;padding:1px 2px;cursor:pointer;white-space:nowrap;align-self:center}.mkey .ex{flex-basis:100%}.mkey:not(.more){align-items:center;max-width:none;width:max-content}
 .colmode .mkey{left:100px}
 .mtype{display:flex;gap:12px;align-items:center;width:100%;margin-top:12px;border:1px solid var(--hair);border-radius:10px;background:var(--card);padding:8px 10px;text-align:left}
 .mtype:hover{background:var(--paper)}
@@ -329,9 +329,8 @@ body{color:var(--g1)}
   .layb{width:40px;height:40px;border-radius:50%;border:0;color:var(--ink2)}
   .layb .th,.layb .tl{display:none}.layb .li{display:grid;place-items:center;height:100%}
   .laypop{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;max-height:78vh;border-radius:16px 16px 0 0;z-index:45;padding:18px max(16px,env(safe-area-inset-left,0px)) calc(18px + env(safe-area-inset-bottom,0px))}
-  .mkey{display:none}
-  .mkey.haswl{display:flex;left:10px;right:60px;top:112px;bottom:auto;max-width:none;padding:6px 10px}
-  .mkey.haswl .kf,.mkey.haswl .ex{display:none}.mkey.haswl .kb{gap:5px 14px}.mkey.min{right:auto}
+  .mkey{left:10px;right:auto;top:112px;bottom:auto;padding:5px 10px}.mkey,.mkey:not(.more){max-width:calc(100% - 70px);width:auto}.mkey.more{right:60px}
+  .mkey .ex{display:none}.mkey .kb{gap:4px 10px}.mkey:not(.more) .kg em{display:none}.mkey{font-size:11px;gap:8px}.mkey .kg{gap:3px 7px}.mkey div{gap:4px}.mkey i{width:12px}
   .stripc{left:10px;right:60px;bottom:calc(var(--sh,190px) + 10px);max-height:32vh}
   .tl{left:10px;right:60px;width:auto;top:112px;padding:10px 12px}
   .tlon .mkey{display:none!important}
@@ -782,6 +781,7 @@ function draw() {
   const lab = (t, x, y, at) => tx(t, x, y, { 'font-family': 'Roboto, sans-serif', 'paint-order': 'stroke', stroke: T.halo, 'stroke-width': fs(3), 'stroke-linejoin': 'round', ...at }, g);
   if (Lr.labels) ROADLAB.forEach(([t, px, py, ang]) => { const [x, y] = PW(px * SC, py * SC); let a = ang; if (state.d3) { const c = Math.cos(ang * Math.PI / 180), sn = Math.sin(ang * Math.PI / 180); a = Math.atan2(.5 * (c + sn), .866 * (c - sn)) * 180 / Math.PI; if (a > 90) a -= 180; if (a < -90) a += 180; }
     lab(t, x, y, { 'font-size': fs(12), fill: T.roadLab, 'text-anchor': 'middle', 'font-weight': 500, transform: `rotate(${a.toFixed(1)} ${x} ${y})`, 'letter-spacing': fs(.2) }); });
+  if (Lr.ctx && !state.d3) FRONT.forEach(([m0, m1, n]) => { if ((m1 - m0) * U / K < n.length * 6.5) return; const [x, y] = P((m0 + m1) / 2, -2.4); lab(n, x, y, { 'font-size': fs(11), fill: T.roadLab, 'text-anchor': 'middle', 'font-style': 'italic' }); });
   if (Lr.labels) { const [x, y] = PW(489 * SC, 266 * SC), r = 9 * K; el('path', { d: `M${x - r} ${y - r * .9}h${2 * r}v${r * 1.1}l${-r} ${r * .8}l${-r} ${-r * .8}Z`, fill: '#FDD663', stroke: '#B08400', 'stroke-width': fs(1) }, g); tx('48', x, y + r * .25, { 'font-family': 'Roboto, sans-serif', 'font-size': fs(10), 'font-weight': 700, fill: '#3C4043', 'text-anchor': 'middle' }, g); }
   if (K < 2.4 && Lr.labels) POIS.forEach(([t, px, py]) => { const [x, y] = PW(px * SC, py * SC), r = 6 * K; el('circle', { cx: x, cy: y, r, fill: T.poi, stroke: T.halo, 'stroke-width': fs(1.5) }, g); el('circle', { cx: x, cy: y, r: r * .35, fill: T.halo }, g); lab(t, x + r * 1.6, y + 4 * K, { 'font-size': fs(11.5), fill: T.poi }); });
   if (R) {
@@ -1110,11 +1110,20 @@ const BSHORT = { 'buildings, and all that takes the footpath': 'taken', 'walkabl
 function keyGroups(list) { const out = [], seen = {}; for (const e of list) { const g = KGROUPS.find(g => g[1].test(e[1])); if (!g) { out.push([null, [[e]]]); continue; }
     if (!seen[g[0]]) { seen[g[0]] = [g[0], []]; out.push(seen[g[0]]); } seen[g[0]][1].push([e, g[2](e[1])]); }
   return out.map(([h, items]) => h ? `<span class="kg"><em>${h}</em>${items.map(([e, d]) => sw(e, d)).join('')}</span>` : `<span class="kg">${sw(items[0][0], KSHORT[items[0][0][1]])}</span>`).join(''); }
-let keyMin = null;
-function renderKey() { const b = state.base, base = BLEG[b].filter(e => !/carriageway|open ground/.test(e[1])), dl = detailLeg(); if (keyMin == null) { try { keyMin = localStorage.getItem('pedmap-keymin') === '1' || (localStorage.getItem('pedmap-keymin') == null && phone()); } catch (e) { keyMin = phone(); } }
-  const k = $('mkey'); k.classList.toggle('haswl', dl.length > 0); k.classList.toggle('min', keyMin);
-  const fp = [...base, [KERBC, 'no raised kerb: width may include road']].map(e => sw(e, BSHORT[e[1]] || e[1])).join('');
-  k.innerHTML = `<button class="kt" aria-expanded="${!keyMin}" title="${keyMin ? 'Show the key' : 'Hide the key'}">Key <span aria-hidden="true">${keyMin ? '▸' : '▾'}</span></button><span class="kb"><span class="kg kf"><em>Footpath</em>${fp}</span>${dl.length ? `<span class="wl">${keyGroups(dl)}</span>` : ''}<span class="ex">${XG > 1.05 ? `Drawn ${XG.toFixed(1)}× wider · zoom in for true scale` : 'True scale'}</span></span>`; }
+// the short key shows only what the current use colours (and the no-kerb warning); "More" opens everything drawn
+const KPRIME = { walk: /^clear /, plan: /^clear /, access: /usually|! sometimes|✕ rarely/, stress: /^horns · |^swerves$/, proof: /civil works|enforcement|time-based/, act: /^(fixed things|vehicles|people & stalls)$/, cross: /^crossing|^a horn/ };
+const KHEAD = { act: 'Taken by', stress: 'On the walks', cross: 'Crossings', night: 'At night' };
+const KSH2 = { 'taken at night': 'taken', 'walkable at night': 'walkable', 'walkable by day': 'day width', 'brighter in the night photos': 'brighter', 'horns · thicker = more heard': 'horns, thicker = more', 'swerves': 'swerves', 'crossing, where walkers meet traffic': 'crossing', 'a horn was heard': 'horn heard' };
+let keyMore = false;
+function renderKey() { const b = state.base, base = BLEG[b].filter(e => !/carriageway|open ground/.test(e[1])), dl = detailLeg(), k = $('mkey'), kerb = [KERBC, 'no raised kerb: width may include road'];
+  const re = state.night ? /at night|by day|brighter/ : KPRIME[state.mode] || /^clear /;
+  let prime = [...base, ...dl].filter(e => re.test(e[1])); prime = prime.filter((e, i) => prime.findIndex(f => f[1] === e[1]) === i);
+  const hd = KHEAD[state.night ? 'night' : state.mode]; const short = !prime.length ? '' : hd ? `<span class="kg"><em>${hd}</em>${prime.map(e => sw(e, KSH2[e[1]] || e[1])).join('')}</span>` : keyGroups(prime);
+  const fp = [...base, kerb].map(e => sw(e, BSHORT[e[1]] || e[1])).join('');
+  k.classList.toggle('more', keyMore); k.classList.remove('min', 'haswl');
+  k.innerHTML = keyMore
+    ? `<button class="kt" aria-expanded="true">Less</button><span class="kb"><span class="kg"><em>Footpath</em>${fp}</span>${dl.length ? keyGroups(dl) : ''}<span class="ex">${XG > 1.05 ? `Drawn ${XG.toFixed(1)}× wider · zoom in for true scale` : 'True scale'}</span></span>`
+    : `<span class="kb">${short}<span class="kg">${sw(kerb, 'no kerb')}</span></span><button class="kt" aria-expanded="false" title="Everything drawn on the map">More</button>`; }
 function openLayers(on) { const p = $('laypop'); p.hidden = !on; $('lay').classList.toggle('open', !!on); $('laybg').hidden = !on || !phone(); $('layB').setAttribute('aria-expanded', on); }
 $('layB').onclick = e => { e.stopPropagation(); openLayers($('laypop').hidden); };
 $('laybg').onclick = () => openLayers(false);
@@ -1165,7 +1174,7 @@ const TOUR = [
   ['#map', 'Reading the footpath', 'Drawn three times wider than real. White: room to walk. Black: what takes it. The kerb line: teal meets 1.5 m, amber is tight, red means stepping into the road.', tourHome],
   ['.sheet', 'One stretch', 'Tap any stretch: how wide it is, how often it is blocked, and a photo from every walk.', () => { tourHome(); openPlace(8, true); }],
   ['#chips', 'For walkers, for planners', 'Walkers: walking, wheelchair, noise. Planners: evidence, who must act, crossings, plan a change.', tourHome],
-  ['#mkey', 'Key and glossary', 'Click anything in the key, or the ? button, to see what a word means.', tourHome],
+  ['#mkey', 'Key and glossary', 'The key shows only what this use colours. More shows everything drawn. Tap any entry, or ?, for what a word means.', tourHome],
   [null, 'Explore', 'The tour is in the menu if you need it again.', tourHome]];
 let tourI = -1;
 function startTour() { tourI = 0; let t = $('tour'); if (!t) { t = document.createElement('div'); t.id = 'tour'; t.className = 'tour'; t.setAttribute('role', 'dialog'); t.setAttribute('aria-modal', 'true'); document.body.appendChild(t);
@@ -1188,7 +1197,7 @@ $('zin').innerHTML = I.plus; $('zout').innerHTML = I.minus; $('fit').innerHTML =
 $('zin').onclick = () => zoomAt(.6, ...mapCentre()); $('zout').onclick = () => zoomAt(1.6, ...mapCentre());
 $('fit').onclick = () => fly(state.route ? rangeBox(state.route.m0, state.route.m1) : fitBox());
 $('glB').onclick = () => state.view === 'gloss' ? setView('home') : openGloss();
-$('mkey').addEventListener('click', e => { if (e.target.closest('.kt')) { keyMin = !keyMin; try { localStorage.setItem('pedmap-keymin', keyMin ? '1' : '0'); } catch (_) {} renderKey(); return; } const k = e.target.closest('[data-gl]'); if (k) openGloss(k.dataset.gl); });
+$('mkey').addEventListener('click', e => { if (e.target.closest('.kt')) { keyMore = !keyMore; renderKey(); return; } const k = e.target.closest('[data-gl]'); if (k) openGloss(k.dataset.gl); });
 $('mkey').addEventListener('keydown', e => { const k = e.target.closest('[data-gl]'); if (k && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openGloss(k.dataset.gl); } });
 $('svB').onclick = () => openSV(state.nav ? Math.min(21, Math.floor(state.nav.m / 10)) : state.sel != null ? state.sel : Math.min(21, Math.max(0, Math.floor(toWorld(...mapCentre())[0] / 10))), false);
 function set3(on) { if (on === state.d3) return; setTimeout(renderLayers); const m = clamp(toWorld(...mapCentre())[0], 0, L), w = curWm(); state.d3 = on; $('d2').setAttribute('aria-pressed', !on); $('d3').setAttribute('aria-pressed', on); draw(); setVB(w > 180 ? fitBox() : focusBox(m, w), true); }
