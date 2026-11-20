@@ -425,7 +425,7 @@ const GLOSS = [
   ['BMC minimum, 1.5 m', 'The clear width asked for by the BMC Universal Footpath Policy. Green lines meet it.', /1\.5/],
   ['Wheelchair width, 0.9 m', 'An assumed minimum for one wheelchair to pass. Adjustable in Layers.', /0\.9|wheelchair/],
   ['% of walks blocked', 'The share of walks on which an obstacle narrowed this stretch. 80% = blocked on 8 walks in 10.', /blocked/],
-  ['Obstacles', 'What takes the footpath, in black or by colour: fixed things (poles, barriers), vehicles, and people and stalls.', /taken|takes|fixed|vehicles|stalls|trees|poles/],
+  ['Obstacles', 'What takes the footpath: fixed things (poles, barriers, tree trunks), vehicles, and people and stalls. Across walks, the footpath is shaded where they stood: darker means on more walks, the colour is what stood there most often. Pick one walk on the timeline to see that walk’s own obstacles.', /taken|takes|fixed|vehicles|stalls|trees|poles/],
   ['Who must act', 'Fixed things: civil works. On most walks: enforcement. Some walks only: a time-based rule.', /civil|enforcement|time-based/],
   ['Not measured', 'Hatched. The photos could not give a width here, e.g. no clear footpath edge.', /not measur/],
   ['Walkable ground (yellow outline)', 'On Street View photos: the ground the software traced as walkable. Automatic, so it can be wrong, and can include road where there is no kerb.', /yellow|outline/],
@@ -499,7 +499,9 @@ function stats() {
 function dets(S) { const ws = W().filter(w => !w.night);
   return D.dets.filter(d => ws.some(w => w.day === d[4] && (w.dir === 'forward') === (d[3] === 'f'))).map(d => { const i = Math.min(21, Math.floor(d[0] / 10)), s = S[i], [e1, e2] = s.g != null ? edges(s) : [0, 3];
     const owner = ['pole', 'plants', 'barrier'].includes(d[2]) ? 'fixed' : (d[2] === 'vehicle' ? s.pers.vehicle : s.pers.people) ? 'persistent' : 'dynamic';
-    return { m: d[0], a: Math.max(.15, Math.min(3.7, e1 + d[1] * (e2 - e1))), k: d[2], owner }; }); }
+    return { m: d[0], a: Math.max(.15, Math.min(3.7, e1 + d[1] * (e2 - e1))), k: d[2], owner, w: d[4] + d[3] }; }); }
+// footprint of each kind on the ground, in metres along and across; a tree blocks only at its trunk or grate
+const FOOT = { vehicle: [1.8, .7], people: [.5, .5], pole: [.3, .3], barrier: [1, .25], plants: [.5, .5] };
 const access = s => { if (NA(s.i) || !s.gN) return null; const r = s.ok / s.gN; return r >= .75 ? 'usually' : r >= .5 ? 'sometimes' : 'rarely'; };
 const ACC = { usually: C.teal, sometimes: C.amb, rarely: C.red };
 const wcol = g => g == null ? null : g >= 1.5 ? C.teal : g >= .9 ? C.amb : C.red;
@@ -745,16 +747,26 @@ function draw() {
   if (Lr.horn || Lr.noise) W().forEach((w, k) => w.honks.forEach(m => { const [x, y] = P(m, 4 + (k % 6) * .45); el('circle', { cx: x, cy: y, r: (.22 * U).toFixed(2), fill: C.red, opacity: .7 }, g); }));
   if ((Lr.swerve || Lr.noise) && !R && XG < 2) W().forEach((w, k) => w.swerves.forEach(m => { const s = S[Math.min(21, Math.floor(m / 10))]; const [e1, e2] = s.g != null ? edges(s) : [1, 2], a = (e1 + e2) / 2 + ((k % 5) - 2) * .15; const p0 = P(m - .6, a - .35), p1 = P(m, a + .2), p2 = P(m + .6, a - .35);
     el('polyline', { points: pts([p0, p1, p2]), fill: 'none', stroke: C.mus, 'stroke-width': fs(1.8), 'stroke-linecap': 'round', opacity: .95 }, g); }));
-  ds.filter(o => Lr.obst !== 'people' || o.k === 'people').sort((p, q) => (p.m + p.a) - (q.m + q.a)).forEach(o => {
-    const c = Lr.obst === 'owner' ? OCOL[o.owner] : KCOL[o.k] || C.ink3, op = R ? .45 : 1;
+  // Things in the way. One walk chosen on the timeline: that walk's own obstacles, outlined so the footpath shows through.
+  // Across walks: no stack of objects from different days, but how often each spot was taken: the footpath is cut into
+  // cells 1 m along and 0.5 m across, each shaded by the share of walks on which something stood there (darker = more
+  // walks), coloured by what stood there most often.
+  const oneW = !(state.src === 'day' || state.src === 'all'), dsF = ds.filter(o => Lr.obst !== 'people' || o.k === 'people'), colOf = o => Lr.obst === 'owner' ? OCOL[o.owner] : KCOL[o.k] || C.ink3, op = R ? .45 : 1;
+  if (!oneW && dsF.length) { const nW = Math.max(1, W().filter(w => !w.night).length), cells = new Map();
+    dsF.forEach(o => { const [fl, fa] = FOOT[o.k] || [.5, .5]; for (let m = Math.floor(o.m - fl / 2); m <= Math.floor(o.m + fl / 2); m++) for (let a = Math.floor((o.a - fa / 2) * 2); a <= Math.floor((o.a + fa / 2) * 2); a++) { if (a < 0 || a > 6 || m < 0 || m >= L) continue;
+      const key = m * 10 + a; let c = cells.get(key); if (!c) { c = { m, a, walks: new Set(), by: {} }; cells.set(key, c); } c.walks.add(o.w); const kk = Lr.obst === 'owner' ? o.owner : o.k; (c.by[kk] = c.by[kk] || new Set()).add(o.w); } });
+    cells.forEach(c => { const n = c.walks.size; if (n < 2) return; const f = n / nW, top = Object.entries(c.by).sort((p, q) => q[1].size - p[1].size)[0][0], col = Lr.obst === 'owner' ? OCOL[top] : KCOL[top] || C.ink3;
+      quad(c.m, c.m + 1.02, c.a / 2, c.a / 2 + .51, col, { opacity: ((.18 + .72 * Math.min(1, f / .6)) * op).toFixed(2) }, g); }); }
+  if (oneW) dsF.sort((p, q) => (p.m + p.a) - (q.m + q.a)).forEach(o => {
+    const c = colOf(o);
     if (state.d3) { const box = (m0, m1, a0, a1, h, f) => { poly([P(m0, a1, 0), P(m1, a1, 0), P(m1, a1, h), P(m0, a1, h)], shade(f, -.18), { opacity: op }, g); poly([P(m1, a0, 0), P(m1, a1, 0), P(m1, a1, h), P(m1, a0, h)], shade(f, -.32), { opacity: op }, g); poly([P(m0, a0, h), P(m1, a0, h), P(m1, a1, h), P(m0, a1, h)], f, { opacity: op }, g); };
-      if (o.k === 'vehicle') box(o.m - .9, o.m + .9, o.a - .35, o.a + .35, 1.05, c); else if (o.k === 'people') box(o.m - .2, o.m + .2, o.a - .2, o.a + .2, 1.7, c); else if (o.k === 'plants') { box(o.m - .1, o.m + .1, o.a - .1, o.a + .1, 2.2, '#6B5E4E'); const q = P(o.m, o.a, 3); el('ellipse', { cx: q[0], cy: q[1], rx: 1.1 * U, ry: .75 * U, fill: C.tree, opacity: .85 * op }, g); } else if (o.k === 'barrier') box(o.m - .5, o.m + .5, o.a - .12, o.a + .12, .9, c); else box(o.m - .08, o.m + .08, o.a - .08, o.a + .08, 3.6, c); return; }
-    const [x, y] = P(o.m, o.a), st = B === 'nolli' || B === 'ghost' || dark ? '#000' : '#fff', [x2, y2] = P(o.m + 1, o.a), ang = Math.atan2(y2 - y, x2 - x) * 180 / Math.PI;
-    if (o.k === 'vehicle') el('rect', { x: x - .9 * U, y: y - .35 * U, width: 1.8 * U, height: .7 * U, rx: .3 * U, fill: c, opacity: .85 * op, stroke: st, 'stroke-width': fs(.6), transform: `rotate(${ang.toFixed(1)} ${x} ${y})` }, g);
-    else if (o.k === 'plants') el('circle', { cx: x, cy: y, r: .9 * U, fill: c, opacity: .55 * op }, g);
-    else if (o.k === 'barrier') el('rect', { x: x - .5 * U, y: y - .12 * U, width: U, height: .24 * U, fill: c, opacity: .9 * op, transform: `rotate(${ang.toFixed(1)} ${x} ${y})` }, g);
+      if (o.k === 'vehicle') box(o.m - .9, o.m + .9, o.a - .35, o.a + .35, 1.05, c); else if (o.k === 'people') box(o.m - .2, o.m + .2, o.a - .2, o.a + .2, 1.7, c); else if (o.k === 'plants') { box(o.m - .1, o.m + .1, o.a - .1, o.a + .1, 2.2, '#6B5E4E'); const q = P(o.m, o.a, 3); el('ellipse', { cx: q[0], cy: q[1], rx: 1.1 * U, ry: .75 * U, fill: 'none', stroke: C.tree, 'stroke-width': fs(1.2), 'stroke-dasharray': `${fs(3)} ${fs(2)}` }, g); } else if (o.k === 'barrier') box(o.m - .5, o.m + .5, o.a - .12, o.a + .12, .9, c); else box(o.m - .08, o.m + .08, o.a - .08, o.a + .08, 3.6, c); return; }
+    const [x, y] = P(o.m, o.a), [x2, y2] = P(o.m + 1, o.a), ang = Math.atan2(y2 - y, x2 - x) * 180 / Math.PI, sty = { fill: c, 'fill-opacity': (.35 * op).toFixed(2), stroke: c, 'stroke-width': fs(1.4), opacity: op };
+    if (o.k === 'vehicle') el('rect', { x: x - .9 * U, y: y - .35 * U, width: 1.8 * U, height: .7 * U, rx: .3 * U, ...sty, transform: `rotate(${ang.toFixed(1)} ${x} ${y})` }, g);
+    else if (o.k === 'plants') { el('circle', { cx: x, cy: y, r: .9 * U, fill: 'none', stroke: C.tree, 'stroke-width': fs(1), 'stroke-dasharray': `${fs(3)} ${fs(2)}`, opacity: .8 * op }, g); el('circle', { cx: x, cy: y, r: .2 * U, fill: '#6B5E4E', opacity: op }, g); }
+    else if (o.k === 'barrier') el('rect', { x: x - .5 * U, y: y - .12 * U, width: U, height: .24 * U, ...sty, 'fill-opacity': .8 * op, transform: `rotate(${ang.toFixed(1)} ${x} ${y})` }, g);
     else if (o.k === 'pole') el('rect', { x: x - .14 * U, y: y - .14 * U, width: .28 * U, height: .28 * U, fill: c, opacity: op }, g);
-    else el('circle', { cx: x, cy: y, r: .26 * U, fill: c, opacity: .85 * op, stroke: st, 'stroke-width': fs(.5) }, g); });
+    else el('circle', { cx: x, cy: y, r: .25 * U, ...sty }, g); });
   if (planning) { if (state.plan.show === 'after') channelPath(S.map(s => s.g != null ? { g: s.g, top: s.top } : null)).forEach(d => el('path', { d, fill: 'none', stroke: '#D93025', 'stroke-width': fs(1.6), 'stroke-dasharray': `${fs(4)} ${fs(3)}` }, g));
     pItems.forEach((it, k) => { const pre = it === state.pdrag, gi = el('g', { 'data-pi': pre ? -1 : k, style: pre ? '' : 'cursor:grab' }, g); quad(it.m0, it.m1, -.1, 3.2, pre ? 'rgba(26,115,232,.12)' : 'rgba(26,115,232,.06)', { stroke: '#1A73E8', 'stroke-width': fs(pre ? 2.5 : 1.5), 'stroke-dasharray': pre ? `${fs(5)} ${fs(3)}` : 'none' }, gi); quad(it.m0, it.m1, 3.2, 3.2 + 7 * K / (U * XG), '#1A73E8', {}, gi); const [x, y] = P((it.m0 + it.m1) / 2, 3.2 + 26 * K / (U * XG)); tx(PT[it.t][0], x, y, { 'font-family': 'Roboto, sans-serif', 'font-size': fs(11.5), 'font-weight': 500, fill: '#1967D2', 'text-anchor': 'middle', stroke: '#fff', 'stroke-width': fs(3), 'paint-order': 'stroke' }, gi); }); }
   if (state.sel != null && !R) quad(state.sel * 10, state.sel * 10 + 10, -.15, 3.2, 'rgba(242,184,0,.14)', { stroke: C.yel, 'stroke-width': fs(3), 'stroke-linejoin': 'round' }, g);
@@ -1078,7 +1090,7 @@ function renderChips() { const a = audOf(state.mode);
   $('chips').innerHTML = `<span class="aud" role="group" aria-label="Who is this for">${Object.entries(AUD).map(([k, A]) => `<button data-aud="${k}" aria-pressed="${k === a}">${A.n}</button>`).join('')}</span>` + AUD[a].m.map(k => `<button class="chip" data-m="${k}" aria-pressed="${k === state.mode}">${I[MODES[k].ic]}${MODES[k].n}</button>`).join(''); }
 $('chips').addEventListener('click', e => { const a = e.target.closest('[data-aud]'); if (a) { if (audOf(state.mode) !== a.dataset.aud) setMode(AUD[a.dataset.aud].m[0]); return; } const b = e.target.closest('[data-m]'); if (!b) return; setMode(b.dataset.m); });
 function setMode(k) { state.mode = k; state.base = state.night ? 'daynight' : MODES[k].B; state.layers = { ...ALWAYS, ...MODES[k].L, labels: state.layers.labels ?? 1 }; if (k !== 'proof' && state.src !== 'day') { state.src = 'day'; STATS = stats(); } renderChips(); renderLayers(); renderTL(); if (k === 'plan') { setView('plan', { snap: 'half' }); return; } if (state.view === 'plan') setView('home', { keepScroll: true }); else if (state.view === 'home') setView('home', { keepScroll: true }); else { if (state.view === 'place') setView('place', { keepScroll: true }); draw(); } }
-const sw = ([c, l, b], disp) => `<div><i style="background:${c === 'url' ? 'repeating-linear-gradient(45deg,var(--paper) 0 3px,var(--hair) 3px 5px)' : c === 'dash' ? 'repeating-linear-gradient(90deg,#1E2A45 0 4px,#fff 4px 7px)' : c === 'glow' ? 'radial-gradient(circle,#FFD27A 0,#FFB84D 45%,#1E2A45 100%)' : c};${b ? 'box-shadow:inset 0 0 0 1px var(--hair)' : ''}"></i>${esc(disp || l)}</div>`.replace('<div>', gtip(l) ? `<div class="kk" role="button" tabindex="0" data-gl="${esc(gtip(l).split(':')[0])}" title="${esc(gtip(l))} · click for the glossary">` : '<div>');
+const sw = ([c, l, b], disp) => `<div><i style="background:${c === 'url' ? 'repeating-linear-gradient(45deg,var(--paper) 0 3px,var(--hair) 3px 5px)' : c === 'dash' ? 'repeating-linear-gradient(90deg,#1E2A45 0 4px,#fff 4px 7px)' : c === 'glow' ? 'radial-gradient(circle,#FFD27A 0,#FFB84D 45%,#1E2A45 100%)' : c === 'grad' ? 'linear-gradient(90deg,rgba(60,64,67,.18),rgba(60,64,67,.9))' : c};${b ? 'box-shadow:inset 0 0 0 1px var(--hair)' : ''}"></i>${esc(disp || l)}</div>`.replace('<div>', gtip(l) ? `<div class="kk" role="button" tabindex="0" data-gl="${esc(gtip(l).split(':')[0])}" title="${esc(gtip(l))} · click for the glossary">` : '<div>');
 function detailLeg() { const Lr = state.layers, o = [];
   if (Lr.prox) o.push(['#1A73E8', 'one person, about 0.75 m, side by side'], ['#D93025', '✕ no one fits: step into the road']);
   if (Lr.view) o.push(['#3C4043', 'blocked ahead · darker = on more walks']);
@@ -1088,9 +1100,11 @@ function detailLeg() { const Lr = state.layers, o = [];
   if (Lr.cross) o.push(['#FFFFFF', 'crossing, where walkers meet traffic', 1]);
   if (Lr.line) o.push([C.teal, 'clear 1.5 m or more'], [C.amb, 'clear 0.9–1.5 m'], [C.red, 'clear under 0.9 m']);
   if (Lr.through) o.push([C.teal, `✓ usually ${state.thr.toFixed(1)} m clear`], [C.amb, '! sometimes'], [C.red, '✕ rarely']);
-  if (Lr.obst === 'kind') o.push([C.ppl, 'people & stalls'], [C.veh, 'vehicles'], [C.fix, 'poles & barriers'], [C.tree, 'trees']);
+  const oneWk = !(state.src === 'day' || state.src === 'all');
+  if (Lr.obst === 'kind') o.push([C.ppl, 'people & stalls'], [C.veh, 'vehicles'], [C.fix, 'poles & barriers'], [C.tree, oneWk ? 'trees: trunk, canopy dashed' : 'trees (trunk)']);
   if (Lr.obst === 'owner') o.push([C.fix, 'fixed · civil works'], [C.veh, 'on most walks · enforcement'], [C.ppl, 'some walks · time-based']);
   if (Lr.obst === 'people') o.push([C.ppl, 'people & stalls']);
+  if (Lr.obst && !oneWk) o.push(['grad', 'darker = taken on more walks']);
   if (Lr.swerve || Lr.noise) o.push([C.mus, 'a walker swerved']); if (Lr.horn || Lr.noise) o.push([C.red, 'a horn was heard']); if (Lr.reports && REPORTS.length) o.push([C.ink, '◆ a problem someone reported']);
   return o; }
 function renderLayers() { const b = state.base;
@@ -1103,7 +1117,7 @@ function renderLayers() { const b = state.base;
 const KGROUPS = [
   ['Clear width', /^clear (1\.5 m or more|0\.9–1\.5 m|under 0\.9 m)$/, l => l.replace('clear ', '').replace(' or more', '+').replace('under ', '< ')],
   ['Wheelchair fits', /usually|! sometimes|✕ rarely/, l => l.replace(/ \d\.\d m clear/, '')],
-  ['In the way', /^(people & stalls|vehicles|poles & barriers|trees)$/, l => l.replace(' & barriers', '')],
+  ['In the way', /^(people & stalls|vehicles|poles & barriers|trees.*|darker = taken on more walks)$/, l => l.replace(' & barriers', '').replace('darker = taken on more walks', 'darker = more walks')],
   ['Who must act', /civil works|enforcement|time-based/, l => l.split(' · ').pop()],
   ['Frontage', /^frontage: /, l => ({ 'shops and stalls at the junction': 'junction stalls', 'under the flyover, open': 'under flyover', 'open edge with trees': 'open edge' })[l.replace('frontage: ', '')] || l.replace('frontage: ', '')]];
 const KSHORT = { 'crossing, where walkers meet traffic': 'crossing', 'a horn was heard': 'horn heard', 'a walker swerved': 'walker swerved', 'one person, about 0.75 m, side by side': 'one person, 0.75 m', '✕ no one fits: step into the road': '✕ no one fits', 'blocked ahead · darker = on more walks': 'blocked ahead, darker = more walks' };
